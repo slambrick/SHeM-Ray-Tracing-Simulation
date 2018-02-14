@@ -8,8 +8,8 @@
  * simulation.
  */
 
-#ifndef SMALL_FUNCTIONS_H
-#define SMALL_FUNCTIONS_H
+#ifndef HEADER_FILE
+#define HEADER_FILE
 
 
 /* Prints out a 3 element 1D double array passed as an argument. */

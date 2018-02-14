@@ -1,0 +1,28 @@
+Parameters and results from simulation
+
+This is a rectangular scan.
+
+An example sample with some topology.
+
+The scaling used for the sample model = 0.20000000
+Date = 13-02-2018
+Minimum distance from the pinholePlate to the sample (mm) = 2.12100000
+Scattering label for the sample = 1.00000000
+Ray seperation (mm) = 0.00010000
+Maximum number of allowed Scatters = 20
+Pinhole radius (mm) = 0.00500000
+Pinhole center (x, z) (mm) = -2.121000, 0.000000
+Total number of rays per pixel = 55092
+Number of rays per point in the pinhole = 40
+Relative size of the effuse beam = 0
+Level of accuracy of pinhole plate = low
+Was an attempt made to model the spread of the pinhole beam? = no
+The FWHM of the density of the pinhole beam = 0.00350000
+Number of pixels in x = 71
+Number of pixels in z = 81
+Seperation of pixels (mm) = 0.00500000
+Range of x values (min, max) (mm) = -0.150000, 0.200000
+Range of z values (min, max) (mm) = -0.200000, 0.200000
+Total number of pixels = 5751
+Estimate for the time taken (s) = 4125.79136764
+Time the core simulation took (s) = 2887.67282800

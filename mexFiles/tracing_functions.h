@@ -18,7 +18,7 @@
  * ray does not intersect the sphere. 
  */
 int scatterSphere(double e[3], double d[3], double normal[3], double *t, 
-    double scan_pos_x, scan_pos_z, double dist_to_sample, double sphere_r);
+    double scan_pos_x, double scan_pos_z, double dist_to_sample, double sphere_r);
 
 /* 
  * Finds the intersection, normal at the point of intersection and distance to 

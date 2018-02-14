@@ -9,8 +9,8 @@
  * Simulation.
  */
 
-#ifndef TRACING_FUNCTIONS_H
-#define TRACING_FUNCTIONS_H
+#ifndef HEADER_FILE
+#define HEADER_FILE
 
 /* 
  * Finds the intersection, normal at the point of intersection and distance to 

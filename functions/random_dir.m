@@ -1,9 +1,9 @@
+function ray_dir = random_dir(n_rays, alpha)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function ray_dir = random_dir(n_rays, alpha)
+%
 % random_dir2.m
 %
 % Generates random directions for the rays using p.d.f. of alpha*x^2. For use in

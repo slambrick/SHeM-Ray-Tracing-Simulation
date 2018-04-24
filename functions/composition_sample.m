@@ -1,9 +1,9 @@
+function sample_surface = composition_sample(dist_to_sample)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function sample_surface = composition_sample(dist_to_sample)
+%
 % This function constructs a flat sample with four regions with different
 % ratios of specular to diffuse scattering. Returns a TriagSurface object. The
 % four regions of the sample have 1%, 2%, 3%, 4% specular scattering while the

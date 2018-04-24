@@ -1,12 +1,12 @@
-% Copyright (c) 2018, Sam Lambrick.
-% All rights reserved.
-% This file is part of the SHeM Ray Tracing Simulation, subject to the 
-% GNU/GPL-3.0-or-later.
-
 function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
         ray_pos, ray_dir, raster_movement, maxScatter, pinhole_surface, ...
         effuse_dir, effuse_pos, make_sphere, dist_to_sample, sphere_r, diffuse, ...
         thePath)
+% Copyright (c) 2018, Sam Lambrick.
+% All rights reserved.
+% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% GNU/GPL-3.0-or-later.
+%
 % rectangularScan.m
 %
 % Generates a 2d simulated image. Utilises a parfor loop to parellise the code.

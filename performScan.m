@@ -322,6 +322,7 @@ switch typeScan
             effuse_pos, make_sphere, dist_to_sample, sphere_r, diffuse);
         
         histRays = simulationData.scatteringHistogram(maxScatter);
+        saveas(gcf, [thePath '/scatteringHistogram.eps'], 'epsc');
     otherwise
         error(['Need to specify a valid type of scan: "line", ', ...
                '"rectangular", "single pixel"']);

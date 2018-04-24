@@ -78,7 +78,7 @@ classdef SinglePixelInfo
                 fprintf(fid, FORMAT, obj.final_positions(i_, 1));
                 fprintf(fid, FORMAT, obj.final_positions(i_, 2));
                 fprintf(fid, FORMAT, obj.final_positions(i_, 3));
-                fprintf(fid, '%i\n', obj.number_of_scatters_pe_ray(i_));
+                fprintf(fid, '%i\n', obj.number_of_scatters_per_ray(i_));
             end
             
             fclose(fid);

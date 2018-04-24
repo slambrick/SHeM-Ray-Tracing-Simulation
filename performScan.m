@@ -169,7 +169,7 @@ if strcmp(typeScan, 'rectangular') && ...
     error('Impossible range for a 2D scan specified.')
 end
 
-if (~strcmp(sample_type, 'flat') && ~strcmp(sample_type, 'flat') ...
+if (~strcmp(sample_type, 'flat') && ~strcmp(sample_type, 'sphere') ...
         && (~strcmp(sample_type, 'custom')))
     error('Specify a correct type of sample.')
 end
@@ -178,7 +178,7 @@ if (strcmp(sample_type, 'sphere') && sphere_r <= 0)
     error('The sphere must have a positive non-zero radius.')
 end
 
-if ((strcmp(sample_type, 'sphere') || strcmp(sample_type, 'flate')) && ...
+if ((strcmp(sample_type, 'sphere') || strcmp(sample_type, 'flat')) && ...
         square_size <=0)
     error('The size of the flat square must be positive and non-zero.');
 end

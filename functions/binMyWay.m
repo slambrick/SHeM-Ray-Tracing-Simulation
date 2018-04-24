@@ -1,9 +1,9 @@
+function histRay = binMyWay(numScattersRay, maxScatter)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function histRay = binMyWay(numScattersRay, maxScatter)
+% 
 % Wrapper function for binMyWayMex.
 % Produces a histogram of the provided array. Giving the number of occurances of
 % each number. Goes upto the provided maximum value. Should be used only for the

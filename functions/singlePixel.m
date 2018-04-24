@@ -1,11 +1,11 @@
+function simulationData = singlePixel(sample_surface, ray_pos, ray_dir, ...
+    maxScatter, thePath, save_to_text, pinhole_surface, effuse_dir, ...
+    effuse_pos, make_sphere, dist_to_sample, sphere_r, diffuse)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function simulationData = singlePixel(sample_surface, ray_pos, ray_dir, ...
-    maxScatter, thePath, save_to_text, pinhole_surface, effuse_dir, ...
-    effuse_pos, make_sphere, dist_to_sample, sphere_r, diffuse)
+%
 % singlePixel.m
 %
 % INPUTS:

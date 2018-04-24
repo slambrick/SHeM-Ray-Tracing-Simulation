@@ -1,9 +1,9 @@
+function sample_surface = flatSample(size, dist, diffuse)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function sample_surface = flatSample(size, dist, diffuse)
+%
 % Creates a flat square sample the desired size and distance from the pinhole 
 % Plate constructs it at the desired level of diffuse scattering. Used either
 % by itself or in conjunction with an analytic sphere.

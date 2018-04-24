@@ -1,9 +1,9 @@
+function outData = combineRectangle(data1, data2)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function outData = combineRectangle(data1, data2)
+%
 % Takes two RectangleInfo objects and combines them. The two simulations
 % need to be identical in every respect (the function will test this, but the
 % tests are not exhaustive), with the exception of the number of pixels. Used

@@ -1,11 +1,11 @@
+function [ray_pos, ray_dir, n_rays] = create_starting_rays(ray_sep, ...
+        pinhole_c, pinhole_r, multipl, plot_starting_positions, ...
+        thePath, FWHM_density, plot_density)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function [ray_pos, ray_dir, n_rays] = create_starting_rays(ray_sep, ...
-        pinhole_c, pinhole_r, multipl, plot_starting_positions, ...
-        thePath, FWHM_density, plot_density)
+%
 % create_starting_rays(...)
 %
 % Generates a distribution of ray positions and directions across the pinhole

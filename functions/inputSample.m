@@ -1,10 +1,10 @@
+function sample_surface = inputSample(fname, diffuseLvl, plate_dist, scale, ...
+                                      dontMeddle)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function sample_surface = inputSample(fname, diffuseLvl, plate_dist, scale, ...
-                                      dontMeddle)
+%
 % Inputs a traingulated surface from a binary .stl file and puts the data into
 % a TriagSurface object. The object may then be used as the sample surface in
 % the SHeM simulation. 

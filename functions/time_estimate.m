@@ -1,9 +1,9 @@
+function t = time_estimate(n_rays, n_effuse, sample_surface, pixels)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function t = time_estimate(n_rays, n_effuse, sample_surface, pixels)
+%
 % Estimates the time the simulation will take and prints that out the the
 % terminal. 
 %

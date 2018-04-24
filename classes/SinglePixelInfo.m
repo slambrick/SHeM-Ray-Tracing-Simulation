@@ -100,7 +100,7 @@ classdef SinglePixelInfo
             histRays = binMyWayMex(obj.number_of_scatters_per_ray, mmax);
             figure
             xs = 1:mmax;
-            bar(xs, histRays);
+            bar(xs, histRays, 1);
             xlabel('Number of sample scattering events');
             ylabel('Number of rays detected');
         end

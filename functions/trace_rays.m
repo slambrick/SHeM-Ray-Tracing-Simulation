@@ -1,13 +1,13 @@
-% Copyright (c) 2018, Sam Lambrick.
-% All rights reserved.
-% This file is part of the SHeM Ray Tracing Simulation, subject to the 
-% GNU/GPL-3.0-or-later.
-
 function [cntr, killed, diedNaturally, final_pos, final_dir, ...
           numScattersRayDetect, numScattersRay] = ...
     trace_rays(ray_pos, ray_dir, sample_surface, maxScatter, ...
                pinhole_surface, scan_pos_x, scan_pos_z, make_sphere, ...
                dist_to_sample, sphere_r, diffuse)
+% Copyright (c) 2018, Sam Lambrick.
+% All rights reserved.
+% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% GNU/GPL-3.0-or-later.
+%
 % [cntr, killed, diedNaturally, final_pos, final_dir, middle, second_last, 
 %       numScattersRayDetect, numScattersRay] = 
 %   trace_rays(ray_pos, ray_dir, sample_surface, theDetector, maxScatter)

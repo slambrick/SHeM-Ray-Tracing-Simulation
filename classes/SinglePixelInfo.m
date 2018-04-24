@@ -69,7 +69,7 @@ classdef SinglePixelInfo
             
             fprintf(fid, '%s\n', 'Direction x, Direction y, Direction z, Position x, Position y, Position z, Number of scatters');
             
-            n = length(numScattersRayDetect);
+            n = length(obj.number_of_scatters_per_ray);
             FORMAT = '%2.8f, ';
             for i_=1:n
                 fprintf(fid, FORMAT, obj.final_directions(i_, 1));

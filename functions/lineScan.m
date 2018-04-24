@@ -1,12 +1,12 @@
-% Copyright (c) 2018, Sam Lambrick.
-% All rights reserved.
-% This file is part of the SHeM Ray Tracing Simulation, subject to the 
-% GNU/GPL-3.0-or-later.
-
 function line_scan_info = lineScan(sample_surface, scan_range, ray_pos, ...
     ray_dir, raster_movement, maxScatter, thePath, Direction, Save_text, ...
     pinhole_surface, effuse_dir, effuse_pos, make_sphere, dist_to_sample, ...
     sphere_r, diffuse)
+% Copyright (c) 2018, Sam Lambrick.
+% All rights reserved.
+% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% GNU/GPL-3.0-or-later.
+%
 % lineScan.m
 %
 % INPUTS:

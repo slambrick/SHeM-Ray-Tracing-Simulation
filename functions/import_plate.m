@@ -1,9 +1,9 @@
+function pinhole_surface = import_plate(accuracy)
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
-
-function pinhole_surface = import_plate(accuracy)
+%
 % Imports the pinhole plate for the Cambridge SHeM and puts it in the right
 % position. Only written for that specific pinhole plate, the 3D model of any
 % new plate would have to be consulted before it is adapted for that, though

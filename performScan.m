@@ -321,7 +321,7 @@ switch typeScan
             maxScatter, thePath, save_to_text, pinhole_surface, effuse_dir, ...
             effuse_pos, make_sphere, dist_to_sample, sphere_r, diffuse);
         
-        simulationData.histRays
+        histRays = simulationData.scatteringHistogram(maxScatter);
     otherwise
         error(['Need to specify a valid type of scan: "line", ', ...
                '"rectangular", "single pixel"']);

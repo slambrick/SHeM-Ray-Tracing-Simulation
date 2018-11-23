@@ -13,8 +13,7 @@ traiangulated mesh. The brightness of a pixel is determined by the number of
 rays that reach a surface that is defined to be the detector.
 
 To gain a fuller understanding of the principles of the simulation and its
-capabilities it is recommended to read the the associated publication (coming
-soon... ). The design of the Cambridge SHeM is detailed in
+capabilities it is recommended to read the the associated publication: [A ray tracing method for predicting contrast in neutral atom beam imaging](https://doi.org/10.1016/j.micron.2018.06.014). The design of the Cambridge SHeM is detailed in
 [A design for a pinhole scanning helium microscope](https://doi.org/10.1016/j.nimb.2014.06.028)
 M. Barr *et al.* 2014.
 
@@ -277,6 +276,5 @@ of this repository or at <https://www.gnu.org/licenses/gpl.html>.
 ## Credit
 
 It is requested that if use of this work results in an academic publication that
-it is appropriately cited and that if the ideas that led to the creation of the
-simulation are used then the associated publication should be cited (coming
-soon... ).
+it is appropriately cited (DOI: [10.5281/zenodo.1228079](https://doi.org/10.5281/zenodo.1228079)) and that if the ideas that led to the creation of the
+simulation are used then the associated publication should be cited: [A ray tracing method for predicting contrast in neutral atom beam imaging](https://doi.org/10.1016/j.micron.2018.06.014).

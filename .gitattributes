@@ -1,0 +1,2 @@
+# Reclassify *.h files as C not Objective-C
+*.h linguist-language=C

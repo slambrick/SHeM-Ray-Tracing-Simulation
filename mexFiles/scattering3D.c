@@ -397,6 +397,13 @@ int backWallScatter(Ray3D *the_ray, BackWall wallPlate,  double *min_dist,
     return(0);
 }
 
+/* Scatter off a back wall with n detectors */
+int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
+        double nearest_inter[3], double nearest_n[3], int *meets, int *tri_hit, 
+        int *which_surface){
+    return(0);
+}
+
 /* Scatter off an abstract hemisphere */
 /* TODO: fix this!! */
 int abstractScatter(Ray3D *the_ray, AbstractHemi detector, double *min_dist, 

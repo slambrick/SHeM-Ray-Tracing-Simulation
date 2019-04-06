@@ -44,6 +44,10 @@ typedef struct _backWall {
     int plate_represent;    /* Should the plate be scattered off, 0 or 1 */
 } BackWall;
 
+typedef struct _nBackWall{
+    int surf_index;
+} NBackWall;
+
 /* Information on the abstract hemisphere model of detection */
 typedef struct _abstractHemi {
     int surf_index;

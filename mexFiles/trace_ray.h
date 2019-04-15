@@ -23,4 +23,8 @@ int32_t trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, in
         Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere,
         double backWall[], gsl_rng *my_rng);
 
+int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
+        int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere
+        gsl_rng *my_rng);
+
 #endif

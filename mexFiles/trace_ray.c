@@ -114,7 +114,7 @@ int32_t trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
         return(0);
 }
 
-int32_t trace_ray_sumpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
+int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
         int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere
         gsl_rng *my_rng) {
     int n_allScatters;

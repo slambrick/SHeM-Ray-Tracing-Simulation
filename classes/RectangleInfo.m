@@ -48,12 +48,13 @@ classdef RectangleInfo
     
     methods
         function obj = RectangleInfo(counters, num_killed, sample_surface, ...
-                                     xrange, zrange, raster_movment_x, raster_movment_z, ...
-                                     rays_per_pixel, time, t_estimate, cntr_effuse)
+                xrange, zrange, raster_movment_x, raster_movment_z, ...
+                rays_per_pixel, time, t_estimate, cntr_effuse, n_detector)
             if nargin ~= 11
                 error('Wrong numer of input arguments');
             else
                 obj.counters = counters;
+                obj.n_detector = n_detector;
                 obj.num_killed = num_killed;
                 obj.nx_pixels = length(xrange(1):raster_movment_x:xrange(2));
                 obj.nz_pixels = length(zrange(1):raster_movment_z:zrange(2));
@@ -63,10 +64,12 @@ classdef RectangleInfo
                 obj.zrange = zrange;
                 obj.raster_movment = raster_movment_z;
                 cntrSum = sum(counters,1);
-                cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
-                for i_=1:obj.nx_pixels
-                    for j_=1:obj.nz_pixels
-                        cntrSum2(j_,i_) = cntrSum(1, j_, i_);
+                cntrSum2 = zeros(obj.n_detector, obj.nz_pixels, obj.nx_pixels);
+                for k=1:obj.n_detector
+                    for i_=1:obj.nx_pixels
+                        for j_=1:obj.nz_pixels
+                            cntrSum2(k, j_, i_) = cntrSum(1, k, j_, i_);
+                        end
                     end
                 end
                 obj.cntrSum = cntrSum2 + cntr_effuse;

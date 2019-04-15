@@ -20,7 +20,7 @@ typeScan = 'line';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = true;
+recompile = false;
 
 %% Beam/source parameters %%
 
@@ -92,9 +92,9 @@ circle_plate_r = 4;
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
 % direction ('z'). The apert0ure is always centred on the x-axis and is displaced
 % by the specified amount.
-aperture_axis_1 = sqrt(2);
-aperture_axis_2 = 1;
-aperture_c = [2.35, 0];
+n_detectors = 3;
+aperture_axes = [1, 1, 1, 1, 1, 1];
+aperture_c = [2, 0, 1, 2, 1, -2];
 plate_represent = 1;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -109,10 +109,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.1;
-raster_movment2D_z = 0.1;
-xrange = [-1, 1];
-zrange = [-1, 1];
+raster_movment2D_x = 0.02*sqrt(2);
+raster_movment2D_z = 0.02;
+xrange = [-0.3, 0.3];
+zrange = [-0.2, 0.2];
 
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
@@ -138,7 +138,7 @@ sample_description = 'A sample with some example topography.';
 %  'sphere' - An anlaytic sphere on a flat square surface (need to specify 
 %             square_size and sphere_r)
 %  'custom' - Uses the CAD model provided in the .stl file
-sample_type = 'flat';
+sample_type = 'sphere';
 
 % The level of diffuse scattering for the sample, between 0 and 1, 2 gives a 
 % uniform distribution. This is used for both triangulated surface and the
@@ -149,7 +149,7 @@ diffuse = [1, 90*pi/180];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 2.121;
+dist_to_sample = 2;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.05;
@@ -365,8 +365,7 @@ switch pinhole_model
 
         % List with the information about the plate in
         % TODO: use a struct rather than a cell array.
-        thePlate = {plate_represent, circle_plate_r, [aperture_axis_1, ...
-            aperture_axis_2], aperture_c};
+        thePlate = {plate_represent, circle_plate_r, aperture_axes, aperture_c};
         apertureAbstract = {aperture_theta, aperture_phi, aperture_half_cone};
 end
     
@@ -401,6 +400,12 @@ if recompile
         mexFiles/scattering3D.c          mexFiles/scattering_processes3D.c ...
         mexFiles/ray_tracing_structs3D.c mexFiles/small_functions3D.c ...
         mexFiles/common_helpers.c
+    mex -lgsl -lm -lgslcblas CFLAGS="\$CFLAGS -Wall" ...
+        mexFiles/tracingMultiGenMex.c   mexFiles/trace_ray.c ...
+        mexFiles/tracing_functions.c ...
+        mexFiles/scattering3D.c          mexFiles/scattering_processes3D.c ...
+        mexFiles/ray_tracing_structs3D.c mexFiles/small_functions3D.c ...
+        mexFiles/common_helpers.c
 
     %mex -lgsl -lgslcblas x mexFiles/noPlateMex.c ...
     %    mexFiles/tracing_functions.c mexFiles/small_functions.c
@@ -421,7 +426,7 @@ switch typeScan
             direct_beam, raster_movment2D_x, raster_movment2D_z, ...
             maxScatter, pinhole_surface, effuse_beam, ...
             dist_to_sample, sphere, thePath, pinhole_model, ...
-            thePlate, apertureAbstract, ray_model);
+            thePlate, apertureAbstract, ray_model, n_detectors);
     case 'line'
         % For a line scan
         % TODO: update with the new lower level functions

@@ -55,7 +55,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double *source_parameters;
     
     /* Declare the output variables */
-    int cntr_detected;       /* The number of detected rays */
+    int32_t *cntr_detected;       /* The number of detected rays */
     int killed;              /* The number of killed rays */
     int32_t *numScattersRay; /* The number of sample scatters that each
                               * ray has undergone */
@@ -67,7 +67,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Declare structs */
     Surface3D Sample;
-    BackWall Plate;
+    NBackWall Plate;
     AnalytSphere the_sphere;
     
     /*******************************************************************************/
@@ -208,6 +208,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Plate.scattering_parameters = 0;
     Plate.plate_represent = plate_represent;
     Plate.surf_index = plate_index;
+    Plate.n_detect = n_detector;
     
     /* Put information on the analytic sphere into a struct */
     the_sphere = set_up_sphere(make_sphere, scan_pos_x, scan_pos_z, dist_to_sample,
@@ -218,7 +219,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
      * They need to be created as the transpose of what we want because of the 
      * difference in indexing between MATLAB and C.
      */
-    plhs[0] = mxCreateNumericMatrix(1, n_detector, mxINT32_CLASS, mxREAL);
+    plhs[0] = mxCreateNumericMatrix(1, n_detector*maxScatters, mxINT32_CLASS, mxREAL);
     plhs[2] = mxCreateNumericMatrix(1, maxScatters, mxINT32_CLASS, mxREAL);
     
     /* Pointers to the output matrices so we may change them*/
@@ -245,8 +246,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
          * Add the number of scattering events the ray has undergon to the
          * histogram. But only if it is detected.
          */
-        if (detected)
-            numScattersRay[the_ray.nScatters - 1]++;
+        if (detected) {
+            int ind;
+            ind = (n_detector - 1)*maxScatters + (the_ray.nScatters - 1);
+            numScattersRay[ind]++;
+        }
     }
     
     /**************************************************************************/

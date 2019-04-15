@@ -1,3 +1,4 @@
+ 
 % traceSimpleGen.m
 %
 % Copyright (c) 2019, Sam Lambrick.
@@ -28,7 +29,7 @@
 %  diedNaturally  - The number of rays that did not get detected naturally
 %  numScattersRay - Histogram of the number of scattering events detected rays
 %                   have undergone
-function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleGen(varargin)
+function [cntr, killed, diedNaturally, numScattersRay] = traceMultiGen(varargin)
     
     for i_=1:2:length(varargin)
         switch varargin{i_}
@@ -90,14 +91,15 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleGen(varargin
     
     % The calling of the mex function, ... here be dragons ... don't meddle
     [cntr, killed, numScattersRay]  = ...
-        tracingSimpleGenMex(VT, FT, NT, CT, PT, maxScatter, ...
+        tracingMultiGenMex(VT, FT, NT, CT, PT, maxScatter, ...
                    scan_pos_x, scan_pos_z, sphere{1}, dist_to_sample, sphere{2}, ...
-                   sphere{3},  sphere{4}, plate{1}, plate{3}, plate{4}, ...
-                   plate{5}, n_rays, source_model, source_parameters);
+                   sphere{3},  sphere{4}, plate{1}, plate{2}, plate{3}, ...
+                   plate{4}, plate{5}, n_rays, source_model, source_parameters);
     
+    numScattersRay = reshape(numScattersRay, maxScatter, plate{2});
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.
-    diedNaturally = n_rays - cntr - killed;
+    diedNaturally = n_rays - sum(cntr) - killed;
 end
 

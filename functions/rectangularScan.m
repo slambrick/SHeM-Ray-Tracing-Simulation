@@ -19,7 +19,8 @@
 function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
         direct_beam, raster_movement_x, raster_movement_z, maxScatter, ...
         pinhole_surface, effuse_beam, dist_to_sample, ...
-        sphere, thePath, pinhole_model, thePlate, apertureAbstract, ray_model)
+        sphere, thePath, pinhole_model, thePlate, apertureAbstract, ray_model, ...
+        n_detector)
     
     % The sample positions
     sample_xs = xrange(1):raster_movement_x:xrange(2);
@@ -31,8 +32,8 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     sample_surface.moveBy([xrange(1) 0 zrange(1)]);
     
     % Create the variables for output data
-    counters = zeros(maxScatter, nz_pixels, nx_pixels);
-    effuse_counters = zeros(nz_pixels, nx_pixels);
+    counters = zeros(maxScatter, n_detector, nz_pixels, nx_pixels);
+    effuse_counters = zeros(n_detector, nz_pixels, nx_pixels);
     num_killed = zeros(nz_pixels, nx_pixels);
     
     % Produce a time estimage for the simulation and print it out. This is
@@ -78,7 +79,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     plate_represent = pinhole_model;
     
     % TODO: make this parallel in Octave
-    parfor i_=1:N_pixels
+    for i_=1:N_pixels
         
         % The x and z pixels we are on
         z_pix = mod(i_, nz_pixels) - 1;
@@ -126,9 +127,9 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
             waitbar(i_/N_pixels, h);
         end
         
-        counters(:,i_) = numScattersRay;
+        counters(:,:,i_) = numScattersRay;
         num_killed(i_) = killed;
-        effuse_counters(i_) = effuse_cntr;
+        effuse_counters(:,i_) = effuse_cntr;
         
         % Delete the surface object for this iteration
         if ~isOctave
@@ -157,7 +158,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     % Generate output square scan class
     square_scan_info = RectangleInfo(counters, num_killed, sample_surface, ...
         xrange, zrange, raster_movement_x, raster_movement_z, direct_beam{1}, t, ...
-        t_estimate, effuse_counters);
+        t_estimate, effuse_counters, n_detector);
     
     % Draw and save images
     % All the images are saved giving maximum contrast in the images:
@@ -165,7 +166,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     %  white - pixel with the most counts
     % Only draws them if there is a GUI.
     if progressBar
-        square_scan_info.produceImages(thePath);
+        %square_scan_info.produceImages(thePath);
     end
 end
 

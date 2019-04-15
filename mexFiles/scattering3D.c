@@ -400,7 +400,121 @@ int backWallScatter(Ray3D *the_ray, BackWall wallPlate,  double *min_dist,
 /* Scatter off a back wall with n detectors */
 int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
         double nearest_inter[3], double nearest_n[3], int *meets, int *tri_hit, 
-        int *which_surface){
+        int *which_surface) {
+    double *d;
+    d = the_ray->direction;
+    
+    /* 
+     * If the ray is travelling in the positive y-direction then it may hit
+     * the 'back wall'.
+     */
+    if (d[1] > 0) {
+        double alpha, x;
+        double wall_hit[3];
+        double backNormal[3];
+        double test;
+        double r, x_disp, y_disp;
+        double *e;
+        BackWall n_plate;
+        int which_aperture;
+        int i;
+        
+        e = the_ray->position;
+        
+        backNormal[0] = 0;
+        backNormal[1] = -1;
+        backNormal[2] = 0;
+        
+        /* 
+         * Find where the ray hits the back wall, the back wall is defined to be
+         * in the plane y = 0 
+         */
+        alpha = (0 - e[1])/d[1];
+        
+        /* 
+         * If the distance to the back wall is longer than a previous 
+         * intersection then the ray does not hit the back wall. 
+         */
+        if (alpha*alpha > *min_dist) {
+            return(0);
+        }
+        
+        /* propogate the ray to that position */
+        propogate(e, d, alpha, wall_hit);
+        
+        for (i = 0; i < wallPlate.n_detect; i++) {
+            BackWall plate;
+            plate = get_nth_aperture(i, wallPlate);
+            /* 
+            * See if it goes into the aperture. The aperture is defined by a centre, 
+            * along with two axes. Uses the formula for an ellipse:
+            *     (x-h)^2/a^2 + (z-k)^2/b^2 = 1
+            * where h and k are the x and z positions of the centre of the ellipse.
+            */
+            x_disp = wall_hit[0] - plate.aperture_c[0];
+            y_disp = wall_hit[2] - plate.aperture_c[1];
+            test = x_disp*x_disp/
+                (0.25*plate.aperture_axes[0]*plate.aperture_axes[0]) +
+                y_disp*y_disp/
+                (0.25*plate.aperture_axes[1]*plate.aperture_axes[1]);
+        
+            if (test < 1) {
+                which_aperture = i;
+                break;
+            }
+        }
+        
+        if (test < 1) {
+            /* Goes into detector aperture */
+            /* Check that the distance to the aperture is the smallest so far */
+            if (alpha*alpha < *min_dist) {
+                *min_dist = alpha*alpha;
+                
+                /* -1 is not being on a triangle */
+                *tri_hit = -1;
+                nearest_n[0] = backNormal[0];
+                nearest_n[1] = backNormal[1];
+                nearest_n[2] = backNormal[2];
+                nearest_inter[0] = wall_hit[0];
+                nearest_inter[1] = wall_hit[1];
+                nearest_inter[2] = wall_hit[2];
+                
+                *which_surface = wallPlate.surf_index;
+                
+                /* 
+                 * If we have gone into the aperture then the ray is both dead and
+                 * should be counted. 
+                 */
+                return(which_aperture);
+            }
+        }
+        
+        /* If the position is not then we can scatter of the back wall if that is
+         * what is wanted */
+        x = wall_hit[0]*wall_hit[0] + wall_hit[2]*wall_hit[2];
+        r = wallPlate.circle_plate_r;
+        if ((x <=  r*r) && wallPlate.plate_represent) {
+            /* We have met a surface */
+            *meets = 1;
+            
+            if (alpha*alpha < *min_dist) {
+                *min_dist = alpha*alpha;
+                
+                /* -1 is not being on a triangle */
+                *tri_hit = -1;
+                nearest_n[0] = backNormal[0];
+                nearest_n[1] = backNormal[1];
+                nearest_n[2] = backNormal[2];
+                nearest_inter[0] = wall_hit[0];
+                nearest_inter[1] = wall_hit[1];
+                nearest_inter[2] = wall_hit[2];
+                
+                *which_surface = wallPlate.surf_index;
+            }
+        }
+    }
+    
+    /* The ray has not been detected. */
     return(0);
 }
 

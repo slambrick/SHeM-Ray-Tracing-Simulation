@@ -45,6 +45,13 @@ int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *Sample, BackWall Plate,
         AnalytSphere the_sphere, gsl_rng *my_rng);
 
 /* 
+ * Scatters a ray off a triangulated surface, and a simple model of the pinhole plate
+ * with multiple detector apertures.
+ */
+int scatterSimpleMulti(Ray3D *the_ray, Surface3D *Sample, NBackWall Plate, 
+        AnalytSphere the_sphere, gsl_rng *my_rng, int *detector);
+
+/* 
  * Scatters the ray off a sample and a attempts dtection on a hemisphere with abstract
  * detector apertures placed on it.
  */

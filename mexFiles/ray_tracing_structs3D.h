@@ -44,8 +44,16 @@ typedef struct _backWall {
     int plate_represent;    /* Should the plate be scattered off, 0 or 1 */
 } BackWall;
 
+/* Contains information on a whole series of back wall apertures */
 typedef struct _nBackWall{
     int surf_index;
+    int n_detect;
+    double *aperture_c;
+    double *aperture_axes;
+    double circle_plate_r;
+    double composition;
+    double scattering_parameters;
+    int plate_represent;
 } NBackWall;
 
 /* Information on the abstract hemisphere model of detection */
@@ -122,6 +130,9 @@ void get_scatters(Rays3D *all_rays, int32_t *nScatters);
 
 /* Prints information on a ray to the terminal */
 void print_ray(Ray3D *the_ray);
+
+/* Gets information on one aperure out of a series of apertures */
+BackWall get_nth_aperture(int n, NBackWall allApertures);
 
 /* Creates a ray in the pinhole */
 Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max, 

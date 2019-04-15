@@ -421,6 +421,113 @@ int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *Sample, BackWall Plate,
 }
 
 
+/*
+ * Scatters the ray off a sample triangulated surface and a simple flat model of
+ * the pinhole plate.
+ * 
+ * INPUTS:
+
+ * 
+ * OUTPUTS:
+ *  dead - int 2, 1, 0, declaring whether the ray is dead. 1 is dead (has not 
+ *         met), 0 is alive (has met), n is detected from the detector (n-1)
+ */
+int scatterSimpleMulti(Ray3D *the_ray, Surface3D *Sample, NBackWall Plate, 
+        AnalytSphere the_sphere, gsl_rng *my_rng, int *detector) {
+    
+    double min_dist;
+    int meets;
+    int tri_hit;
+    double nearest_n[3];
+    double nearest_inter[3];
+    int meets_sphere;
+    int which_surface;
+    int detected;
+    
+    /* tri_hit stores which triangle has been hit */
+    tri_hit = -1;
+    
+    /* By default no detection */
+    detected = 0;
+    
+    /* which_surface stores which surface has been hit */
+    which_surface = -1;
+    
+    /* By default don't hit the sphere */
+    meets_sphere = 0;
+    
+    /* meets is 0/1 have we met a triangle */
+    meets = 0;
+    
+    /* Much further than any of the triangles */
+    min_dist = 10.0e10; 
+
+    /* Try to scatter off the sample */
+    scatterTriag(the_ray, Sample, &min_dist, nearest_inter, nearest_n, &meets,
+        &tri_hit, &which_surface);
+    
+    /* Should the sphere be represented */
+    if (the_sphere.make_sphere) {
+        /* Check the sphere if we are not on it */
+        if (the_ray->on_surface != the_sphere.surf_index) {
+            meets_sphere = scatterSphere(the_ray, the_sphere, &min_dist, 
+                nearest_inter, nearest_n, &tri_hit, &which_surface);
+        }
+    }
+    
+    /* Try to scatter off the simple pinhole plate */
+    if (the_ray->on_surface != Plate.surf_index) {
+        detected =  multiBackWall(the_ray, Plate, &min_dist, nearest_inter,
+            nearest_n, &meets, &tri_hit, &which_surface) ;
+    }
+
+    /* If we are detected */
+    if (detected) {
+        /* Update the ray position but not the direction */
+        update_ray_position(the_ray, nearest_inter);
+        
+        *detector = detected;
+        
+        /* 2 = detected ray */
+        return 2;
+    }
+    
+    /* Update position/direction etc. */
+    if (meets || meets_sphere) {
+        double composition;
+        double scattering_parameters;
+        
+        if (meets_sphere) {
+            /* sphere is defined to be uniform */
+            composition = the_sphere.composition;
+            scattering_parameters = the_sphere.scattering_parameters;
+        } else {
+            if (which_surface == Plate.surf_index) {
+                composition = Plate.composition;
+                scattering_parameters = Plate.scattering_parameters;
+            } else {
+                composition = Sample->composition[tri_hit];
+                scattering_parameters = Sample->scattering_parameters[tri_hit];
+            }
+        }
+        
+        /* Find the new direction and update position*/
+        new_direction3D(the_ray, nearest_n, composition, my_rng, 
+            scattering_parameters);
+        update_ray_position(the_ray, nearest_inter);
+        
+        /* Updates the current triangle and surface the ray is on */
+        the_ray->on_element = tri_hit;
+        the_ray->on_surface = which_surface;
+    } else {
+        /* Ray be dead */
+        meets = 0;
+    }
+    
+    return(!(meets || meets_sphere));
+}
+
+
 /* 
  * Detects on a hemisphere centered on the sample plane, the aperture is 
  * specified by two angles and a half cone angle.

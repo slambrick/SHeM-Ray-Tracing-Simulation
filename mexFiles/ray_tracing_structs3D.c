@@ -229,6 +229,33 @@ void print_ray(Ray3D *the_ray) {
 }
 
 /* 
+ * Gets the centre and the axes of the nth detector in the series and returns
+ * a struct to that aperture.
+ */
+BackWall get_nth_aperture(int n, NBackWall allApertures) {
+    BackWall this_wall;
+    
+    /* The x and z coordinate of the apertures */
+    this_wall.aperture_c[0] = allApertures.aperture_c[2*n - 2];
+    this_wall.aperture_c[1] = allApertures.aperture_c[2*n - 1];
+    
+    /* The axes of the aperture */
+    this_wall.aperture_axes[0] = allApertures.aperture_axes[2*n - 2];
+    this_wall.aperture_axes[1] = allApertures.aperture_axes[2*n - 2];
+    
+    /* Other parameters */
+    this_wall.surf_index = allApertures.surf_index;
+    this_wall.circle_plate_r = allApertures.circle_plate_r;
+    this_wall.composition = allApertures.composition;
+    this_wall.scattering_parameters = allApertures.scattering_parameters;
+    
+    /* We do not represent the plate to be scattered off, just the apertures */
+    this_wall.plate_represent = 0;
+    
+    return(this_wall);
+}
+
+/* 
  * Creates a ray according to a simple model of the source, can use either a uniform
  * or Gaussian virtual source.
  * 

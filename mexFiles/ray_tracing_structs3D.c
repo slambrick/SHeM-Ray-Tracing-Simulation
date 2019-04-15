@@ -234,14 +234,19 @@ void print_ray(Ray3D *the_ray) {
  */
 BackWall get_nth_aperture(int n, NBackWall allApertures) {
     BackWall this_wall;
+    double aperture_c[2];
+    double aperture_axes[2];
+    
+    this_wall.aperture_c = aperture_c;
+    this_wall.aperture_axes = aperture_axes;
     
     /* The x and z coordinate of the apertures */
-    this_wall.aperture_c[0] = allApertures.aperture_c[2*n - 2];
-    this_wall.aperture_c[1] = allApertures.aperture_c[2*n - 1];
-    
+    this_wall.aperture_c[0] = allApertures.aperture_c[2*n];
+    this_wall.aperture_c[1] = allApertures.aperture_c[2*n + 1];
+        
     /* The axes of the aperture */
-    this_wall.aperture_axes[0] = allApertures.aperture_axes[2*n - 2];
-    this_wall.aperture_axes[1] = allApertures.aperture_axes[2*n - 2];
+    this_wall.aperture_axes[0] = allApertures.aperture_axes[2*n];
+    this_wall.aperture_axes[1] = allApertures.aperture_axes[2*n + 1];
     
     /* Other parameters */
     this_wall.surf_index = allApertures.surf_index;

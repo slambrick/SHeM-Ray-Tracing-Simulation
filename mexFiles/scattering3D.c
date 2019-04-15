@@ -397,7 +397,10 @@ int backWallScatter(Ray3D *the_ray, BackWall wallPlate,  double *min_dist,
     return(0);
 }
 
-/* Scatter off a back wall with n detectors */
+/* 
+ * Scatter off a back wall with n detectors. Returns 0 if the ray is not
+ * detected or the index of the detector is has entered.
+ */
 int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
         double nearest_inter[3], double nearest_n[3], int *meets, int *tri_hit, 
         int *which_surface) {
@@ -457,7 +460,7 @@ int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
                 (0.25*plate.aperture_axes[0]*plate.aperture_axes[0]) +
                 y_disp*y_disp/
                 (0.25*plate.aperture_axes[1]*plate.aperture_axes[1]);
-        
+
             if (test < 1) {
                 which_aperture = i;
                 break;
@@ -485,7 +488,7 @@ int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
                  * If we have gone into the aperture then the ray is both dead and
                  * should be counted. 
                  */
-                return(which_aperture);
+                return(which_aperture + 1);
             }
         }
         

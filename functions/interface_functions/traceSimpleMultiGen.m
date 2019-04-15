@@ -29,7 +29,7 @@
 %  diedNaturally  - The number of rays that did not get detected naturally
 %  numScattersRay - Histogram of the number of scattering events detected rays
 %                   have undergone
-function [cntr, killed, diedNaturally, numScattersRay] = traceMultiGen(varargin)
+function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(varargin)
     
     for i_=1:2:length(varargin)
         switch varargin{i_}

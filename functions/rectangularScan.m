@@ -53,15 +53,16 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
         if isempty(gcp('nocreate'))
-            parpool 
+            %parpool 
         end
     end
     
+    progressBar = false;
     % Generates a graphical progress bar if we are using the MATLAB GUI.
     if ~isOctave
-        progressBar = feature('ShowFigureWindows');
+        %progressBar = feature('ShowFigureWindows');
     else
-        progressBar = true;
+        %progressBar = true;
     end
     if progressBar && ~isOctave
         ppm = ParforProgMon('Simulation progress: ', N_pixels);
@@ -107,15 +108,15 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
         scan_pos = [scan_pos_x, scan_pos_z];
         
         % Direct beam
-        [cnt, killed, numScattersRay] = switch_plate('plate_represent', ...
-            plate_represent 'sample', this_surface, 'maxScatter', maxScatter, ...
+        [~, killed, numScattersRay] = switch_plate('plate_represent', ...
+            plate_represent, 'sample', this_surface, 'maxScatter', maxScatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, 'scan_pos', ...
             scan_pos, 'dist', dist_to_sample, 'sphere', sphere, 'ray_model', ...
             ray_model, 'which_beam', direct_beam{5}, 'beam', direct_beam);
         
         % Effuse beam
         [effuse_cntr, ~, ~] = switch_plate('plate_represent', ...
-            plate_represent 'sample', this_surface, 'maxScatter', maxScatter, ...
+            plate_represent, 'sample', this_surface, 'maxScatter', maxScatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, 'scan_pos', ...
             scan_pos, 'dist', dist_to_sample, 'sphere', sphere, 'ray_model', ...
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
@@ -129,7 +130,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
         
         counters(:,:,i_) = numScattersRay;
         num_killed(i_) = killed;
-        effuse_counters(:,i_) = effuse_cntr;
+        effuse_counters(:,i_) = effuse_cntr';
         
         % Delete the surface object for this iteration
         if ~isOctave

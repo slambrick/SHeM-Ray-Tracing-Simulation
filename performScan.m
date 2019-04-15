@@ -16,11 +16,11 @@ clear
 maxScatter = 10;
 
 % Type of scan 'line', 'rectangular', or 'single pixel'
-typeScan = 'line';
+typeScan = 'rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = false;
+recompile = true;
 
 %% Beam/source parameters %%
 
@@ -32,7 +32,7 @@ pinhole_c = [-2.121, 0, 0];
 pinhole_r = 0.0025;
 
 % Number of rays to use and the width of the source
-n_rays = 1000;
+n_rays = 10000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.05/100); 
@@ -76,10 +76,11 @@ effuse_beam = {n_effuse, pinhole_c, pinhole_r, cosine_n};
 %                proabability through the detector cone
 %  'circle'    - Use the detector aperture and model the pinhole plate as a
 %                circle
+%  'N circle'  -
 %  'new'       - TODO
 %  'new_micro' - TODO
 %  'abstract'  - TODO
-pinhole_model = 'circle';
+pinhole_model = 'N circle';
 
 % In the case of the predefined CAD model, specify the accuraccy of the
 % triangulation, 'low', 'medium', or 'high' (use 'low').
@@ -95,7 +96,7 @@ circle_plate_r = 4;
 n_detectors = 3;
 aperture_axes = [1, 1, 1, 1, 1, 1];
 aperture_c = [2, 0, 1, 2, 1, -2];
-plate_represent = 1;
+plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
 % detector aperture and the half cone angle of its extent. Note that the
@@ -234,7 +235,7 @@ end
 
 %% Paths to functions
 addpath('stlread', 'functions', 'functions/interface_functions', 'classes', ...
-        'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9');
+        'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', 'functions/standard_samples');
 
 %% Path for simulation results
 
@@ -365,7 +366,7 @@ switch pinhole_model
 
         % List with the information about the plate in
         % TODO: use a struct rather than a cell array.
-        thePlate = {plate_represent, circle_plate_r, aperture_axes, aperture_c};
+        thePlate = {plate_represent, n_detectors, circle_plate_r, aperture_axes, aperture_c};
         apertureAbstract = {aperture_theta, aperture_phi, aperture_half_cone};
 end
     

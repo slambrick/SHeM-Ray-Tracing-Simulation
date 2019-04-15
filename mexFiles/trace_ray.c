@@ -116,10 +116,9 @@ int32_t trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
 
 int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
         int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere,
-        gsl_rng *my_rng) {
+        gsl_rng *my_rng, int *detector) {
     int n_allScatters;
     int dead;
-    int detector;
         
     /* 
      * The total number of scattering events undergone (sample and pinhole 
@@ -180,7 +179,7 @@ int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected,
         
         /* Try to scatter of both surfaces. */
         dead = scatterSimpleMulti(the_ray, &Sample, Plate, the_sphere, my_rng, 
-            &detector);
+            detector);
 
         /******************************************************************/
         /* Update counters */
@@ -188,7 +187,7 @@ int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected,
         switch (dead) {
             case 2:
                 /* Detected */
-                cntr_detected[detector] += 1;
+                cntr_detected[*detector - 1] += 1;
                 break;
             case 1:
                 /* Did not hit a surface or get detected */

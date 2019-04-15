@@ -64,6 +64,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int i;
     gsl_rng *my_rng;
     int sample_index, sphere_index, plate_index;
+    int detector;
     
     /* Declare structs */
     Surface3D Sample;
@@ -182,12 +183,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /**************************************************************************/
     
-    /* 
-     * Number of rays that enter the detector and those that go into the detector
-     * after a single scatter 
-     */
-    cntr_detected = 0;
-    
     /* Number of rays that are killed as they have scattered too many times */
     killed = 0;
     
@@ -219,8 +214,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
      * They need to be created as the transpose of what we want because of the 
      * difference in indexing between MATLAB and C.
      */
-    plhs[0] = mxCreateNumericMatrix(1, n_detector*maxScatters, mxINT32_CLASS, mxREAL);
-    plhs[2] = mxCreateNumericMatrix(1, maxScatters, mxINT32_CLASS, mxREAL);
+    plhs[0] = mxCreateNumericMatrix(1, n_detector, mxINT32_CLASS, mxREAL);
+    plhs[2] = mxCreateNumericMatrix(1, n_detector*maxScatters, mxINT32_CLASS, mxREAL);
     
     /* Pointers to the output matrices so we may change them*/
     cntr_detected = (int32_t*)mxGetData(plhs[0]);
@@ -239,8 +234,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
             source_parameters[3], source_parameters[4], source_model, my_rng, 
             source_parameters[5]);
         
-        detected = trace_ray_simpleMulti(&the_ray, &killed, &cntr_detected,
-            maxScatters, Sample, Plate, the_sphere, my_rng);
+        detected = trace_ray_simpleMulti(&the_ray, &killed, cntr_detected,
+            maxScatters, Sample, Plate, the_sphere, my_rng, &detector);
                 
         /* 
          * Add the number of scattering events the ray has undergon to the
@@ -248,7 +243,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
          */
         if (detected) {
             int ind;
-            ind = (n_detector - 1)*maxScatters + (the_ray.nScatters - 1);
+            ind = (detector - 1)*maxScatters + (the_ray.nScatters - 1);
             numScattersRay[ind]++;
         }
     }

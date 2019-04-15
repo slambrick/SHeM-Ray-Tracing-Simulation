@@ -31,6 +31,7 @@ classdef RectangleInfo
 
     properties %(SetAccess = immutable)
         counters;
+        n_detector;
         cntrSum;
         counter_effusive;
         num_killed;
@@ -50,7 +51,7 @@ classdef RectangleInfo
         function obj = RectangleInfo(counters, num_killed, sample_surface, ...
                 xrange, zrange, raster_movment_x, raster_movment_z, ...
                 rays_per_pixel, time, t_estimate, cntr_effuse, n_detector)
-            if nargin ~= 11
+            if nargin ~= 12
                 error('Wrong numer of input arguments');
             else
                 obj.counters = counters;

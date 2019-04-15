@@ -56,6 +56,11 @@ function t = time_estimate(varargin)
             ct_direct = 1.4962e-07/5;
             ct_effuse = 1.7794e-07/5;
             ct_plate = 0;
+        case 'N circle'
+            % TODO: update
+            ct_direct = 1.4962e-07/5;
+            ct_effuse = 1.7794e-07/5;
+            ct_plate = 0;
         case 'abstract'
             % TODO
         otherwise

@@ -478,7 +478,7 @@ int scatterSimpleMulti(Ray3D *the_ray, Surface3D *Sample, NBackWall Plate,
     /* Try to scatter off the simple pinhole plate */
     if (the_ray->on_surface != Plate.surf_index) {
         detected =  multiBackWall(the_ray, Plate, &min_dist, nearest_inter,
-            nearest_n, &meets, &tri_hit, &which_surface) ;
+            nearest_n, &meets, &tri_hit, &which_surface);
     }
 
     /* If we are detected */

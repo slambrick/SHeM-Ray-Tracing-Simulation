@@ -79,7 +79,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     plate_represent = pinhole_model;
     
     % TODO: make this parallel in Octave
-    for i_=1:N_pixels
+    parfor i_=1:N_pixels
         
         % The x and z pixels we are on
         z_pix = mod(i_, nz_pixels) - 1;

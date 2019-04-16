@@ -42,7 +42,8 @@ classdef RectangleInfo
         sample_surface;
         xrange;
         zrange;
-        raster_movment;
+        raster_movment_x;
+        raster_movment_z;
         time;
         time_estimate;
     end % End properties
@@ -54,7 +55,6 @@ classdef RectangleInfo
             if nargin ~= 12
                 error('Wrong numer of input arguments');
             else
-                obj.counters = counters;
                 obj.n_detector = n_detector;
                 obj.num_killed = num_killed;
                 obj.nx_pixels = length(xrange(1):raster_movment_x:xrange(2));
@@ -63,7 +63,12 @@ classdef RectangleInfo
                 obj.sample_surface = sample_surface;
                 obj.xrange = xrange;
                 obj.zrange = zrange;
-                obj.raster_movment = raster_movment_z;
+                for i_=1:obj.n_detector
+                    obj.counters{i_} = reshape(counters(:,i_,:,:), maxScatter, ...
+                        obj.nz_pixels, obj.nx_pixels);
+                end
+                obj.raster_movment_x = raster_movement_x;
+                obj.raster_movment_z = raster_movment_z;
                 cntrSum = sum(counters,1);
                 cntrSum2 = zeros(obj.n_detector, obj.nz_pixels, obj.nx_pixels);
                 for k=1:obj.n_detector
@@ -73,15 +78,22 @@ classdef RectangleInfo
                         end
                     end
                 end
-                obj.cntrSum = cntrSum2 + cntr_effuse;
-                obj.counter_effusive = cntr_effuse;
+                cntrSum = cntrSum2 + cntr_effuse;
+                for i_=1:obj.n_detector
+                    obj.cntrSum{i_} = reshape(cntrSum(i_,:,:), obj.nz_pixels, ...
+                        obj.nx_pixels);
+                end
+                for i_=1:obj.n_detector
+                    obj.counter_effusive{i_} = reshape(cntr_effuse(i_,:,:), obj.nz_pixels, ...
+                        obj.nx_pixels);
+                end
                 obj.rays_per_pixel = rays_per_pixel;
                 obj.time = time;
                 obj.time_estimate = t_estimate;
             end
         end % End constructor
         
-        function I = imageAll(obj, scale, specifyScale, limX, limY)
+        function I = imageAll(obj, varargin)
         % Constructs an image based on the data in the RectangleInfo
         % object. Uses all contributions to the contrast, including the
         % effuse beam.
@@ -105,26 +117,57 @@ classdef RectangleInfo
         %                 are not specifed they are automatically chosen
         %  limY         - The y range of image to produce, this corresponds
         %                 to the z direction in the simulation
+        %  detector     - Which detector to use to produce the image
         %
         % OUTPUTS:
         %  I - A matrix of the grayscale data produced. The matrix is the
         %      size of the image and the value of each element is in [0,1] and
         %      gives the relative brightness of the associated pixel.
             
-            if nargin == 1
-                I = obj.generalImage(obj.cntrSum, 'auto');
-            elseif nargin == 2
-                I = obj.generalImage(obj.cntrSum, scale);
-            elseif nargin == 3
-                I = obj.generalImage(obj.cntrSum, scale, specifyScale);
-            elseif nargin == 5
-                I = obj.generalImage(obj.cntrSum, scale, specifyScale, limX, limY);
+            for i_=1:2:length(varargin)
+                switch varargin{i_}
+                    case 'scale'
+                        scale = varargin{i_+1};
+                    case 'specifyScale'
+                        specifyScale = varargin{i_+1};
+                    case 'limX'
+                        limX = varargin{i_+1};
+                    case 'limY'
+                        limY = varargin{i_+1};
+                    case 'detector'
+                        detector = varargin{i_+1};
+                    otherwise
+                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                end
+            end
+            
+            % Input checking
+            if ~exist('scale', 'var')
+                scale = 'auto';
+            end
+            if ~exist('specifyScale', 'var') && strcmp(scale, 'manual')
+                error('Must specify a scale if you select manual scale.');
+            end
+            if ~exist('detector', 'var')
+                detector = 1;
+            end
+            
+            if exist('limX', 'var') && exist('limY', 'var')
+                if strcmp('scale', 'manual')
+                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', ...
+                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                else
+                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', ...
+                        scale, 'limX', limX, 'limY', limY);
+                end
             else
-                error('Wrong number of arguments');
+                I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale);
             end
         end % End image generating function
         
         function I = imageBigger(obj, scale)
+        % TODO: update
+        %
         % Artificially produce a larger image (2x) from the data. Can be useful
         % for small scans. The intermediate pixels are produced by
         % averaging the counts for the adjacent pixels.
@@ -244,39 +287,99 @@ classdef RectangleInfo
             end
         end
         
-        function I = imageEffuse(obj, scale, specifyScale, limX, limY)
+        function I = imageEffuse(obj, varargin)
         % Produces a 2d image from only the effusive contribtion. See
         % imageAll.
-            if nargin == 1
-                I = obj.generalImage(obj.counter_effusive, 'auto');
-            elseif nargin == 2
-                I = obj.generalImage(obj.counter_effusive, scale);
-            elseif nargin == 3
-                I = obj.generalImage(obj.counter_effusive, scale, specifyScale);
-            elseif nargin == 5
-                I = obj.generalImage(obj.counter_effusive, scale, ...
-                                     specifyScale, limX, limY);
+            for i_=1:2:length(varargin)
+                switch varargin{i_}
+                    case 'scale'
+                        scale = varargin{i_+1};
+                    case 'specifyScale'
+                        specifyScale = varargin{i_+1};
+                    case 'limX'
+                        limX = varargin{i_+1};
+                    case 'limY'
+                        limY = varargin{i_+1};
+                    case 'detector'
+                        detector = varargin{i_+1};
+                    otherwise
+                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                end
+            end
+            
+            % Input checking
+            if ~exist('scale', 'var')
+                scale = 'auto';
+            end
+            if ~exist('specifyScale', 'var') && strcmp(scale, 'manual')
+                error('Must specify a scale if you select manual scale.');
+            end
+            if ~exist('detector', 'var')
+                detector = 1;
+            end
+            
+            if exist('limX', 'var') && exist('limY', 'var')
+                if strcmp('scale', 'manual')
+                    I = obj.generalImage('im', obj.counter_effusive{detector}, 'scale', ...
+                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                else
+                    I = obj.generalImage('im', obj.counter_effusive{detector}, 'scale', ...
+                        scale, 'limX', limX, 'limY', limY);
+                end
             else
-                error('Wrong number of arguments')
+                I = obj.generalImage('im', obj.counter_effusive{detector}, 'scale', scale);
             end
         end
         
-        function I = imageExtraEffuse(obj, factor, scale, specifyScale, limX, limY)
+        function I = imageExtraEffuse(obj, varargin)
         % Produces an image with the effusive contribution enhanced.
         % INPUTS:
         %  factor - the factor to multiply the effuse contribution by
         %  scale  - how to scale the grayscale, see imageAll
-            cntrSum2 = obj.cntrSum + obj.counter_effusive*factor;
+            for i_=1:2:length(varargin)
+                switch varargin{i_}
+                    case 'scale'
+                        scale = varargin{i_+1};
+                    case 'specifyScale'
+                        specifyScale = varargin{i_+1};
+                    case 'limX'
+                        limX = varargin{i_+1};
+                    case 'limY'
+                        limY = varargin{i_+1};
+                    case 'detector'
+                        detector = varargin{i_+1};
+                    case 'factor'
+                        factor = varargin{i_+1};
+                    otherwise
+                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                end
+            end
             
-            if nargin == 2
-                I = obj.generalImage(cntrSum2, 'auto');
-            elseif nargin == 3
-                I = obj.generalImage(cntrSum2, scale);
-            elseif nargin == 5
-                I = obj.generalImage(obj.counter_effusive, scale, ...
-                                     specifyScale, limX, limY);
+            if ~exist('scale', 'var')
+                scale = 'auto';
+            end
+            if ~exist('specifyScale', 'var') && strcmp(scale, 'manual')
+                error('Must specify a scale if you select manual scale.');
+            end
+            if ~exist('detector', 'var')
+                detector = 1;
+            end
+            if ~exist('factor', 'var')
+                factor = 1;
+                warning('Using imageExtraEffuse without specifying how much extra');
+            end
+            cntrSum2 = obj.cntrSum{detector} + obj.counter_effusive{detector}*factor;
+            
+            if exist('limX', 'var') && exist('limY', 'var')
+                if strcmp('scale', 'manual')
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                else
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'limX', limX, 'limY', limY);
+                end
             else
-                error('Wrong number of arguments')
+                I = obj.generalImage('im', cntrSum2, 'scale', scale);
             end
         end
         
@@ -452,16 +555,25 @@ classdef RectangleInfo
     end % End methods
     
     methods (Access = private)
-        function I = generalImage(obj, cntrSum2, scale, specifyScale, limX, limY)
+        function I = generalImage(obj, varargin)
         % A general image constructing function, not to be called directly.
         % This function is called by all the other image generating
         % functions that plot just one image.
-            if nargin == 3
-                specifylimits = false;
-            elseif nargin == 4
-                specifylimits = false;
-            else
-                specifylimits = true;
+            for i_=1:2:length(varargin)
+                switch varargin{i_}
+                    case 'im'
+                        cntrSum2 = varargin{i_+1};
+                    case 'scale'
+                        scale = varargin{i_+1};
+                    case 'specifyScale'
+                        specifyScale = varargin{i_+1};
+                    case 'limX'
+                        limX = varargin{i_+1};
+                    case 'limY'
+                        limY = varargin{i_+1};
+                    otherwise
+                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                end
             end
             
             % Generate the data
@@ -480,18 +592,18 @@ classdef RectangleInfo
             end
             
             % Produce image
-            %RI = imref2d(size(I));
-            %RI.XWorldLimits = obj.xrange;
-            %RI.YWorldLimits = obj.zrange;
+            RI = imref2d(size(I));
+            RI.XWorldLimits = obj.xrange;
+            RI.YWorldLimits = obj.zrange;
             figure
             imshow(I);%, RI);
             axis tight
-            %if specifylimits
-            %    xlim(limX);
-            %    ylim(limY);
-            %end
-            %xlabel('-x/mm')
-            %ylabel('z/mm')
+            if specifylimits
+                xlim(limX);
+                ylim(limY);
+            end
+            xlabel('-x/mm')
+            ylabel('z/mm')
         end % End general imaging function
     end % End private methods
 end

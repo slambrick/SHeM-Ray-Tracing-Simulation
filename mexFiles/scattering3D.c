@@ -447,13 +447,16 @@ int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
         test = 10;
         for (i = 0; i < wallPlate.n_detect; i++) {
             BackWall plate;
-            plate = get_nth_aperture(i, wallPlate);
+            get_nth_aperture(i, &wallPlate, &plate);
+            /*mexPrintf("\n\nnth aperture = %i", i);
+            print_BackWall(&plate);
+            print_nBackWall(&wallPlate);*/
             /* 
-            * See if it goes into the aperture. The aperture is defined by a centre, 
-            * along with two axes. Uses the formula for an ellipse:
-            *     (x-h)^2/a^2 + (z-k)^2/b^2 = 1
-            * where h and k are the x and z positions of the centre of the ellipse.
-            */
+             * See if it goes into the aperture. The aperture is defined by a centre, 
+             * along with two axes. Uses the formula for an ellipse:
+             *     (x-h)^2/a^2 + (z-k)^2/b^2 = 1
+             * where h and k are the x and z positions of the centre of the ellipse.
+             */
             x_disp = wall_hit[0] - plate.aperture_c[0];
             y_disp = wall_hit[2] - plate.aperture_c[1];
             test = x_disp*x_disp/

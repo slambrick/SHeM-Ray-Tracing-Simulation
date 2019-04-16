@@ -228,36 +228,52 @@ void print_ray(Ray3D *the_ray) {
     print1D_double(the_ray->direction, 3);
 }
 
+/* Prints all the information about a BackWall struct */
+void print_BackWall(BackWall *wall) {
+    mexPrintf("\nSurface index = %i\n", wall->surf_index);
+    mexPrintf("Plate represent = %i\n", wall->plate_represent);
+    mexPrintf("Aperture centre: ");
+    print1D_double(wall->aperture_c, 2);
+    mexPrintf("Aperture axes: "); 
+    print1D_double(wall->aperture_axes, 2);
+    mexPrintf("Radius of the plate = %f\n", wall->circle_plate_r);
+    mexPrintf("Composition = %f\n", wall->composition);
+    mexPrintf("Scattering parameters = %f\n", wall->scattering_parameters);
+}
+
+/* Prints all the information on all the apertues in the NBackWall struct */
+void print_nBackWall(NBackWall *all_apertures) {
+    int i;
+    
+    mexPrintf("\nNumber of apertures = %i\n", all_apertures->n_detect);
+    for (i = 0; i < all_apertures->n_detect; i++) {
+        mexPrintf("Aperture %i:\n", i);
+        mexPrintf("Centre: ");
+        print1D_double(&all_apertures->aperture_c[2*i], 2);
+        mexPrintf("Axes: ");
+        print1D_double(&all_apertures->aperture_axes[2*i], 2);
+    }
+}
+
 /* 
  * Gets the centre and the axes of the nth detector in the series and returns
  * a struct to that aperture.
  */
-BackWall get_nth_aperture(int n, NBackWall allApertures) {
-    BackWall this_wall;
-    double aperture_c[2];
-    double aperture_axes[2];
-    
-    this_wall.aperture_c = aperture_c;
-    this_wall.aperture_axes = aperture_axes;
-    
+void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
     /* The x and z coordinate of the apertures */
-    this_wall.aperture_c[0] = allApertures.aperture_c[2*n];
-    this_wall.aperture_c[1] = allApertures.aperture_c[2*n + 1];
+    this_wall->aperture_c = &allApertures->aperture_c[2*n];
         
     /* The axes of the aperture */
-    this_wall.aperture_axes[0] = allApertures.aperture_axes[2*n];
-    this_wall.aperture_axes[1] = allApertures.aperture_axes[2*n + 1];
+    this_wall->aperture_axes = &allApertures->aperture_axes[2*n];
     
     /* Other parameters */
-    this_wall.surf_index = allApertures.surf_index;
-    this_wall.circle_plate_r = allApertures.circle_plate_r;
-    this_wall.composition = allApertures.composition;
-    this_wall.scattering_parameters = allApertures.scattering_parameters;
+    this_wall->surf_index = allApertures->surf_index;
+    this_wall->circle_plate_r = allApertures->circle_plate_r;
+    this_wall->composition = allApertures->composition;
+    this_wall->scattering_parameters = allApertures->scattering_parameters;
     
     /* We do not represent the plate to be scattered off, just the apertures */
-    this_wall.plate_represent = 0;
-    
-    return(this_wall);
+    this_wall->plate_represent = 0;
 }
 
 /* 

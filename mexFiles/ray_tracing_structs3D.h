@@ -131,8 +131,14 @@ void get_scatters(Rays3D *all_rays, int32_t *nScatters);
 /* Prints information on a ray to the terminal */
 void print_ray(Ray3D *the_ray);
 
+/* Prints information on a BackWall to the terminal */
+void print_BackWall(BackWall *wall);
+
+/* Prints the centres and axes of all the apertures in the NBackWall struct */
+void print_nBackWall(NBackWall *all_apertures);
+
 /* Gets information on one aperure out of a series of apertures */
-BackWall get_nth_aperture(int n, NBackWall allApertures);
+void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
 Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max, 

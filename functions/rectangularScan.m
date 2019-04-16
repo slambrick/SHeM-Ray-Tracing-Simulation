@@ -53,16 +53,15 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
         if isempty(gcp('nocreate'))
-            %parpool 
+            parpool 
         end
     end
     
-    progressBar = false;
     % Generates a graphical progress bar if we are using the MATLAB GUI.
     if ~isOctave
-        %progressBar = feature('ShowFigureWindows');
+        progressBar = feature('ShowFigureWindows');
     else
-        %progressBar = true;
+        progressBar = true;
     end
     if progressBar && ~isOctave
         ppm = ParforProgMon('Simulation progress: ', N_pixels);

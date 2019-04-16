@@ -20,7 +20,7 @@ typeScan = 'rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = true;
+recompile = false;
 
 %% Beam/source parameters %%
 
@@ -32,7 +32,7 @@ pinhole_c = [-2.121, 0, 0];
 pinhole_r = 0.0025;
 
 % Number of rays to use and the width of the source
-n_rays = 10000;
+n_rays = 50000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.05/100); 
@@ -110,8 +110,8 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.02*sqrt(2);
-raster_movment2D_z = 0.02;
+raster_movment2D_x = 0.01*sqrt(2);
+raster_movment2D_z = 0.01;
 xrange = [-0.3, 0.3];
 zrange = [-0.2, 0.2];
 

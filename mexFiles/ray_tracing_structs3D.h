@@ -70,9 +70,9 @@ typedef struct _sphere {
     int surf_index;
     double scan_pos_x;             /* The x position of the scan */
     double scan_pos_z;             /* The z position of the scan */
-    double dist_to_sphere;         /* The working distance */
     double sphere_r;               /* The radius of the sphere */
-    double composition;     /* The type of scattering off the sphere */
+    double  *sphere_c;             /* The centre of the sphere */
+    double composition;            /* The type of scattering off the sphere */
     double scattering_parameters;  /* Any scattering parameters for the sphere */
     int make_sphere;               /* Does the sphere actually exsist? */
 } AnalytSphere;
@@ -103,7 +103,7 @@ Surface3D set_up_surface(double V[], double N[], double F[], double C[],
 
 /* Set up a Sphere struct */
 AnalytSphere set_up_sphere(int make_sphere, double scan_pos_x, double scan_pos_z, 
-        double dist_to_sample, double sphere_r, double sphere_scattering, 
+        double *sphere_c, double sphere_r, double sphere_scattering, 
         double sphere_parameters, int surf_index);
 
 /* Sets up a struct containing information on all the rays to be simulated. */

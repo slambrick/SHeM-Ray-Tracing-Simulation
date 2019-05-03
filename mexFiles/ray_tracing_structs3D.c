@@ -51,14 +51,14 @@ Surface3D set_up_surface(double V[], double N[], double F[], double C[],
 
 /* Set up a Sphere struct */
 AnalytSphere set_up_sphere(int make_sphere, double scan_pos_x, double scan_pos_z, 
-        double dist_to_sample, double sphere_r, double sphere_scattering, 
+        double *sphere_c, double sphere_r, double sphere_scattering, 
         double sphere_parameters, int surf_index) {
     AnalytSphere the_sphere;
     
     the_sphere.surf_index = surf_index;
     the_sphere.scan_pos_x = scan_pos_x;
     the_sphere.scan_pos_z = scan_pos_z;
-    the_sphere.dist_to_sphere = dist_to_sample;
+    the_sphere.sphere_c = sphere_c;
     the_sphere.sphere_r = sphere_r;
     the_sphere.composition = sphere_scattering;
     the_sphere.scattering_parameters = sphere_parameters;

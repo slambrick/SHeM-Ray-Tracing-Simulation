@@ -39,6 +39,7 @@ classdef RectangleInfo
         nz_pixels;
         N_pixels;
         rays_per_pixel;
+        n_effuse;
         sample_surface;
         xrange;
         zrange;
@@ -51,8 +52,8 @@ classdef RectangleInfo
     methods
         function obj = RectangleInfo(counters, num_killed, sample_surface, ...
                 xrange, zrange, raster_movment_x, raster_movment_z, ...
-                rays_per_pixel, time, t_estimate, cntr_effuse, n_detector)
-            if nargin ~= 12
+                rays_per_pixel, n_effuse, time, t_estimate, cntr_effuse, n_detector, maxScatter)
+            if nargin ~= 14
                 error('Wrong numer of input arguments');
             else
                 obj.n_detector = n_detector;
@@ -67,7 +68,7 @@ classdef RectangleInfo
                     obj.counters{i_} = reshape(counters(:,i_,:,:), maxScatter, ...
                         obj.nz_pixels, obj.nx_pixels);
                 end
-                obj.raster_movment_x = raster_movement_x;
+                obj.raster_movment_x = raster_movment_x;
                 obj.raster_movment_z = raster_movment_z;
                 cntrSum = sum(counters,1);
                 cntrSum2 = zeros(obj.n_detector, obj.nz_pixels, obj.nx_pixels);
@@ -88,6 +89,7 @@ classdef RectangleInfo
                         obj.nx_pixels);
                 end
                 obj.rays_per_pixel = rays_per_pixel;
+                obj.n_effuse = n_effuse;
                 obj.time = time;
                 obj.time_estimate = t_estimate;
             end
@@ -220,28 +222,85 @@ classdef RectangleInfo
             ylabel('z/mm')
         end % End image enlarging function
         
-        function I = imageNoEffuse(obj, scale, specifyScale, limX, limY)
+        function I = imageNoEffuse(obj, varargin)
         % Produces a 2d image from the data explicitly without the effuse
         % contribution. See imageAll.
-            cntrSum2 = obj.cntrSum - obj.counter_effusive;
+            for i_=1:2:length(varargin)
+                switch varargin{i_}
+                    case 'scale'
+                        scale = varargin{i_+1};
+                    case 'specifyScale'
+                        specifyScale = varargin{i_+1};
+                    case 'limX'
+                        limX = varargin{i_+1};
+                    case 'limY'
+                        limY = varargin{i_+1};
+                    case 'detector'
+                        detector = varargin{i_+1};
+                    otherwise
+                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                end
+            end
+        
+            % Input checking
+            if ~exist('scale', 'var')
+                scale = 'auto';
+            end
+            if ~exist('specifyScale', 'var') && strcmp(scale, 'manual')
+                error('Must specify a scale if you select manual scale.');
+            end
+            if ~exist('detector', 'var')
+                detector = 1;
+            end
             
-            if nargin == 1
-                I = obj.generalImage(cntrSum2, 'auto');
-            elseif nargin == 2
-                I = obj.generalImage(cntrSum2, scale);
-            elseif nargin == 3
-                I = obj.generalImage(cntrSum2, scale, specifyScale);
-            elseif nargin == 5
-                I = obj.generalImage(cntrSum2, scale, specifyScale, limX, limY);
+            cntrSum2 = obj.cntrSum{detector} - obj.counter_effusive{detector};
+            
+            if exist('limX', 'var') && exist('limY', 'var')
+                if strcmp('scale', 'manual')
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                else
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'limX', limX, 'limY', limY);
+                end
             else
-                error('Wrong number of arguments');
+                I = obj.generalImage('im', cntrSum2, 'scale', scale);
             end
         end
         
-        function I = imageSingle(obj, scale, specifyScale, limX, limY)
+        function I = imageSingle(obj, varargin)
         % Produces an image from the single scattering contribution only.
         % See imageAll.
-            cntrSummed = obj.counters(1,:,:);
+            for i_=1:2:length(varargin)
+                switch varargin{i_}
+                    case 'scale'
+                        scale = varargin{i_+1};
+                    case 'specifyScale'
+                        specifyScale = varargin{i_+1};
+                    case 'limX'
+                        limX = varargin{i_+1};
+                    case 'limY'
+                        limY = varargin{i_+1};
+                    case 'detector'
+                        detector = varargin{i_+1};
+                    otherwise
+                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                end
+            end
+        
+            % Input checking
+            if ~exist('scale', 'var')
+                scale = 'auto';
+            end
+            if ~exist('specifyScale', 'var') && strcmp(scale, 'manual')
+                error('Must specify a scale if you select manual scale.');
+            end
+            if ~exist('detector', 'var')
+                detector = 1;
+            end
+            
+            counters = obj.counters{detector}; %#ok<PROPLC>
+            cntrSummed = counters(1,:,:); %#ok<PROPLC>
             cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
             for i_=1:obj.nx_pixels
                 for j_=1:obj.nz_pixels
@@ -249,23 +308,52 @@ classdef RectangleInfo
                 end
             end
             
-            if nargin == 1
-                I = obj.generalImage(cntrSum2, 'auto');
-            elseif nargin == 2
-                I = obj.generalImage(cntrSum2, scale);
-            elseif nargin == 3
-                I = obj.generalImage(cntrSum2, scale, specifyScale);
-            elseif nargin == 5
-                I = obj.generalImage(cntrSum2, scale, specifyScale, limX, limY);
+            if exist('limX', 'var') && exist('limY', 'var')
+                if strcmp('scale', 'manual')
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                else
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'limX', limX, 'limY', limY);
+                end
             else
-                error('Wrong number of arguments');
+                I = obj.generalImage('im', cntrSum2, 'scale', scale);
             end
         end
         
-        function I = imageMultiple(obj, scale, specifyScale, limX, limY)
+        function I = imageMultiple(obj, varargin)
         % Produces a 2d image from the multiple scattering contribution
         % only. See imageAll.
-            counters2 = obj.counters(2:end, :, :);
+        
+            for i_=1:2:length(varargin)
+                switch varargin{i_}
+                    case 'scale'
+                        scale = varargin{i_+1};
+                    case 'specifyScale'
+                        specifyScale = varargin{i_+1};
+                    case 'limX'
+                        limX = varargin{i_+1};
+                    case 'limY'
+                        limY = varargin{i_+1};
+                    case 'detector'
+                        detector = varargin{i_+1};
+                    otherwise
+                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                end
+            end
+        
+            % Input checking
+            if ~exist('scale', 'var')
+                scale = 'auto';
+            end
+            if ~exist('specifyScale', 'var') && strcmp(scale, 'manual')
+                error('Must specify a scale if you select manual scale.');
+            end
+            if ~exist('detector', 'var')
+                detector = 1;
+            end
+            
+            counters2 = obj.counters{detector}(2:end, :, :);
             cntrSummed = sum(counters2, 1);
             cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
             for i_=1:obj.nx_pixels
@@ -274,16 +362,16 @@ classdef RectangleInfo
                 end
             end
             
-            if nargin == 1
-                I = obj.generalImage(cntrSum2, 'auto');
-            elseif nargin == 2
-                I = obj.generalImage(cntrSum2, scale);
-            elseif nargin == 3
-                I = obj.generalImage(cntrSum2, scale, specifyScale);
-            elseif nargin == 5
-                I = obj.generalImage(cntrSum2, scale, specifyScale, limX, limY);
+            if exist('limX', 'var') && exist('limY', 'var')
+                if strcmp('scale', 'manual')
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                else
+                    I = obj.generalImage('im', cntrSum2, 'scale', ...
+                        scale, 'limX', limX, 'limY', limY);
+                end
             else
-                error('Wrong number of arguments');
+                I = obj.generalImage('im', cntrSum2, 'scale', scale);
             end
         end
         
@@ -516,27 +604,36 @@ classdef RectangleInfo
         % Produces and saves a series of images from the simulation. Saves them
         % to the path provided. The colour scale takes black to be the lowest
         % number of counts and white to be the highest number of counts.
-            I = obj.imageSingle;
-            imwrite(I,  [thePath '/single.png']);
-            I = obj.imageMultiple;
-            imwrite(I,  [thePath '/multiple.png']);
-            obj.contourImage(30);
-            isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
-            if ~isOctave
-                saveas(gcf, [thePath '/contourAll.eps'], 'epsc');
+        
+            for i_=1:obj.n_detector
+                I = obj.imageSingle('detector', i_);
+                title(['Detector ' num2str(i_)]);pause(0.1);
+                imwrite(I, [thePath '/single' num2str(i_) '.png']);
+                I = obj.imageMultiple('detector', i_);
+                title(['Detector ' num2str(i_)]);pause(0.1);
+                imwrite(I, [thePath '/single' num2str(i_) '.png']);
+                if obj.n_effuse == 0
+                    I = obj.imageAll('detector', i_);
+                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    imwrite(I, [thePath '/noEffuse' num2str(i_) '.png']);
+                else
+                    I = obj.imageAll('detector', i_);
+                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    imwrite(I, [thePath '/all' num2str(i_) '.png']);
+                    I = obj.imageEffuse('detector', i_);
+                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    imwrite(I, [thePath '/effuse' num2str(i_) '.png']);
+                    I = obj.imageNoEffuse('detector', i_);
+                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    imwrite(I, [thePath '/noEffuse' num2str(i_) '.png']);
+                end
             end
-            
-            if sum(sum(obj.counter_effusive)) == 0
-                I = obj.imageAll;
-                imwrite(I, [thePath '/noEffuse.png']);
-            else
-                I = obj.imageAll;
-                imwrite(I, [thePath '/all.png'])
-                I = obj.imageNoEffuse;
-                imwrite(I, [thePath '/noEffuse.png']);
-                I = obj.imageEffuse;
-                imwrite(I, [thePath '/effuse.png']);
-            end
+
+            %obj.contourImage(30);
+            %isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+            %if ~isOctave
+            %    saveas(gcf, [thePath '/contourAll.eps'], 'epsc');
+            %end
         end % End image creation and saving function.
         
         function counts = saveCounts(obj, fname, contribution)
@@ -596,10 +693,12 @@ classdef RectangleInfo
             RI.XWorldLimits = obj.xrange;
             RI.YWorldLimits = obj.zrange;
             figure
-            imshow(I);%, RI);
+            imshow(I, RI);
             axis tight
-            if specifylimits
+            if exist('limX', 'var')
                 xlim(limX);
+            end
+            if exist('limY', 'var')
                 ylim(limY);
             end
             xlabel('-x/mm')

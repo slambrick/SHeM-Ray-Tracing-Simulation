@@ -41,7 +41,6 @@ int scatterSphere(Ray3D *the_ray, AnalytSphere the_sphere, double *min_dist,
     double a,b,c;
     double beta, gamma;
     double distance;
-    double offset;
     double *e;
     double *d;
     
@@ -49,16 +48,10 @@ int scatterSphere(Ray3D *the_ray, AnalytSphere the_sphere, double *min_dist,
     e = the_ray->position;
     d = the_ray->direction;
     
-    /* Offset of the flat region from specular */
-    /* TODO: this limits the utility of the sphere simulation, need to be able
-     * to vary the working distance and incident angle */
-    offset = the_sphere.dist_to_sphere - 2.121;
-    
     /* Centre of the sphere */
-    a = the_sphere.scan_pos_x + offset;
-    b = -2.121 - offset;
-    c = the_sphere.scan_pos_z;
-    b = b + the_sphere.sphere_r;
+    a = the_sphere.sphere_c[0];
+    b = the_sphere.sphere_c[1];
+    c = the_sphere.sphere_c[2];
     
     /* Coefficients of the quadratic equation */
     beta = 2*(d[0]*(e[0] - a) + d[1]*(e[1] - b) + d[2]*(e[2] - c));

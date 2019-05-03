@@ -41,7 +41,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double scan_pos_x;     /* the scan position in x */
     double scan_pos_z;     /* the scan position in z */
     int make_sphere;       /* Should the analytic sphere be added to the model */
-    double dist_to_sample; /* The pinhole-plate sample distance (for use with 
+    double *dsphere_c;     /* The pinhole-plate sample distance (for use with 
                             * the analytic sphere) */
     double sphere_r;       /* Radius of the analytic sphere if it to be made */
     double sphere_diffuse; /* The scattering off of the analytic sphere */
@@ -166,7 +166,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     scan_pos_x = mxGetScalar(prhs[6]);
     scan_pos_z = mxGetScalar(prhs[7]);
     make_sphere = (int)mxGetScalar(prhs[8]); /* mxGetScalar gives a double */
-    dist_to_sample = mxGetScalar(prhs[9]);
+    sphere_c = mxGetPr(prhs[9]);
     sphere_r = mxGetScalar(prhs[10]);
     sphere_diffuse = mxGetScalar(prhs[11]);
     sphere_parameters = mxGetScalar(prhs[12]);
@@ -206,7 +206,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Plate.n_detect = n_detector;
     
     /* Put information on the analytic sphere into a struct */
-    the_sphere = set_up_sphere(make_sphere, scan_pos_x, scan_pos_z, dist_to_sample,
+    the_sphere = set_up_sphere(make_sphere, scan_pos_x, scan_pos_z, sphere_c,
         sphere_r, sphere_diffuse, sphere_parameters, sphere_index);
         
     /* 

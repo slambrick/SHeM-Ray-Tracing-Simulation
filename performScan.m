@@ -25,14 +25,14 @@ recompile = false;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 45;
+init_angle = 30;
 
 % Geometry of pinhole
-pinhole_c = [-2.121, 0, 0];
+pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.0025;
 
 % Number of rays to use and the width of the source
-n_rays = 50000;
+n_rays = 10000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.05/100); 
@@ -59,7 +59,7 @@ cosine_n = 1;
 
 % How large is the effusive beam (proportion of the size of the main beam). Set
 % to zero if the effusive beam is not to be moddeled
-effuse_size = 10;
+effuse_size = 0;
 
 % Information on the effuse beam
 n_effuse = n_rays*effuse_size;
@@ -93,9 +93,10 @@ circle_plate_r = 4;
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
 % direction ('z'). The apert0ure is always centred on the x-axis and is displaced
 % by the specified amount.
-n_detectors = 3;
-aperture_axes = [1, 1, 1, 1, 1, 1];
-aperture_c = [2, 0, 1, 2, 1, -2];
+n_detectors = 4;
+aperture_axes = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3];
+aperture_c = [tand(init_angle), 0, 0, tand(init_angle), 0, -tand(init_angle), ...
+    -2*tand(init_angle), 0];
 plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -110,10 +111,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.01*sqrt(2);
-raster_movment2D_z = 0.01;
-xrange = [-0.3, 0.3];
-zrange = [-0.2, 0.2];
+raster_movment2D_x = 0.001*sqrt(2);
+raster_movment2D_z = 0.001;
+xrange = [-0.2, 0.2];
+zrange = [-0.1, 0.1];
 
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
@@ -150,7 +151,7 @@ diffuse = [1, 90*pi/180];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 2;
+dist_to_sample = 1;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.05;
@@ -163,7 +164,7 @@ square_size = 4;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'doesitwork';
+directory_label = '4detectors';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -280,7 +281,8 @@ switch sample_type
 end
 
 % TODO: use a struct rather than a cell array.
-sphere = {make_sphere, sphere_r, diffuse(1), diffuse(2)};
+shere_c = [dist_to_sample*tand(init_angle), dist_to_sample + sphere_r, 0];
+sphere = {make_sphere, sphere_r, diffuse(1), diffuse(2), sphere_c};
 
 % Do any extra manipulation of the sample here
 if false

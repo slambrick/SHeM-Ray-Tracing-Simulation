@@ -91,13 +91,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double *CS;            /* pinhole plate triangle diffuse level*/
     double *PS;            /* pinhole plate scattering parameters */
     int ntriag_plate;      /* number of pinhole plate triangles */
-    double *backWall;      /* y-coordinate of the back of the pinhole plate, the 
-                            * depth in x and then z of the pinhole plate */
-    double scan_pos_x;     /* the scan position in x */
-    double scan_pos_z;     /* the scan position in z */
+    double *backWall;
     int make_sphere;       /* Should the analytic sphere be added to the model */
-    double dist_to_sample; /* The pinhole-plate sample distance (for use with 
-                            * the analytic sphere) */
+    double sphere_c; 
     double sphere_r;       /* Radius of the analytic sphere if it to be made */
     double sphere_diffuse; /* The scattering off of the analytic sphere */
     double sphere_parameters; /* Scattering distribution parameters */
@@ -123,9 +119,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*******************************************************************************/
     
     /* Check for the right number of inputs and outputs */
-    if (nrhs != 22) {
+    if (nrhs != 20) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
-                          "Twenty two inputs required for tracingMex.");
+                          "Twenty inputs required for tracingMex.");
     }
     if (nlhs != 3) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
@@ -217,17 +213,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
     NS = mxGetPr(prhs[8]);
     CS = mxGetPr(prhs[9]);
     PS = mxGetPr(prhs[10]);
-    scan_pos_x = mxGetScalar(prhs[11]);
-    scan_pos_z = mxGetScalar(prhs[12]);
-    make_sphere = (int)mxGetScalar(prhs[13]); /* mxGetScalar gives a double */
-    dist_to_sample = mxGetScalar(prhs[14]);
-    sphere_r = mxGetScalar(prhs[15]);
-    sphere_diffuse = mxGetScalar(prhs[16]);
-    sphere_parameters = mxGetScalar(prhs[17]);
-    backWall = mxGetPr(prhs[18]);
-    nrays = (int)mxGetScalar(prhs[19]);
-    source_model = (int)mxGetScalar(prhs[20]);
-    source_parameters = mxGetPr(prhs[21]);
+    make_sphere = (int)mxGetScalar(prhs[11]); /* mxGetScalar gives a double */
+    sphere_c = mxGetPr(prhs[12]);
+    sphere_r = mxGetScalar(prhs[13]);
+    sphere_diffuse = mxGetScalar(prhs[14]);
+    sphere_parameters = mxGetScalar(prhs[15]);
+    backWall = mxGetPr(prhs[16]);
+    nrays = (int)mxGetScalar(prhs[17]);
+    source_model = (int)mxGetScalar(prhs[18]);
+    source_parameters = mxGetPr(prhs[19]);
     ntriag_sample = mxGetN(prhs[1]);
     ntriag_plate = mxGetN(prhs[7]);
     
@@ -255,7 +249,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Plate = set_up_surface(VS, NS, FS, CS, PS, ntriag_plate, plate_index);
     
     /* Put information on the analytic sphere into a struct */
-    the_sphere = set_up_sphere(make_sphere, scan_pos_x, scan_pos_z, dist_to_sample,
+    the_sphere = set_up_sphere(make_sphere, dist_to_sample,
         sphere_r, sphere_diffuse, sphere_parameters, sphere_index);
     
     /* 

@@ -74,9 +74,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*******************************************************************************/
     
     /* Check for the right number of inputs and outputs */
-    if (nrhs != 21) {
+    if (nrhs != 19) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
-                          "Twenty one inputs required for tracingMex.");
+                          "Nineteen inputs required for tracingMex.");
     }
     if (nlhs != 3) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
@@ -163,21 +163,19 @@ void mexFunction(int nlhs, mxArray *plhs[],
     C = mxGetPr(prhs[3]);
     P = mxGetPr(prhs[4]);
     maxScatters = (int)mxGetScalar(prhs[5]); /* mxGetScalar gives a double */
-    scan_pos_x = mxGetScalar(prhs[6]);
-    scan_pos_z = mxGetScalar(prhs[7]);
-    make_sphere = (int)mxGetScalar(prhs[8]); /* mxGetScalar gives a double */
-    sphere_c = mxGetPr(prhs[9]);
-    sphere_r = mxGetScalar(prhs[10]);
-    sphere_diffuse = mxGetScalar(prhs[11]);
-    sphere_parameters = mxGetScalar(prhs[12]);
-    plate_represent = (int)mxGetScalar(prhs[13]);
-    n_detector = (int)mxGetScalar(prhs[14]);
-    circle_plate_r = mxGetScalar(prhs[15]);
-    aperture_axes = mxGetPr(prhs[16]);
-    aperture_c = mxGetPr(prhs[17]);
-    nrays = (int)mxGetScalar(prhs[18]);
-    source_model = (int)mxGetScalar(prhs[19]);
-    source_parameters = mxGetPr(prhs[20]);
+    make_sphere = (int)mxGetScalar(prhs[6]); /* mxGetScalar gives a double */
+    sphere_c = mxGetPr(prhs[7]);
+    sphere_r = mxGetScalar(prhs[8]);
+    sphere_diffuse = mxGetScalar(prhs[9]);
+    sphere_parameters = mxGetScalar(prhs[10]);
+    plate_represent = (int)mxGetScalar(prhs[11]);
+    n_detector = (int)mxGetScalar(prhs[12]);
+    circle_plate_r = mxGetScalar(prhs[13]);
+    aperture_axes = mxGetPr(prhs[14]);
+    aperture_c = mxGetPr(prhs[15]);
+    nrays = (int)mxGetScalar(prhs[16]);
+    source_model = (int)mxGetScalar(prhs[17]);
+    source_parameters = mxGetPr(prhs[18]);
     ntriag_sample = mxGetN(prhs[1]);
     
     
@@ -206,7 +204,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Plate.n_detect = n_detector;
     
     /* Put information on the analytic sphere into a struct */
-    the_sphere = set_up_sphere(make_sphere, scan_pos_x, scan_pos_z, sphere_c,
+    the_sphere = set_up_sphere(make_sphere, sphere_c,
         sphere_r, sphere_diffuse, sphere_parameters, sphere_index);
         
     /* 

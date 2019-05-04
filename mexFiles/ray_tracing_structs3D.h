@@ -68,8 +68,6 @@ typedef struct _abstractHemi {
 /* A structure to hold information on the analytic sphere */
 typedef struct _sphere {
     int surf_index;
-    double scan_pos_x;             /* The x position of the scan */
-    double scan_pos_z;             /* The z position of the scan */
     double sphere_r;               /* The radius of the sphere */
     double  *sphere_c;             /* The centre of the sphere */
     double composition;            /* The type of scattering off the sphere */
@@ -102,9 +100,8 @@ Surface3D set_up_surface(double V[], double N[], double F[], double C[],
         double P[], int ntraig, int surf_index);
 
 /* Set up a Sphere struct */
-AnalytSphere set_up_sphere(int make_sphere, double scan_pos_x, double scan_pos_z, 
-        double *sphere_c, double sphere_r, double sphere_scattering, 
-        double sphere_parameters, int surf_index);
+AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r, 
+        double sphere_scattering, double sphere_parameters, int surf_index);
 
 /* Sets up a struct containing information on all the rays to be simulated. */
 Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays);

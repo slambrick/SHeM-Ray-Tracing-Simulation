@@ -38,10 +38,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int nrays;             /* number of rays */
     int ntriag_sample;     /* number of sample triangles */
     int maxScatters;       /* Maximum number of scattering events per ray */
-    double scan_pos_x;     /* the scan position in x */
-    double scan_pos_z;     /* the scan position in z */
     int make_sphere;       /* Should the analytic sphere be added to the model */
-    double *dsphere_c;     /* The pinhole-plate sample distance (for use with 
+    double *sphere_c;     /* The pinhole-plate sample distance (for use with 
                             * the analytic sphere) */
     double sphere_r;       /* Radius of the analytic sphere if it to be made */
     double sphere_diffuse; /* The scattering off of the analytic sphere */

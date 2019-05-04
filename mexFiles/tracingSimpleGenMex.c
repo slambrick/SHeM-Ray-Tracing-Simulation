@@ -78,7 +78,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int ntriag_sample;     /* number of sample triangles */
     int maxScatters;       /* Maximum number of scattering events per ray */
     int make_sphere;       /* Should the analytic sphere be added to the model */
-    double sphere_c; 
+    double *sphere_c; 
     double sphere_r;       /* Radius of the analytic sphere if it to be made */
     double sphere_diffuse; /* The scattering off of the analytic sphere */
     double sphere_parameters; /* Scattering distribution parameters */
@@ -110,11 +110,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Check for the right number of inputs and outputs */
     if (nrhs != 18) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
-                          "Eighteen inputs required for tracingMex.");
+                          "Eighteen inputs required for tracingSimpleGenMex.");
     }
     if (nlhs != 3) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
-                          "Six outpus required for tracingMex.");
+                          "Six outpus required for tracingSimpleGenMex.");
     }
     
     /* Check the type of the inputs */
@@ -198,7 +198,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     P = mxGetPr(prhs[4]);
     maxScatters = (int)mxGetScalar(prhs[5]); /* mxGetScalar gives a double */
     make_sphere = (int)mxGetScalar(prhs[6]); /* mxGetScalar gives a double */
-    sphere_c = mxGetPrr(prhs[7]);
+    sphere_c = mxGetPr(prhs[7]);
     sphere_r = mxGetScalar(prhs[8]);
     sphere_diffuse = mxGetScalar(prhs[9]);
     sphere_parameters = mxGetScalar(prhs[10]);

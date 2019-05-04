@@ -80,7 +80,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int ntriag_sample;     /* number of sample triangles */
     int maxScatters;       /* Maximum number of scattering events per ray */
     int make_sphere;       /* Should the analytic sphere be added to the model */
-    double sphere_c; 
+    double *sphere_c; 
     double sphere_r;       /* Radius of the analytic sphere if it to be made */
     double sphere_diffuse; /* The scattering off of the analytic sphere */
     double sphere_parameters; /* Scattering distribution parameters */

@@ -93,7 +93,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int ntriag_plate;      /* number of pinhole plate triangles */
     double *backWall;
     int make_sphere;       /* Should the analytic sphere be added to the model */
-    double sphere_c; 
+    double *sphere_c; 
     double sphere_r;       /* Radius of the analytic sphere if it to be made */
     double sphere_diffuse; /* The scattering off of the analytic sphere */
     double sphere_parameters; /* Scattering distribution parameters */
@@ -249,7 +249,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Plate = set_up_surface(VS, NS, FS, CS, PS, ntriag_plate, plate_index);
     
     /* Put information on the analytic sphere into a struct */
-    the_sphere = set_up_sphere(make_sphere, dist_to_sample,
+    the_sphere = set_up_sphere(make_sphere, sphere_c,
         sphere_r, sphere_diffuse, sphere_parameters, sphere_index);
     
     /* 

@@ -36,9 +36,6 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
                 maxScatter = varargin{i_+1};
             case 'plate'
                 pinhole_surface = varargin{i_+1};
-            case 'scan_pos'
-                scan_pos_x = varargin{i_+1}(1);
-                scan_pos_z = varargin{i_+1}(2);
             case 'dist'
                 dist_to_sample = varargin{i_+1};
             case 'sphere'
@@ -103,8 +100,8 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
     % The calling of the mex function, ... here be dragons ... don't meddle
     [cntr, killed, numScattersRay]  = ...
         tracingGenMex(VT, FT, NT, CT, PT, maxScatter, VTS, FTS, NTS, CTS, ...
-                PTS, scan_pos_x, scan_pos_z, sphere{1}, dist_to_sample, ...
-                sphere{2}, sphere{3}, sphere{4}, backWall, n_rays, source_model, ...
+                PTS, sphere.make, sphere.c, sphere.r, sphere.scattering, ...
+                sphere.scattering_parameters, backWall, n_rays, source_model, ...
                 source_parameters);
     
     % The number of rays that died naturally, rather than being 'killed'

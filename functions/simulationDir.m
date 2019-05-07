@@ -21,12 +21,16 @@ function thePath = simulationDir(name)
     nameFolds(ismember(nameFolds,{'.','..'})) = [];
     
     % Get the largest index of folders so far in the simulations directory
-    dir_n = max_n(nameFolds);
-    dir_n = dir_n + 1;
+    if isempty(nameFolds)
+        dir_n = 1;
+    else
+        dir_n = max_n(nameFolds);
+        dir_n = dir_n + 1;
+    end
     
     % Create the name of the directory to save simulation results to
     dir_n = sprintf('%04i', dir_n);
-    thePath = [dir_n '_' name];
+    thePath = ['simulations/' dir_n '_' name];
 end
 
 % Get the maximum index of the cell array of folders.

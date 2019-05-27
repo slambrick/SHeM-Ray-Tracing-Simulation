@@ -45,8 +45,15 @@ source_model = 'Uniform';
 
 % Put the information in a cell array to pass through functions
 % TODO: use a struct rather than a cell array.
-direct_beam = {n_rays, pinhole_c, pinhole_r, theta_max, source_model, ...
-    init_angle, sigma_source};
+direct_beam.n = n_rays;
+direct_beam.pinhole_c = pinhole_c;
+direct_beam.pinhole_r = pinhole_r;
+direct_beam.theta_max = theta_max;
+direct_beam.source_model = source_model;
+direct_beam.init_angle = init_angle;
+direct_beam.sigma_source = sigma_source;
+%= {n_rays, pinhole_c, pinhole_r, theta_max, source_model, ...
+%    init_angle, sigma_source};
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
@@ -64,7 +71,10 @@ effuse_size = 0;
 % Information on the effuse beam
 n_effuse = n_rays*effuse_size;
 % TODO: use a struct rather than a cell array.
-effuse_beam = {n_effuse, pinhole_c, pinhole_r, cosine_n};
+effuse_beam.n = n_effuse;
+effuse_beam.pinhole_c = pinhole_c;
+effuse_beam.pinhole_r = pinhole_r;
+effuse_beam.cosine_n = cosine_n; %{n_effuse, pinhole_c, pinhole_r, cosine_n};
 
 %% Pinhole plate parameters
 % Specify how to model the pinhole plate:

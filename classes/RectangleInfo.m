@@ -27,7 +27,7 @@
 %
 % METHODS:
 %  TODO
-classdef RectangleInfo
+classdef RectangleInfo < handle
 
     properties %(SetAccess = immutable)
         counters;
@@ -47,12 +47,18 @@ classdef RectangleInfo
         raster_movment_z;
         time;
         time_estimate;
+        init_angle;
+        beam_param;
+        aperture_axes;
+        aperture_c;
+        dist_to_sample;
     end % End properties
     
     methods
         function obj = RectangleInfo(counters, num_killed, sample_surface, ...
                 xrange, zrange, raster_movment_x, raster_movment_z, ...
-                rays_per_pixel, n_effuse, time, t_estimate, cntr_effuse, n_detector, maxScatter)
+                rays_per_pixel, n_effuse, time, t_estimate, cntr_effuse, ...
+                n_detector, maxScatter, dist_to_sample, direct_beam)
             if nargin ~= 14
                 error('Wrong numer of input arguments');
             else
@@ -92,8 +98,18 @@ classdef RectangleInfo
                 obj.n_effuse = n_effuse;
                 obj.time = time;
                 obj.time_estimate = t_estimate;
+                obj.dist_to_sample = dist_to_sample;
+                obj.init_angle = direct_beam.init_angle;
+                obj.beam_param = direct_beam;
+                obj.aperture_c = NaN;
+                obj.aperture_axes = NaN;
             end
         end % End constructor
+        
+        function addDetectorInfo(obj, aperture_c, aperture_axes)
+            obj.aperture_c = aperture_c;
+            obj.aperture_axes = aperture_axes;
+        end
         
         function I = imageAll(obj, varargin)
         % Constructs an image based on the data in the RectangleInfo
@@ -222,7 +238,7 @@ classdef RectangleInfo
             ylabel('z/mm')
         end % End image enlarging function
         
-        function I = imageNoEffuse(obj, varargin)
+        function [I, cntrSum2] = imageNoEffuse(obj, varargin)
         % Produces a 2d image from the data explicitly without the effuse
         % contribution. See imageAll.
             for i_=1:2:length(varargin)
@@ -237,6 +253,8 @@ classdef RectangleInfo
                         limY = varargin{i_+1};
                     case 'detector'
                         detector = varargin{i_+1};
+                    case 'plot'
+                        make_plot = varargin{i_+1};
                     otherwise
                         warning(['Unknown input #' num2str(i_) ' to imageAll.']);
                 end
@@ -257,18 +275,20 @@ classdef RectangleInfo
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')
-                    I = obj.generalImage('im', cntrSum2, 'scale', ...
-                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, ...
+                        'specifyScale', specifyScale, 'limX', limX, ...
+                        'plot', make_plot, 'limY', limY);
                 else
-                    I = obj.generalImage('im', cntrSum2, 'scale', ...
-                        scale, 'limX', limX, 'limY', limY);
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, ...
+                        'limX', limX, 'limY', limY, 'plot', make_plot);
                 end
             else
-                I = obj.generalImage('im', cntrSum2, 'scale', scale);
+                I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
+                    make_plot);
             end
         end
         
-        function I = imageSingle(obj, varargin)
+        function [I, cntrSum2] = imageSingle(obj, varargin)
         % Produces an image from the single scattering contribution only.
         % See imageAll.
             for i_=1:2:length(varargin)
@@ -283,6 +303,8 @@ classdef RectangleInfo
                         limY = varargin{i_+1};
                     case 'detector'
                         detector = varargin{i_+1};
+                    case 'plot'
+                        make_plot = varargin{i_+1};
                     otherwise
                         warning(['Unknown input #' num2str(i_) ' to imageAll.']);
                 end
@@ -298,6 +320,9 @@ classdef RectangleInfo
             if ~exist('detector', 'var')
                 detector = 1;
             end
+            if ~exist('make_plot', 'var')
+                make_plot = true;
+            end
             
             counters = obj.counters{detector}; %#ok<PROPLC>
             cntrSummed = counters(1,:,:); %#ok<PROPLC>
@@ -310,18 +335,20 @@ classdef RectangleInfo
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')
-                    I = obj.generalImage('im', cntrSum2, 'scale', ...
-                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, ...
+                        'specifyScale', specifyScale, 'limX', limX, ...
+                        'plot', make_plot, 'limY', limY);
                 else
                     I = obj.generalImage('im', cntrSum2, 'scale', ...
-                        scale, 'limX', limX, 'limY', limY);
+                        scale, 'limX', limX, 'limY', limY, 'plot', make_plot);
                 end
             else
-                I = obj.generalImage('im', cntrSum2, 'scale', scale);
+                I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
+                    make_plot);
             end
         end
         
-        function I = imageMultiple(obj, varargin)
+        function [I, cntrSum2] = imageMultiple(obj, varargin)
         % Produces a 2d image from the multiple scattering contribution
         % only. See imageAll.
         
@@ -337,6 +364,8 @@ classdef RectangleInfo
                         limY = varargin{i_+1};
                     case 'detector'
                         detector = varargin{i_+1};
+                    case 'plot'
+                        make_plot = varargin{i_+1};
                     otherwise
                         warning(['Unknown input #' num2str(i_) ' to imageAll.']);
                 end
@@ -364,14 +393,16 @@ classdef RectangleInfo
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')
-                    I = obj.generalImage('im', cntrSum2, 'scale', ...
-                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, ...
+                        'specifyScale', specifyScale, 'limX', limX, ...
+                        'plot', make_plot, 'limY', limY);
                 else
-                    I = obj.generalImage('im', cntrSum2, 'scale', ...
-                        scale, 'limX', limX, 'limY', limY);
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, ...
+                        'limX', limX, 'limY', limY, 'plot', make_plot);
                 end
             else
-                I = obj.generalImage('im', cntrSum2, 'scale', scale);
+                I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
+                    make_plot);
             end
         end
         
@@ -611,7 +642,7 @@ classdef RectangleInfo
                 imwrite(I, [thePath '/single' num2str(i_) '.png']);
                 I = obj.imageMultiple('detector', i_);
                 title(['Detector ' num2str(i_)]);pause(0.1);
-                imwrite(I, [thePath '/single' num2str(i_) '.png']);
+                imwrite(I, [thePath '/multiple' num2str(i_) '.png']);
                 if obj.n_effuse == 0
                     I = obj.imageAll('detector', i_);
                     title(['Detector ' num2str(i_)]);pause(0.1);
@@ -668,9 +699,16 @@ classdef RectangleInfo
                         limX = varargin{i_+1};
                     case 'limY'
                         limY = varargin{i_+1};
+                    case 'plot'
+                        make_plot = varargin{i_+1};
                     otherwise
                         warning(['Unknown input #' num2str(i_) ' to imageAll.']);
                 end
+            end
+            
+            % Default inputs
+            if ~exist('make_plot', 'var')
+                make_plot = true;
             end
             
             % Generate the data
@@ -688,21 +726,23 @@ classdef RectangleInfo
                 error('must specify a valid gray scaling method');
             end
             
-            % Produce image
-            RI = imref2d(size(I));
-            RI.XWorldLimits = obj.xrange;
-            RI.YWorldLimits = obj.zrange;
-            figure
-            imshow(I, RI);
-            axis tight
-            if exist('limX', 'var')
-                xlim(limX);
+            if make_plot
+                % Produce image
+                RI = imref2d(size(I));
+                RI.XWorldLimits = obj.xrange;
+                RI.YWorldLimits = obj.zrange;
+                figure
+                imshow(I, RI);
+                axis tight
+                if exist('limX', 'var')
+                    xlim(limX);
+                end
+                if exist('limY', 'var')
+                    ylim(limY);
+                end
+                xlabel('-x/mm')
+                ylabel('z/mm')
             end
-            if exist('limY', 'var')
-                ylim(limY);
-            end
-            xlabel('-x/mm')
-            ylabel('z/mm')
         end % End general imaging function
     end % End private methods
 end

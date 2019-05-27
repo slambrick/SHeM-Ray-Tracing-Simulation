@@ -44,7 +44,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     
     % Estimate of the time for the simulation
     t_estimate = time_estimate('n_rays', direct_beam{1}, 'n_effuse', ...
-        effuse_beam{1}, 'sample_surface', sample_surface, 'n_pixels', N_pixels, ...
+        effuse_beam.n, 'sample_surface', sample_surface, 'n_pixels', N_pixels, ...
         'pinhole_model', pinhole_model);
     
     tic
@@ -154,7 +154,13 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     % Generate output square scan class
     square_scan_info = RectangleInfo(counters, num_killed, sample_surface, ...
         xrange, zrange, raster_movement_x, raster_movement_z, direct_beam{1}, ...
-        effuse_beam{1}, t, t_estimate, effuse_counters, n_detector, maxScatter);
+        effuse_beam.n, t, t_estimate, effuse_counters, n_detector, maxScatter, ...
+        dist_to_sample, direct_beam);
+    
+    % Add optional detector locations to square_scan_info
+    if strcmp(pinhole_model, 'N circle')
+        square_scan_info.addDetectorInfo(aperture_c, aperture_axes)
+    end
     
     % Draw and save images
     % All the images are saved giving maximum contrast in the images:
@@ -162,7 +168,10 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     %  white - pixel with the most counts
     % Only draws them if there is a GUI.
     if progressBar
-        %square_scan_info.produceImages(thePath);
+        square_scan_info.produceImages(thePath);
     end
+    
+    % Also save a reduced set of formatted data
+    formatOutput(square_scan_info, thePath);
 end
 

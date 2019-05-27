@@ -72,20 +72,20 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
         range(pinhole_surface.vertices(:,3))];
     
     % Get the nessacery source information
-    n_rays = beam{1};
-    pinhole_c = beam{2};
-    pinhole_r = beam{3};
+    n_rays = beam.n;
+    pinhole_c = beam.pinhole_c;
+    pinhole_r = beam.pinhole_r;
     switch which_beam
         case 'Uniform'
             source_model = 0;
-            theta_max = beam{4};
+            theta_max = beam.theta_max;
             sigma_source = 0;
-            init_angle = pi*beam{6}/180;
+            init_angle = pi*beam.init_angle/180;
         case 'Gaussian'
             source_model = 1;
             theta_max = 0;
-            init_angle = pi*beam{6}/180;
-            sigma_source = beam{7};
+            init_angle = pi*beam.init_angle/180;
+            sigma_source = beam.sigma_source;
         case 'Effuse'
             source_model = 2;
             theta_max = 0;

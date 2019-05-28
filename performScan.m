@@ -120,10 +120,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.0005/cosd(init_angle);
-raster_movment2D_z = 0.0005;
-xrange = [-0.08, 0.10];
-zrange = [-0.05, 0.05];
+raster_movment2D_x = 0.001/cosd(init_angle);
+raster_movment2D_z = 0.0011;
+xrange = [-0.15, 0.15];
+zrange = [-0.15, 0.15];
 
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
@@ -134,15 +134,15 @@ Direction = 'y';
 
 %% Sample parameters
 % The sample file, include the full path
-sample_fname = 'simulations/block_test.stl';
+sample_fname = 'simulations/block_test2.stl';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
-scale = 0.2;
+scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'A simple block extruding from a surface.';
+sample_description = 'A simple T extruding from a surface.';
 
 % What type of sample to use :
 %  'flat'   - A flat square (need to specify square_size)
@@ -179,7 +179,7 @@ square_size = 4;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'threeDetectorBlock1';
+directory_label = 'threeDetectorBlock2';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point

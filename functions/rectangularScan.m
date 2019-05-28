@@ -159,7 +159,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     
     % Add optional detector locations to square_scan_info
     if strcmp(pinhole_model, 'N circle')
-        square_scan_info.addDetectorInfo(thePlate{3}, thePlate{4})
+        square_scan_info.addDetectorInfo(thePlate{4}, thePlate{5})
     end
     
     % Draw and save images

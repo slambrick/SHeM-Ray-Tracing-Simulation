@@ -1,21 +1,20 @@
 function [im, param, beam_param] = formatOutput(simData, dataPath)
     % Core information on the image produced
-    [~, im.single{1}] = simData.imageSingle('detector', 2, 'plot', ...
-        false);
-    [~, im.single{2}] = simData.imageSingle('detector', 2, 'plot', ...
-        false);
+    for i_=1:simData.n_detector
+        [~, im.single{i_}] = simData.imageSingle('detector', i_, 'plot', ...
+            false);
+        [~, im.multiple{i_}] = simData.imageMultiple('detector', i_, 'plot', ...
+            false);
+    end
     im.raster_movement_x = simData.raster_movment_x;
     im.raster_movement_y = simData.raster_movment_z;
-    [~, im.multiple{1}] = simData.imageMultiple('detector', 1, 'plot', ...
-        false);
-    [~, im.multiple{2}] = simData.imageMultiple('detector', 2, 'plot', ...
-        false);
     
     % Main simulation parameters
-    param.detector_position{1} = simData.aperture_c(1:2);
-    param.detector_position{2} = simData.aperture_c(3:4);
-    param.detector_axes{1} = simData.aperture_axes(1:2);
-    param.detector_axes{2} = simData.aperture_axes(3:4);
+    for i_=1:simData.n_detector
+        inds = 2*i_:(2*i_+1) - 1;
+        param.detector_position{i_} = simData.aperture_c(inds);
+        param.detector_axes{i_} = simData.aperture_axes(inds);
+    end
     param.z_sample_to_detector = simData.dist_to_sample;
     param.rays_per_pixel = simData.rays_per_pixel;
     

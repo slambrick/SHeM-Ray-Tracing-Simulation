@@ -8,7 +8,7 @@ function [im, param, beam_param] = formatOutput(simData, dataPath)
     im.raster_movement_y = simData.raster_movment_z;
     [~, im.multiple{1}] = simData.imageMultiple('detector', 1, 'plot', ...
         false);
-    [~, im.mutliple{2}] = simData.imageMultiple('detector', 2, 'plot', ...
+    [~, im.multiple{2}] = simData.imageMultiple('detector', 2, 'plot', ...
         false);
     
     % Main simulation parameters
@@ -26,8 +26,8 @@ function [im, param, beam_param] = formatOutput(simData, dataPath)
     beam_param.pinhole_r = simData.beam_param.pinhole_r;
     beam_param.pinhole_c = simData.beam_param.pinhole_c;
     
-    % Save the formatted data to a subdirectory
-    if ~exist([thePath '/formatted'], 'dir')
+    % Save the formatted data to a subdirectory 
+    if ~exist([dataPath '/formatted'], 'dir')
         mkdir([dataPath '/formatted'])
     end
     dfile = [dataPath '/formatted/reconstructionSimulation.mat'];

@@ -32,7 +32,7 @@ pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.0025;
 
 % Number of rays to use and the width of the source
-n_rays = 30000;
+n_rays = 1000000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.05/100); 
@@ -103,10 +103,9 @@ circle_plate_r = 4;
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
 % direction ('z'). The apert0ure is always centred on the x-axis and is displaced
 % by the specified amount.
-n_detectors = 4;
-aperture_axes = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3];
-aperture_c = [tand(init_angle), 0, 0, tand(init_angle), 0, -tand(init_angle), ...
-    -2*tand(init_angle), 0];
+n_detectors = 3;
+aperture_axes = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
+aperture_c = [tand(init_angle), 0, 0, tand(init_angle), 0, -tand(init_angle)];
 plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -121,9 +120,9 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.002/cosd(init_angle);
-raster_movment2D_z = 0.002;
-xrange = [-0.2, 0.2];
+raster_movment2D_x = 0.001/cosd(init_angle);
+raster_movment2D_z = 0.001;
+xrange = [-0.15, 0.15];
 zrange = [-0.1, 0.1];
 
 %% Parameters for a 1d scan
@@ -164,10 +163,10 @@ diffuse = [1, 90*pi/180];
 dist_to_sample = 1;
 
 % The radius of the anayltic sphere (mm) (if it being included)
-sphere_r = 0.05;
+sphere_r = 0.1;
 
 % Centre of the anayltic sphere (mm)
-sphere_c = [0, -dist_to_sample + sphere_r, 0];
+sphere_c = [0, -dist_to_sample - sphere_r*2/3, 0];
 
 % If a flat sample is being used or if a sphere on a flat surface what is the 
 % length of the sides of the square.
@@ -177,7 +176,7 @@ square_size = 4;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'RGBtest';
+directory_label = 'threeDetectorReconstruction';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point

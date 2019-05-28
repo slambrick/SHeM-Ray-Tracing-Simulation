@@ -59,7 +59,7 @@ classdef RectangleInfo < handle
                 xrange, zrange, raster_movment_x, raster_movment_z, ...
                 rays_per_pixel, n_effuse, time, t_estimate, cntr_effuse, ...
                 n_detector, maxScatter, dist_to_sample, direct_beam)
-            if nargin ~= 14
+            if nargin ~= 16
                 error('Wrong numer of input arguments');
             else
                 obj.n_detector = n_detector;
@@ -380,6 +380,9 @@ classdef RectangleInfo < handle
             end
             if ~exist('detector', 'var')
                 detector = 1;
+            end
+            if ~exist('make_plot', 'var')
+                make_plot = true;
             end
             
             counters2 = obj.counters{detector}(2:end, :, :);

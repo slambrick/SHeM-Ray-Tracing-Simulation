@@ -37,7 +37,7 @@
 function sample_surface = inputSample(varargin)
     
     for i_=1:2:length(varargin)
-        switch varargin{i_};
+        switch varargin{i_}
             case 'fname'
                 fname = varargin{i_+1};
             case 'scattering'
@@ -50,8 +50,11 @@ function sample_surface = inputSample(varargin)
                 dontMeddle = varargin{i_+1};
             case 'parameters'
                 scattering_parameters = varargin{i_+1};
+            case 'working_dist'
+                working_dist = varargin{i_+1};
             otherwise
                 warning([' Input ' num2str(i_) ' not recognised.'])
+        end
     end
     
     % Default inputs
@@ -111,7 +114,7 @@ function sample_surface = inputSample(varargin)
         interestingV = V(~ind,:);
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
-        moveX = (plate_dist - 2.121) - middleX;
+        moveX = (plate_dist - working_dist) - middleX;
         sample_surface.moveBy([moveX, 0, -middleZ]);
     end
 end

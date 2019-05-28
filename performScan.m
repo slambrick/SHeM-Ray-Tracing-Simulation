@@ -32,10 +32,10 @@ pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.0025;
 
 % Number of rays to use and the width of the source
-n_rays = 1000000;
+n_rays = 400000;
 
 % skimmer radius over source - pinhole distance
-theta_max = atan(0.05/100); 
+theta_max = atan(0.01/100); 
 
 % Standard deviationo of the Gaussian model of the source
 sigma_source = 0.1;
@@ -120,10 +120,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.001/cosd(init_angle);
-raster_movment2D_z = 0.001;
-xrange = [-0.15, 0.15];
-zrange = [-0.1, 0.1];
+raster_movment2D_x = 0.0005/cosd(init_angle);
+raster_movment2D_z = 0.0005;
+xrange = [-0.08, 0.10];
+zrange = [-0.05, 0.05];
 
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
@@ -134,7 +134,7 @@ Direction = 'y';
 
 %% Sample parameters
 % The sample file, include the full path
-sample_fname = 'simulations/001_example/example_sample.stl';
+sample_fname = 'simulations/block_test.stl';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -142,14 +142,14 @@ scale = 0.2;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'A sample with some example topography.';
+sample_description = 'A simple block extruding from a surface.';
 
 % What type of sample to use :
 %  'flat'   - A flat square (need to specify square_size)
 %  'sphere' - An anlaytic sphere on a flat square surface (need to specify 
 %             square_size and sphere_r)
 %  'custom' - Uses the CAD model provided in the .stl file
-sample_type = 'sphere';
+sample_type = 'custom';
 
 % The level of diffuse scattering for the sample, between 0 and 1, 2 gives a 
 % uniform distribution. This is used for both triangulated surface and the
@@ -161,6 +161,9 @@ diffuse = [1, 90*pi/180];
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
 dist_to_sample = 1;
+
+% The nominal working distance of the geometry
+working_dist = 1;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
@@ -176,7 +179,7 @@ square_size = 4;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'threeDetectorReconstruction';
+directory_label = 'threeDetectorBlock1';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -288,7 +291,7 @@ switch sample_type
     case 'custom'
         sample_surface = inputSample('fname', sample_fname, 'scattering', ...
             diffuse(1), 'plate_dist', dist_to_sample, 'scale', scale, ...
-            'scattering_parameters', diffuse(2));
+            'parameters', diffuse(2), 'working_dist', 1);
         make_sphere = 0;
 end
 

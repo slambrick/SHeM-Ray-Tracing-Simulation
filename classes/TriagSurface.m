@@ -112,6 +112,12 @@ classdef TriagSurface < handle
             obj.moveBy([0, max(abs(obj.vertices(:,2))), 0]);
         end % End pinhole plate align function
         
+        function plate_align_newmicro(obj)
+            % Offset correctly
+            offset = min(obj.vertices(:,2));
+            obj.moveBy([0, -offset, 0]);
+        end
+        
         function rotateY(obj)
         % Rotates the object by 90deg clockwise about the y axis.
             V = obj.vertices;

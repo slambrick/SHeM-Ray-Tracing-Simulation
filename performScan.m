@@ -32,7 +32,7 @@ pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.0025;
 
 % Number of rays to use and the width of the source
-n_rays = 400000;
+n_rays = 100000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -103,9 +103,9 @@ circle_plate_r = 4;
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
 % direction ('z'). The apert0ure is always centred on the x-axis and is displaced
 % by the specified amount.
-n_detectors = 3;
-aperture_axes = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
-aperture_c = [tand(init_angle), 0, 0, tand(init_angle), 0, -tand(init_angle)];
+n_detectors = 1;
+aperture_axes = [0.2, 0.2];
+aperture_c = [tand(init_angle), 0];
 plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -179,7 +179,7 @@ square_size = 4;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'threeDetectorBlock2';
+directory_label = 'rotateBlock2';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point

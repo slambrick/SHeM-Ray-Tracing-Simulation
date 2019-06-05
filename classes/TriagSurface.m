@@ -161,6 +161,26 @@ classdef TriagSurface < handle
             obj.normals(:,2) = -N(:,1);    
         end % End rotation function
         
+        function rotateGeneral(obj, axis, theta)
+        % Arbitray rotation about any axis.
+        %
+        % axis  - string, 'x', 'y', 'z'
+        % theta - double, rotation angle in degrees
+           theta = theta*pi/180;
+           s = sin(theta);
+           c = cos(theta);
+           switch axis
+               case 'x'
+                   R = [1, 0, 0; 0, c, -s, 0, s, c];
+               case 'y'
+                   R = [c, 0, s; 0, 1, 0; -s, 0, c];
+               case 'z'
+                   R = [c, -s, 0; s, c, 0; 0, 0, 1];
+           end
+           obj.vertices = (R*obj.vertices')';
+           obj.normals = (R*obj.normals')';
+        end
+        
         function rotate(obj, rot_axis, angle)
         % Rotates the object counterclockwise by the given angle.
         % Doesn't work!!!!! (issue with the normals)

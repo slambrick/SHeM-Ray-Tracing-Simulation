@@ -15,8 +15,8 @@ clear
 % simulation.
 maxScatter = 10;
 
-% Type of scan 'line', 'rectangular', or 'single pixel'
-typeScan = 'rectangular';
+% Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
+typeScan = 'rotations';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
@@ -25,14 +25,14 @@ recompile = false;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 30;
+init_angle = 0;
 
 % Geometry of pinhole
 pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.0025;
 
 % Number of rays to use and the width of the source
-n_rays = 100000;
+n_rays = 50000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -103,9 +103,9 @@ circle_plate_r = 4;
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
 % direction ('z'). The apert0ure is always centred on the x-axis and is displaced
 % by the specified amount.
-n_detectors = 1;
-aperture_axes = [0.2, 0.2];
-aperture_c = [tand(init_angle), 0];
+n_detectors = 4;
+aperture_axes = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3];
+aperture_c = [0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5];
 plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -120,10 +120,14 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.001/cosd(init_angle);
-raster_movment2D_z = 0.0011;
+raster_movment2D_x = 0.005;
+raster_movment2D_z = 0.005;
 xrange = [-0.15, 0.15];
 zrange = [-0.15, 0.15];
+
+%% Rotating parameters
+% Parameters for multiple images while rotating the sample.
+rot_angles = [0, 120, 240];
 
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
@@ -142,7 +146,7 @@ scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'A simple T extruding from a surface.';
+sample_description = 'A simple T shape.';
 
 % What type of sample to use :
 %  'flat'   - A flat square (need to specify square_size)
@@ -179,7 +183,7 @@ square_size = 4;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'rotateBlock2';
+directory_label = 'rotatingSample';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -251,7 +255,8 @@ end
 
 %% Paths to functions
 addpath('stlread', 'functions', 'functions/interface_functions', 'classes', ...
-        'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', 'functions/standard_samples');
+        'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', 'functions/standard_samples', ...
+        'surf2stl');
 
 %% Path for simulation results
 
@@ -319,7 +324,7 @@ if true %feature('ShowFigureWindows')
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
     end
     
-    if strcmp(typeScan, 'rectangular') 
+    if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations')
         xlim([-xrange(2) -xrange(1)]);
         zlim(zrange);
         ylim(zrange - dist_to_sample);
@@ -462,6 +467,29 @@ switch typeScan
         simulationData = singlePixel(sample_surface, direct_beam, ...
             maxScatter, pinhole_surface, effuse_beam, dist_to_sample, sphere, ...
             thePath, save_to_text, pinhole_model, thePlate, apertureAbstract);
+    case 'rotations'
+        % Perform multiple scans while rotating the sample in between.
+        simulationData = {};
+        h = waitbar(0, 'Proportion of simulations performed');
+        N = length(rot_angles);
+        
+        % Loop through the rotations
+        for i_=1:N
+            s_surface = copy(sample_surface);
+            s_surface.rotateGeneral('y', rot_angles(i_));
+            subPath = [thePath '/rotation' num2str(rot_angles(i_))];
+            if ~exist(subPath, 'dir')
+                mkdir(subPath)
+            end
+            
+            simulationData{i_} = rectangularScan(s_surface, xrange, zrange, ...
+                direct_beam, raster_movment2D_x, raster_movment2D_z, ...
+                maxScatter, pinhole_surface, effuse_beam, ...
+                dist_to_sample, sphere, subPath, pinhole_model, ...
+                thePlate, apertureAbstract, ray_model, n_detectors); %#ok<SAGROW>
+            
+            waitbar(i_/N, h);
+        end
     otherwise
         error(['Need to specify a valid type of scan: "line", ', ...
                '"rectangular", "single pixel"']);

@@ -58,8 +58,8 @@ function t = time_estimate(varargin)
             ct_plate = 0;
         case 'N circle'
             % TODO: update
-            ct_direct = 1.4962e-07/5;
-            ct_effuse = 1.7794e-07/5;
+            ct_direct = 0;
+            ct_effuse = 0;
             ct_plate = 0;
         case 'new micro'
             % TODO: update

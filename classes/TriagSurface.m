@@ -50,6 +50,16 @@ classdef TriagSurface < handle
         %  obj - A TriagSurface object that contains the surface.
             if (nargin == 0)
                 % Default, creates an empty object
+            elseif nargin == 3
+                C = ones(size(V, 1), 1);
+                P = zeros(size(V, 1), 1);
+                obj.vertices = V;
+                obj.normals = N;
+                obj.faces = F;
+                obj.composition = C;
+                obj.parameters = P;
+                obj.nTriag = length(C);
+                obj.nVertices = size(V, 1);
             elseif (nargin == 5)
                 if (size(size(V), 2) ~= 2)
                     error('Input arguments must all be 2D arrays')

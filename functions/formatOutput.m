@@ -11,9 +11,13 @@ function [im, param, beam_param] = formatOutput(simData, dataPath)
     
     % Main simulation parameters
     for i_=1:simData.n_detector
-        inds = 2*i_:(2*i_+1) - 1;
+        inds = (2*i_:(2*i_+1)) - 1;
         param.detector_position{i_} = simData.aperture_c(inds);
         param.detector_axes{i_} = simData.aperture_axes(inds);
+        x = simData.aperture_c(inds(1));
+        y = simData.aperture_c(inds(2));
+        z = simData.dist_to_sample;
+        param.detector_vector{i_} = [x, y, z]/norm([x, y, z]);
     end
     param.z_sample_to_detector = simData.dist_to_sample;
     param.rays_per_pixel = simData.rays_per_pixel;

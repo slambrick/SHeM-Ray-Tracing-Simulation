@@ -304,7 +304,7 @@ sphere.scattering_parameter = diffuse(2);
 sphere.c = sphere_c;
 
 % Do any extra manipulation of the sample here
-if false
+if true
     %sample_surface.rotateX;
     sample_surface.rotateY;
     sample_surface.rotateY;

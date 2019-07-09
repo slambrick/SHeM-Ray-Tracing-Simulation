@@ -13,10 +13,10 @@ clear
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
 % this uneccaserily large will increase the memory requirments of the
 % simulation.
-maxScatter = 10;
+maxScatter = 50;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'rotations';
+typeScan = 'line';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
@@ -25,14 +25,14 @@ recompile = false;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 0;
+init_angle = 45;
 
 % Geometry of pinhole
-pinhole_c = [-tand(init_angle), 0, 0];
-pinhole_r = 0.0025;
+pinhole_c = 2.121*[-tand(init_angle), 0, 0];
+pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 50000;
+n_rays = 2000000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -66,7 +66,7 @@ cosine_n = 1;
 
 % How large is the effusive beam (proportion of the size of the main beam). Set
 % to zero if the effusive beam is not to be moddeled
-effuse_size = 0;
+effuse_size = 5;
 
 % Information on the effuse beam
 n_effuse = n_rays*effuse_size;
@@ -90,7 +90,7 @@ effuse_beam.cosine_n = cosine_n; %{n_effuse, pinhole_c, pinhole_r, cosine_n};
 %  'new'       - TODO
 %  'new_micro' - TODO
 %  'abstract'  - TODO
-pinhole_model = 'N circle';
+pinhole_model = 'stl';
 
 % In the case of the predefined CAD model, specify the accuraccy of the
 % triangulation, 'low', 'medium', or 'high' (use 'low').
@@ -104,7 +104,7 @@ circle_plate_r = 4;
 % direction ('z'). The apert0ure is always centred on the x-axis and is displaced
 % by the specified amount.
 n_detectors = 4;
-aperture_axes = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3];
+aperture_axes = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2];
 aperture_c = [0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5];
 plate_represent = 0;
 
@@ -120,20 +120,20 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.005;
-raster_movment2D_z = 0.005;
+raster_movment2D_x = 0.001;
+raster_movment2D_z = 0.001;
 xrange = [-0.15, 0.15];
-zrange = [-0.15, 0.15];
+zrange = [-0.1, 0.1];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
-rot_angles = [0, 120, 240];
+rot_angles = [0, 90, 180, 270];
 
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
 % behind the pinhole plate.
-raster_movment1D = 1e-2;
-range1D = [-1 3];
+raster_movment1D = 200e-3;
+range1D = [-1 4];
 Direction = 'y';
 
 %% Sample parameters
@@ -153,7 +153,7 @@ sample_description = 'A simple T shape.';
 %  'sphere' - An anlaytic sphere on a flat square surface (need to specify 
 %             square_size and sphere_r)
 %  'custom' - Uses the CAD model provided in the .stl file
-sample_type = 'custom';
+sample_type = 'flat';
 
 % The level of diffuse scattering for the sample, between 0 and 1, 2 gives a 
 % uniform distribution. This is used for both triangulated surface and the
@@ -164,10 +164,10 @@ diffuse = [1, 90*pi/180];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 1;
+dist_to_sample = 2.121;
 
 % The nominal working distance of the geometry
-working_dist = 1;
+working_dist = 2.121;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
@@ -177,13 +177,13 @@ sphere_c = [0, -dist_to_sample - sphere_r*2/3, 0];
 
 % If a flat sample is being used or if a sphere on a flat surface what is the 
 % length of the sides of the square.
-square_size = 4;
+square_size = 8;
 
 %% Output and plotting parameters
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'rotatingSample';
+directory_label = 'backgroundSignal';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -490,6 +490,8 @@ switch typeScan
             
             waitbar(i_/N, h);
         end
+        close(h);
+        delete(h);
     otherwise
         error(['Need to specify a valid type of scan: "line", ', ...
                '"rectangular", "single pixel"']);

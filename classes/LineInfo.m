@@ -115,7 +115,7 @@ classdef LineInfo
             xs = obj.sample_positions;
             
             if obj.Direction == 'y'
-                xs = xs + 1;
+                xs = xs + 2.121;
             end
             
             figure

@@ -18,7 +18,21 @@
 % OUPUT:
 %  pinhole_surface - TriagSurface object containing the triangulation of the
 %                     pinhole plate.
-function pinhole_surface = import_newPlate(plate_fname)
+function pinhole_surface = import_newPlate(accuracy)
+    if nargin == 0
+        accuracy = 'low';
+    end
+    
+    switch accuracy
+        case 'low'
+            plate_fname = 'pinholePlates/newChamberPlate_low.stl';
+        case 'medium'
+            plate_fname = 'pinholePlates/newChamberPlate_medium.stl';
+        case 'high'
+            plate_fname = 'pinholePlates/newChamberPlate_high.stl';
+        otherwise
+            error('Enter a correct pinhole plate accuracy');
+    end
     
     % Import data from file.
     [F, V, N] = stlread(plate_fname);
@@ -31,11 +45,6 @@ function pinhole_surface = import_newPlate(plate_fname)
     pinhole_surface = TriagSurface(V, N, F, C, P);
     
     % Align the plate to match the simulation
-    pinhole_surface.rotateX;
-    pinhole_surface.rotateY;
-    pinhole_surface.rotateY;
-    pinhole_surface.rotateZ;
-    pinhole_surface.rotateZ;
-    pinhole_surface.moveBy([-3, 11, 0])
+    pinhole_surface.plate_align;
 end
 

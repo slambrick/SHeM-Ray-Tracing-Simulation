@@ -86,8 +86,9 @@ effuse_beam.cosine_n = cosine_n; %{n_effuse, pinhole_c, pinhole_r, cosine_n};
 %                proabability through the detector cone
 %  'circle'    - Use the detector aperture and model the pinhole plate as a
 %                circle
-%  'N circle'  -
-%  'new'       - TODO
+%  'N circle'  - There are N circles in a plane as detector apertures
+%  'new'       - CAD model of the pinhole plate in the new sample chamber (Apr
+%                2019)
 %  'new_micro' - TODO
 %  'abstract'  - TODO
 pinhole_model = 'stl';
@@ -366,7 +367,7 @@ switch pinhole_model
         thePlate = 0;
         apertureAbstract = 0;
     case 'new'
-        pinhole_surface = import_newPlate();
+        pinhole_surface = import_newPlate(plate_accuracy);
 
         % Plot if using a graphical window
         if ~isOctave
@@ -384,6 +385,9 @@ switch pinhole_model
         % To pass to the functions
         thePlate = 0;
         apertureAbstract = 0;
+    case 'new_micro'
+        % TODO
+        error('Not written this bit of code yet...');
     otherwise
         % Do not have a CAD repreentation of the pinhole plate
 

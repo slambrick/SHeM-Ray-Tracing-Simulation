@@ -16,7 +16,7 @@ clear
 maxScatter = 50;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'line';
+typeScan = 'rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
@@ -25,14 +25,14 @@ recompile = false;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 45;
+init_angle = 0;
 
 % Geometry of pinhole
-pinhole_c = 2.121*[-tand(init_angle), 0, 0];
+pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 2000000;
+n_rays = 20000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -66,7 +66,7 @@ cosine_n = 1;
 
 % How large is the effusive beam (proportion of the size of the main beam). Set
 % to zero if the effusive beam is not to be moddeled
-effuse_size = 5;
+effuse_size = 0;
 
 % Information on the effuse beam
 n_effuse = n_rays*effuse_size;
@@ -91,7 +91,7 @@ effuse_beam.cosine_n = cosine_n; %{n_effuse, pinhole_c, pinhole_r, cosine_n};
 %                2019)
 %  'new_micro' - TODO
 %  'abstract'  - TODO
-pinhole_model = 'stl';
+pinhole_model = 'N circle';
 
 % In the case of the predefined CAD model, specify the accuraccy of the
 % triangulation, 'low', 'medium', or 'high' (use 'low').
@@ -121,10 +121,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.001;
-raster_movment2D_z = 0.001;
-xrange = [-0.15, 0.15];
-zrange = [-0.1, 0.1];
+raster_movment2D_x = 0.005;
+raster_movment2D_z = 0.005;
+xrange = [-0.2, 0.2];
+zrange = [-0.2, 0.2];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -153,8 +153,12 @@ sample_description = 'A simple T shape.';
 %  'flat'   - A flat square (need to specify square_size)
 %  'sphere' - An anlaytic sphere on a flat square surface (need to specify 
 %             square_size and sphere_r)
+%  'photoStereo' - A test sample for photo stereo that includes part of a
+%                  sphere along with input from a CAD file
 %  'custom' - Uses the CAD model provided in the .stl file
-sample_type = 'flat';
+%  'airy'   - TODO
+%  'corrugation' - TODO
+sample_type = 'photoStereo';
 
 % The level of diffuse scattering for the sample, between 0 and 1, 2 gives a 
 % uniform distribution. This is used for both triangulated surface and the
@@ -165,16 +169,16 @@ diffuse = [1, 90*pi/180];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 2.121;
+dist_to_sample = 1;
 
 % The nominal working distance of the geometry
-working_dist = 2.121;
+working_dist = 1;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
 
 % Centre of the anayltic sphere (mm)
-sphere_c = [0, -dist_to_sample - sphere_r*2/3, 0];
+sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
 
 % If a flat sample is being used or if a sphere on a flat surface what is the 
 % length of the sides of the square.
@@ -184,7 +188,7 @@ square_size = 8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'backgroundSignal';
+directory_label = 'sphere_displace';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -299,6 +303,12 @@ switch sample_type
             diffuse(1), 'plate_dist', dist_to_sample, 'scale', scale, ...
             'parameters', diffuse(2), 'working_dist', 1);
         make_sphere = 0;
+    case 'photoStereo'
+        sample_surface = photo_stereo_test(working_dist);
+        make_sphere = 1;
+        sphere_r = 0.05;
+        sphere_c = [-0.1, -dist_to_sample - sphere_r*2/3, -0.1];
+        diffuse = [1, 90*pi/180];
 end
 
 % A struct to represent the sphere

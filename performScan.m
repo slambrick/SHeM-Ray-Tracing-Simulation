@@ -16,7 +16,7 @@ clear
 maxScatter = 50;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'rectangular';
+typeScan = 'rotations';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
@@ -25,14 +25,14 @@ recompile = false;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 0;
+init_angle = 30;
 
 % Geometry of pinhole
 pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 20000;
+n_rays = 200000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -121,14 +121,14 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.005;
-raster_movment2D_z = 0.005;
+raster_movment2D_x = 0.002;
+raster_movment2D_z = 0.002;
 xrange = [-0.2, 0.2];
 zrange = [-0.2, 0.2];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
-rot_angles = [0, 90, 180, 270];
+rot_angles = [0, 120, 240];
 
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go

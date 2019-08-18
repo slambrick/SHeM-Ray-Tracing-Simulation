@@ -1,3 +1,28 @@
+% formatOutput.m
+%
+% Copyright (c) 2019, Sam Lambrick.
+% All rights reserved.
+% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% GNU/GPL-3.0-or-later.
+%
+% Formats the results of a simulation into a more useful/simple format.
+% Useful for then using with Photo-Stereo reconstruction or similar. Ouputs
+% the data in structures rather than objects so that the class file is not
+% needed.
+% 
+% Calling syntax:
+%  [im, param, beam_param] = formatOutput(simData, dataPath)
+% 
+% INPUTS:
+%  simData  - The simulation data file, needs to be a rectangular scan
+%             result
+%  dataPath - Relative path to save the formatted output to. Output is put
+%             in a subdirectory in this path
+%
+% OUTPUTS:
+%  im         - Image results
+%  param      - General parameters of the simulation
+%  beam_param - Parameters for the set up of the beam
 function [im, param, beam_param] = formatOutput(simData, dataPath)
     % Core information on the image produced
     for i_=1:simData.n_detector

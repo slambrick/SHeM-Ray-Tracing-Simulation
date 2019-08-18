@@ -486,11 +486,20 @@ switch typeScan
         simulationData = {};
         h = waitbar(0, 'Proportion of simulations performed');
         N = length(rot_angles);
+        sphere_centre = sphere.c;
         
         % Loop through the rotations
         for i_=1:N
             s_surface = copy(sample_surface);
             s_surface.rotateGeneral('y', rot_angles(i_));
+            
+            % Rotate the centre of the sphere
+            theta = rot_angles(i_)*pi/180;
+            s = sin(theta);
+            c = cos(theta);
+            R = [c, 0, s; 0, 1, 0; -s, 0, c];
+            sphere.c = (R*sphere_centre')';
+            
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
                 mkdir(subPath)

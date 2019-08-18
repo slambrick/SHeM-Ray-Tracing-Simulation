@@ -670,6 +670,12 @@ classdef RectangleInfo < handle
             %end
         end % End image creation and saving function.
         
+        function ProduceImagesScaled(obj, thePath)
+        % Produces and saves a series of images from the simulation, uses a
+        % constant greyscale across all images
+            
+        end
+        
         function counts = saveCounts(obj, fname, contribution)
         % Saves a matrix of the counts of one of the contributions to a comma
         % delimated text file of the given name.

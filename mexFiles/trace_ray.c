@@ -299,8 +299,8 @@ int32_t trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, in
                 n_allScatters++;
                 
                 /* Hit the sample */
-                if ((the_ray->on_element == Sample.surf_index) || 
-                        (the_ray->on_element == the_sphere.surf_index)) {
+                if ((the_ray->on_surface == Sample.surf_index) || 
+                        (the_ray->on_surface == the_sphere.surf_index)) {
                     the_ray->nScatters++;
                 }
                 break;

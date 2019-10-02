@@ -13,10 +13,10 @@ clear
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
 % this uneccaserily large will increase the memory requirments of the
 % simulation.
-maxScatter = 50;
+maxScatter = 20;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'rotations';
+typeScan = 'rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
@@ -25,14 +25,14 @@ recompile = false;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 30;
+init_angle = 45;
 
 % Geometry of pinhole
-pinhole_c = [-tand(init_angle), 0, 0];
-pinhole_r = 0.001;
+pinhole_c = 2.121*[-tand(init_angle), 0, 0];
+pinhole_r = 0.0006;
 
 % Number of rays to use and the width of the source
-n_rays = 200000;
+n_rays = 50000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -91,7 +91,7 @@ effuse_beam.cosine_n = cosine_n; %{n_effuse, pinhole_c, pinhole_r, cosine_n};
 %                2019)
 %  'new_micro' - TODO
 %  'abstract'  - TODO
-pinhole_model = 'N circle';
+pinhole_model = 'stl';
 
 % In the case of the predefined CAD model, specify the accuraccy of the
 % triangulation, 'low', 'medium', or 'high' (use 'low').
@@ -104,10 +104,10 @@ circle_plate_r = 4;
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
 % direction ('z'). The apert0ure is always centred on the x-axis and is displaced
 % by the specified amount.
-n_detectors = 4;
-aperture_axes = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2];
-aperture_c = [0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5];
-plate_represent = 0;
+n_detectors = 1;
+aperture_axes = [sqrt(2), 1];
+aperture_c = [2.35, 0];
+plate_represent = 1;
 
 % In the case of 'abstract', specify the two angles of the location of the
 % detector aperture and the half cone angle of its extent. Note that the
@@ -121,10 +121,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.002;
-raster_movment2D_z = 0.002;
-xrange = [-0.2, 0.2];
-zrange = [-0.2, 0.2];
+raster_movment2D_x = 0.001;
+raster_movment2D_z = 0.001;
+xrange = [-0.04, 0.04];
+zrange = [-0.07, 0.07];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -139,7 +139,7 @@ Direction = 'y';
 
 %% Sample parameters
 % The sample file, include the full path
-sample_fname = 'simulations/block_test2.stl';
+sample_fname = 'deep_trench_sample.stl';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -147,7 +147,7 @@ scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'A simple T shape.';
+sample_description = 'A deep fibbed trench for testing multiple scattering.';
 
 % What type of sample to use :
 %  'flat'   - A flat square (need to specify square_size)
@@ -158,7 +158,7 @@ sample_description = 'A simple T shape.';
 %  'custom' - Uses the CAD model provided in the .stl file
 %  'airy'   - TODO
 %  'corrugation' - TODO
-sample_type = 'photoStereo';
+sample_type = 'custom';
 
 % The level of diffuse scattering for the sample, between 0 and 1, 2 gives a 
 % uniform distribution. This is used for both triangulated surface and the
@@ -169,10 +169,10 @@ diffuse = [1, 90*pi/180];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 1;
+dist_to_sample = 2.121;
 
 % The nominal working distance of the geometry
-working_dist = 1;
+working_dist = 2.121;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
@@ -188,7 +188,7 @@ square_size = 8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'sphere_displace';
+directory_label = 'deep_trench_test';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -301,7 +301,7 @@ switch sample_type
     case 'custom'
         sample_surface = inputSample('fname', sample_fname, 'scattering', ...
             diffuse(1), 'plate_dist', dist_to_sample, 'scale', scale, ...
-            'parameters', diffuse(2), 'working_dist', 1);
+            'parameters', diffuse(2), 'working_dist', working_dist);
         make_sphere = 0;
     case 'photoStereo'
         sample_surface = photo_stereo_test(working_dist);
@@ -320,7 +320,7 @@ sphere.scattering_parameter = diffuse(2);
 sphere.c = sphere_c;
 
 % Do any extra manipulation of the sample here
-if true
+if false
     %sample_surface.rotateX;
     sample_surface.rotateY;
     sample_surface.rotateY;

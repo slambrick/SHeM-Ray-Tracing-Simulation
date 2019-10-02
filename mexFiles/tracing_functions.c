@@ -241,12 +241,12 @@ int scatterSurfaces(Ray3D *the_ray, Surface3D *Sample, Surface3D *Plate,
         double composition;
         double scattering_parameters;
         
-        if (meets_sphere == 1) {
+        if (meets_sphere) {
             /* sphere is defined to be uniform */
             composition = the_sphere.composition;
             scattering_parameters = the_sphere.scattering_parameters;
         } else {
-            if (which_surface == 1) {
+            if (which_surface == Plate->surf_index) {
                 composition = Plate->composition[tri_hit];
                 scattering_parameters = Plate->scattering_parameters[tri_hit];
             } else {

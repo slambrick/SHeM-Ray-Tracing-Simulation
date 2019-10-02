@@ -100,6 +100,8 @@ function sample_surface = inputSample(varargin)
     P = zeros(size(F,1), 1) + scattering_parameters;
     sample_surface = TriagSurface(V, N, F, C, P);
     
+    sample_surface.rotateY;
+    
     if ~dontMeddle
         % Move the sample into the right starting position
         move = -plate_dist - max(sample_surface.vertices(:,2));

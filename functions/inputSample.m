@@ -14,7 +14,10 @@
 % back and extremes of the sample, i.e. the corners of the block the sample sits
 % on. Note that issues may arise if there a holes all the way through the
 % sample, in that case the positioning should be done manually.
-%  
+% 
+% Calling syntax:
+%  sample_surface = inputSample('name', value, ...)
+%
 % INPUTS:
 %  fname      - string, the name of the .stl file to inport
 %  scattering - double, defines the scattering from the sample:

@@ -32,7 +32,7 @@ pinhole_c = 2.121*[-tand(init_angle), 0, 0];
 pinhole_r = 0.0006;
 
 % Number of rays to use and the width of the source
-n_rays = 50000;
+n_rays = 100000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -121,10 +121,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.001;
+raster_movment2D_x = 0.001*sqrt(2);
 raster_movment2D_z = 0.001;
-xrange = [-0.04, 0.04];
-zrange = [-0.07, 0.07];
+xrange = [-0.035, 0.035];
+zrange = [-0.065, 0.065];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -139,7 +139,7 @@ Direction = 'y';
 
 %% Sample parameters
 % The sample file, include the full path
-sample_fname = 'deep_trench_sample.stl';
+sample_fname = 'shallow_trench_sample.stl';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -169,7 +169,7 @@ diffuse = [1, 90*pi/180];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 2.121;
+dist_to_sample = 2.5;
 
 % The nominal working distance of the geometry
 working_dist = 2.121;
@@ -188,7 +188,7 @@ square_size = 8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'deep_trench_test';
+directory_label = 'shallow_trench_test';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -411,52 +411,9 @@ switch pinhole_model
 end
     
 %% Compile the mex files
-% must include the GSL libraries
-% The -ffast-math improves speed
-if recompile
-    % For stl pinhole plate and sample
-    mex -lgsl -lm -lgslcblas CFLAGS="\$CFLAGS -Wall" ...
-        mexFiles/tracingMex.c            mexFiles/trace_ray.c ...
-        mexFiles/tracing_functions.c ...
-        mexFiles/scattering3D.c          mexFiles/scattering_processes3D.c ...
-        mexFiles/ray_tracing_structs3D.c mexFiles/small_functions3D.c ...
-        mexFiles/common_helpers.c
-    mex -lgsl -lm -lgslcblas CFLAGS="\$CFLAGS -Wall" ...
-        mexFiles/tracingGenMex.c         mexFiles/trace_ray.c ...
-        mexFiles/tracing_functions.c ...
-        mexFiles/scattering3D.c          mexFiles/scattering_processes3D.c ...
-        mexFiles/ray_tracing_structs3D.c mexFiles/small_functions3D.c ...
-        mexFiles/common_helpers.c
-    
-    % For a simple model of the pinhole plate
-    mex -lgsl -lm -lgslcblas CFLAGS="\$CFLAGS -Wall" ...
-        mexFiles/tracingSimpleMex.c      mexFiles/trace_ray.c ...
-        mexFiles/tracing_functions.c ...
-        mexFiles/scattering3D.c          mexFiles/scattering_processes3D.c ...
-        mexFiles/ray_tracing_structs3D.c mexFiles/small_functions3D.c ...
-        mexFiles/common_helpers.c
-    mex -lgsl -lm -lgslcblas CFLAGS="\$CFLAGS -Wall" ...
-        mexFiles/tracingSimpleGenMex.c   mexFiles/trace_ray.c ...
-        mexFiles/tracing_functions.c ...
-        mexFiles/scattering3D.c          mexFiles/scattering_processes3D.c ...
-        mexFiles/ray_tracing_structs3D.c mexFiles/small_functions3D.c ...
-        mexFiles/common_helpers.c
-    mex -lgsl -lm -lgslcblas CFLAGS="\$CFLAGS -Wall" ...
-        mexFiles/tracingMultiGenMex.c   mexFiles/trace_ray.c ...
-        mexFiles/tracing_functions.c ...
-        mexFiles/scattering3D.c          mexFiles/scattering_processes3D.c ...
-        mexFiles/ray_tracing_structs3D.c mexFiles/small_functions3D.c ...
-        mexFiles/common_helpers.c
 
-    %mex -lgsl -lgslcblas x mexFiles/noPlateMex.c ...
-    %    mexFiles/tracing_functions.c mexFiles/small_functions.c
-    %mex -lgsl -lgslcblas CFLAGS="\$CFLAGS -ffast-math" mexFiles/cosineMex.c ...
-    %    mexFiles/small_functions.c
-    %mex -lgsl -lgslcblas CFLAGS="\$CFLAGS -ffast-math" mexFiles/abstractPlateMex.c ...
-    %    mexFiles/tracing_functions.c mexFiles/small_functions.c
-    
-    % A binning function I wrote.
-    mex mexFiles/binMyWayMex.c
+if recompile
+    mexCompile();
 end
 
 %% Performing the simulation

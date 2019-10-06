@@ -27,4 +27,7 @@ int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected,
         int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere,
         gsl_rng *my_rng, int *detector);
 
+void trace_ray_justSample(Ray3D *the_ray, int *killed, int maxScatters, Surface3D Sample,
+        AnalytSphere the_sphere, gsl_rng *my_rng);
+
 #endif

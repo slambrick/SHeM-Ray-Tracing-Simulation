@@ -114,6 +114,11 @@ int32_t trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
         return(0);
 }
 
+/* 
+ * For a simple model of the pinhole plate as a circle with multiple detectors.
+ * 
+ * Traces a single ray
+ */
 int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
         int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere,
         gsl_rng *my_rng, int *detector) {
@@ -311,3 +316,54 @@ int32_t trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, in
     else
         return(0);
 }
+
+/* 
+ * For scattering a ray off a surface only so that the distribution may be
+ * aquired from the scattering.
+ * 
+ * Trace a single ray
+ */
+void trace_ray_justSample(Ray3D *the_ray, int *killed, int maxScatters, Surface3D Sample,
+        AnalytSphere the_sphere, gsl_rng *my_rng) {
+    int dead;
+    
+    /* 
+     * If the ray is 'dead' it is no longer of interest. Here it may obly be
+     * dead by not hitting the single sample surface or being killed.
+     * 
+     * dead = 1 Did not hit anything
+     * dead = 3 Was killed
+     */
+    dead = 0;
+    
+    while (!dead) {
+        /* The ray is dead unless we hit something */
+        dead = 1;
+        
+        /* Try to scatter off the sample */
+        dead = scatterOffSurface(the_ray, &Sample, the_sphere, my_rng);
+        if (dead == 0) {
+            /* Hit the sample */
+            the_ray->nScatters += 1;
+        }
+        
+        /* The number of scattering events is set to -1 if we exceed the overall
+         * number of scattering events. */
+        if (the_ray->nScatters > maxScatters) {
+            /* Ray has exceeded the maximum number of scatters, kill it */
+            the_ray->nScatters = -1;
+            *killed += 1;
+            dead = 3;
+            break;
+        }
+    }
+}
+
+/* 
+ * Trace the full trajectory of a ray scattering off a single surface. Records
+ * all positions and directions of the ray.
+ * 
+ */
+/*int32_t trace_ray_trajectory() {
+    
+}*/

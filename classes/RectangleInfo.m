@@ -179,7 +179,11 @@ classdef RectangleInfo < handle
                         scale, 'limX', limX, 'limY', limY);
                 end
             else
-                I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale);
+                if strcmp(scale, 'manual')
+                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale, 'specifyScale', specifyScale);
+                else
+                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale);
+                end
             end
         end % End image generating function
         

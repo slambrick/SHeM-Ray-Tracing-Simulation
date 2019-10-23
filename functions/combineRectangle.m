@@ -47,14 +47,28 @@ function outData = combineRectangle(data1, data2)
     keyboard
     
     n_rays = data1.rays_per_pixel + data2.rays_per_pixel;
+    n_effuse = data1.n_effuse + data2.n_effuse;
     time = data1.time + data2.time;
     time_estimate = data1.time_estimate + data2.time_estimate;
-    counters = data1.counters + data2.counters;
+    for i_=1:length(data1.n_detector)
+        counters{i_} = data1.counters{i_} + data2.counters{i_};
+        cntr_effuse{i_} = data1.counter_effusive{i_} + data2.counter_effusive{i_};
+    end
+    maxScatter = size(data1.counters{1}, 1);
     num_killed = data1.num_killed + data2.num_killed;
-    cntr_effuse = data1.counter_effusive + data2.counter_effusive;
     
-    outData = RectangleInfo(counters, num_killed, data1.sample_surface, ...
-        data1.xrange, data1.zrange, data1.raster_movment, n_rays, time, ...
-        time_estimate, cntr_effuse);
+    % The RectangleInfo constructor function expects multi dimensional arrays
+    % not cell array... do some data jiggery pokery
+    counters2 = zeros(maxScatter, data1.n_detector, data1.nz_pixels, data1.nx_pixels);
+    effuse_counters = zeros(data1.n_detector, data1.nz_pixels, data1.nx_pixels);
+    for i_=1:length(data1.n_detector)
+        counters2(:,i_,:,:) = counters{i_};
+        effuse_counters(i_,:,:) = cntr_effuse{i_};
+    end
+    
+    outData = RectangleInfo(counters2, num_killed, data1.sample_surface, ...
+        data1.xrange, data1.zrange, data1.raster_movment_x, data1.raster_movment_z, ...
+        n_rays, n_effuse, time, time_estimate, effuse_counters, data1.n_detector, maxScatter, ...
+        data1.dist_to_sample, data1.beam_param);
 end
 

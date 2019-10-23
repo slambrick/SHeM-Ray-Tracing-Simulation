@@ -1,7 +1,7 @@
 % Two sets of data
-load('/home/sam/SMF_local/0073_deep_trench_test/scatteringData.mat')
+load('/home/sam/SMF_local/0085_deep_trench_test/scatteringData.mat')
 deep_trench_data = simulationData;
-load('/home/sam/SMF_local/0074_shallow_trench_test/scatteringData.mat')
+load('/home/sam/SMF_local/0084_shallow_trench_test/scatteringData.mat')
 shallow_trench_data = simulationData;
 
 % Produce single scattering images with the same greyscale

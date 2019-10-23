@@ -111,6 +111,37 @@ classdef RectangleInfo < handle
             obj.aperture_axes = aperture_axes;
         end
         
+        function maxScatter = getMaxScatter(obj)
+        % Gets the maximum number of scattering events that were allowed in the
+        % simulation.
+            maxScatter = size(obj.counters{1}, 1);
+        end
+        
+        function cnts = countScattering(obj, n, detector)
+        % Gives the nth scattering contribution (i.e. single scattering double
+        % scattering etc.) or the range of scattering if n is provided as a 2
+        % element vector. If the second limit is Inf then will count up to
+        % infinity
+            if nargin == 2
+                detector = 1;
+            end
+            
+            if length(n) == 1
+                lims = n;
+            elseif length(n) == 2
+                if n(2) == Inf
+                    lims = n(1):obj.getMaxScatter;
+                else
+                    lims = n(1):n(2);
+                end
+            else
+                error('n must be of length 1 or 2');
+            end
+            
+            cnts = reshape(sum(obj.counters{detector}(lims,:,:), 1), obj.nz_pixels, ...
+                obj.nx_pixels);
+        end
+        
         function I = imageAll(obj, varargin)
         % Constructs an image based on the data in the RectangleInfo
         % object. Uses all contributions to the contrast, including the

@@ -9,7 +9,7 @@
 % Gaussian or Unifrom virtual source.
 %
 % Calling syntax:
-%  [effuse_pos, effuse_dir] = makeEffuse('name', value, ...);
+%  [ray_pos, ray_dir] = makeEffuse('name', value, ...);
 %
 % INPUTS:
 %  n_rays        - The number of rays being generated

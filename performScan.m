@@ -32,11 +32,7 @@ pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-<<<<<<< HEAD
 n_rays = 10000;
-=======
-n_rays = 200000;
->>>>>>> 02ad0ad63bad6ab1689802f71a529cafd6633b84
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -121,17 +117,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-<<<<<<< HEAD
 raster_movment2D_x = 0.005*sqrt(2);
 raster_movment2D_z = 0.005;
 xrange = [-0.3, 0.2];
 zrange = [-0.2, 0.2];
-=======
-raster_movment2D_x = 0.003;
-raster_movment2D_z = 0.003;
-xrange = [-0.200    0.200];
-zrange = [-0.200    0.200];
->>>>>>> 02ad0ad63bad6ab1689802f71a529cafd6633b84
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -196,11 +185,7 @@ square_size = 1;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-<<<<<<< HEAD
-directory_label = 'test';
-=======
 directory_label = 'Photostereo_spherePlace';
->>>>>>> 02ad0ad63bad6ab1689802f71a529cafd6633b84
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point

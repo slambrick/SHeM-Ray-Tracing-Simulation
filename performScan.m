@@ -28,11 +28,11 @@ recompile = false;
 init_angle = 45;
 
 % Geometry of pinhole
-pinhole_c = 2.121*[-tand(init_angle), 0, 0];
+pinhole_c = 1*[-tand(init_angle), 0, 0];
 pinhole_r = 0.0006;
 
 % Number of rays to use and the width of the source
-n_rays = 100000;
+n_rays = 2000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100);
@@ -164,10 +164,10 @@ defMaterial.color = [0.8 0.8 1.0];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 2.5;
+dist_to_sample = 1;
 
 % The nominal working distance of the geometry
-working_dist = 2.121;
+working_dist = 1;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
@@ -295,9 +295,9 @@ switch sample_type
         sample_description = ['A single analytic sphere, radius ' ...
             num2str(sphere_r) 'mm on a flat square of ' num2str(square_size) 'mm.'];
     case 'custom'
-        sample_surface = inputSample('fname', sample_fname, 'plate_dist', dist_to_sample, ...
-                                     'scale', scale, 'working_dist',...
-                                     working_dist, 'defMaterial', defMaterial);
+        sample_surface = inputSample('fname', sample_fname, 'sampleDist', dist_to_sample, ...
+                                     'workingDist', working_dist, 'scale', scale, ...
+                                     'defMaterial', defMaterial);
         make_sphere = 0;
     case 'photoStereo'
         sample_surface = photo_stereo_test(working_dist);
@@ -306,7 +306,7 @@ switch sample_type
         sphere_c = [-0.1, -dist_to_sample - sphere_r*2/3, -0.1];
         diffuse = [1, 90*pi/180];
     case 'special'
-        sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, 'scale', 10e-4);
+        sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, 'scale', 10e-4,);
         sample_surface.rotateZ;
         sample_surface.moveBy([0, -2.121, 0]);
         make_sphere = 0;

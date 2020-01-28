@@ -20,9 +20,8 @@
 %
 % INPUTS:
 %  fname      - string, the name of the .stl file to import
-%  plate_dist - minimum distance between the sample and the pinhole plate, in
-%               mm, defaults to 2.121
-%  working_dist-???
+%  workingDist- nominal distance to sample for the pinhole design
+%  sampleDist - actual minimum distance to the sample surface
 %  scale      - if the .stl file is at a different scale to that needed for the
 %               simultion. e.g. if the, defaults to 1
 %  defMaterial- the default material to be used for stl files or for obj
@@ -40,14 +39,14 @@ function sample_surface = inputSample(varargin)
         switch varargin{i_}
             case 'fname'
                 fname = varargin{i_+1};
-            case 'plate_dist'
-                plate_dist = varargin{i_+1};
+            case 'workingDist'
+                workingDist = varargin{i_+1};
             case 'scale'
                 scale = varargin{i_+1};
             case 'dontMeddle'
                 dontMeddle = varargin{i_+1};
-            case 'working_dist'
-                working_dist = varargin{i_+1};
+            case 'sampleDist'
+                sampleDist = varargin{i_+1};
             case 'defMaterial'
                 defMaterial = varargin{i_+1};
             otherwise
@@ -59,11 +58,11 @@ function sample_surface = inputSample(varargin)
     if ~exist('scale', 'var')
         scale = 1;
     end
-    if ~exist('plate_dist', 'var')
-        plate_dist = 2.121;
+    if ~exist('workingDist', 'var')
+        workingDist = 1;
     end
-    if ~exist('working_dist', 'var')
-        working_dist = 2.5;
+    if ~exist('sampleDist', 'var')
+        sampleDist = 1;
     end
     if ~exist('dontMeddle', 'var')
         dontMeddle = false;
@@ -101,11 +100,9 @@ function sample_surface = inputSample(varargin)
     % finally, construct the surface object
     sample_surface = TriagSurface(vertices, fdef, fnorm, fmat, materials);
 
-    sample_surface.rotateY;
-
     if ~dontMeddle
         % Move the sample into the right starting position
-        move = -plate_dist - max(sample_surface.vertices(:,2));
+        move = - sampleDist - max(sample_surface.vertices(:,2));
         sample_surface.moveBy([0 move 0]);
 
         % Position the interesting part of the sample into the correct place, so
@@ -117,7 +114,7 @@ function sample_surface = inputSample(varargin)
         interestingV = vertices(~ind,:);
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
-        moveX = (plate_dist - working_dist) - middleX;
+        moveX = (sampleDist - workingDist) - middleX;
         sample_surface.moveBy([moveX, 0, -middleZ]);
     end
 end

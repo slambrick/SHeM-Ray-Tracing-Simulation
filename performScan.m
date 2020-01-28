@@ -1,6 +1,6 @@
 % Copyright (c) 2018, Sam Lambrick.
 % All rights reserved.
-% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
 
 clear
@@ -16,7 +16,7 @@ clear
 maxScatter = 20;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'rotations';
+typeScan = 'rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
@@ -25,17 +25,17 @@ recompile = false;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 0;
+init_angle = 45;
 
 % Geometry of pinhole
-pinhole_c = [-tand(init_angle), 0, 0];
-pinhole_r = 0.001;
+pinhole_c = 2.121*[-tand(init_angle), 0, 0];
+pinhole_r = 0.0006;
 
 % Number of rays to use and the width of the source
-n_rays = 200000;
+n_rays = 100000;
 
 % skimmer radius over source - pinhole distance
-theta_max = atan(0.01/100); 
+theta_max = atan(0.01/100);
 
 % Standard deviationo of the Gaussian model of the source
 sigma_source = 0.1;
@@ -52,8 +52,6 @@ direct_beam.theta_max = theta_max;
 direct_beam.source_model = source_model;
 direct_beam.init_angle = init_angle;
 direct_beam.sigma_source = sigma_source;
-%= {n_rays, pinhole_c, pinhole_r, theta_max, source_model, ...
-%    init_angle, sigma_source};
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
@@ -98,7 +96,7 @@ circle_plate_r = 4;
 
 % In the case of 'aperture' or 'circle' specify the axes of the aperture. Axis 1
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
-% direction ('z'). The apert0ure is always centred on the x-axis and is displaced
+% direction ('z'). The aperture is always centred on the x-axis and is displaced
 % by the specified amount.
 n_detectors = 4;
 aperture_axes = [  0.2000    0.2000    0.2000    0.2000    0.2000    0.2000    0.2000    0.2000];
@@ -119,8 +117,8 @@ aperture_half_cone = 15;
 % inverse of the simulation x axis.
 raster_movment2D_x = 0.003;
 raster_movment2D_z = 0.003;
-xrange = [-0.200    0.200];
-zrange = [-0.200    0.200];
+xrange = [-0.500    0.500];
+zrange = [-0.500    0.500];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -134,41 +132,42 @@ range1D = [-1 4];
 Direction = 'y';
 
 %% Sample parameters
-% The sample file, include the full path
-sample_fname = 'simulations/block_test2.stl';
-
-% Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
-% make the model 10 times larger (Inventor exports in cm by default...).
-scale = 0.1;
-
-% A string giving a brief description of the sample, for use with
-% sample_type = 'custom'
-sample_description = 'Test sample for photometric stereo.';
 
 % What type of sample to use :
 %  'flat'   - A flat square (need to specify square_size)
-%  'sphere' - An anlaytic sphere on a flat square surface (need to specify 
+%  'sphere' - An anlaytic sphere on a flat square surface (need to specify
 %             square_size and sphere_r)
 %  'photoStereo' - A test sample for photo stereo that includes part of a
 %                  sphere along with input from a CAD file
-%  'custom' - Uses the CAD model provided in the .stl file
+%  'custom' - Uses a CAD model from file
 %  'airy'   - TODO
 %  'corrugation' - TODO
-sample_type = 'photoStereo';
+sample_type = 'custom';
 
-% The level of diffuse scattering for the sample, between 0 and 1, 2 gives a 
-% uniform distribution. This is used for both triangulated surface and the
-% analytic sphere if it is being used.
-diffuse = [1, 90*pi/180];
+% The sample file, include the full path
+sample_fname = 'simulations/slabs.obj';
+
+% Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
+% make the model 10 times larger (Inventor exports in cm by default...).
+scale = 1;
+
+% A string giving a brief description of the sample, for use with
+% sample_type = 'custom'
+sample_description = 'Testing obj file usage.';
+
+%% Parameters of the default material, to use for faces where no material is specified
+defMaterial.function = 'diffuse';
+defMaterial.params = [1.0, pi/2];
+defMaterial.color = [0.8 0.8 1.0];
 
 % How close should the nearest point of the sample be to the pinhole plate, the
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 1;
+dist_to_sample = 2.5;
 
 % The nominal working distance of the geometry
-working_dist = 1;
+working_dist = 2.121;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
@@ -176,7 +175,7 @@ sphere_r = 0.1;
 % Centre of the anayltic sphere (mm)
 sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
 
-% If a flat sample is being used or if a sphere on a flat surface what is the 
+% If a flat sample is being used or if a sphere on a flat surface what is the
 % length of the sides of the square.
 square_size = 8;
 
@@ -184,7 +183,7 @@ square_size = 8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'Photostereo_spherePlace';
+directory_label = 'objtest';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -255,7 +254,8 @@ if false
 end
 
 %% Paths to functions
-addpath('stlread', 'functions', 'functions/interface_functions', 'classes', ...
+addpath('import_3d/stlread', 'import_3d/objread', 'functions', ...
+        'functions/interface_functions', 'classes', ...
         'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', 'functions/standard_samples', ...
         'surf2stl');
 
@@ -295,9 +295,9 @@ switch sample_type
         sample_description = ['A single analytic sphere, radius ' ...
             num2str(sphere_r) 'mm on a flat square of ' num2str(square_size) 'mm.'];
     case 'custom'
-        sample_surface = inputSample('fname', sample_fname, 'scattering', ...
-            diffuse(1), 'plate_dist', dist_to_sample, 'scale', scale, ...
-            'parameters', diffuse(2), 'working_dist', working_dist);
+        sample_surface = inputSample('fname', sample_fname, 'plate_dist', dist_to_sample, ...
+                                     'scale', scale, 'working_dist',...
+                                     working_dist, 'defMaterial', defMaterial);
         make_sphere = 0;
     case 'photoStereo'
         sample_surface = photo_stereo_test(working_dist);
@@ -313,7 +313,7 @@ switch sample_type
 end
 
 % A struct to represent the sphere
-shere_c = [dist_to_sample*tand(init_angle), dist_to_sample + sphere_r, 0];
+sphere_c = [dist_to_sample*tand(init_angle), dist_to_sample + sphere_r, 0];
 sphere.make = make_sphere;
 sphere.r = sphere_r;
 sphere.scattering = diffuse(1);
@@ -335,7 +335,7 @@ if true %feature('ShowFigureWindows')
         sample_surface.patchPlot(true);
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
     end
-    
+
     if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations')
         xlim([-xrange(2) -xrange(1)]);
         zlim(zrange);
@@ -348,9 +348,9 @@ if true %feature('ShowFigureWindows')
         xlim([-0.2, 0.2]);
         zlim([-0.2, 0.2]);
         ylim([-0.2, 0.2] - dist_to_sample);
-    
+
     end
-    
+
     if ~strcmp(typeScan, 'single pixel')
         print([thePath '/sample_closeUp.eps'], '-depsc');
     end
@@ -392,11 +392,11 @@ switch pinhole_model
             pinhole_surface.patchPlot(false);
             view([-5 -5 5])
         end
-        
+
         % To pass to the functions
         thePlate = 0;
         apertureAbstract = 0;
-        
+
         pinhole_model = 'stl';
     case 'new_micro'
         % TODO
@@ -412,7 +412,7 @@ switch pinhole_model
         thePlate = {plate_represent, n_detectors, circle_plate_r, aperture_axes, aperture_c};
         apertureAbstract = {aperture_theta, aperture_phi, aperture_half_cone};
 end
-    
+
 %% Compile the mex files
 
 if recompile
@@ -447,30 +447,30 @@ switch typeScan
         h = waitbar(0, 'Proportion of simulations performed');
         N = length(rot_angles);
         sphere_centre = sphere.c;
-        
+
         % Loop through the rotations
         for i_=1:N
             s_surface = copy(sample_surface);
             s_surface.rotateGeneral('y', rot_angles(i_));
-            
+
             % Rotate the centre of the sphere
             theta = rot_angles(i_)*pi/180;
             s = sin(theta);
             c = cos(theta);
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
             sphere.c = (R*sphere_centre')';
-            
+
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
                 mkdir(subPath)
             end
-            
+
             simulationData{i_} = rectangularScan(s_surface, xrange, zrange, ...
                 direct_beam, raster_movment2D_x, raster_movment2D_z, ...
                 maxScatter, pinhole_surface, effuse_beam, ...
                 dist_to_sample, sphere, subPath, pinhole_model, ...
                 thePlate, apertureAbstract, ray_model, n_detectors); %#ok<SAGROW>
-            
+
             waitbar(i_/N, h);
         end
         close(h);
@@ -565,7 +565,7 @@ end
 
 % Save all data to a .mat file
 if output_data
-    save([thePath '/' data_fname], 'simulationData', 'sample_inputs', ...
+    save(fullfile(thePath, data_fname), 'simulationData', 'sample_inputs', ...
         'direct_beam', 'effuse_beam', 'pinhole_plate_inputs', 'scan_inputs');
 end
 
@@ -578,7 +578,7 @@ elseif output_data
 end
 
 % Save main data to a text file
-textFname = 'data_for_plotting.csv';    
+textFname = 'data_for_plotting.csv';
 if save_to_text && strcmp(typeScan, 'rotations')
     for i_=1:length(rot_angles)
         currentFname = [textFnam(1:end-4) num2str(rot_angles(i_)) '.csv'];

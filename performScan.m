@@ -20,7 +20,7 @@ typeScan = 'rotations';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = false;
+recompile = true;
 
 %% Beam/source parameters %%
 
@@ -32,7 +32,7 @@ pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 200000;
+n_rays = 10000;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -117,10 +117,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.003;
-raster_movment2D_z = 0.003;
-xrange = [-0.200    0.200];
-zrange = [-0.200    0.200];
+raster_movment2D_x = 0.005*sqrt(2);
+raster_movment2D_z = 0.005;
+xrange = [-0.3, 0.2];
+zrange = [-0.2, 0.2];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -174,11 +174,12 @@ working_dist = 1;
 sphere_r = 0.1;
 
 % Centre of the anayltic sphere (mm)
-sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
+%sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
+sphere_c = [0, -dist_to_sample, 0];
 
 % If a flat sample is being used or if a sphere on a flat surface what is the 
 % length of the sides of the square.
-square_size = 8;
+square_size = 1;
 
 %% Output and plotting parameters
 

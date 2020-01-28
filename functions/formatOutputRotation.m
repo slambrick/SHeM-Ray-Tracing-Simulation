@@ -18,7 +18,7 @@
 %               put in a subdirectory in this path
 %
 % OUTPUTS:
-%  im         - Cell arrau of image results
+%  im         - Cell array of image results
 %  param      - Cell array of general parameters of the simulation
 %  beam_param - Cell array of parameters for the set up of the beam
 function [im, param, beam_param] = formatOutputRotation(simData, rot_angles, dataPath)
@@ -32,3 +32,4 @@ function [im, param, beam_param] = formatOutputRotation(simData, rot_angles, dat
     end
 end
 
+sdfg2SDf2nd_BX7

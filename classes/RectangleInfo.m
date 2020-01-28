@@ -711,18 +711,38 @@ classdef RectangleInfo < handle
             
         end
         
-        function counts = saveCounts(obj, fname, contribution)
+        function counts = saveCounts(obj, fname, contribution, detector)
         % Saves a matrix of the counts of one of the contributions to a comma
         % delimated text file of the given name.
+            if nargin == 3
+                detector = 1;
+            end
+            counter = obj.counters{detector};
             switch contribution
                 case 'single'
-                    counts = squeeze(obj.counters(1,:,:));
+                    counts = squeeze(counter(1,:,:));
                 case 'multiple'
-                    counts = squeeze(sum(obj.counters(2:end,:,:)));
+                    counts = squeeze(sum(counter(2:end,:,:)));
                 case 'effuse'
-                    counts = obj.effuse_counters;
+                    counts = obj.effuse_counters{detector};
             end
             dlmwrite(fname, counts, ',');
+        end
+        
+        function saveText(obj, fname)
+        % Saves a selection of theta to a text file for external plotting
+        % and analysis. The text file is comma delinated and has the name
+        % provided including the extension.
+            fid = fopen(fname, 'w');
+            
+            fprintf(fid, '%s\n', 'x,y,Single,Multiple,Effuse');
+            
+            FORMAT = '%2.8f, ';
+            
+            % Create x,y,signal matrix for all the data
+            
+            % Wrtie the data to the text file
+            
         end
         
         % Formats the results of a simulation into a more useful/simple format.
@@ -745,24 +765,42 @@ classdef RectangleInfo < handle
         %  beam_param - Parameters for the set up of the beam
         function [im, param, beam_param] = formatOutput(obj, dataPath)
             % Core information on the image produced
-            for i_=1:obj.n_detector
-                [~, im.single{i_}] = obj.imageSingle('detector', i_, 'plot', ...
-                    false);
-                [~, im.multiple{i_}] = obj.imageMultiple('detector', i_, 'plot', ...
-                    false);
+            if obj.n_detector == 1
+                [~, im.single{1}] = obj.imageSingle('plot', false);
+                [~, im.multiple{1}] = obj.imageMultiple('plot', false);
+            else
+                for i_=1:obj.n_detector
+                    [~, im.single{i_}] = obj.imageSingle('detector', i_, 'plot', ...
+                        false);
+                    [~, im.multiple{i_}] = obj.imageMultiple('detector', i_, 'plot', ...
+                        false);
+                end
             end
             im.raster_movement_x = obj.raster_movment_x;
             im.raster_movement_y = obj.raster_movment_z;
 
             % Main simulation parameters
-            for i_=1:obj.n_detector
-                inds = (2*i_:(2*i_+1)) - 1;
-                param.detector_position{i_} = obj.aperture_c(inds);
-                param.detector_axes{i_} = obj.aperture_axes(inds);
-                x = -obj.aperture_c(inds(1));
-                y = obj.aperture_c(inds(2));
-                z = obj.dist_to_sample;
-                param.detector_vector{i_} = [x, y, z]/norm([x, y, z]);
+            % Do not have the detector parameteres if an stl model of the
+            % pinhole plate was used.
+            if ~isnan(obj.aperture_c)
+                if obj.n_detector == 1
+                    param.detector_position{1} = obj.aperture_c;
+                    param.detector_axes{1} = obj.aperture_axes;
+                    x = -obj.aperture_c(1);
+                    y = obj.aperture_c(2);
+                    z = obj.dist_to_sample;
+                    param.detector_vector{1} = [x, y, z]/norm([x, y, z]);
+                else
+                    for i_=1:obj.n_detector
+                        inds = (2*i_:(2*i_+1)) - 1;
+                        param.detector_position{i_} = obj.aperture_c(inds);
+                        param.detector_axes{i_} = obj.aperture_axes(inds);
+                        x = -obj.aperture_c(inds(1));
+                        y = obj.aperture_c(inds(2));
+                        z = obj.dist_to_sample;
+                        param.detector_vector{i_} = [x, y, z]/norm([x, y, z]);
+                    end
+                end
             end
             param.z_sample_to_detector = obj.dist_to_sample;
             param.rays_per_pixel = obj.rays_per_pixel;

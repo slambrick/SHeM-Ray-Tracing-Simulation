@@ -18,11 +18,8 @@
 %                   simulation
 function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
         raster_movement, maxScatter, Direction, pinhole_surface, effuse_beam, ...
-        dist_to_sample, sphere, thePath, save_text, pinhole_model, thePlate, ...
+        dist_to_sample, sphere, thePath, pinhole_model, thePlate, ...
         apertureAbstract, ray_model)
-    
-    % Dependent variables
-    textFname = 'data_for_plotting.csv';
     
     % Sample positions
     sample_xs = scan_range(1):raster_movement:scan_range(2);
@@ -155,11 +152,6 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
     line_scan_info = LineInfo(Direction, scan_range, counters, num_killed, ...
         raster_movement, direct_beam.n, t, t_estimate, cntr_effuse_single, ...
         counter_effuse_multiple, killed_effuse);
-    
-    % Save desired outputs to text for plotting in other software
-    if save_text
-        line_scan_info.saveText([thePath '/' textFname]);
-    end
     
     if progressBar
         line_scan_info.producePlots(thePath);

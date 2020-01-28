@@ -68,6 +68,11 @@ function t = time_estimate(varargin)
             ct_plate = 1.8114e-05;
         case 'abstract'
             % TODO
+        case 'new'
+            % TODO: update
+            ct_direct = 1.4962e-07;
+            ct_effuse = 1.7794e-07;
+            ct_plate = 1.8114e-05;
         otherwise
             error(['No time estimate for ' pinhole_model ' pinhole plates.']);
     end

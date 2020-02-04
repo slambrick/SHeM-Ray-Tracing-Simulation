@@ -1,0 +1,27 @@
+#!/bin/bash
+
+function mtlrun {
+    # run file with matlab from command line
+    full_path=$(readlink -f $1)
+    echo "Running matlab on $full_path"
+    matlab -nosplash -nodesktop -r "run('$full_path')"
+}
+
+# command line matlab
+alias mtl="matlab -nodesktop -nosplash"
+
+function clean {
+    to_rm=$(find simulations -regextype grep -type d -regex "simulations/[0-9]\{4\}_.*")
+
+    echo "Removing:"
+    echo "$to_rm"
+    echo "Proceed? [y/N]"
+    read reply
+    
+    if [[ ( ! -z $reply ) && ( $reply == "y"  ||  $reply == "Y" ) ]] ; then
+        echo "Removing..."
+        rm -r $to_rm
+    fi
+    echo "done."
+}
+

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018, Sam Lambrick.
  * All rights reserved.
- * This file is part of the Sub-beam Ray Tracing simulation, subject to the  
+ * This file is part of the Sub-beam Ray Tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
  */
 
@@ -10,9 +10,17 @@
 
 #include <gsl/gsl_rng.h>
 
-/* Sets up the GNU/SL random number generator, must be called before any 
+/* Sets up the GNU/SL random number generator, must be called before any
  * function that uses random numbers. */
 gsl_rng* setupGSL(void);
+
+/*
+ * Linearise [row][column] coordinates in an array of coordinates
+ * such as a 3-column n-row matrix of vertices of a Surface3D
+ */
+inline int lin(int row, int col) {
+    return 3*row + col;
+}
 
 /* Prints a 2 or three element vector */
 void print1D_double(double *vect, int dim);

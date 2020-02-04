@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2018-19, Sam Lambrick.
  * All rights reserved.
- * This file is part of the SHeM ray tracing simulation, subject to the 
+ * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
  *
- * 
+ *
  * Functions for setting up the structures for the SHeM Ray Tracing Simulation,
  * they take arguments directly aquired from MATLAB and put them into structures
  * for use in the C ray tracing code, also contains functions for cleaning up
@@ -15,71 +15,89 @@
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
 #include "scattering_processes3D.h"
-#include <stdlib.h>
+// #include <stdlib.h>
+#include <stdint.h>
 #include <gsl/gsl_rng.h>
+#include <gsl/gsl_math.h>
 #include <math.h>
 
-/* 
+/*
  * Set up a surface containing the information on a triangulated surface.
- * 
- * INPUTS: 
+ *
+ * INPUTS:
  *  V      - 3xm array of vertex positions
  *  N      - 3xn array of which vertices form faces of triangles
  *  N      - 3xn array of the unit normals to the surface elements
- *  C      - 1xn array of the composition of the surface elements
+ *  C      - 1xn array of strings pointing to material names
+ *  M      - array of Material objects holding material info
  *  ntriag - The number of triangles in the surface
- * 
+ *  surf_index - surface index for scattering algorithm
+ *
  * OUTPUT:
  *  Sample - a Surface struct that contains information of the surface.
  */
-Surface3D set_up_surface(double V[], double N[], double F[], double C[], 
-        double P[], int ntraig, int surf_index) {
-    Surface3D Surf;
-    
+Surface3D set_up_surface(double V[], double N[], double F[], char * C[],
+                         Material * M, int nmaterials, int ntriag, int surf_index) {
+    Surface3D surf;
+
     /* Allocate the components of the surface. */
-    Surf.surf_index = surf_index;
-    Surf.n_elements = ntraig;
-    Surf.vertices = V;
-    Surf.normals = N;
-    Surf.faces = F;
-    Surf.composition = C;
-    Surf.scattering_parameters = P;
-    
-    /* Return the struct itslef */
-    return(Surf);
+    surf.surf_index = surf_index;
+    surf.n_faces = ntriag;
+    surf.vertices = V;
+    surf.normals = N;
+    surf.faces = F;
+    surf.compositions = C;
+    surf.n_materials = nmaterials;
+    surf.materials = M;
+
+    /* Return the struct itself */
+    return surf;
 }
 
 /* Set up a Sphere struct */
 AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
-        double sphere_scattering, double sphere_parameters, int surf_index) {
-    AnalytSphere the_sphere;
-    
-    the_sphere.surf_index = surf_index;
-    the_sphere.sphere_c = sphere_c;
-    the_sphere.sphere_r = sphere_r;
-    the_sphere.composition = sphere_scattering;
-    the_sphere.scattering_parameters = sphere_parameters;
-    the_sphere.make_sphere = make_sphere;
-    
-    return(the_sphere);
+                           Material material, int surf_index) {
+    AnalytSphere sph;
+
+    sph.surf_index = surf_index;
+    sph.sphere_c = sphere_c;
+    sph.sphere_r = sphere_r;
+    sph.make_sphere = make_sphere;
+    sph.material = material;
+
+    return sph;
 }
 
-/* 
+
+/* Initialise a Material with given props */
+Material set_up_material(char * name, char * function, double * params, int n_params) {
+    Material mat;
+
+    mat.name = name;
+    mat.function = function;
+    mat.params = params;
+    mat.n_params = n_params;
+
+    return mat;
+}
+
+
+/*
  * Set up a struct of rays using the input vectors from MATLAB.
- * 
+ *
  */
 Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays) {
     int i;
     Rays3D all_rays;
     Ray3D *rays;
-    
+
     /* Allocated the memory to the  */
     rays = (Ray3D*)malloc(nrays * sizeof(*rays));
-    
+
     /* Put the rays defined by the arrays into an array of structs rays */
     for (i = 0; i < nrays; i++) {
         int n;
-        
+
         n = i*3;
         rays[i].position[0] = ray_pos[n];
         rays[i].position[1] = ray_pos[n+1];
@@ -87,24 +105,24 @@ Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays) {
         rays[i].direction[0] = ray_dir[n];
         rays[i].direction[1] = ray_dir[n+1];
         rays[i].direction[2] = ray_dir[n+2];
-        
+
         /* Initialise ray not to be on any surface element or any surface */
         rays[i].on_element = -1;
         rays[i].on_surface = -1;
         rays[i].nScatters = 0;
     }
-    
+
     /* Put the data into the struct */
     all_rays.rays = rays;
     all_rays.nrays = nrays;
-    
+
     return(all_rays);
 }
 
 /* Updates the ray postion */
 void update_ray_position(Ray3D *the_ray, double new_pos[3]) {
     int j;
-    
+
     for (j = 0; j < 3; j++)
         the_ray->position[j] = new_pos[j];
 }
@@ -112,15 +130,15 @@ void update_ray_position(Ray3D *the_ray, double new_pos[3]) {
 /* Updates the ray direction */
 void update_ray_direction(Ray3D *the_ray, double new_dir[3]) {
     int j;
-    
+
     for (j = 0; j < 3; j++)
         the_ray->direction[j] = new_dir[j];
 }
 
-/* 
- * Gets the nth element of a Surface struct and puts the information in the 
+/*
+ * Gets the nth element of a Surface struct and puts the information in the
  * provided arrays.
- * 
+ *
  * INPUTS:
  *  Sample      - a pointer to a Surface struct with all the information on the
  *               surface in it
@@ -129,13 +147,13 @@ void update_ray_direction(Ray3D *the_ray, double new_dir[3]) {
  *  v2          - three element array for putting the second vertex in
  *  v3          - three element array for putting the third vertex in
  *  nn          - three element array for putting the unit normal in
- *  composition - pointer to a variable for puttin the element composition in 
+ *  composition - pointer to a variable for puttin the element composition in
  */
-void get_element3D(Surface3D *Sample, int n, double v1[3], double v2[3], 
+void get_element3D(Surface3D *Sample, int n, double v1[3], double v2[3],
         double v3[3], double nn[3]) {
     int j;
     int tri[3];
-    
+
     /* Get the indices to the three vertices and get the surface normal */
     j = n*3 + 0;
     tri[0] = ((int)Sample->faces[j] - 1)*3;
@@ -146,7 +164,7 @@ void get_element3D(Surface3D *Sample, int n, double v1[3], double v2[3],
     j += 1;
     tri[2] = ((int)Sample->faces[j] - 1)*3;
     nn[2] = Sample->normals[j];
-    
+
     /* Vertices of the triangle */
     v1[0] = Sample->vertices[tri[0] + 0];
     v1[1] = Sample->vertices[tri[0] + 1];
@@ -168,12 +186,12 @@ void clean_up_rays(Rays3D all_rays) {
 /* Get the ray positions and put them in an output array */
 void get_positions(Rays3D *all_rays, double *final_pos) {
     int i;
-    
+
     /* Loop through all the rays */
     for (i = 0; i < all_rays->nrays; i++) {
         int k;
         Ray3D *current_ray;
-        
+
         current_ray = &all_rays->rays[i];
         for (k = 0; k < 3; k++) {
             int n;
@@ -186,12 +204,12 @@ void get_positions(Rays3D *all_rays, double *final_pos) {
 /* Get the ray directions and put them in an output array */
 void get_directions(Rays3D *all_rays, double *final_dir) {
     int i;
-    
+
     /* Loop through all the rays */
     for (i = 0; i < all_rays->nrays; i++) {
         int k;
         Ray3D *current_ray;
-        
+
         current_ray = &all_rays->rays[i];
         for (k = 0; k < 3; k++) {
             int n;
@@ -204,14 +222,36 @@ void get_directions(Rays3D *all_rays, double *final_dir) {
 /* Get the number of scattering events per ray */
 void get_scatters(Rays3D *all_rays, int32_t *nScatters) {
     int i;
-    
+
     /* Loop through all the rays */
     for (i = 0; i < all_rays->nrays; i++) {
         Ray3D *current_ray;
-        
+
         current_ray = &all_rays->rays[i];
         nScatters[i] = (int32_t)current_ray->nScatters;
     }
+}
+
+/* print details of Material struct */
+void print_material(const Material * mat) {
+    mexPrintf("\n\tMaterial %-10s\t func %-12s\t", mat->name, mat->function);
+    for (int i = 0; i < mat->n_params; i++)
+        mexPrintf(" %f ", mat->params[i]);
+}
+
+/* Print details of whole sample to console */
+void print_surface(const Surface3D * s) {
+    for(int iface = 0; iface < s->n_faces; iface++) {
+        mexPrintf("\n\t FACE %2d", iface);
+        mexPrintf("\t V %3d %3d %3d", s->faces[lin(iface, 0)],
+                    s->faces[lin(iface, 1)], s->faces[lin(iface, 2)]);
+        mexPrintf("\t N %+f %+f %+f", s->normals[lin(iface, 0)],
+                    s->normals[lin(iface, 1)], s->normals[lin(iface, 2)]);
+        mexPrintf("\t C %s", s->compositions[iface]);
+    }
+    for(int imat = 0; imat < s->n_materials; imat++)
+        print_material(&(s->materials[imat]));
+    mexPrintf("\n");
 }
 
 /* Prints all the information about the ray to the terminal */
@@ -231,7 +271,7 @@ void print_BackWall(BackWall *wall) {
     mexPrintf("Plate represent = %i\n", wall->plate_represent);
     mexPrintf("Aperture centre: ");
     print1D_double(wall->aperture_c, 2);
-    mexPrintf("Aperture axes: "); 
+    mexPrintf("Aperture axes: ");
     print1D_double(wall->aperture_axes, 2);
     mexPrintf("Radius of the plate = %f\n", wall->circle_plate_r);
     mexPrintf("Composition = %f\n", wall->composition);
@@ -241,7 +281,7 @@ void print_BackWall(BackWall *wall) {
 /* Prints all the information on all the apertues in the NBackWall struct */
 void print_nBackWall(NBackWall *all_apertures) {
     int i;
-    
+
     mexPrintf("\nNumber of apertures = %i\n", all_apertures->n_detect);
     for (i = 0; i < all_apertures->n_detect; i++) {
         mexPrintf("Aperture %i:\n", i);
@@ -252,44 +292,53 @@ void print_nBackWall(NBackWall *all_apertures) {
     }
 }
 
-/* 
+
+/* Print the position, radius, material etc of a sphere */
+void print_sphere(const AnalytSphere * sphere){
+    mexPrintf("\n\t Sphere make %d \t R %3.3f\t C %3.3f %3.3f %3.3f", sphere->make_sphere,
+              sphere->sphere_r, sphere->sphere_c[0],
+              sphere->sphere_c[1], sphere->sphere_c[2]);
+    print_material(&(sphere->material));
+}
+
+/*
  * Gets the centre and the axes of the nth detector in the series and returns
  * a struct to that aperture.
  */
 void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
     /* The x and z coordinate of the apertures */
     this_wall->aperture_c = &allApertures->aperture_c[2*n];
-        
+
     /* The axes of the aperture */
     this_wall->aperture_axes = &allApertures->aperture_axes[2*n];
-    
+
     /* Other parameters */
     this_wall->surf_index = allApertures->surf_index;
     this_wall->circle_plate_r = allApertures->circle_plate_r;
     this_wall->composition = allApertures->composition;
     this_wall->scattering_parameters = allApertures->scattering_parameters;
-    
+
     /* We do not represent the plate to be scattered off, just the apertures */
     this_wall->plate_represent = 0;
 }
 
-/* 
+/*
  * Creates a ray according to a simple model of the source, can use either a uniform
  * or Gaussian virtual source.
- * 
+ *
  * INPUTS:
- *  pinhole_r    - 
- *  pinhole_c    - 
- *  theta_max    -  
- *  init_angle   - 
+ *  pinhole_r    -
+ *  pinhole_c    -
+ *  theta_max    -
+ *  init_angle   -
  *  source_model -
- *  my_rng       - 
- *  sigma        -  
- * 
+ *  my_rng       -
+ *  sigma        -
+ *
  * OUTPUT:
  *  gen_ray - ray3D struct with information on a ray in it
  */
-Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max, 
+Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
         double init_angle, int source_model, gsl_rng *my_rng, double sigma) {
     Ray3D gen_ray;
     double r, theta, phi;
@@ -300,14 +349,14 @@ Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
 
     /* Enuse theta is initialized */
     theta = 0;
-    
+
     /* Generate the position of the ray */
     phi = 2*M_PI*gsl_rng_uniform(my_rng);
     r = pinhole_r*sqrt(gsl_rng_uniform(my_rng));
     gen_ray.position[0] = r*cos(phi);
     gen_ray.position[1] = 0;
     gen_ray.position[2] = r*sin(phi);
-    
+
     /* Generate the direction of the ray */
     phi = 2*M_PI*gsl_rng_uniform(my_rng);
     switch (source_model) {
@@ -328,30 +377,30 @@ Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
             cosineScatter3D(normal, gen_ray.direction, my_rng);
             break;
     }
-    
+
     if (source_model != 2) {
         dir[0] = cos(theta);
         dir[1] = sin(theta)*cos(phi);
         dir[2] = sin(theta)*sin(phi);
-        
+
         /* Need to rotate the rays direction according to the incidence angle */
         rot_angle = 0.5*M_PI - init_angle;
-        gen_ray.direction[0] = cos(-rot_angle)*dir[0] - 
+        gen_ray.direction[0] = cos(-rot_angle)*dir[0] -
             sin(-rot_angle)*dir[1];
-        gen_ray.direction[1] = sin(-rot_angle)*dir[0] + 
+        gen_ray.direction[1] = sin(-rot_angle)*dir[0] +
             cos(-rot_angle)*dir[1];
         gen_ray.direction[2] = dir[2];
     }
-    
+
     /* Need to move the rays into the pinhole */
     gen_ray.position[0] += pinhole_c[0];
     gen_ray.position[2] += pinhole_c[2];
-    
+
     /* Initialise other elements of the ray struct */
     gen_ray.on_surface = -1;
     gen_ray.on_element = -1;
     gen_ray.nScatters = 0;
-    
+
     /* Return the ray struct all ready to use */
     return(gen_ray);
 }

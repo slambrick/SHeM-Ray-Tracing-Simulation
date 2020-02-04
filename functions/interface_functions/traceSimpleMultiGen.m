@@ -1,16 +1,16 @@
- 
+
 % traceSimpleGen.m
 %
 % Copyright (c) 2019, Sam Lambrick.
 % All rights reserved.
-% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
 %
 % Gatway function for a simple model of the pinhole plate and generating the
 % rays in C.
 %
 % Calling Syntax:
-% [cntr, killed, diedNaturally, numScattersRay] = traceSimpleGen('name', value, ...)
+% [counted, killed, diedNaturally, numScattersRay] = traceSimpleGen('name', value, ...)
 %
 % INPUTS:
 %  sample     - TriagSurface of the sample
@@ -24,13 +24,13 @@
 %  beam       - Information on the beam model in an array
 %
 % OUTPUTS:
-%  cntr           - The number of detected rays
+%  counted           - The number of detected rays
 %  killed         - The number of artificailly stopped rays
 %  diedNaturally  - The number of rays that did not get detected naturally
 %  numScattersRay - Histogram of the number of scattering events detected rays
 %                   have undergone
-function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(varargin)
-    
+function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(varargin)
+
     for i_=1:2:length(varargin)
         switch varargin{i_}
             case 'sample'
@@ -51,15 +51,22 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(var
                 warning([' Input ' num2str(i_) ' not recognised.'])
         end
     end
-    
+
     % MATLAB stores matrices by column then row C does row then column. Must
     % take the traspose of the 2D arrays
-    VT = sample_surface.vertices';
-    FT = sample_surface.faces';
-    NT = sample_surface.normals';
-    CT = sample_surface.composition;
-    PT = sample_surface.parameters;
-    
+    V = sample_surface.vertices';
+    F = int32(sample_surface.faces');
+    N = sample_surface.normals';
+    C = sample_surface.compositions';
+
+    mat_names = sample_surface.materials.keys;
+    mat_functions = cell(1, length(mat_names));
+    mat_params = cell(1, length(mat_names));
+    for idx = 1:length(mat_names)
+        mat_functions{idx} = sample_surface.materials(mat_names{idx}).function;
+        mat_params{idx} = sample_surface.materials(mat_names{idx}).params;
+    end
+
     % Get the nessacery source information
     n_rays = beam.n;
     pinhole_c = beam.pinhole_c;
@@ -81,23 +88,21 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(var
             sigma_source = 0;
             init_angle = 0;
     end
-    
+
     % Pass the source parameters to C
     source_parameters = [pinhole_r, pinhole_c(1), pinhole_c(2), theta_max, ...
         init_angle, sigma_source];
-    
+
     % The calling of the mex function, ... here be dragons ... don't meddle
-    [cntr, killed, numScattersRay]  = ...
-        tracingMultiGenMex(VT, FT, NT, CT, PT, maxScatter, ...
-                   sphere.make, sphere.c, sphere.r, ...
-                   sphere.scattering, sphere.scattering_parameter, plate{1}, ...
-                   plate{2}, plate{3}, ...
-                   plate{4}, plate{5}, n_rays, source_model, source_parameters);
-    
+    [counted, killed, numScattersRay]  = tracingMultiGenMex(...
+        V, F, N, C, sphere, plate,...
+        mat_names, mat_functions, mat_params,...
+        maxScatter, n_rays, source_model, source_parameters);
+
     numScattersRay = reshape(numScattersRay, maxScatter, plate{2});
-    
+
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.
-    diedNaturally = n_rays - sum(cntr) - killed;
+    diedNaturally = n_rays - sum(counted) - killed;
 end
 

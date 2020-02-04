@@ -36,6 +36,8 @@ function materials = mtlread(mtl_fname)
             current.function = strip(tline(length('func')+1:end));
         case 'params'
             current.params = sscanf(tline(length('params')+1:end), '%f');
+            % transpose to make a row vector
+            current.params = current.params';
         end
     end
     materials(name) = current;      % add the last material to the map

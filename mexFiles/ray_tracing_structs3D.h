@@ -1,10 +1,10 @@
-/* 
+/*
  * Copyright (c) 2018, Sam Lambrick.
  * All rights reserved.
- * This file is part of the SHeM ray tracing simulation, subject to the 
+ * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
  *
- * 
+ *
  * Structues for use with the SHeM Ray Tracing Simulation.
  */
 
@@ -18,19 +18,29 @@
 /*                          Structure declarations                            */
 /******************************************************************************/
 
-/* 
+
+/* Structure holding information of a material's scattering properties */
+typedef struct _material {
+    char * name;        // the name (key) of the material
+    char * function;    // the name of scattering distribution function
+    double * params;    // extra parameters to pass to the function
+    int n_params;       // number of parameters -- must be length of params[]
+} Material;
+
+
+/*
  * A structure for holding information on a 3D sample surface constructed of
  * planar triangles.
  */
 typedef struct _surface3d {
-    int surf_index;      /* Index of the surface */
-    int n_elements;      /* Number of elements in the surface */
-    double *vertices;    /* Vertices of the surface */
-    double *normals;     /* Normals to the elements of the surface */
-    double *faces;       /* Faces of the surface. */
-    double *composition; /* The type of scattering off the elements of this surface */
-    double *scattering_parameters;
-        /* An array of parameters for scattering off the surface  */
+    int surf_index;       /* Index of the surface */
+    int n_faces;          /* Number of faces in the surface */
+    int n_materials;      /* Number of distinct materials */
+    double *vertices;     /* Vertices of the surface */
+    double *faces;        /* Faces of the surface. */
+    double *normals;      /* Normals to the elements of the surface */
+    char ** compositions; /* The type of scattering off the elements of this surface */
+    Material * materials; /* A library of the materials used for this surface  */
 } Surface3D;
 
 /* Information on the flat plate model of detection */
@@ -67,12 +77,11 @@ typedef struct _abstractHemi {
 
 /* A structure to hold information on the analytic sphere */
 typedef struct _sphere {
+    int make_sphere;               /* Does the sphere actually exist? */
     int surf_index;
     double sphere_r;               /* The radius of the sphere */
-    double  *sphere_c;             /* The centre of the sphere */
-    double composition;            /* The type of scattering off the sphere */
-    double scattering_parameters;  /* Any scattering parameters for the sphere */
-    int make_sphere;               /* Does the sphere actually exsist? */
+    double  *sphere_c;             /* x y z of the centre of the sphere */
+    Material material;           /* The material composition of the sphere */
 } AnalytSphere;
 
 
@@ -96,12 +105,15 @@ typedef struct _rays3d {
 /******************************************************************************/
 
 /*  Set up a surface containing the information on a triangulated surface. */
-Surface3D set_up_surface(double V[], double N[], double F[], double C[], 
-        double P[], int ntraig, int surf_index);
+Surface3D set_up_surface(double V[], double N[], double F[], char * C[],
+        Material * materials, int nmaterials, int ntriag, int surf_index);
 
 /* Set up a Sphere struct */
-AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r, 
-        double sphere_scattering, double sphere_parameters, int surf_index);
+AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
+        Material M, int surf_index);
+
+/* Initialise a Material with given properties */
+Material set_up_material(char * name, char * function, double * params, int n_params);
 
 /* Sets up a struct containing information on all the rays to be simulated. */
 Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays);
@@ -110,7 +122,7 @@ Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays);
 void update_ray_position(Ray3D *the_ray, double new_pos[3]);
 
 /* Gets an element of a triangulated surface */
-void get_element3D(Surface3D *Sample, int n, double v1[3], double v2[3], 
+void get_element3D(Surface3D *Sample, int n, double v1[3], double v2[3],
         double v3[3], double nn[3]);
 
 /* Cleans up the allocated memory inside the ray struct */
@@ -125,6 +137,12 @@ void get_directions(Rays3D *all_rays, double *final_dir);
 /* Get the number of scattering events for the rays */
 void get_scatters(Rays3D *all_rays, int32_t *nScatters);
 
+/* Print details of material */
+void print_material(const Material * mat);
+
+/* Print details of whole sample to console */
+void print_surface(const Surface3D * sample);
+
 /* Prints information on a ray to the terminal */
 void print_ray(Ray3D *the_ray);
 
@@ -134,11 +152,14 @@ void print_BackWall(BackWall *wall);
 /* Prints the centres and axes of all the apertures in the NBackWall struct */
 void print_nBackWall(NBackWall *all_apertures);
 
+/* Print the position, radius, material etc of a sphere */
+void print_sphere(const AnalytSphere * sphere);
+
 /* Gets information on one aperure out of a series of apertures */
 void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
-Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max, 
+Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
         double init_angle, int source_model, gsl_rng *my_rng, double sigma);
 
 #endif

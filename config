@@ -1,7 +1,7 @@
 #!/bin/bash
 
+# run file with matlab from command line
 function mtlrun {
-    # run file with matlab from command line
     full_path=$(readlink -f $1)
     echo "Running matlab on $full_path"
     matlab -nosplash -nodesktop -r "run('$full_path')"
@@ -10,6 +10,7 @@ function mtlrun {
 # command line matlab
 alias mtl="matlab -nodesktop -nosplash"
 
+# remove numbered output directories from simulations
 function clean {
     to_rm=$(find simulations -regextype grep -type d -regex "simulations/[0-9]\{4\}_.*")
 
@@ -17,7 +18,7 @@ function clean {
     echo "$to_rm"
     echo "Proceed? [y/N]"
     read reply
-    
+
     if [[ ( ! -z $reply ) && ( $reply == "y"  ||  $reply == "Y" ) ]] ; then
         echo "Removing..."
         rm -r $to_rm

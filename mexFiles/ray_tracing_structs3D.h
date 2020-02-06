@@ -35,12 +35,10 @@ typedef struct _material {
 typedef struct _surface3d {
     int surf_index;       /* Index of the surface */
     int n_faces;          /* Number of faces in the surface */
-    int n_materials;      /* Number of distinct materials */
     double *vertices;     /* Vertices of the surface */
-    double *faces;        /* Faces of the surface. */
+    int *faces;           /* Faces of the surface. */
     double *normals;      /* Normals to the elements of the surface */
-    char ** compositions; /* The type of scattering off the elements of this surface */
-    Material * materials; /* A library of the materials used for this surface  */
+    Material ** compositions; /* The type of scattering off the elements of this surface */
 } Surface3D;
 
 /* Information on the flat plate model of detection */
@@ -105,8 +103,10 @@ typedef struct _rays3d {
 /******************************************************************************/
 
 /*  Set up a surface containing the information on a triangulated surface. */
-Surface3D set_up_surface(double V[], double N[], double F[], char * C[],
+Surface3D set_up_surface(double V[], double N[], int F[], char * C[],
         Material * materials, int nmaterials, int ntriag, int surf_index);
+
+void clean_up_surface(Surface3D * surface);
 
 /* Set up a Sphere struct */
 AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,

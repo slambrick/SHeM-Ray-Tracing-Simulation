@@ -20,9 +20,11 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_math.h>
 #include <math.h>
+#include <string.h>
 
 /*
  * Set up a surface containing the information on a triangulated surface.
+ * At the end of the program, MUST call clean_up_surface to free allocated memory.
  *
  * INPUTS:
  *  V      - 3xm array of vertex positions
@@ -31,13 +33,14 @@
  *  C      - 1xn array of strings pointing to material names
  *  M      - array of Material objects holding material info
  *  ntriag - The number of triangles in the surface
+ *  nmaterials - number of materials in M
  *  surf_index - surface index for scattering algorithm
  *
  * OUTPUT:
  *  Sample - a Surface struct that contains information of the surface.
  */
-Surface3D set_up_surface(double V[], double N[], double F[], char * C[],
-                         Material * M, int nmaterials, int ntriag, int surf_index) {
+Surface3D set_up_surface(double V[], double N[], int F[], char ** C,
+                         Material M[], int nmaterials, int ntriag, int surf_index) {
     Surface3D surf;
 
     /* Allocate the components of the surface. */
@@ -46,12 +49,31 @@ Surface3D set_up_surface(double V[], double N[], double F[], char * C[],
     surf.vertices = V;
     surf.normals = N;
     surf.faces = F;
-    surf.compositions = C;
-    surf.n_materials = nmaterials;
-    surf.materials = M;
+
+    // assign references to the correct material
+    // loop through faces and look for the material that fits the name
+    surf.compositions = mxCalloc(ntriag, sizeof(Material*));
+    for(int iface = 0; iface < ntriag; iface++) {
+        bool found = false;
+        int imat = 0;
+        do {
+            if(strcmp(C[iface], M[imat].name) == 0) {
+                found = true;
+                surf.compositions[iface] = &M[imat];
+            }
+            imat++;
+        } while(!found && imat < nmaterials);
+        if(!found)
+            mexErrMsgIdAndTxt("MyToolbox:tracingMex:compositions",
+                              "Composition of face %d not resolved.", iface);
+    }
 
     /* Return the struct itself */
     return surf;
+}
+
+void clean_up_surface(Surface3D * surface) {
+    mxFree(surface->compositions);
 }
 
 /* Set up a Sphere struct */
@@ -234,23 +256,21 @@ void get_scatters(Rays3D *all_rays, int32_t *nScatters) {
 
 /* print details of Material struct */
 void print_material(const Material * mat) {
-    mexPrintf("\n\tMaterial %-10s\t func %-12s\t", mat->name, mat->function);
+    mexPrintf("\tMAT %-10s func %-12s", mat->name, mat->function);
     for (int i = 0; i < mat->n_params; i++)
-        mexPrintf(" %f ", mat->params[i]);
+        mexPrintf(" %.2f ", mat->params[i]);
 }
 
 /* Print details of whole sample to console */
 void print_surface(const Surface3D * s) {
     for(int iface = 0; iface < s->n_faces; iface++) {
-        mexPrintf("\n\t FACE %2d", iface);
-        mexPrintf("\t V %3d %3d %3d", s->faces[lin(iface, 0)],
+        mexPrintf("\n FACE %2d", iface);
+        mexPrintf("\tV %3d %3d %3d", s->faces[lin(iface, 0)],
                     s->faces[lin(iface, 1)], s->faces[lin(iface, 2)]);
-        mexPrintf("\t N %+f %+f %+f", s->normals[lin(iface, 0)],
+        mexPrintf("\tN % .2f % .2f % .2f", s->normals[lin(iface, 0)],
                     s->normals[lin(iface, 1)], s->normals[lin(iface, 2)]);
-        mexPrintf("\t C %s", s->compositions[iface]);
+        print_material(s->compositions[iface]);
     }
-    for(int imat = 0; imat < s->n_materials; imat++)
-        print_material(&(s->materials[imat]));
     mexPrintf("\n");
 }
 
@@ -338,70 +358,70 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
  * OUTPUT:
  *  gen_ray - ray3D struct with information on a ray in it
  */
-Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
-        double init_angle, int source_model, gsl_rng *my_rng, double sigma) {
-    Ray3D gen_ray;
-    double r, theta, phi;
-    double rot_angle;
-    double B;
-    double normal[3];
-    double dir[3];
+// Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
+//         double init_angle, int source_model, gsl_rng *my_rng, double sigma) {
+//     Ray3D gen_ray;
+//     double r, theta, phi;
+//     double rot_angle;
+//     double B;
+//     double normal[3];
+//     double dir[3];
 
-    /* Enuse theta is initialized */
-    theta = 0;
+//     /* Enuse theta is initialized */
+//     theta = 0;
 
-    /* Generate the position of the ray */
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    r = pinhole_r*sqrt(gsl_rng_uniform(my_rng));
-    gen_ray.position[0] = r*cos(phi);
-    gen_ray.position[1] = 0;
-    gen_ray.position[2] = r*sin(phi);
+//     /* Generate the position of the ray */
+//     phi = 2*M_PI*gsl_rng_uniform(my_rng);
+//     r = pinhole_r*sqrt(gsl_rng_uniform(my_rng));
+//     gen_ray.position[0] = r*cos(phi);
+//     gen_ray.position[1] = 0;
+//     gen_ray.position[2] = r*sin(phi);
 
-    /* Generate the direction of the ray */
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    switch (source_model) {
-        case 0:
-            /* Uniform virtual source model */
-            theta = theta_max*sqrt(gsl_rng_uniform(my_rng));
-            break;
-        case 1:
-            /* Gaussian virtual source model */
-            B = 1/(1 - exp(-M_PI*M_PI/(2*sigma*sigma)));
-            theta = sigma*sqrt(-2*log((B - gsl_rng_uniform(my_rng)/B)));
-            break;
-        case 2:
-            /* Diffuse cosine model */
-            normal[0] = 0;
-            normal[1] = -1;
-            normal[2] = 0;
-            cosineScatter3D(normal, gen_ray.direction, my_rng);
-            break;
-    }
+//     /* Generate the direction of the ray */
+//     phi = 2*M_PI*gsl_rng_uniform(my_rng);
+//     switch (source_model) {
+//         case 0:
+//             /* Uniform virtual source model */
+//             theta = theta_max*sqrt(gsl_rng_uniform(my_rng));
+//             break;
+//         case 1:
+//             /* Gaussian virtual source model */
+//             B = 1/(1 - exp(-M_PI*M_PI/(2*sigma*sigma)));
+//             theta = sigma*sqrt(-2*log((B - gsl_rng_uniform(my_rng)/B)));
+//             break;
+//         case 2:
+//             /* Diffuse cosine model */
+//             normal[0] = 0;
+//             normal[1] = -1;
+//             normal[2] = 0;
+//             cosineScatter3D(normal, gen_ray.direction, my_rng);
+//             break;
+//     }
 
-    if (source_model != 2) {
-        dir[0] = cos(theta);
-        dir[1] = sin(theta)*cos(phi);
-        dir[2] = sin(theta)*sin(phi);
+//     if (source_model != 2) {
+//         dir[0] = cos(theta);
+//         dir[1] = sin(theta)*cos(phi);
+//         dir[2] = sin(theta)*sin(phi);
 
-        /* Need to rotate the rays direction according to the incidence angle */
-        rot_angle = 0.5*M_PI - init_angle;
-        gen_ray.direction[0] = cos(-rot_angle)*dir[0] -
-            sin(-rot_angle)*dir[1];
-        gen_ray.direction[1] = sin(-rot_angle)*dir[0] +
-            cos(-rot_angle)*dir[1];
-        gen_ray.direction[2] = dir[2];
-    }
+//         /* Need to rotate the rays direction according to the incidence angle */
+//         rot_angle = 0.5*M_PI - init_angle;
+//         gen_ray.direction[0] = cos(-rot_angle)*dir[0] -
+//             sin(-rot_angle)*dir[1];
+//         gen_ray.direction[1] = sin(-rot_angle)*dir[0] +
+//             cos(-rot_angle)*dir[1];
+//         gen_ray.direction[2] = dir[2];
+//     }
 
-    /* Need to move the rays into the pinhole */
-    gen_ray.position[0] += pinhole_c[0];
-    gen_ray.position[2] += pinhole_c[2];
+//     /* Need to move the rays into the pinhole */
+//     gen_ray.position[0] += pinhole_c[0];
+//     gen_ray.position[2] += pinhole_c[2];
 
-    /* Initialise other elements of the ray struct */
-    gen_ray.on_surface = -1;
-    gen_ray.on_element = -1;
-    gen_ray.nScatters = 0;
+//     /* Initialise other elements of the ray struct */
+//     gen_ray.on_surface = -1;
+//     gen_ray.on_element = -1;
+//     gen_ray.nScatters = 0;
 
-    /* Return the ray struct all ready to use */
-    return(gen_ray);
-}
+//     /* Return the ray struct all ready to use */
+//     return(gen_ray);
+// }
 

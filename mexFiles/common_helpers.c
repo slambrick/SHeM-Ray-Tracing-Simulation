@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2018-19, Sam Lambrick.
  * All rights reserved.
- * This file is part of the Sub-beam Ray Tracing simulation, subject to the  
+ * This file is part of the Sub-beam Ray Tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
- * 
+ *
  * Contains small helper functions common to both 2D and 3D ray Tracing.
  */
 #include "mex.h"
@@ -11,35 +11,43 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-/* 
+/*
  * Sets up the GNU/SL random number generator and returns a pointer to the
- * generator. This must be called before cosineScatter and the generator this 
+ * generator. This must be called before cosineScatter and the generator this
  * returns should be passed to cosieScatter.
- * 
+ *
  * OUTPUTS:
  *  r - a pointer to a GSL random number generator
  */
 gsl_rng* setupGSL(void) {
     gsl_rng *r;
     unsigned long int t;
-    
+
     /*t = (unsigned long int)time(NULL);*/
-    
+
     struct timeval tv;
     gettimeofday(&tv, 0);
     t =  tv.tv_sec + tv.tv_usec;
-        
+
     /* We use the standard random number generator algorithm the Mersenne Twister */
     r = gsl_rng_alloc(gsl_rng_mt19937);
-    
+
     gsl_rng_set(r, t);
-    
+
     return r;
 }
 
-/* 
+/*
+ * Linearise [row][column] coordinates in an array of coordinates
+ * such as a 3-column n-row matrix of vertices of a Surface3D
+ */
+int lin(int row, int col) {
+    return 3*row + col;
+}
+
+/*
  * Prints a 2 or 3 element 1D array to the terminal.
- * 
+ *
  * INPUTS:
  *  vect - a double pointer to either a 2 or 3 element vector
  *  dim  - int, the dimension of the vector, 2 or 3
@@ -53,14 +61,14 @@ void print1D_double(double *vect, int dim) {
         mexPrintf("dim into print1D must be 2 or 3.");
 }
 
-/* 
+/*
  * Prints a 2 or 3 element 1D array to the terminal.
- * 
+ *
  * INPUTS:
  *  vect - an int pointer to either a 2 or 3 element vector
  *  dim  - int, the dimension of the vector, 2 or 3
  */
-void print1D_int(double *vect, int dim) {
+void print1D_int(int *vect, int dim) {
     if (dim == 2)
         mexPrintf("[%i, %i]\n", vect[0], vect[1]);
     else if (dim == 3)

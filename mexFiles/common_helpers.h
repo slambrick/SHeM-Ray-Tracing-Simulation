@@ -18,9 +18,7 @@ gsl_rng* setupGSL(void);
  * Linearise [row][column] coordinates in an array of coordinates
  * such as a 3-column n-row matrix of vertices of a Surface3D
  */
-inline int lin(int row, int col) {
-    return 3*row + col;
-}
+int lin(int row, int col);
 
 /* Prints a 2 or three element vector */
 void print1D_double(double *vect, int dim);

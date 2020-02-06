@@ -20,8 +20,8 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "trace_ray.h"
-#include "small_functions3D.h"
+// #include "trace_ray.h"
+// #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "ray_tracing_structs3D.h"
 
@@ -40,10 +40,10 @@ int getStrCellArray(const mxArray * cell_array, char ** strings) {
     for(int icell = 0; icell < num; icell++) {
         cell = mxGetCell(cell_array, icell);
         if (!mxIsChar(cell))
-            mexErrMsgIdAndTxt("MyToolbox:tracingMex:compositions",
+            mexErrMsgIdAndTxt("MyToolbox:tracingMex:strings",
                               "Each cell must be a char array.");
         if (mxGetM(cell) != 1)
-            mexErrMsgIdAndTxt("MyToolbox:tracingMex:compositions",
+            mexErrMsgIdAndTxt("MyToolbox:tracingMex:strings",
                               "Each cell must be a row vector.");
 
         strings[icell] = mxArrayToString(cell);
@@ -270,12 +270,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
      * They need to be created as the transpose of what we want because of the
      * difference in indexing between MATLAB and C.
      */
-    // plhs[0] = mxCreateNumericMatrix(1, Plate.n_detect, mxINT32_CLASS, mxREAL);
-    // plhs[2] = mxCreateNumericMatrix(1, Plate.n_detect*maxScatters, mxINT32_CLASS, mxREAL);
+    plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);
+    plhs[2] = mxCreateNumericMatrix(1, plate.n_detect*maxScatters, mxINT32_CLASS, mxREAL);
 
     /* Pointers to the output matrices so we may change them*/
-    // cntr_detected = (int32_t*)mxGetData(plhs[0]);
-    // numScattersRay = (int32_t*)mxGetData(plhs[2]);
+    cntr_detected = (int32_t*)mxGetData(plhs[0]);
+    numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
     /**************************************************************************/
 
@@ -307,7 +307,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /**************************************************************************/
 
     /* Output number of rays went into the detector */
-    // plhs[1] = mxCreateDoubleScalar(killed);
+    plhs[1] = mxCreateDoubleScalar(killed);
 
     /* Free space */
     gsl_rng_free(my_rng);

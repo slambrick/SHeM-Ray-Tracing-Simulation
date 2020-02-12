@@ -14,7 +14,7 @@
 #include "common_helpers.h"
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
-#include "scattering_processes3D.h"
+#include "distributions.h"
 // #include <stdlib.h>
 #include <stdint.h>
 #include <gsl/gsl_rng.h>
@@ -91,14 +91,23 @@ AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
 }
 
 
-/* Initialise a Material with given props */
+/*
+ * Initialise a Material with given props. The function name will also
+ * be resolved, i.e. the scattering distributions will be searched by name
+ * and the distribution function will be assigned to the func field.
+ */
 Material set_up_material(char * name, char * function, double * params, int n_params) {
     Material mat;
 
     mat.name = name;
-    mat.function = function;
+    mat.func_name = function;
     mat.params = params;
     mat.n_params = n_params;
+
+    mat.func = distribution_by_name(mat.func_name);
+    if(mat.func == NULL)
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:material",
+                          "Distribution name %s could not be resolved.", mat.func_name);
 
     return mat;
 }
@@ -256,7 +265,7 @@ void get_scatters(Rays3D *all_rays, int32_t *nScatters) {
 
 /* print details of Material struct */
 void print_material(const Material * mat) {
-    mexPrintf("\tMAT %-10s func %-12s", mat->name, mat->function);
+    mexPrintf("\tMAT %-10s func %-12s", mat->name, mat->func_name);
     for (int i = 0; i < mat->n_params; i++)
         mexPrintf(" %.2f ", mat->params[i]);
 }
@@ -358,70 +367,67 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
  * OUTPUT:
  *  gen_ray - ray3D struct with information on a ray in it
  */
-// Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
-//         double init_angle, int source_model, gsl_rng *my_rng, double sigma) {
-//     Ray3D gen_ray;
-//     double r, theta, phi;
-//     double rot_angle;
-//     double B;
-//     double normal[3];
-//     double dir[3];
+Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
+        double init_angle, int source_model, gsl_rng *my_rng, double sigma) {
+    Ray3D gen_ray;
+    double r, theta=0, phi;
+    double rot_angle;
+    double B;
+    double normal[3];
+    double dir[3];
 
-//     /* Enuse theta is initialized */
-//     theta = 0;
+    /* Generate the position of the ray */
+    phi = 2*M_PI*gsl_rng_uniform(my_rng);
+    r = pinhole_r*sqrt(gsl_rng_uniform(my_rng));
+    gen_ray.position[0] = r*cos(phi);
+    gen_ray.position[1] = 0;
+    gen_ray.position[2] = r*sin(phi);
 
-//     /* Generate the position of the ray */
-//     phi = 2*M_PI*gsl_rng_uniform(my_rng);
-//     r = pinhole_r*sqrt(gsl_rng_uniform(my_rng));
-//     gen_ray.position[0] = r*cos(phi);
-//     gen_ray.position[1] = 0;
-//     gen_ray.position[2] = r*sin(phi);
+    /* Generate the direction of the ray */
+    phi = 2*M_PI*gsl_rng_uniform(my_rng);
+    switch (source_model) {
+        case 0:
+            /* Uniform virtual source model */
+            theta = theta_max*sqrt(gsl_rng_uniform(my_rng));
+            break;
+        case 1:
+            /* Gaussian virtual source model */
+            B = 1/(1 - exp(-M_PI*M_PI/(2*sigma*sigma)));
+            theta = sigma*sqrt(-2*log((B - gsl_rng_uniform(my_rng)/B)));
+            break;
+        case 2:
+            /* Diffuse cosine model */
+            normal[0] = 0;
+            normal[1] = -1;
+            normal[2] = 0;
+            cosine_scatter(normal, NULL, gen_ray.direction, NULL, my_rng);
+            break;
+    }
 
-//     /* Generate the direction of the ray */
-//     phi = 2*M_PI*gsl_rng_uniform(my_rng);
-//     switch (source_model) {
-//         case 0:
-//             /* Uniform virtual source model */
-//             theta = theta_max*sqrt(gsl_rng_uniform(my_rng));
-//             break;
-//         case 1:
-//             /* Gaussian virtual source model */
-//             B = 1/(1 - exp(-M_PI*M_PI/(2*sigma*sigma)));
-//             theta = sigma*sqrt(-2*log((B - gsl_rng_uniform(my_rng)/B)));
-//             break;
-//         case 2:
-//             /* Diffuse cosine model */
-//             normal[0] = 0;
-//             normal[1] = -1;
-//             normal[2] = 0;
-//             cosineScatter3D(normal, gen_ray.direction, my_rng);
-//             break;
-//     }
+    if (source_model != 2) {
+        dir[0] = cos(theta);
+        dir[1] = sin(theta)*cos(phi);
+        dir[2] = sin(theta)*sin(phi);
 
-//     if (source_model != 2) {
-//         dir[0] = cos(theta);
-//         dir[1] = sin(theta)*cos(phi);
-//         dir[2] = sin(theta)*sin(phi);
+        /* Need to rotate the rays direction according to the incidence angle */
+        rot_angle = 0.5*M_PI - init_angle;
+        gen_ray.direction[0] = cos(-rot_angle)*dir[0] -
+            sin(-rot_angle)*dir[1];
+        gen_ray.direction[1] = sin(-rot_angle)*dir[0] +
+            cos(-rot_angle)*dir[1];
+        gen_ray.direction[2] = dir[2];
+    }
 
-//         /* Need to rotate the rays direction according to the incidence angle */
-//         rot_angle = 0.5*M_PI - init_angle;
-//         gen_ray.direction[0] = cos(-rot_angle)*dir[0] -
-//             sin(-rot_angle)*dir[1];
-//         gen_ray.direction[1] = sin(-rot_angle)*dir[0] +
-//             cos(-rot_angle)*dir[1];
-//         gen_ray.direction[2] = dir[2];
-//     }
+    /* Need to move the rays into the pinhole */
+    gen_ray.position[0] += pinhole_c[0];
+    gen_ray.position[2] += pinhole_c[2];
 
-//     /* Need to move the rays into the pinhole */
-//     gen_ray.position[0] += pinhole_c[0];
-//     gen_ray.position[2] += pinhole_c[2];
+    /* Initialise other elements of the ray struct */
+    gen_ray.on_surface = -1;
+    gen_ray.on_element = -1;
+    gen_ray.nScatters = 0;
 
-//     /* Initialise other elements of the ray struct */
-//     gen_ray.on_surface = -1;
-//     gen_ray.on_element = -1;
-//     gen_ray.nScatters = 0;
-
-//     /* Return the ray struct all ready to use */
-//     return(gen_ray);
-// }
+    /* Return the ray struct all ready to use */
+    return gen_ray;
+}
 

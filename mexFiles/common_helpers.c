@@ -6,6 +6,8 @@
  *
  * Contains small helper functions common to both 2D and 3D ray Tracing.
  */
+#include "common_helpers.h"
+
 #include "mex.h"
 #include <gsl/gsl_rng.h>
 #include <stdlib.h>
@@ -19,7 +21,7 @@
  * OUTPUTS:
  *  r - a pointer to a GSL random number generator
  */
-gsl_rng* setupGSL(void) {
+gsl_rng * setupGSL(void) {
     gsl_rng *r;
     unsigned long int t;
 

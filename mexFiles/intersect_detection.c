@@ -11,7 +11,7 @@
 #include "small_functions3D.h"
 #include <math.h>
 #include "ray_tracing_structs3D.h"
-#include "scattering_processes3D.h"
+#include "distributions.h"
 
 
 /*
@@ -189,7 +189,7 @@ void scatterTriag(Ray3D *the_ray, Surface3D *Sample, double *min_dist,
          * equation:
          * e + td = a + beta(b - a) + gamma(c - a)
          */
-        /*propogate3D(a, e, -1, v);*/
+        /*propagate3D(a, e, -1, v);*/
         v[0] = a[0] - e[0];
         v[1] = a[1] - e[1];
         v[2] = a[2] - e[2];
@@ -321,8 +321,8 @@ int backWallScatter(Ray3D *the_ray, BackWall wallPlate,  double *min_dist,
             return(0);
         }
 
-        /* propogate the ray to that position */
-        propogate(e, d, alpha, wall_hit);
+        /* propagate the ray to that position */
+        propagate(e, d, alpha, wall_hit);
 
         /*
          * See if it goes into the aperture. The aperture is defined by a centre,
@@ -434,8 +434,8 @@ int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
             return(0);
         }
 
-        /* propogate the ray to that position */
-        propogate(e, d, alpha, wall_hit);
+        /* propagate the ray to that position */
+        propagate(e, d, alpha, wall_hit);
 
         test = 10;
         for (i = 0; i < wallPlate.n_detect; i++) {

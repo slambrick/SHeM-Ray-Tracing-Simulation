@@ -3,11 +3,11 @@
 newmtl black
 Kd 0.800000011921 0.800000011921 0.800000011921
 func cosine
-params 0.4 0.3 0.9
+params
 d 0
 newmtl gold
 Kd 1.0 1.0 0.0
-func gaussian
+func broad_specular
 params 0.1
 d 0
 # Material Count: 2

@@ -1,3 +1,4 @@
 *.mexa64
+*.idx
 simulations/*test
 .vscode

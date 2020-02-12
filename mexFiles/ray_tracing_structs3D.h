@@ -11,8 +11,10 @@
 #ifndef _ray_tracing_structures_h
 #define _ray_tracing_structures_h
 
-#include "mex.h"
+#include <mex.h>
 #include <gsl/gsl_rng.h>
+
+#include "distributions.h"
 
 /******************************************************************************/
 /*                          Structure declarations                            */
@@ -22,9 +24,10 @@
 /* Structure holding information of a material's scattering properties */
 typedef struct _material {
     char * name;        // the name (key) of the material
-    char * function;    // the name of scattering distribution function
+    char * func_name;   // the name of scattering distribution function
     double * params;    // extra parameters to pass to the function
     int n_params;       // number of parameters -- must be length of params[]
+    distribution_func func; // the actual scattering probability distribution
 } Material;
 
 

@@ -340,8 +340,7 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
     /* Other parameters */
     this_wall->surf_index = allApertures->surf_index;
     this_wall->circle_plate_r = allApertures->circle_plate_r;
-    this_wall->composition = allApertures->composition;
-    this_wall->scattering_parameters = allApertures->scattering_parameters;
+    this_wall->material = allApertures->material;
 
     /* We do not represent the plate to be scattered off, just the apertures */
     this_wall->plate_represent = 0;

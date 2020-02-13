@@ -37,7 +37,7 @@
  *  surf_index - surface index for scattering algorithm
  *
  * OUTPUT:
- *  Sample - a Surface struct that contains information of the surface.
+ *  surf - a Surface struct that contains information of the surface.
  */
 Surface3D set_up_surface(double V[], double N[], int F[], char ** C,
                          Material M[], int nmaterials, int ntriag, int surf_index) {
@@ -151,18 +151,14 @@ Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays) {
 }
 
 /* Updates the ray postion */
-void update_ray_position(Ray3D *the_ray, double new_pos[3]) {
-    int j;
-
-    for (j = 0; j < 3; j++)
+void update_ray_position(Ray3D *the_ray, const double new_pos[3]) {
+    for (int j = 0; j < 3; j++)
         the_ray->position[j] = new_pos[j];
 }
 
 /* Updates the ray direction */
-void update_ray_direction(Ray3D *the_ray, double new_dir[3]) {
-    int j;
-
-    for (j = 0; j < 3; j++)
+void update_ray_direction(Ray3D *the_ray, const double new_dir[3]) {
+    for (int j = 0; j < 3; j++)
         the_ray->direction[j] = new_dir[j];
 }
 
@@ -171,41 +167,41 @@ void update_ray_direction(Ray3D *the_ray, double new_dir[3]) {
  * provided arrays.
  *
  * INPUTS:
- *  Sample      - a pointer to a Surface struct with all the information on the
+ *  sample      - a pointer to a Surface struct with all the information on the
  *               surface in it
- *  n           - integer, the index of the surface element
+ *  idx         - integer, the index of the surface element
  *  v1          - three element array for putting the first vertex in
  *  v2          - three element array for putting the second vertex in
  *  v3          - three element array for putting the third vertex in
- *  nn          - three element array for putting the unit normal in
+ *  normal      - three element array for putting the unit normal in
  *  composition - pointer to a variable for puttin the element composition in
  */
-void get_element3D(Surface3D *Sample, int n, double v1[3], double v2[3],
-        double v3[3], double nn[3]) {
+void get_element3D(Surface3D *sample, int idx, double v1[3], double v2[3],
+        double v3[3], double normal[3]) {
     int j;
-    int tri[3];
+    int vertices[3];
 
     /* Get the indices to the three vertices and get the surface normal */
-    j = n*3 + 0;
-    tri[0] = ((int)Sample->faces[j] - 1)*3;
-    nn[0] = Sample->normals[j];
+    j = idx*3 + 0;
+    vertices[0] = (sample->faces[j] - 1)*3;
+    normal[0] = sample->normals[j];
     j += 1;
-    tri[1] = ((int)Sample->faces[j] - 1)*3;
-    nn[1] = Sample->normals[j];
+    vertices[1] = (sample->faces[j] - 1)*3;
+    normal[1] = sample->normals[j];
     j += 1;
-    tri[2] = ((int)Sample->faces[j] - 1)*3;
-    nn[2] = Sample->normals[j];
+    vertices[2] = (sample->faces[j] - 1)*3;
+    normal[2] = sample->normals[j];
 
     /* Vertices of the triangle */
-    v1[0] = Sample->vertices[tri[0] + 0];
-    v1[1] = Sample->vertices[tri[0] + 1];
-    v1[2] = Sample->vertices[tri[0] + 2];
-    v2[0] = Sample->vertices[tri[1] + 0];
-    v2[1] = Sample->vertices[tri[1] + 1];
-    v2[2] = Sample->vertices[tri[1] + 2];
-    v3[0] = Sample->vertices[tri[2] + 0];
-    v3[1] = Sample->vertices[tri[2] + 1];
-    v3[2] = Sample->vertices[tri[2] + 2];
+    v1[0] = sample->vertices[vertices[0]];
+    v1[1] = sample->vertices[vertices[0] + 1];
+    v1[2] = sample->vertices[vertices[0] + 2];
+    v2[0] = sample->vertices[vertices[1]];
+    v2[1] = sample->vertices[vertices[1] + 1];
+    v2[2] = sample->vertices[vertices[1] + 2];
+    v3[0] = sample->vertices[vertices[2]];
+    v3[1] = sample->vertices[vertices[2] + 1];
+    v3[2] = sample->vertices[vertices[2] + 2];
 }
 
 
@@ -303,22 +299,22 @@ void print_BackWall(BackWall *wall) {
     mexPrintf("Aperture axes: ");
     print1D_double(wall->aperture_axes, 2);
     mexPrintf("Radius of the plate = %f\n", wall->circle_plate_r);
-    mexPrintf("Composition = %f\n", wall->composition);
-    mexPrintf("Scattering parameters = %f\n", wall->scattering_parameters);
+    print_material(&(wall->material));
+    mexPrintf("\n");
 }
 
 /* Prints all the information on all the apertues in the NBackWall struct */
 void print_nBackWall(NBackWall *all_apertures) {
-    int i;
-
     mexPrintf("\nNumber of apertures = %i\n", all_apertures->n_detect);
-    for (i = 0; i < all_apertures->n_detect; i++) {
+    for (int i = 0; i < all_apertures->n_detect; i++) {
         mexPrintf("Aperture %i:\n", i);
         mexPrintf("Centre: ");
         print1D_double(&all_apertures->aperture_c[2*i], 2);
         mexPrintf("Axes: ");
         print1D_double(&all_apertures->aperture_axes[2*i], 2);
     }
+    print_material(&(all_apertures->material));
+    mexPrintf("\n");
 }
 
 

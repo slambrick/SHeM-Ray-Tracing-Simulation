@@ -21,7 +21,8 @@
  * - a pointer to a double array of parameters
  * - a GSL random number generator
  */
-typedef void (*distribution_func)(const double[3], const double[3], double[3], const double*, gsl_rng*);
+typedef void (*distribution_func)(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng*);
 
 distribution_func distribution_by_name(const char * name);
 

@@ -142,7 +142,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         the_ray = create_ray_source(pinhole_r, pinhole_c, src_theta_max,
             src_init_angle, source_model, my_rng, src_sigma);
 
-        // detected = trace_ray_simpleMulti(&the_ray, &killed, cntr_detected,
+        // detected = trace_ray_simple_multi(&the_ray, &killed, cntr_detected,
         //     maxScatters, sample, plate, sphere, my_rng, &detector);
 
         /*

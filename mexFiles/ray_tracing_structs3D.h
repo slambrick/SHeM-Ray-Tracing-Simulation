@@ -47,11 +47,10 @@ typedef struct _surface3d {
 /* Information on the flat plate model of detection */
 typedef struct _backWall {
     int surf_index;         /* Index of this surface */
-    double *aperture_c;   /* The centre of the detector aperture */
-    double *aperture_axes;/* The two axes of the elliptical aperture */
+    double *aperture_c;     /* The centre of the detector aperture */
+    double *aperture_axes;  /* The two axes of the elliptical aperture */
     double circle_plate_r;  /* The radius of the plate that the aperture sits on */
-    double composition;
-    double scattering_parameters;
+    Material material;
     int plate_represent;    /* Should the plate be scattered off, 0 or 1 */
 } BackWall;
 
@@ -62,8 +61,7 @@ typedef struct _nBackWall{
     double *aperture_c;
     double *aperture_axes;
     double circle_plate_r;
-    double composition;
-    double scattering_parameters;
+    Material material;
     int plate_represent;
 } NBackWall;
 
@@ -90,7 +88,7 @@ typedef struct _sphere {
 typedef struct _ray3d {
     double position[3];   /* First vertex of the surface element */
     double direction[3];  /* Second vertex of the surface element */
-    int32_t nScatters;    /* The number of scattering events the ray has undergone */
+    int nScatters;        /* The number of scattering events the ray has undergone */
     int on_element;       /* The index of the surface element that the ray is on */
     int on_surface;       /* The index of the surface that the ray is on */
 } Ray3D;
@@ -122,11 +120,16 @@ Material set_up_material(char * name, char * function, double * params, int n_pa
 Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays);
 
 /* Updates the ray position */
-void update_ray_position(Ray3D *the_ray, double new_pos[3]);
+void update_ray_position(Ray3D *the_ray, const double new_pos[3]);
 
-/* Gets an element of a triangulated surface */
-void get_element3D(Surface3D *Sample, int n, double v1[3], double v2[3],
-        double v3[3], double nn[3]);
+/* Updates the ray direction */
+void update_ray_direction(Ray3D *the_ray, const double new_dir[3]);
+
+/* Gets an element of a triangulated surface. Vertices are written to
+ * v1, v2, v3, and the normal to `normal`.
+ */
+void get_element3D(Surface3D *sample, int index, double v1[3], double v2[3],
+        double v3[3], double normal[3]);
 
 /* Cleans up the allocated memory inside the ray struct */
 void clean_up_rays(Rays3D all_rays);

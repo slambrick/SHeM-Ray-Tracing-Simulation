@@ -1,4 +1,13 @@
+# compiled things
 *.mexa64
-*.idx
+*.o
+test/bin
+test/obj
+test/extobj
+
+# program output
 simulations/*test
+
+# IDE things
+.clangd
 .vscode

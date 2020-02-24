@@ -1,0 +1,52 @@
+# FreeCAD v0.18 build14555 (Git shallow) Arch module
+# http://www.freecadweb.org
+
+# strips
+newmtl color_cc0000
+Kd 0.800000011921 0.0 0.0
+func broad_specular
+params 0.1
+d 0
+newmtl color_cc1e00
+Kd 0.800000011921 0.117647059262 0.0
+func broad_specular
+params 0.2
+d 0
+newmtl color_cc3c00
+Kd 0.800000011921 0.235294118524 0.0
+func broad_specular
+params 0.3
+d 0
+newmtl color_cc5a00
+Kd 0.800000011921 0.352941185236 0.0
+func broad_specular
+params 0.4
+d 0
+newmtl color_cc7800
+Kd 0.800000011921 0.470588237047 0.0
+func broad_specular
+params 0.5
+d 0
+newmtl color_cc9600
+Kd 0.800000011921 0.588235318661 0.0
+func broad_specular
+params 0.6
+d 0
+newmtl color_ccb400
+Kd 0.800000011921 0.705882370472 0.0
+func broad_specular
+params 0.7
+d 0
+newmtl color_ccd200
+Kd 0.800000011921 0.823529422283 0.0
+func broad_specular
+params 0.8
+d 0
+
+# base
+newmtl color_797979
+Kd 0.474509805441 0.474509805441 0.474509805441
+func cosine
+params
+d 0
+# Material Count: 9

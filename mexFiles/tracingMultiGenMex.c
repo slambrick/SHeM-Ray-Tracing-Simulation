@@ -47,15 +47,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int n_rays;            /* number of rays */
     int maxScatters;       /* Maximum number of scattering events per ray */
     int source_model;
-    double * source_parameters;
 
     // mexPrintf("\n\n Now in tracingMultiGenMex \n\n");
 
     /* Declare the output variables */
     int32_t * cntr_detected;       /* The number of detected rays */
-    int killed = 0;              /* The number of killed rays */
-    int32_t * numScattersRay; /* The number of sample scatters that each
-                               * ray has undergone */
+    int killed = 0;                /* The number of killed rays */
+    int32_t * numScattersRay;      /* The number of sample scatters that each
+                                    * ray has undergone */
 
     /* Declare other variables */
     int detector;
@@ -100,7 +99,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // materials
     int num_materials = mxGetN(prhs[6]);
     M = mxCalloc(num_materials, sizeof(Material));
-    get_materials(prhs[6], prhs[7], prhs[8], M);
+    get_materials_array(prhs[6], prhs[7], prhs[8], M);
 
     // simulation parameters
     maxScatters = (int)mxGetScalar(prhs[9]);
@@ -116,7 +115,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Put the sample and pinhole plate surface into structs */
     sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, sample_index);
-    print_surface(&sample);
 
     /*
      * Create the output matrices
@@ -142,18 +140,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
         the_ray = create_ray_source(pinhole_r, pinhole_c, src_theta_max,
             src_init_angle, source_model, my_rng, src_sigma);
 
-        // detected = trace_ray_simple_multi(&the_ray, &killed, cntr_detected,
-        //     maxScatters, sample, plate, sphere, my_rng, &detector);
+        detected = trace_ray_simple_multi(&the_ray, &killed, cntr_detected,
+            maxScatters, sample, plate, sphere, my_rng, &detector);
 
         /*
          * Add the number of scattering events the ray has undergon to the
          * histogram. But only if it is detected.
          */
-        // if (detected) {
-        //     int ind;
-        //     ind = (detector - 1)*maxScatters + (the_ray.nScatters - 1);
-        //     numScattersRay[ind]++;
-        // }
+        if (detected) {
+            int ind = (detector - 1)*maxScatters + (the_ray.nScatters - 1);
+            numScattersRay[ind]++;
+        }
     }
 
     /**************************************************************************/

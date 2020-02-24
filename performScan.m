@@ -13,14 +13,14 @@ clear
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
 % this uneccaserily large will increase the memory requirments of the
 % simulation.
-maxScatter = 20;
+maxScatter = 10;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
 typeScan = 'rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = false;
+recompile = true;
 
 %% Beam/source parameters %%
 
@@ -32,7 +32,7 @@ pinhole_c = 1*[-tand(init_angle), 0, 0];
 pinhole_r = 0.0006;
 
 % Number of rays to use and the width of the source
-n_rays = 2000;
+n_rays = 1e5;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100);
@@ -115,8 +115,8 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.003;
-raster_movment2D_z = 0.003;
+raster_movment2D_x = 0.02;
+raster_movment2D_z = 0.02;
 xrange = [-0.500    0.500];
 zrange = [-0.500    0.500];
 
@@ -145,7 +145,7 @@ Direction = 'y';
 sample_type = 'custom';
 
 % The sample file, include the full path
-sample_fname = 'simulations/slabs.obj';
+sample_fname = 'simulations/strips.obj';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -156,8 +156,8 @@ scale = 1;
 sample_description = 'Testing obj file usage.';
 
 %% Parameters of the default material, to use for faces where no material is specified
-defMaterial.function = 'diffuse';
-defMaterial.params = [1.0, pi/2];
+defMaterial.function = 'cosine';
+defMaterial.params = 0;
 defMaterial.color = [0.8 0.8 1.0];
 
 % How close should the nearest point of the sample be to the pinhole plate, the
@@ -183,7 +183,7 @@ square_size = 8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'objtest';
+directory_label = 'strip';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -306,7 +306,7 @@ switch sample_type
         sphere_c = [-0.1, -dist_to_sample - sphere_r*2/3, -0.1];
         diffuse = [1, 90*pi/180];
     case 'special'
-        sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, 'scale', 10e-4,);
+        sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, 'scale', 10e-4);
         sample_surface.rotateZ;
         sample_surface.moveBy([0, -2.121, 0]);
         make_sphere = 0;
@@ -314,20 +314,19 @@ end
 
 % A struct to represent the sphere
 sphere_c = [dist_to_sample*tand(init_angle), dist_to_sample + sphere_r, 0];
+sphere.c = sphere_c;
 sphere.make = make_sphere;
 sphere.r = sphere_r;
-sphere.scattering = diffuse(1);
-sphere.scattering_parameter = diffuse(2);
-sphere.c = sphere_c;
+sphere.material = defMaterial;
 
 % Do any extra manipulation of the sample here
-if false
-    %sample_surface.rotateX;
-    sample_surface.rotateY;
-    sample_surface.rotateY;
-    %sample_surface.rotateY;
-    %sample_surface.moveBy([0, -2.2, 2.3]);
-end
+% if false
+%     %sample_surface.rotateX;
+%     sample_surface.rotateY;
+%     sample_surface.rotateY;
+%     %sample_surface.rotateY;
+%     %sample_surface.moveBy([0, -2.2, 2.3]);
+% end
 
 % Plot the sample surface in 3D space, if we are using a graphical window
 if true %feature('ShowFigureWindows')
@@ -418,6 +417,9 @@ end
 if recompile
     mexCompile();
 end
+
+% traceSimpleMultiGen('sample', sample_surface, 'maxScatter', maxScatter, 'plate', thePlate, 'dist', dist_to_sample, 'sphere', sphere, 'source', direct_beam.source_model, 'beam', direct_beam);
+% return;
 
 %% Performing the simulation
 switch typeScan

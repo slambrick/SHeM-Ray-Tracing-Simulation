@@ -7,7 +7,10 @@ test/extobj
 
 # program output
 simulations/*test
+simulations/*/*.png
+simulations/*/*.eps
 
 # IDE things
 .clangd
 .vscode
+compile_commands.json

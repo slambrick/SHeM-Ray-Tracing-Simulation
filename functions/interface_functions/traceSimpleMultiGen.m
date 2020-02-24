@@ -68,9 +68,6 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     end
 
     % Get the nessacery source information
-    n_rays = beam.n;
-    pinhole_c = beam.pinhole_c;
-    pinhole_r = beam.pinhole_r;
     switch which_beam
         case 'Uniform'
             source_model = 0;
@@ -90,19 +87,19 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     end
 
     % Pass the source parameters to C
-    source_parameters = [pinhole_r, pinhole_c(1), pinhole_c(2), theta_max, ...
+    source_parameters = [beam.pinhole_r, beam.pinhole_c(1), beam.pinhole_c(2), theta_max, ...
         init_angle, sigma_source];
 
     % The calling of the mex function, ... here be dragons ... don't meddle
     [counted, killed, numScattersRay]  = tracingMultiGenMex(...
         V, F, N, C, sphere, plate,...
         mat_names, mat_functions, mat_params,...
-        maxScatter, n_rays, source_model, source_parameters);
+        maxScatter, beam.n, source_model, source_parameters);
 
     numScattersRay = reshape(numScattersRay, maxScatter, plate{2});
 
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.
-    diedNaturally = n_rays - sum(counted) - killed;
+    diedNaturally = beam.n - sum(counted) - killed;
 end
 

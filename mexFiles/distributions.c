@@ -33,13 +33,15 @@
  * If no such name can be found, NULL is returned.
  */
 distribution_func distribution_by_name(const char * name) {
-    if(strcmp(name, "broad_specular"))
+    if(strcmp(name, "gaussian_specular") == 0)
+        return gaussian_specular_scatter;
+    if(strcmp(name, "broad_specular") == 0)
         return broad_specular_scatter;
-    if(strcmp(name, "cosine"))
+    if(strcmp(name, "cosine") == 0)
         return cosine_scatter;
-    if(strcmp(name, "cosine_specular"))
+    if(strcmp(name, "cosine_specular") == 0)
         return cosine_specular_scatter;
-    if(strcmp(name, "uniform"))
+    if(strcmp(name, "uniform") == 0)
         return uniform_scatter;
     return NULL;
 }
@@ -47,7 +49,44 @@ distribution_func distribution_by_name(const char * name) {
 
 static double theta_generate(double sigma, gsl_rng *myrng);
 
-static double phi_generate(gsl_rng *myrng);
+
+void gaussian_specular_scatter(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng) {
+
+    double theta, phi, normal_dot;
+    double sigma = params[0];
+    double specular[3], t1[3], t2[3];
+    // double tester;
+
+    // calculate the specular direction
+    reflect3D(normal, init_dir, specular);
+    // get the tangent vectors
+    perpendicular_plane(specular, t1, t2);
+
+
+    /* NB: the range of coordinates here is theta in [-pi, pi], phi in [0, pi]
+     * rather than the usual [0, pi] and [0, 2pi]. The reason is that we are
+     * generating theta via a gaussian distribution centred at zero.
+     */
+
+    do {
+        phi = M_PI*gsl_rng_uniform(my_rng);
+
+        // generate a zero-centred Gaussian distribution with cut-off at pi
+        do {
+            theta = gsl_ran_gaussian(my_rng, sigma);
+        } while(fabs(theta) > M_PI);
+
+        for (int k = 0; k < 3; k++) {
+            new_dir[k] = t1[k]*cos(phi)*sin(theta) + t2[k]*sin(phi)*sin(theta) +
+                specular[k]*cos(theta);
+        }
+        normalise(new_dir);
+
+        normal_dot = dot(normal, new_dir);
+        // tester = gsl_rng_uniform(my_rng);
+    } while(normal_dot < 0);
+}
 
 
 /*
@@ -65,7 +104,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
 
     double theta, phi;
     double theta_normal;
-    double sigma = params[1];
+    double sigma = params[0];
     double t0[3];
     double t1[3];
     double t2[3];
@@ -83,7 +122,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
 
         /* Generate a random theta and phi */
         theta = theta_generate(sigma, my_rng);
-        phi = phi_generate(my_rng);
+        phi = 2*M_PI*gsl_rng_uniform(my_rng);
 
         /* Generate the new direction */
         for (k = 0; k < 3; k++) {
@@ -93,7 +132,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
 
         normalise(new_dir);
 
-        /* Calculate the polar angledouble normal[3], double init_dir[3] to the surface normal for the new direction */
+        /* Calculate the polar angle (normal, new_dir) to the surface normal for the new direction */
         dotted = dot(normal, new_dir);
         theta_normal = acos(dotted);
 
@@ -142,13 +181,6 @@ static double theta_generate(double sigma, gsl_rng *my_rng) {
     return(theta);
 }
 
-/* Generate a random phi angle for use in the broad specular distribution */
-static double phi_generate(gsl_rng *my_rng) {
-    double phi;
-
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    return(phi);
-}
 
 /*
  * Generates a random normalized direction according to a cosine distribution
@@ -187,7 +219,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
 void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng) {
     double s_theta, c_theta, phi;
-    double theta_normal;
+    double dot_normal;
     double t0[3];
     double t1[3];
     double t2[3];
@@ -214,8 +246,8 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
         normalise(new_dir);
 
         /* Calculate the polar angle to the surface normal for the new direction */
-        theta_normal = acos(dot(normal, new_dir));
-    } while (theta_normal > M_PI/2);
+        dot_normal = dot(normal, new_dir);
+    } while (dot_normal < 0);
 }
 
 /*
@@ -241,7 +273,7 @@ void uniform_scatter(const double normal[3], const double initial_dir[3],
     /* Generate random numbers for phi and cos(theta) */
     /* Using the GSL */
     phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    c_theta = fabs(0.99*gsl_rng_uniform(my_rng) - 1);
+    c_theta = fabs(0.999*gsl_rng_uniform(my_rng) - 1);
     s_theta = sqrt(1 - c_theta*c_theta);
 
     /* Create the new random direction from the two random angles */

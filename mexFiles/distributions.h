@@ -26,6 +26,9 @@ typedef void (*distribution_func)(const double normal[3], const double init_dir[
 
 distribution_func distribution_by_name(const char * name);
 
+void gaussian_specular_scatter(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
+
 void broad_specular_scatter(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng);
 

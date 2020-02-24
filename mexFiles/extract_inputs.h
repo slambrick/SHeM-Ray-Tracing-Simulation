@@ -32,12 +32,15 @@ int get_string_cell_arr(const mxArray * cell_array, char ** strings);
  */
 AnalytSphere get_sphere(const mxArray * theSphere, int index);
 
+/* Extract array of material structs. Return how many were extracted. */
+int get_materials(const mxArray * mat, char ** names, Material * target);
+
 /**
  * Package the names, function names and parameters in the input into
  * an array of Material pointers. Return the number of materials found.
  */
-int get_materials(const mxArray * names, const mxArray * functions,
-                  const mxArray * params, Material * materials);
+int get_materials_array(const mxArray * names, const mxArray * functions,
+                        const mxArray * params, Material * materials);
 
 /* Extract source properties from a MATLAB array and write them to the given pointers */
 void get_source(const mxArray * source, double * pinhole_r, double * pinhole_c,

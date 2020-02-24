@@ -18,6 +18,9 @@ void propagate(const double init[3], const double direc[3], double a, double res
 /* Calculates the dot product of two 3 element double vectors. */
 double dot(const double a[3], const double b[3]);
 
+/* Calculates the cross product of two 3-vectors and writes it to c */
+void cross(const double a[3], const double b[3], double c[3]);
+
 /* Returns the square of the norm of a three vector. */
 double norm2(const double vect[3]);
 

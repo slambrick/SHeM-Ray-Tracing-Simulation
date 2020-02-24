@@ -1,18 +1,19 @@
 CC = gcc
-CFLAGS = -Wall -pedantic
+CFLAGS = -Wall -pedantic -std=c99
 LIBS = -lgsl -lgslcblas -lm
 SDIR = src
 EDIR = ../mexFiles
 BDIR = bin
 ODIR = obj
 EODIR = extobj
-INC = -I$(EDIR) -I $(HOME)/.local/share/MATLAB/R2019b/extern/include
+MDIR = mex
+INC = -I$(EDIR) -I$(HOME)/.local/share/MATLAB/R2019b/extern/include
 
 # source file names of the tests
 SRC = $(shell find $(SDIR) -type f -regex '.*\.c')
 
 # external sources -- source files being tested
-_ESRC = small_functions3D.c
+_ESRC = small_functions3D.c distributions.c ray_tracing_structs3D.c common_helpers.c extract_inputs.c
 ESRC = $(patsubst %,$(EDIR)/%,$(_ESRC))
 
 # external headers
@@ -24,14 +25,15 @@ EOBJ = $(patsubst %.c,$(EODIR)/%.o,$(_ESRC))
 .PHONY: all remove clean debug
 all: $(BDIR)/simple
 
-debug:
-	@echo "external objects: $(EOBJ)"
-
 # create the necessary directories
 directories:
 	mkdir -p $(ODIR)
 	mkdir -p $(EODIR)
 	mkdir -p $(BDIR)
+
+# # compile mex files
+# %.mexa64: $(MDIR)/%.c $(ESRC)
+# 	mex -R2018a $(LIBS) $(INC) CFLAGS="$$CFLAGS $(CFLAGS)" $< $(ESRC)
 
 # compile external objects
 $(EODIR)/%.o: $(EDIR)/%.c $(EDIR)/%.h

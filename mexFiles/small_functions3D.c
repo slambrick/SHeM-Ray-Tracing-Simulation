@@ -56,6 +56,13 @@ double dot(const double a[3], const double b[3]) {
     return result;
 }
 
+/* Calculates the cross product of two 3-vectors and writes it to c */
+void cross(const double a[3], const double b[3], double c[3]) {
+    c[0] = a[1]*b[2] - a[2]*b[1];
+    c[1] = a[2]*b[0] - a[0]*b[2];
+    c[2] = a[0]*b[1] - a[1]*b[0];
+}
+
 /*
  * Returns the square of the norm of a three vector.
  *

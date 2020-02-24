@@ -64,20 +64,40 @@ AnalytSphere get_sphere(const mxArray * theSphere, int index) {
 
     // now extract the material -- a nested struct
     mxArray * sph_material = mxGetField(theSphere, 0, "material");
-    if(!mxIsStruct(sph_material))
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:sphereMaterial",
-                          "Must be struct array");
-    if(mxGetN(sph_material) != 1 || mxGetM(sph_material) != 1)
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:sphereMaterial",
-                          "Must be one struct");
-    int num_params = mxGetN(mxGetField(sph_material, 0, "params"));
-    double * params = mxGetDoubles(mxGetField(sph_material, 0, "params"));
-    char * function = mxArrayToString(mxGetField(sph_material, 0, "function"));
-
-    Material mat = set_up_material("sphere", function, params, num_params);
+    Material mat;
+    char *names[] = {"sphere"};
+    get_materials(sph_material, names, &mat);
 
     AnalytSphere sph = set_up_sphere(make_sphere, sphere_c, sphere_r, mat, index);
     return sph;
+}
+
+
+/* Extract array of material structs. Return how many were extracted. */
+int get_materials(const mxArray * mat, char ** names, Material * target) {
+    mxArray * field;
+    if(!mxIsStruct(mat))
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:material",
+                          "Must be struct array");
+    int n_materials = mxGetN(mat);
+
+    for(int imat = 0; imat < n_materials; imat++) {
+        field = mxGetField(mat, imat, "params");
+        if(!mxIsDouble(field))
+            mexErrMsgIdAndTxt("MyToolbox:tracingMex:material",
+                            "params must be doubles array.");
+        int num_params = mxGetN(field);
+        double * params = mxGetDoubles(field);
+
+        field = mxGetField(mat, imat, "function");
+        if(!mxIsChar(field))
+            mexErrMsgIdAndTxt("MyToolbox:tracingMex:material",
+                            "function must be char array.");
+        char * function = mxArrayToString(field);
+
+        target[imat] = set_up_material(names[imat], function, params, num_params);
+    }
+    return n_materials;
 }
 
 
@@ -85,8 +105,8 @@ AnalytSphere get_sphere(const mxArray * theSphere, int index) {
  * Package the names, function names and parameters in the input into
  * an array of Material pointers. Return the number of materials found.
  */
-int get_materials(const mxArray * names, const mxArray * functions,
-                  const mxArray * params, Material * materials) {
+int get_materials_array(const mxArray * names, const mxArray * functions,
+                        const mxArray * params, Material * materials) {
 
     if(!mxIsCell(names) || !mxIsCell(functions) || !mxIsCell(params))
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:materials",

@@ -16,7 +16,7 @@
 #include "ray_tracing_structs3D.h"
 #include "distributions.h"
 // #include <stdlib.h>
-#include <stdint.h>
+#include <stdint-gcc.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_math.h>
 #include <math.h>
@@ -313,7 +313,7 @@ void print_nBackWall(NBackWall *all_apertures) {
         mexPrintf("Axes: ");
         print1D_double(&all_apertures->aperture_axes[2*i], 2);
     }
-    print_material(&(all_apertures->material));
+    // print_material(&(all_apertures->material));
     mexPrintf("\n");
 }
 

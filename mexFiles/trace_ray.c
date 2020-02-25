@@ -6,6 +6,7 @@
  */
 
 #include "mex.h"
+#include "trace_ray.h"
 #include "tracing_functions.h"
 #include "ray_tracing_structs3D.h"
 #include "common_helpers.h"
@@ -119,7 +120,7 @@ int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
  *
  * Traces a single ray
  */
-int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int *cntr_detected,
+int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         int maxScatters, Surface3D sample, NBackWall plate, AnalytSphere the_sphere,
         gsl_rng *my_rng, int *detector) {
     int n_allScatters;

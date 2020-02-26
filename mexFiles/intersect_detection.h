@@ -10,6 +10,7 @@
 #ifndef _intersect_detection_h
 #define _intersect_detection_h
 
+#include "ray_tracing_structs3D.h"
 
 int scatterSphere(Ray3D *the_ray, AnalytSphere the_sphere, double *min_dist,
         double nearest_inter[3], double nearest_n[3], int *tri_hit,

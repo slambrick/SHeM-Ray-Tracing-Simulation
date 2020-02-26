@@ -10,13 +10,13 @@
  * for use in the C ray tracing code, also contains functions for cleaning up
  * at the end of the simulation.
  */
-#include "mex.h"
+#include "ray_tracing_structs3D.h"
 #include "common_helpers.h"
 #include "small_functions3D.h"
-#include "ray_tracing_structs3D.h"
 #include "distributions.h"
+
 // #include <stdlib.h>
-#include <stdint-gcc.h>
+#include <mex.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_math.h>
 #include <math.h>
@@ -40,12 +40,13 @@
  *  surf - a Surface struct that contains information of the surface.
  */
 Surface3D set_up_surface(double V[], double N[], int F[], char ** C,
-                         Material M[], int nmaterials, int ntriag, int surf_index) {
+                         Material M[], int nmaterials, int ntriag, int nvert, int surf_index) {
     Surface3D surf;
 
     /* Allocate the components of the surface. */
     surf.surf_index = surf_index;
     surf.n_faces = ntriag;
+    surf.n_vertices = nvert;
     surf.vertices = V;
     surf.normals = N;
     surf.faces = F;
@@ -268,6 +269,9 @@ void print_material(const Material * mat) {
 
 /* Print details of whole sample to console */
 void print_surface(const Surface3D * s) {
+    for(int ivert = 0; ivert < s->n_vertices; ivert++)
+        mexPrintf("\n VERT % .2f % .2f % .2f", s->vertices[lin(ivert, 0)],
+            s->vertices[lin(ivert, 1)], s->vertices[lin(ivert, 2)]);
     for(int iface = 0; iface < s->n_faces; iface++) {
         mexPrintf("\n FACE %2d", iface);
         mexPrintf("\tV %3d %3d %3d", s->faces[lin(iface, 0)],
@@ -332,10 +336,10 @@ void print_sphere(const AnalytSphere * sphere){
  */
 void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
     /* The x and z coordinate of the apertures */
-    this_wall->aperture_c = &allApertures->aperture_c[2*n];
+    this_wall->aperture_c = &(allApertures->aperture_c[2*n]);
 
     /* The axes of the aperture */
-    this_wall->aperture_axes = &allApertures->aperture_axes[2*n];
+    this_wall->aperture_axes = &(allApertures->aperture_axes[2*n]);
 
     /* Other parameters */
     this_wall->surf_index = allApertures->surf_index;
@@ -362,9 +366,8 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
  * OUTPUT:
  *  gen_ray - ray3D struct with information on a ray in it
  */
-Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
-        double init_angle, int source_model, gsl_rng *my_rng, double sigma) {
-    Ray3D gen_ray;
+void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, double theta_max,
+        double init_angle, int source_model, double sigma, gsl_rng *my_rng) {
     double r, theta=0, phi;
     double rot_angle;
     double B;
@@ -374,9 +377,9 @@ Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
     /* Generate the position of the ray */
     phi = 2*M_PI*gsl_rng_uniform(my_rng);
     r = pinhole_r*sqrt(gsl_rng_uniform(my_rng));
-    gen_ray.position[0] = r*cos(phi);
-    gen_ray.position[1] = 0;
-    gen_ray.position[2] = r*sin(phi);
+    gen_ray->position[0] = pinhole_c[0] + r*cos(phi);
+    gen_ray->position[1] = pinhole_c[1];
+    gen_ray->position[2] = pinhole_c[2] + r*sin(phi);
 
     /* Generate the direction of the ray */
     phi = 2*M_PI*gsl_rng_uniform(my_rng);
@@ -395,7 +398,7 @@ Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
             normal[0] = 0;
             normal[1] = -1;
             normal[2] = 0;
-            cosine_scatter(normal, NULL, gen_ray.direction, NULL, my_rng);
+            cosine_scatter(normal, NULL, gen_ray->direction, NULL, my_rng);
             break;
     }
 
@@ -405,24 +408,16 @@ Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
         dir[2] = sin(theta)*sin(phi);
 
         /* Need to rotate the rays direction according to the incidence angle */
-        rot_angle = 0.5*M_PI - init_angle;
-        gen_ray.direction[0] = cos(-rot_angle)*dir[0] -
+        rot_angle = M_PI_2 - init_angle;
+        gen_ray->direction[0] = cos(-rot_angle)*dir[0] -
             sin(-rot_angle)*dir[1];
-        gen_ray.direction[1] = sin(-rot_angle)*dir[0] +
+        gen_ray->direction[1] = sin(-rot_angle)*dir[0] +
             cos(-rot_angle)*dir[1];
-        gen_ray.direction[2] = dir[2];
+        gen_ray->direction[2] = dir[2];
     }
 
-    /* Need to move the rays into the pinhole */
-    gen_ray.position[0] += pinhole_c[0];
-    gen_ray.position[2] += pinhole_c[2];
-
     /* Initialise other elements of the ray struct */
-    gen_ray.on_surface = -1;
-    gen_ray.on_element = -1;
-    gen_ray.nScatters = 0;
-
-    /* Return the ray struct all ready to use */
-    return gen_ray;
+    gen_ray->on_surface = -1;
+    gen_ray->on_element = -1;
+    gen_ray->nScatters = 0;
 }
-

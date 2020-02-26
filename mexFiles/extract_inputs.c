@@ -143,14 +143,24 @@ int get_materials_array(const mxArray * names, const mxArray * functions,
 /* Extract source properties from a MATLAB array and write them to the given pointers */
 void get_source(const mxArray * source, double * pinhole_r, double * pinhole_c,
                 double * theta_max, double * init_angle, double * sigma) {
+
+    const int n_params = 7;
+    if(!mxIsDouble(source))
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:source",
+                            "Source parameters must be double array.");
+    if(mxGetN(source) != n_params)
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:source",
+                          "Source must have exactly %d parameters.", n_params);
+
     double * source_parameters = mxGetDoubles(source);
 
     *pinhole_r = source_parameters[0];      // pinhole radius
     pinhole_c[0] = source_parameters[1];
-    pinhole_c[1] = source_parameters[2];    // pinhole centre
-    *theta_max = source_parameters[3];      // source max angle
-    *init_angle = source_parameters[4];     // source initial angle
-    *sigma = source_parameters[5];          // source std dev
+    pinhole_c[1] = source_parameters[2];
+    pinhole_c[2] = source_parameters[3];    // pinhole centre
+    *theta_max = source_parameters[4];      // source max angle
+    *init_angle = source_parameters[5];     // source initial angle
+    *sigma = source_parameters[6];          // source std dev
 }
 
 

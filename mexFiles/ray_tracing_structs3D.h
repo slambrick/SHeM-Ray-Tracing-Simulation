@@ -13,6 +13,7 @@
 
 #include <mex.h>
 #include <gsl/gsl_rng.h>
+#include <stdint-gcc.h>
 
 #include "distributions.h"
 
@@ -38,6 +39,7 @@ typedef struct _material {
 typedef struct _surface3d {
     int surf_index;       /* Index of the surface */
     int n_faces;          /* Number of faces in the surface */
+    int n_vertices;       /* Number of vertices defined */
     double *vertices;     /* Vertices of the surface */
     int *faces;           /* Faces of the surface. */
     double *normals;      /* Normals to the elements of the surface */
@@ -105,7 +107,7 @@ typedef struct _rays3d {
 
 /*  Set up a surface containing the information on a triangulated surface. */
 Surface3D set_up_surface(double V[], double N[], int F[], char * C[],
-        Material * materials, int nmaterials, int ntriag, int surf_index);
+        Material * materials, int nmaterials, int ntriag, int nvert, int surf_index);
 
 void clean_up_surface(Surface3D * surface);
 
@@ -165,7 +167,7 @@ void print_sphere(const AnalytSphere * sphere);
 void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
-Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max,
-        double init_angle, int source_model, gsl_rng *my_rng, double sigma);
+void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c,
+        double theta_max, double init_angle, int source_model, double sigma, gsl_rng *my_rng);
 
 #endif

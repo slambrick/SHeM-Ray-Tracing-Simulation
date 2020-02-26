@@ -123,15 +123,12 @@ int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
 int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         int maxScatters, Surface3D sample, NBackWall plate, AnalytSphere the_sphere,
         gsl_rng *my_rng, int *detector) {
-    int n_allScatters;
-    int dead;
-
     /*
      * The total number of scattering events undergone (sample and pinhole
      * plate) 1000 events are allowed in total. A separate limit is placed
      * on the number of scattering events off of the sample.
      */
-    n_allScatters = 0;
+    int n_allScatters = 0;
 
     /*
      * If the ray is 'dead' it is no longer of interest. It may be dead in two
@@ -139,7 +136,7 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
      *      dead = 1, it did not meet any surfaces
      *      dead = 2, it went into the detector
      */
-    dead = 0;
+    int dead = 0;
 
     /*
      * Keep propagating the ray until it is deemed 'dead', by either not
@@ -168,10 +165,9 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
                 /* Hit the sample */
                 the_ray->nScatters += 1;
                 n_allScatters++;
-            } else {
+            } else
                 /* Move onto the next ray */
                 continue;
-            }
         }
 
         /* The number of scattering events is set to -1 if we exceed the overall
@@ -184,8 +180,7 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         }
 
         /* Try to scatter of both surfaces. */
-        dead = scatterSimpleMulti(the_ray, &sample, plate, the_sphere, my_rng,
-            detector);
+        dead = scatterSimpleMulti(the_ray, &sample, plate, the_sphere, my_rng, detector);
 
         /******************************************************************/
         /* Update counters */
@@ -211,9 +206,9 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         }
     }
     if (dead == 2)
-        return(1);
+        return 1;
     else
-        return(0);
+        return 0;
 }
 
 /*

@@ -271,7 +271,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         Ray3D the_ray;
         int detected;
 
-        the_ray = create_ray_source(source_parameters[0], &source_parameters[1],
+        the_ray = create_ray(source_parameters[0], &source_parameters[1],
             source_parameters[3], source_parameters[4], source_model, my_rng,
             source_parameters[5]);
 

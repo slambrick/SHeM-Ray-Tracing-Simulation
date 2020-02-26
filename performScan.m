@@ -32,7 +32,7 @@ pinhole_c = 1*[-tand(init_angle), 0, 0];
 pinhole_r = 0.0006;
 
 % Number of rays to use and the width of the source
-n_rays = 1e5;
+n_rays = 1e4;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100);
@@ -98,9 +98,9 @@ circle_plate_r = 4;
 % is along the beam direction ('x') and axis 2 is perpendicular to the beam
 % direction ('z'). The aperture is always centred on the x-axis and is displaced
 % by the specified amount.
-n_detectors = 4;
-aperture_axes = [  0.2000    0.2000    0.2000    0.2000    0.2000    0.2000    0.2000    0.2000];
-aperture_c = [0.5000    0.5000    0.5000   -0.5000   -0.5000    0.5000   -0.5000   -0.5000];
+n_detectors = 1;
+aperture_axes = [0.4    0.4];
+aperture_c = [1.0000    0];
 plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -115,10 +115,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.02;
-raster_movment2D_z = 0.02;
-xrange = [-0.500    0.500];
-zrange = [-0.500    0.500];
+raster_movment2D_x = 0.01;
+raster_movment2D_z = 0.01;
+xrange = [-0.5    0.5];
+zrange = [-0.5    0.5];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -142,10 +142,10 @@ Direction = 'y';
 %  'custom' - Uses a CAD model from file
 %  'airy'   - TODO
 %  'corrugation' - TODO
-sample_type = 'custom';
+sample_type = 'flat';
 
 % The sample file, include the full path
-sample_fname = 'simulations/strips.obj';
+sample_fname = 'simulations/block_test2.stl';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -153,7 +153,7 @@ scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'Testing obj file usage.';
+sample_description = 'Testing default sample with new material-dependent code.';
 
 %% Parameters of the default material, to use for faces where no material is specified
 defMaterial.function = 'cosine';
@@ -177,13 +177,13 @@ sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
 
 % If a flat sample is being used or if a sphere on a flat surface what is the
 % length of the sides of the square.
-square_size = 8;
+square_size = 0.8;
 
 %% Output and plotting parameters
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'strip';
+directory_label = 'test';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -285,12 +285,12 @@ addpath(thePath);
 % simultion path.
 switch sample_type
     case 'flat'
-        sample_surface = flatSample(square_size, dist_to_sample, diffuse(1));
+        sample_surface = flatSample(square_size, dist_to_sample, defMaterial);
         make_sphere = 0;
         sample_description = ['A flat square sample size ' ...
             num2str(square_size) 'mm.'];
     case 'sphere'
-        sample_surface = flatSample(square_size, dist_to_sample, diffuse(1), diffuse(2));
+        sample_surface = flatSample(square_size, dist_to_sample, defMaterial);
         make_sphere = 1;
         sample_description = ['A single analytic sphere, radius ' ...
             num2str(sphere_r) 'mm on a flat square of ' num2str(square_size) 'mm.'];
@@ -329,7 +329,7 @@ sphere.material = defMaterial;
 % end
 
 % Plot the sample surface in 3D space, if we are using a graphical window
-if true %feature('ShowFigureWindows')
+if feature('ShowFigureWindows')
     if ~strcmp(typeScan, 'single_pixel')
         sample_surface.patchPlot(true);
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
@@ -528,7 +528,7 @@ switch typeScan
 end
 
 sample_inputs.sample_type = sample_type;
-sample_inputs.scattering = diffuse;
+sample_inputs.material = defMaterial;
 sample_inputs.dist_to_sample = dist_to_sample;
 sample_inputs.sphere = sphere;
 sample_inputs.sample_description = sample_description;

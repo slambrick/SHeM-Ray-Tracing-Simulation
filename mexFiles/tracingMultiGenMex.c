@@ -17,7 +17,7 @@
 #include <matrix.h>
 
 #include <gsl/gsl_rng.h>
-#include <stdint.h>
+#include <stdint-gcc.h>
 #include <math.h>
 
 #include "trace_ray.h"
@@ -48,8 +48,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int maxScatters;       /* Maximum number of scattering events per ray */
     int source_model;
 
-    // mexPrintf("\n\n Now in tracingMultiGenMex \n\n");
-
     /* Declare the output variables */
     int32_t * cntr_detected;       /* The number of detected rays */
     int killed = 0;                /* The number of killed rays */
@@ -57,11 +55,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
                                     * ray has undergone */
 
     /* Declare other variables */
-    int detector;
+    int detector = 0;
 
     Surface3D sample;
     NBackWall plate;
     AnalytSphere sphere;
+    Ray3D the_ray;
 
     /* Indexing the surfaces, -1 refers to no surface */
     int sample_index = 0, plate_index = 1, sphere_index = 2;
@@ -80,6 +79,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
      * NOTE: mxGetScalar always returns type double. In cases that the input in
      *       MATLAB were of type int it is safe to cast from double to int here.
      */
+    int nvert = mxGetN(prhs[0]);
     V = mxGetDoubles(prhs[0]);
 
     ntriag_sample = mxGetN(prhs[1]);
@@ -107,14 +107,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
     source_model = (int)mxGetScalar(prhs[11]);
 
     double pinhole_r, src_theta_max, src_init_angle, src_sigma;
-    double pinhole_c[2];
+    double pinhole_c[3];
     get_source(prhs[12], &pinhole_r, pinhole_c, &src_theta_max, &src_init_angle, &src_sigma);
 
     /* Set up the GSL random number generator */
     gsl_rng * my_rng = setupGSL();
 
     /* Put the sample and pinhole plate surface into structs */
-    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, sample_index);
+    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index);
 
     /*
      * Create the output matrices
@@ -134,17 +134,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Loop through all the rays, tracing each one */
     for (int i = 0; i < n_rays; i++) {
-        Ray3D the_ray;
         int detected;
 
-        the_ray = create_ray_source(pinhole_r, pinhole_c, src_theta_max,
-            src_init_angle, source_model, my_rng, src_sigma);
+        create_ray(&the_ray, pinhole_r, pinhole_c, src_theta_max,
+            src_init_angle, source_model, src_sigma, my_rng);
 
         detected = trace_ray_simple_multi(&the_ray, &killed, cntr_detected,
             maxScatters, sample, plate, sphere, my_rng, &detector);
 
         /*
-         * Add the number of scattering events the ray has undergon to the
+         * Add the number of scattering events the ray has undergone to the
          * histogram. But only if it is detected.
          */
         if (detected) {

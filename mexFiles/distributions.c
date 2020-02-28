@@ -49,7 +49,19 @@ distribution_func distribution_by_name(const char * name) {
 
 static double theta_generate(double sigma, gsl_rng *myrng);
 
-
+/*
+ * Generate rays with a gaussian-distributed polar angle relative to the specular direction.
+ * NB this is not entirely physically realistic, the purpose is mostly to illustrate the need
+ * for extra complexity in the broad specular distribution. For actual specular reflections,
+ * use broad_specular_scatter instead.
+ *
+ * INPUTS:
+ *  normal - the surface normal at the ray surface intersection
+ *  init_dir - the initial direction of the ray
+ *  new_dir  - array to put the new direction in
+ *  params   - first element must be standard deviation of gaussian distribution
+ *  my_rng   - random number generator object
+ */
 void gaussian_specular_scatter(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng) {
 
@@ -90,26 +102,29 @@ void gaussian_specular_scatter(const double normal[3], const double init_dir[3],
 
 
 /*
- * Generate a random direction according to the Gaussian broadened specular.
+ * Generate a random direction according to the Gaussian broadened specular:
+ *
+ * The probability distribution is:
+ *
+ * P = cos(normal) * sin(theta) * exp(-theta^2/(2*sigma^2)),
+ * where cos(normal) is the cosine of the new direction with the normal,
+ * and theta is the angle between the new direction and the specular.
  *
  * INPUTS:
  *  normal - the surface normal at the ray surface intersection
  *  init_dir - the initial direction of the ray
  *  new_dir  - array to put the new direction in
- *  params   - parameter standard deviation of the scattering distribution
- *  my_rng   - random number genertor object
+ *  params   - first element must be standard deviation of gaussian distribution
+ *  my_rng   - random number generator object
  */
 void broad_specular_scatter(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng) {
 
     double theta, phi;
-    double theta_normal;
+    double cos_normal;
     double sigma = params[0];
-    double t0[3];
-    double t1[3];
-    double t2[3];
-    double tester;
-    double c_theta;
+    double t0[3], t1[3], t2[3];
+    double tester = 1.0;
 
     /* The 'specular' direction is stored in t0 */
     reflect3D(normal, init_dir, t0);
@@ -117,44 +132,38 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
     perpendicular_plane(t0, t1, t2);
 
     do {
-        int k;
-        double dotted;
-
         /* Generate a random theta and phi */
         theta = theta_generate(sigma, my_rng);
         phi = 2*M_PI*gsl_rng_uniform(my_rng);
 
         /* Generate the new direction */
-        for (k = 0; k < 3; k++) {
+        for (int k = 0; k < 3; k++) {
             new_dir[k] = t1[k]*cos(phi)*sin(theta) + t2[k]*sin(phi)*sin(theta) +
                 t0[k]*cos(theta);
         }
-
         normalise(new_dir);
 
         /* Calculate the polar angle (normal, new_dir) to the surface normal for the new direction */
-        dotted = dot(normal, new_dir);
-        theta_normal = acos(dotted);
+        cos_normal = dot(normal, new_dir);
 
         /* If the value of theta_normal is greater than pi/2 reject */
-        if ((theta_normal >= M_PI/2) || (dotted < 0)) {
-            c_theta = 0;
-            tester = 1;
+        if (cos_normal < 0)
             continue;
-        }
 
         /* We reject the direction with a probability proportional to
          * cos(theta_normal)
          */
-        c_theta = cos(theta_normal);
         tester = gsl_rng_uniform(my_rng);
-    } while (c_theta < tester);
+    } while (cos_normal < tester);
     /* We have successfully generated a new direction */
 }
 
 /*
- * Generate the polar angle theta according to the Gaussian broaded specular,
+ * Generate the polar angle theta according to the Gaussian broadened specular,
  * this angle is the polar angle relative to the specular direction.
+ *
+ * The distribution is P = sin(theta) * exp(-theta^2/(2*sigma^2)),
+ * where the sine comes from the solid angle integrated over azimuthal directions.
  */
 static double theta_generate(double sigma, gsl_rng *my_rng) {
     double theta;
@@ -214,7 +223,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
 
 /*
  * Generated a random normalized direction according to a cosine distribution
- * about the specular direction and stores the results in the provided array.
+ * about the specular direction.
  */
 void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng) {
@@ -251,8 +260,8 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
 }
 
 /*
- * Generates a random normalized direction according to a uniform distribution
- * about the provided normal and stores the result in the provided array.
+ * Generates a random normalized direction with uniformly-distributed polar
+ * angle about the provided normal.
  *
  * INPUTS:
  *  normal  - double array, the normal to the surface at the point of scattering

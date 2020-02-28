@@ -16,8 +16,8 @@ direction = [1, -1, 0];
 direction = direction/norm(direction);
 normal = [0, 1, 0];
 
-material.function = 'gaussian_specular';
-material.params = 0.5;
+material.function = 'broad_specular';
+material.params = 0.2;
 material.color = [0.8, 0.8, 1.0];
 
 [theta, phi] = distribution_test_mex(num_rays, direction, material, normal);

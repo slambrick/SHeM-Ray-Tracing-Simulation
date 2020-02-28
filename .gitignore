@@ -9,6 +9,7 @@ test/extobj
 simulations/*test
 simulations/*/*.png
 simulations/*/*.eps
+simulations/*/*.mat
 
 # IDE things
 .clangd

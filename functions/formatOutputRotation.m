@@ -32,4 +32,3 @@ function [im, param, beam_param] = formatOutputRotation(simData, rot_angles, dat
     end
 end
 
-sdfg2SDf2nd_BX7

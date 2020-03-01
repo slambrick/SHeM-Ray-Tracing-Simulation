@@ -117,8 +117,8 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.003;
-raster_movment2D_z = 0.003;
+raster_movment2D_x = 0.0015;
+raster_movment2D_z = 0.0015;
 xrange = [-0.200    0.200];
 zrange = [-0.200    0.200];
 

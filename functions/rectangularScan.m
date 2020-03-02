@@ -16,22 +16,20 @@
 % OUTPUTS:
 %  square_scan_info - An object of class RectangleInfo that contains all
 %                     the results and information about the simulation
-function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
-        direct_beam, raster_movement_x, raster_movement_z, maxScatter, ...
+function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
+        direct_beam, maxScatter, ...
         pinhole_surface, effuse_beam, dist_to_sample, ...
         sphere, thePath, pinhole_model, thePlate, apertureAbstract, ray_model, ...
         n_detector)
     
     % The sample positions
-    sample_xs = xrange(1):raster_movement_x:xrange(2);
-    sample_zs = zrange(1):raster_movement_z:zrange(2);
-    nx_pixels = length(sample_xs);
-    nz_pixels = length(sample_zs);
+    nx_pixels = length(raster_pattern.xrange(1):raster_pattern.movement_x:raster_pattern.xrange(2));
+    nz_pixels = length(raster_pattern.zrange(1):raster_pattern.movement_z:raster_pattern.zrange(2));
     
     % Move the sample to the corner of the positions
-    sample_surface.moveBy([xrange(1) 0 zrange(1)]);
-    sphere.c(1) = sphere.c(1) + xrange(1);
-    sphere.c(3) = sphere.c(3) + zrange(1);
+    %sample_surface.moveBy([xrange(1) 0 zrange(1)]);
+    %sphere.c(1) = sphere.c(1) + xrange(1);
+    %sphere.c(3) = sphere.c(3) + zrange(1);
     
     % Create the variables for output data
     counters = zeros(maxScatter, n_detector, nz_pixels, nx_pixels);
@@ -77,30 +75,20 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
         h = 0;
     end
     
+    xx = raster_pattern.x_pattern;
+    zz = raster_pattern.z_pattern;
+    
     % Makes the parfor loop stop complaining.
     plate_represent = pinhole_model;
     
     % TODO: make this parallel in Octave
     parfor i_=1:N_pixels
-        
-        % The x and z pixels we are on
-        z_pix = mod(i_, nz_pixels) - 1;
-        if mod(i_, nz_pixels) == 0
-            x_pix = floor(i_/nz_pixels) - 1;
-        else
-            x_pix = floor(i_/nz_pixels);
-        end
-        
-        if z_pix == -1
-            z_pix = nz_pixels - 1;
-        end
-        
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);
-        this_surface.moveBy([raster_movement_x*x_pix, 0, raster_movement_z*z_pix]);
+        this_surface.moveBy([xx(i_), 0, zz(i_)]);
         this_sphere = sphere;
-        this_sphere.c(1) = this_sphere.c(1) + raster_movement_x*x_pix;
-        this_sphere.c(3) = this_sphere.c(3) + raster_movement_z*z_pix;
+        this_sphere.c(1) = this_sphere.c(1) + xx(i_);
+        this_sphere.c(3) = this_sphere.c(3) + zz(i_);
         
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
@@ -153,7 +141,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     
     % Generate output square scan class
     square_scan_info = RectangleInfo(counters, num_killed, sample_surface, ...
-        xrange, zrange, raster_movement_x, raster_movement_z, direct_beam.n, ...
+        raster_pattern.xrange, raster_pattern.zrange, raster_pattern.movement_x, raster_pattern.movement_z, direct_beam.n, ...
         effuse_beam.n, t, t_estimate, effuse_counters, n_detector, maxScatter, ...
         dist_to_sample, direct_beam);
     

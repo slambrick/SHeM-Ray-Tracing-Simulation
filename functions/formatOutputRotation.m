@@ -31,5 +31,3 @@ function [im, param, beam_param] = formatOutputRotation(simData, rot_angles, dat
             simData{i_}.formatOutput(save_path); %#ok<AGROW>
     end
 end
-
-sdfg2SDf2nd_BX7

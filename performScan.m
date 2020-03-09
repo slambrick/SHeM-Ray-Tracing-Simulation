@@ -13,7 +13,7 @@ clear
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
 % this uneccaserily large will increase the memory requirments of the
 % simulation.
-maxScatter = 10;
+maxScatter = 20;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
 typeScan = 'rectangular';
@@ -29,10 +29,10 @@ init_angle = 45;
 
 % Geometry of pinhole
 pinhole_c = 1*[-tand(init_angle), 0, 0];
-pinhole_r = 0.0006;
+pinhole_r = 0.05;
 
 % Number of rays to use and the width of the source
-n_rays = 1e4;
+n_rays = 5e4;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100);
@@ -99,7 +99,7 @@ circle_plate_r = 4;
 % direction ('z'). The aperture is always centred on the x-axis and is displaced
 % by the specified amount.
 n_detectors = 1;
-aperture_axes = [0.4    0.4];
+aperture_axes = [0.2    0.2];
 aperture_c = [1.0000    0];
 plate_represent = 0;
 
@@ -115,10 +115,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.01;
-raster_movment2D_z = 0.01;
-xrange = [-0.5    0.5];
-zrange = [-0.5    0.5];
+raster_movment2D_x = 0.005;
+raster_movment2D_z = 0.005;
+xrange = [-0.55    0.55];
+zrange = [-0.55    0.55];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -142,10 +142,10 @@ Direction = 'y';
 %  'custom' - Uses a CAD model from file
 %  'airy'   - TODO
 %  'corrugation' - TODO
-sample_type = 'flat';
+sample_type = 'custom';
 
 % The sample file, include the full path
-sample_fname = 'simulations/block_test2.stl';
+sample_fname = 'simulations/two_halves.obj';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -183,7 +183,7 @@ square_size = 0.8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'test';
+directory_label = 'two_halves';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -194,7 +194,7 @@ output_data = true;
 data_fname = 'scatteringData.mat';
 saveParams = true;
 paramsFile = 'scatteringParameters.txt';
-% Applies only to line scans, saves in thePath with name 'data_for_plotting.csv'
+% Applies only to line scans, saves in results_path with name 'data_for_plotting.csv'
 save_to_text = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -262,10 +262,10 @@ addpath('import_3d/stlread', 'import_3d/objread', 'functions', ...
 %% Path for simulation results
 
 % Tha path to save the simulation results to
-thePath = simulationDir(directory_label);
+results_path = simulationDir(directory_label);
 
-if ~exist(thePath, 'dir')
-    mkdir(thePath)
+if ~exist(results_path, 'dir')
+    mkdir(results_path)
 end
 
 % Are we running in GNU Octave
@@ -277,7 +277,7 @@ if isOctave
     pkg load image;
 end
 
-addpath(thePath);
+addpath(results_path);
 
 %% Sample import and plotting
 % Importing the sample as a TriagSurface object.
@@ -297,7 +297,7 @@ switch sample_type
     case 'custom'
         sample_surface = inputSample('fname', sample_fname, 'sampleDist', dist_to_sample, ...
                                      'workingDist', working_dist, 'scale', scale, ...
-                                     'defMaterial', defMaterial);
+                                     'dontMeddle', true, 'defMaterial', defMaterial);
         make_sphere = 0;
     case 'photoStereo'
         sample_surface = photo_stereo_test(working_dist);
@@ -351,7 +351,7 @@ if feature('ShowFigureWindows')
     end
 
     if ~strcmp(typeScan, 'single pixel')
-        print([thePath '/sample_closeUp.eps'], '-depsc');
+        print(fullfile(results_path, 'sample_closeUp.eps'), '-depsc');
     end
 end
 
@@ -428,21 +428,21 @@ switch typeScan
         simulationData = rectangularScan(sample_surface, xrange, zrange, ...
             direct_beam, raster_movment2D_x, raster_movment2D_z, ...
             maxScatter, pinhole_surface, effuse_beam, ...
-            dist_to_sample, sphere, thePath, pinhole_model, ...
+            dist_to_sample, sphere, results_path, pinhole_model, ...
             thePlate, apertureAbstract, ray_model, n_detectors);
     case 'line'
         % For a line scan
         % TODO: update with the new lower level functions
         simulationData = lineScan(sample_surface, range1D, direct_beam, ...
             raster_movment1D, maxScatter, Direction, pinhole_surface, effuse_beam, ...
-            dist_to_sample, sphere, thePath, save_to_text, pinhole_model, ...
+            dist_to_sample, sphere, results_path, save_to_text, pinhole_model, ...
             thePlate, apertureAbstract, ray_model);
     case 'single pixel'
         % For a single pixel
         % TODO: update with the new lower level functions
         simulationData = singlePixel(sample_surface, direct_beam, ...
             maxScatter, pinhole_surface, effuse_beam, dist_to_sample, sphere, ...
-            thePath, save_to_text, pinhole_model, thePlate, apertureAbstract);
+            results_path, save_to_text, pinhole_model, thePlate, apertureAbstract);
     case 'rotations'
         % Perform multiple scans while rotating the sample in between.
         simulationData = {};
@@ -462,7 +462,7 @@ switch typeScan
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
             sphere.c = (R*sphere_centre')';
 
-            subPath = [thePath '/rotation' num2str(rot_angles(i_))];
+            subPath = [results_path '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
                 mkdir(subPath)
             end
@@ -567,7 +567,7 @@ end
 
 % Save all data to a .mat file
 if output_data
-    save(fullfile(thePath, data_fname), 'simulationData', 'sample_inputs', ...
+    save(fullfile(results_path, data_fname), 'simulationData', 'sample_inputs', ...
         'direct_beam', 'effuse_beam', 'pinhole_plate_inputs', 'scan_inputs');
 end
 
@@ -584,10 +584,10 @@ textFname = 'data_for_plotting.csv';
 if save_to_text && strcmp(typeScan, 'rotations')
     for i_=1:length(rot_angles)
         currentFname = [textFnam(1:end-4) num2str(rot_angles(i_)) '.csv'];
-        simulationData.saveText([thePath '/' currentFname]);
+        simulationData.saveText([results_path '/' currentFname]);
     end
 elseif save_to_text
-    simulationData.saveText([thePath '/' textFname]);
+    simulationData.saveText([results_path '/' textFname]);
 end
 
 % Save the parameters to a text file

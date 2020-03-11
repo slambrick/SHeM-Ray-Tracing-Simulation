@@ -106,6 +106,36 @@ classdef RectangleInfo < handle
             end
         end % End constructor
         
+        function cntrSum2 = getSingle(obj, detector)
+            if nargin == 1
+                detector = 1;
+            end
+            
+            counters = obj.counters{detector}; %#ok<PROPLC>
+            cntrSummed = counters(1,:,:); %#ok<PROPLC>
+            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
+            for i_=1:obj.nx_pixels
+                for j_=1:obj.nz_pixels
+                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
+                end
+            end
+        end
+        
+        function cntrSum2 = getMultiple(obj, detector)
+            if nargin == 1
+                detector = 1;
+            end
+            
+            counters2 = obj.counters{detector}(2:end, :, :);
+            cntrSummed = sum(counters2, 1);
+            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
+            for i_=1:obj.nx_pixels
+                for j_=1:obj.nz_pixels
+                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
+                end
+            end
+        end
+        
         function addDetectorInfo(obj, aperture_c, aperture_axes)
             obj.aperture_c = aperture_c;
             obj.aperture_axes = aperture_axes;
@@ -359,14 +389,7 @@ classdef RectangleInfo < handle
                 make_plot = true;
             end
             
-            counters = obj.counters{detector}; %#ok<PROPLC>
-            cntrSummed = counters(1,:,:); %#ok<PROPLC>
-            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
-            for i_=1:obj.nx_pixels
-                for j_=1:obj.nz_pixels
-                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
-                end
-            end
+            cntrSum2 = obj.getSingle(detector);
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')
@@ -420,14 +443,7 @@ classdef RectangleInfo < handle
                 make_plot = true;
             end
             
-            counters2 = obj.counters{detector}(2:end, :, :);
-            cntrSummed = sum(counters2, 1);
-            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
-            for i_=1:obj.nx_pixels
-                for j_=1:obj.nz_pixels
-                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
-                end
-            end
+            cntrSum2 = obj.getMultiple(detector);
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')

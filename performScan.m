@@ -593,6 +593,8 @@ switch typeScan
             end
 
         end
+        
+        re_rotate_images(simulationData, rot_angles, thePath)
         close(h);
         delete(h);
     otherwise

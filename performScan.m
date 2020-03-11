@@ -35,7 +35,7 @@ pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 200000;
+n_rays = 200000/2;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -120,8 +120,8 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.0015*4;
-raster_movment2D_z = 0.0015*4;
+raster_movment2D_x = 0.0015;
+raster_movment2D_z = 0.0015;
 xrange = [-0.200    0.200];
 zrange = [-0.200    0.200];
 
@@ -534,7 +534,7 @@ switch typeScan
     case 'rotations'
         % Perform multiple scans while rotating the sample in between.
         simulationData = {};
-        h = waitbar(0, 'Proportion of simulations performed');
+        h = waitbar(0, 'Proportion of simulations performed', 'Name', 'Ray tracing progress');
         N = length(rot_angles);
         sphere_centre = sphere.c;
         

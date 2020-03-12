@@ -72,11 +72,28 @@ composite_data.counters = counters;
 composite_data.cntrSum = cntr_sums;
 
 composite_data.imageAll();
-sim_material_code.imageAll();
+setup_figure();
+print('experiments/composite/composite_data', '-deps', '-loose')
 
-% composite_data = RectangleInfo(...
-%     counters, sim_uniform.num_killed, sim_uniform.sample_surface, sim_uniform.xrange,...
-%     sim_uniform.zrange, sim_uniform.raster_movment_x, sim_uniform.raster_movment_z,...
-%     sim_uniform.rays_per_pixel, sim_uniform.n_effuse, sim_uniform.time,...
-%     sim_uniform.time_estimate, sim_uniform.counter_effusive, sim_uniform.n_detector,...
-%     max_scatters, sim_uniform.dist_to_sample, sim_uniform.beam_param);
+sim_material_code.imageAll();
+setup_figure();
+print('experiments/composite/material_data', '-deps', '-loose')
+
+
+function setup_figure()
+    % make figure have minimal whitespace around it
+    % source: https://uk.mathworks.com/help/matlab/creating_plots/save-figure-with-minimal-white-space.html
+    fig = gcf;
+    set(fig, 'Units', 'centimeters')
+    set(fig, 'Position',  [fig.Position(1), fig.Position(2), 12, 12])
+
+    ax = gca;
+    set(ax,'FontSize', 18);
+    outerpos = ax.OuterPosition;
+    ti = ax.TightInset;
+    left = outerpos(1) + ti(1);
+    bottom = outerpos(2) + ti(2);
+    ax_width = outerpos(3) - ti(1) - ti(3);
+    ax_height = outerpos(4) - ti(2) - ti(4);
+    ax.Position = [left bottom ax_width ax_height];
+end

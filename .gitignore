@@ -6,9 +6,9 @@ test/obj
 test/extobj
 
 # program output
+*.png
+*.eps
 simulations/*test
-simulations/*/*.png
-simulations/*/*.eps
 simulations/*/*.mat
 
 # IDE things

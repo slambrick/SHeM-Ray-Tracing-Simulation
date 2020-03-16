@@ -42,7 +42,7 @@ function raster_pattern = generate_raster_pattern(varargin)
     end
     
     % Reduce the xrange appropriatly if there is an incidence angle
-    xrange_tmp = xrange*cos(init_angle);
+    xrange_tmp = xrange*cosd(init_angle);
     
     % Generate the scanning pattern 
     x_pattern = xrange_tmp(1):raster_movment2D_x:xrange_tmp(2);

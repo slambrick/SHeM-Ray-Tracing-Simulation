@@ -68,9 +68,14 @@ function outData = combineRectangle(data1, data2)
         effuse_counters(i_,:,:) = cntr_effuse{i_};
     end
     
+    aperture_c = data1.aperture_c;
+    aperture_axes = data1.aperture_axes;
+    
     outData = RectangleInfo(counters2, num_killed, data1.sample_surface, ...
         data1.xrange, data1.zrange, data1.raster_movment_x, data1.raster_movment_z, ...
         n_rays, n_effuse, time, time_estimate, effuse_counters, data1.n_detector, maxScatter, ...
         data1.dist_to_sample, data1.beam_param);
+    
+    outData.addDetectorInfo(aperture_c, aperture_axes);
 end
 

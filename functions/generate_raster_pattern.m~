@@ -41,11 +41,8 @@ function raster_pattern = generate_raster_pattern(varargin)
         disp('No Incident angle specified ignoring incident direction projection.');
     end
     
-    % Reduce the xrange appropriatly if there is an incidence angle
-    xrange_tmp = xrange*cos(init_angle);
-    
     % Generate the scanning pattern 
-    x_pattern = xrange_tmp(1):raster_movment2D_x:xrange_tmp(2);
+    x_pattern = xrange(1):raster_movment2D_x:xrange(2);
     z_pattern = zrange(1):raster_movment2D_z:zrange(2);
     [xx, zz] = meshgrid(x_pattern, z_pattern);
     xx = xx(:);
@@ -63,7 +60,7 @@ function raster_pattern = generate_raster_pattern(varargin)
     xx = xx - mean(xx);
     
     % Stretch the x direction according to correct for the perspective
-    xx = xx./cosd(init_angle);
+    xx = xx*
     
     raster_pattern.movement_x = raster_movment2D_x;
     raster_pattern.movement_z = raster_movment2D_z;

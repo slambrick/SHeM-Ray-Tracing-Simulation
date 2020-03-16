@@ -52,13 +52,14 @@ classdef RectangleInfo < handle
         aperture_axes;
         aperture_c;
         dist_to_sample;
+        raster_pattern;
     end % End properties
     
     methods
         function obj = RectangleInfo(counters, num_killed, sample_surface, ...
                 xrange, zrange, raster_movment_x, raster_movment_z, ...
                 rays_per_pixel, n_effuse, time, t_estimate, cntr_effuse, ...
-                n_detector, maxScatter, dist_to_sample, direct_beam)
+                n_detector, maxScatter, dist_to_sample, direct_beam, raster_pattern)
             if nargin ~= 16
                 error('Wrong numer of input arguments');
             else

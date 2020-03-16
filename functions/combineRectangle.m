@@ -1,6 +1,6 @@
 % combineRectangle.m
 %
-% Copyright (c) 2018-19, Sam Lambrick.
+% Copyright (c) 2018-20, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
@@ -50,7 +50,7 @@ function outData = combineRectangle(data1, data2)
     n_effuse = data1.n_effuse + data2.n_effuse;
     time = data1.time + data2.time;
     time_estimate = data1.time_estimate + data2.time_estimate;
-    for i_=1:length(data1.n_detector)
+    for i_=1:data1.n_detector
         counters{i_} = data1.counters{i_} + data2.counters{i_};
         cntr_effuse{i_} = data1.counter_effusive{i_} + data2.counter_effusive{i_};
     end
@@ -59,9 +59,11 @@ function outData = combineRectangle(data1, data2)
     
     % The RectangleInfo constructor function expects multi dimensional arrays
     % not cell array... do some data jiggery pokery
+    % NOTE: something is wrong with the array shaping, we only get data out for
+    % the first detector
     counters2 = zeros(maxScatter, data1.n_detector, data1.nz_pixels, data1.nx_pixels);
     effuse_counters = zeros(data1.n_detector, data1.nz_pixels, data1.nx_pixels);
-    for i_=1:length(data1.n_detector)
+    for i_=1:data1.n_detector
         counters2(:,i_,:,:) = counters{i_};
         effuse_counters(i_,:,:) = cntr_effuse{i_};
     end

@@ -21,24 +21,15 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
         pinhole_surface, effuse_beam, dist_to_sample, ...
         sphere, thePath, pinhole_model, thePlate, apertureAbstract, ray_model, ...
         n_detector)
-    
-    % The sample positions
-    nx_pixels = length(raster_pattern.xrange(1):raster_pattern.movement_x:raster_pattern.xrange(2));
-    nz_pixels = length(raster_pattern.zrange(1):raster_pattern.movement_z:raster_pattern.zrange(2));
-    
-    % Move the sample to the corner of the positions
-    %sample_surface.moveBy([xrange(1) 0 zrange(1)]);
-    %sphere.c(1) = sphere.c(1) + xrange(1);
-    %sphere.c(3) = sphere.c(3) + zrange(1);
-    
+
     % Create the variables for output data
-    counters = zeros(maxScatter, n_detector, nz_pixels, nx_pixels);
-    effuse_counters = zeros(n_detector, nz_pixels, nx_pixels);
-    num_killed = zeros(nz_pixels, nx_pixels);
+    counters = zeros(maxScatter, n_detector, raster_pattern.nz, raster_pattern.nx);
+    effuse_counters = zeros(n_detector, raster_pattern.nz, raster_pattern.nx);
+    num_killed = zeros(raster_pattern.nz, raster_pattern.nx);
     
     % Produce a time estimage for the simulation and print it out. This is
     % nessacerily a rough estimate.
-    N_pixels = nx_pixels*nz_pixels;
+    N_pixels = raster_pattern.nx*raster_pattern.nz;
     
     % Estimate of the time for the simulation
     t_estimate = time_estimate('n_rays', direct_beam.n, 'n_effuse', ...

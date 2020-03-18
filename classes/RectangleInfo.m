@@ -60,7 +60,7 @@ classdef RectangleInfo < handle
                 xrange, zrange, raster_movment_x, raster_movment_z, ...
                 rays_per_pixel, n_effuse, time, t_estimate, cntr_effuse, ...
                 n_detector, maxScatter, dist_to_sample, direct_beam, raster_pattern)
-            if nargin ~= 16
+            if nargin ~= 17
                 error('Wrong numer of input arguments');
             else
                 obj.n_detector = n_detector;

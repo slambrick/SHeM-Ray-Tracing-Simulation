@@ -67,6 +67,8 @@ function raster_pattern = generate_raster_pattern(varargin)
     
     raster_pattern.movement_x = raster_movment2D_x;
     raster_pattern.movement_z = raster_movment2D_z;
+    raster_pattern.nx = length(x_pattern);
+    raster_pattern.nz = length(z_pattern);
     raster_pattern.xrange = xrange;
     raster_pattern.zrange = zrange;
     raster_pattern.x_pattern = xx;

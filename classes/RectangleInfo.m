@@ -65,8 +65,8 @@ classdef RectangleInfo < handle
             else
                 obj.n_detector = n_detector;
                 obj.num_killed = num_killed;
-                obj.nx_pixels = length(xrange(1):raster_movment_x:xrange(2));
-                obj.nz_pixels = length(zrange(1):raster_movment_z:zrange(2));
+                obj.nx_pixels = raster_pattern.nx;
+                obj.nz_pixels = raster_pattern.nz;
                 obj.N_pixels = obj.nx_pixels*obj.nz_pixels;
                 obj.sample_surface = sample_surface;
                 obj.xrange = xrange;

@@ -23,7 +23,7 @@ scan_pattern = 'rotation';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = false;
+recompile = true;
 
 %% Beam/source parameters %%
 

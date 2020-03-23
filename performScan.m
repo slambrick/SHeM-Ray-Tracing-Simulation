@@ -35,7 +35,7 @@ pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 200000/4;
+n_rays = 200000/10;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -555,25 +555,6 @@ switch typeScan
                 mkdir(subPath)
             end
             
-%             % Generate the scanning pattern 
-%             x_pattern = xrange(1):raster_movment2D_x:xrange(2);
-%             z_pattern = zrange(1):raster_movment2D_z:zrange(2);
-%             [xx, zz] = meshgrid(x_pattern, z_pattern);
-%             xx = xx(:);
-%             zz = zz(:);
-%             for j_=1:length(xx)
-%                 tmp = roty(rot_angles(i_))*[xx(j_); 0; zz(j_)];
-%                 xx(j_) = tmp(1);
-%                 zz(j_) = tmp(3);
-%             end
-%             
-%             raster_pattern.movement_x = raster_movment2D_x;
-%             raster_pattern.movement_z = raster_movment2D_z;
-%             raster_pattern.xrange = xrange;
-%             raster_pattern.zrange = zrange;
-%             raster_pattern.x_pattern = xx;
-%             raster_pattern.z_pattern = zz;
-            
             raster_pattern = generate_raster_pattern('raster_movment2D', ...
                 [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
                 'zrange', zrange, 'rot_angle', rot_angles(i_), 'init_angle', init_angle);
@@ -622,6 +603,7 @@ end
 textFname = 'data_for_plotting.csv';    
 if save_to_text && strcmp(typeScan, 'rotations')
     for i_=1:length(rot_angles)
+        % TODO: bug here
         currentFname = [textFnam(1:end-4) num2str(rot_angles(i_)) '.csv'];
         simulationData.saveText([thePath '/' currentFname]);
     end

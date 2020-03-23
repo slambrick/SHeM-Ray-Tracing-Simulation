@@ -104,10 +104,22 @@ classdef RectangleInfo < handle
                 obj.beam_param = direct_beam;
                 obj.aperture_c = NaN;
                 obj.aperture_axes = NaN;
+                obj.raster_pattern = raster_pattern;
             end
         end % End constructor
         
         function cntrSum2 = getSingle(obj, detector)
+        % Gets the single scattering image matrix from the results object for
+        % the specified detector.
+        % 
+        % Calling syntax:
+        %  cntrSum = obj.getSingle(detector)
+        %
+        % INPUTS:
+        %  detector - which detector to use, defaults to 1
+        %
+        % OUTPUT:
+        %  cntrSum - raw image matrix of single scattering counts
             if nargin == 1
                 detector = 1;
             end
@@ -123,6 +135,17 @@ classdef RectangleInfo < handle
         end
         
         function cntrSum2 = getMultiple(obj, detector)
+        % Gets the multiple scattering image matrix from the results object for
+        % the specified detector.
+        % 
+        % Calling syntax:
+        %  cntrSum = obj.getMultiple(detector)
+        %
+        % INPUTS:
+        %  detector - which detector to use, defaults to 1
+        %
+        % OUTPUT:
+        %  cntrSum - raw image matrix of multiple scattering counts
             if nargin == 1
                 detector = 1;
             end
@@ -762,6 +785,7 @@ classdef RectangleInfo < handle
             
         end
         
+        function [im, param, beam_param] = formatOutput(obj, dataPath)
         % Formats the results of a simulation into a more useful/simple format.
         % Useful for then using with Photo-Stereo reconstruction or similar. Ouputs
         % the data in structures rather than objects so that the class file is not
@@ -780,7 +804,7 @@ classdef RectangleInfo < handle
         %  im         - Image results
         %  param      - General parameters of the simulation
         %  beam_param - Parameters for the set up of the beam
-        function [im, param, beam_param] = formatOutput(obj, dataPath)
+        
             % Core information on the image produced
             if obj.n_detector == 1
                 [~, im.single{1}] = obj.imageSingle('plot', false);

@@ -604,7 +604,7 @@ textFname = 'data_for_plotting.csv';
 if save_to_text && strcmp(typeScan, 'rotations')
     for i_=1:length(rot_angles)
         % TODO: bug here
-        currentFname = [textFnam(1:end-4) num2str(rot_angles(i_)) '.csv'];
+        currentFname = [textFname(1:end-4) num2str(rot_angles(i_)) '.csv'];
         simulationData.saveText([thePath '/' currentFname]);
     end
 elseif save_to_text

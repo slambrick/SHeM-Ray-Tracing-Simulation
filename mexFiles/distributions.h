@@ -26,6 +26,44 @@ typedef void (*distribution_func)(const double normal[3], const double init_dir[
 
 distribution_func distribution_by_name(const char * name);
 
+
+/*
+ * Generate rays with broadened specular distribution and a diffuse background.
+ *
+ * PARAMS:
+ *  first the level (0 - 1) of the diffuse background, then sigma of
+ * broad_specular.
+ */
+void diffuse_and_specular(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
+
+/*
+ * Generate rays according to a 2D diffraction pattern but with cosine-distributed
+ * diffuse background.
+ *
+ * PARAMS:
+ *  first the level (0 - 1) of the diffuse background, then as for
+ * diffraction_pattern.
+ */
+void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
+
+/*
+ * Generate rays according to a 2D diffraction pattern given by two
+ * reciprocal lattice basis vectors. The general principle is that the
+ * incoming (ki) and final (kf) projections of the wave-vectors onto
+ * the surface of the sample satisfy kf = ki + g, where g is a
+ * linear combination of the two basis vectors.
+ *
+ * PARAMS:
+ *  maximum orders in p and q
+ *  a coefficient to pre-multiply the basis vectors
+ *  4 floats for 2 x 2D basis vectors
+ *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
+ */
+void diffraction_pattern(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
+
 /*
  * Generate rays with a gaussian-distributed polar angle relative to the specular direction.
  * NB this is not entirely physically realistic, the purpose is mostly to illustrate the need

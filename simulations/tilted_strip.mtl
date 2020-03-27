@@ -1,0 +1,11 @@
+# FreeCAD v0.18 build14555 (Git shallow) Arch module
+# http://www.freecadweb.org
+newmtl color_cca30c
+Kd 0.800000011921 0.639215707779 0.0470588244498
+d 0
+func diffraction
+params 0.6
+    4   4   0.176   # maxp, maxq, lambda/a
+    1   0   0   1   # b1, b2
+    0.03    2.0     # peak_sig, envelope_sig
+# Material Count: 1

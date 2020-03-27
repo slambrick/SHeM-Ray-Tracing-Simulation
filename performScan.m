@@ -20,19 +20,19 @@ typeScan = 'rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = true;
+recompile = false;
 
 %% Beam/source parameters %%
+n_rays = 5e4;
 
 % The inicidence angle in degrees
 init_angle = 45;
 
 % Geometry of pinhole
-pinhole_c = 1*[-tand(init_angle), 0, 0];
-pinhole_r = 0.05;
+pinhole_c = 2.5*[-tand(init_angle), 0, 0];
+pinhole_r = 1e-3;
 
 % Number of rays to use and the width of the source
-n_rays = 5e4;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100);
@@ -99,8 +99,8 @@ circle_plate_r = 4;
 % direction ('z'). The aperture is always centred on the x-axis and is displaced
 % by the specified amount.
 n_detectors = 1;
-aperture_axes = [0.2    0.2];
-aperture_c = [1.0000    0];
+aperture_axes = [0.5    0.5];
+aperture_c = [2.5    0];
 plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -115,10 +115,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.005;
-raster_movment2D_z = 0.005;
-xrange = [-0.55    0.55];
-zrange = [-0.55    0.55];
+raster_movment2D_x = 0.003;
+raster_movment2D_z = 0.003;
+xrange = [-0.15    0.15];
+zrange = [-0.15    0.15];
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -127,9 +127,10 @@ rot_angles = [0, 72, 144, 216, 288];
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
 % behind the pinhole plate.
-raster_movment1D = 200e-3;
-range1D = [-1 4];
-Direction = 'y';
+init_displacement = [0, 0, 0];  % initial position of sample from 'centred'
+raster_movment1D = 0.1;         % movement increment
+range1D = [-1 4];               % range
+Direction = 'y';                % 'x', 'y' or 'z' - along which direction to move
 
 %% Sample parameters
 
@@ -145,7 +146,7 @@ Direction = 'y';
 sample_type = 'custom';
 
 % The sample file, include the full path
-sample_fname = 'simulations/two_halves.obj';
+sample_fname = 'simulations/lif4.obj';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -153,7 +154,7 @@ scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'Testing default sample with new material-dependent code.';
+sample_description = 'Tilted strip with diffraction pattern';
 
 %% Parameters of the default material, to use for faces where no material is specified
 defMaterial.function = 'cosine';
@@ -164,10 +165,10 @@ defMaterial.color = [0.8 0.8 1.0];
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
-dist_to_sample = 1;
+dist_to_sample = 2.1;
 
 % The nominal working distance of the geometry
-working_dist = 1;
+working_dist = 2.5;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
@@ -183,7 +184,7 @@ square_size = 0.8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'two_halves';
+directory_label = 'LiF_rect';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -297,7 +298,7 @@ switch sample_type
     case 'custom'
         sample_surface = inputSample('fname', sample_fname, 'sampleDist', dist_to_sample, ...
                                      'workingDist', working_dist, 'scale', scale, ...
-                                     'dontMeddle', true, 'defMaterial', defMaterial);
+                                     'defMaterial', defMaterial);
         make_sphere = 0;
     case 'photoStereo'
         sample_surface = photo_stereo_test(working_dist);
@@ -310,6 +311,10 @@ switch sample_type
         sample_surface.rotateZ;
         sample_surface.moveBy([0, -2.121, 0]);
         make_sphere = 0;
+end
+
+if strcmp(typeScan, 'line')
+    sample_surface.moveBy(init_displacement);
 end
 
 % A struct to represent the sphere
@@ -435,7 +440,7 @@ switch typeScan
         % TODO: update with the new lower level functions
         simulationData = lineScan(sample_surface, range1D, direct_beam, ...
             raster_movment1D, maxScatter, Direction, pinhole_surface, effuse_beam, ...
-            dist_to_sample, sphere, results_path, save_to_text, pinhole_model, ...
+            dist_to_sample, sphere, results_path, pinhole_model, ...
             thePlate, apertureAbstract, ray_model);
     case 'single pixel'
         % For a single pixel
@@ -515,7 +520,7 @@ switch typeScan
         scan_inputs.zrange = NaN;
         scan_inputs.raster_movment1D = raster_movment1D;
         scan_inputs.range1D = range1D;
-        scan_inputs.direction_1D = direction;
+        scan_inputs.direction_1D = Direction;
     case 'single pixel'
         scan_inputs.rotationAngles = 0;
         scan_inputs.raster_movment2D_x = NaN;

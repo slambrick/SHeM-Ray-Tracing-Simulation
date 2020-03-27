@@ -42,6 +42,7 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
     
     % Are we running in Matlab or Octave
     isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+    % isOctave = true;
     
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
@@ -57,16 +58,15 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
     else
         progressBar = true;
     end
-    if progressBar && ~isOctave
-        ppm = ParforProgMon('Simulation progress: ', n_pixels);
-        h = 0;
-    elseif isOctave
-        h = waitbar(0, 'Simulation progress: ');
-    else 
-        % If the variable ppm is undefined then the parfor loop will
-        % throw errors.
-        ppm = 0;
-        h = 0;
+
+    ppm = 0;
+    if progressBar
+        if ~isOctave
+            ppm = ParforProgMon('Simulation progress: ', n_pixels);
+            h = '';
+        else
+            h = waitbar(0, 'Simulation progress: ');
+        end
     end
     
     % Makes the parfor loop stop complaining.
@@ -96,7 +96,7 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
             otherwise
                 error('Specify a correct direction for the line scan')
         end
-        scan_pos2 = [scan_pos_x, scan_pos_z];
+        % scan_pos2 = [scan_pos_x, scan_pos_z];
         
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
@@ -113,10 +113,12 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
         
         % Update the progress bar if we are working in the MATLAB GUI.
-        if progressBar && ~isOctave
-            ppm.increment();
-        elseif isOctave
-            waitbar(i_/n_pixels, h);
+        if progressBar
+            if ~isOctave
+                ppm.increment();
+            else
+                waitbar(i_/n_pixels, h);
+            end
         end
         
         % Save the data for this iteration
@@ -149,6 +151,9 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
     fprintf('Which is: %i hr %2i mins\n\n', hr, min);
     
     % Generate an object to store the information
+    if strcmp(Direction, 'y')
+        scan_range = scan_range + dist_to_sample;
+    end
     line_scan_info = LineInfo(Direction, scan_range, counters, num_killed, ...
         raster_movement, direct_beam.n, t, t_estimate, cntr_effuse_single, ...
         counter_effuse_multiple, killed_effuse);

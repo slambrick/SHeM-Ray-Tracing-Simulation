@@ -1,0 +1,18 @@
+# FreeCAD v0.18 build14555 (Git shallow) Arch module
+# http://www.freecadweb.org
+
+newmtl diffractive
+Kd 0.625    0       0
+d 0
+func diffraction
+params 0.7          # diffuse level
+    4   4   0.2858  # maxp, maxq, lambda/a
+    1   0   0   1   # b1, b2
+    0.03    2.0     # peak_sig, envelope_sig
+
+newmtl diffuse
+Kd 0.55     0.55    0.55
+d 0
+func cosine
+params 0
+# Material Count: 2

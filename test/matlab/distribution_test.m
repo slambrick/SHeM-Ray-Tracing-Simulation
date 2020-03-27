@@ -3,26 +3,31 @@
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
 
-clear
+function distribution_test()
+    clear
 
-%% compile
-if true
+    %% compile
     compile_tests()
+
+    %% Parameters
+    num_rays = 1e6;
+    direction = [sin(pi/6), -cos(pi/6), 0];
+    direction = direction/norm(direction);
+    normal = [0, 1, 0];
+
+    material.function = 'diffraction';
+    % material.params = [0.9, 0.2];
+    material.params = [0,...          % diffuse level
+                       4, 4, 0.2858,...  % maxp, maxq, ratio
+                       1, 0, 0, 1,...   % b1 and b2
+                       0.03, 2];        % peak and envelope sigma
+    material.color = [0.8, 0.8, 1.0];
+
+    [theta, phi] = distribution_test_mex(num_rays, direction, material, normal);
+
+    plot_distribution_3d(theta, phi, [0 pi/2], 100, '\theta')
+    plot_distribution_slice(theta, phi, 0, 0.05, '<110> direction diffraction')
 end
-
-%% Parameters
-num_rays = 1e5;
-direction = [1, -1, 0];
-direction = direction/norm(direction);
-normal = [0, 1, 0];
-
-material.function = 'broad_specular';
-material.params = 0.2;
-material.color = [0.8, 0.8, 1.0];
-
-[theta, phi] = distribution_test_mex(num_rays, direction, material, normal);
-
-plot_distribution(theta, phi, [0 pi/2], 50, '\theta')
 
 % figure
 % quiver3(-direction(1), -direction(3), -direction(2), ...

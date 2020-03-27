@@ -1,0 +1,41 @@
+# FreeCAD v0.18 build14555 (Git shallow) Arch module
+# http://www.freecadweb.org
+mtllib lif.mtl
+o Wedge
+usemtl diffractive
+v 0.05 0.1 0.65
+v 1.05 0.1 0.65
+v 1.05 0.6 0.65
+v 1.05 0.1 0.45
+v 0.05 0.1 0.45
+v 1.05 0.6 0.45
+f 1 2 3
+f 4 5 6
+f 5 4 1
+f 1 4 2
+f 3 5 1
+f 6 5 3
+f 6 3 2
+f 6 2 4
+o Box001
+usemtl diffuse
+v 0.0 0.1 0.0
+v 0.0 0.0 1.1
+v 0.0 0.1 1.1
+v 0.0 0.0 0.0
+v 1.1 0.0 1.1
+v 1.1 0.1 0.0
+v 1.1 0.1 1.1
+v 1.1 0.0 0.0
+f 7 8 9
+f 10 8 7
+f 11 12 13
+f 11 14 12
+f 14 11 10
+f 10 11 8
+f 13 12 7
+f 13 7 9
+f 7 12 10
+f 10 12 14
+f 13 9 8
+f 13 8 11

@@ -126,14 +126,14 @@ void perpendicular_plane(const double n[3], double v1[3], double v2[3]) {
     double epsilon = 1e-3;
 
     // if both nx and ny are zero, pick nx and nz to switch
-    if(fabs(n[0]) < epsilon && fabs(n[1] < epsilon)) {
-        v1[0] = - n[2];
+    if(fabs(n[0]) < epsilon && fabs(n[1]) < epsilon) {
+        v1[0] = n[2];
         v1[1] = 0;
-        v1[2] = n[0];
+        v1[2] = - n[0];
     }
     else { // if at least one of nx and ny is nonzero, switch them around
-        v1[0] = - n[1];
-        v1[1] = n[0];
+        v1[0] = n[1];
+        v1[1] = - n[0];
         v1[2] = 0;
     }
 

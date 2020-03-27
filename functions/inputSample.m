@@ -102,8 +102,8 @@ function sample_surface = inputSample(varargin)
 
     if ~dontMeddle
         % Move the sample into the right starting position
-        move = - sampleDist - max(sample_surface.vertices(:,2));
-        sample_surface.moveBy([0 move 0]);
+        moveY = - sampleDist - max(sample_surface.vertices(:,2));
+        sample_surface.moveBy([0 moveY 0]);
 
         % Position the interesting part of the sample into the correct place, so
         % that is is centered at '0 raster movment'
@@ -115,7 +115,9 @@ function sample_surface = inputSample(varargin)
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
         moveX = (sampleDist - workingDist) - middleX;
-        sample_surface.moveBy([moveX, 0, -middleZ]);
+        if ~isempty(middleZ) && ~isempty(moveX)
+            sample_surface.moveBy([moveX, 0, -middleZ]);
+        end
     end
 end
 

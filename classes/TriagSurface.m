@@ -91,7 +91,7 @@ classdef TriagSurface < handle
         % INPUT:
         %  x - a 3 element row vector
             if ~isequal(size(x), [1 3])
-                error('Can only move a sample by an amount [x y z]')
+                error(['Can only move a sample by an amount [x y z]. ' x ' is invalid'])
             end
             obj.vertices = obj.vertices + repmat(x, obj.nVertices, 1);
         end % End move function

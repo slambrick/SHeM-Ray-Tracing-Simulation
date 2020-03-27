@@ -36,18 +36,146 @@ distribution_func distribution_by_name(const char * name) {
     if(strcmp(name, "gaussian_specular") == 0)
         return gaussian_specular_scatter;
     if(strcmp(name, "broad_specular") == 0)
-        return broad_specular_scatter;
+        return diffuse_and_specular;
     if(strcmp(name, "cosine") == 0)
         return cosine_scatter;
     if(strcmp(name, "cosine_specular") == 0)
         return cosine_specular_scatter;
     if(strcmp(name, "uniform") == 0)
         return uniform_scatter;
+    if(strcmp(name, "diffraction") == 0)
+        return diffuse_and_diffraction;
     return NULL;
 }
 
 
 static double theta_generate(double sigma, gsl_rng *myrng);
+
+/*
+ * Generate rays with broadened specular distribution and a diffuse background.
+ *
+ * PARAMS:
+ *  first the level (0 - 1) of the diffuse background, then sigma of
+ * broad_specular.
+ */
+void diffuse_and_specular(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng) {
+
+    double diffuse_lvl = params[0];
+    double tester = gsl_rng_uniform(my_rng);
+    if(tester < diffuse_lvl)
+        cosine_scatter(normal, init_dir, new_dir, params+1, my_rng);
+    else
+        broad_specular_scatter(normal, init_dir, new_dir, params+1, my_rng);
+}
+
+/*
+ * Generate rays according to a 2D diffraction pattern but with cosine-distributed
+ * diffuse background.
+ *
+ * PARAMS:
+ *  first the level (0 - 1) of the diffuse background, then as for
+ * diffraction_pattern.
+ */
+void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng) {
+
+    double diffuse_lvl = params[0];
+    double tester = gsl_rng_uniform(my_rng);
+    if(tester < diffuse_lvl)
+        cosine_scatter(normal, init_dir, new_dir, params+1, my_rng);
+    else
+        diffraction_pattern(normal, init_dir, new_dir, params+1, my_rng);
+}
+
+
+/*
+ * Generate rays according to a 2D diffraction pattern given by two
+ * reciprocal lattice basis vectors. The general principle is that the
+ * incoming (ki) and final (kf) projections of the wave-vectors onto
+ * the surface of the sample satisfy kf = ki + g, where g is a
+ * linear combination of the two basis vectors.
+ *
+ * PARAMS:
+ *  maximum orders in p and q
+ *  a coefficient to pre-multiply the basis vectors
+ *  4 floats for 2 x 2D basis vectors
+ *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
+ */
+void diffraction_pattern(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng) {
+
+    double e1[3], e2[3];    // unit vectors spanning the surface
+    double t1[3], t2[3];    // vectors orthogonal to diffraction peak
+    double ni[3], nf[3];    // initial and final directions relative to surface
+    double peak[3];         // direction of some diffraction peak
+    double theta, phi;      // angles with respect to diffraction peak
+    double plane_component2;// squared length of the projection parallel to surface
+    double tester, exp_val; // tester for distributions
+    int p, q;               // diffraction peak indices
+
+    // unpack the arguments
+    const int maxp = (int)params[0], maxq = (int)params[1];
+    const double ratio = params[2]; // the lambda/a ratio that scales the reciprocal vector
+
+    double b1[2], b2[2];    // the reciprocal lattice vectors
+    b1[0] = params[3];
+    b1[1] = params[4];
+    b2[0] = params[5];
+    b2[1] = params[6];
+
+    double peak_sig = params[7];    // width of individual peaks
+    double envelope_sig = params[8]; // width of overall envelope
+
+    // switch to surface-specific coordinates: (x, y) in the plane, z orthogonal:
+    perpendicular_plane(normal, e1, e2);
+    ni[0] = dot(init_dir, e1);
+    ni[1] = dot(init_dir, e2);
+    ni[2] = dot(init_dir, normal);
+
+    do {
+        do {
+            // generate a random reciprocal vector
+            // p is between [-maxp, +maxp], and same for q and maxq
+            p = gsl_rng_uniform_int(my_rng, 2*maxp+1) - maxp;
+            q = gsl_rng_uniform_int(my_rng, 2*maxq+1) - maxq;
+
+            // reject to give a Gaussian probability of peaks
+            exp_val = exp(-(p*p + q*q) / 2 / (envelope_sig*envelope_sig));
+            tester = gsl_rng_uniform(my_rng);
+        } while(tester > exp_val);
+
+        // add it to the in-plane components of incident direction
+        peak[0] = ni[0] + ratio * (p*b1[0] + q*b2[0]);
+        peak[1] = ni[1] + ratio * (p*b1[1] + q*b2[1]);
+        plane_component2 = peak[0]*peak[0] + peak[1]*peak[1];
+
+    } while(plane_component2 > 1);
+
+    // find the normal component to normalise peak
+    peak[2] = sqrt(1 - plane_component2);
+
+    // to smudge the peaks, find tangential vectors to this direction
+    // and then use the broad_specular algorithm.
+    perpendicular_plane(peak, t1, t2);
+
+    do {
+        theta = theta_generate(peak_sig, my_rng);
+        phi = 2*M_PI*gsl_rng_uniform(my_rng);
+
+        for(int j = 0; j < 3; j++)
+            nf[j] = t1[j]*cos(phi)*sin(theta) + t2[j]*sin(phi)*sin(theta) +
+                peak[j]*cos(theta);
+        normalise(nf);
+    // reject the directions into the surface
+    // NB in the surface coordinates, z is up
+    } while(nf[2] <= 0);
+
+    // transform back to lab frame
+    for(int i = 0; i < 3; i++)
+        new_dir[i] = nf[0] * e1[i] + nf[1] * e2[i] + nf[2] * normal[i];
+}
+
 
 /*
  * Generate rays with a gaussian-distributed polar angle relative to the specular direction.

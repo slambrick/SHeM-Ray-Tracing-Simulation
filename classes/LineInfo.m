@@ -114,10 +114,6 @@ classdef LineInfo
             total = obj.totalLine;
             xs = obj.sample_positions;
             
-            if obj.Direction == 'y'
-                xs = xs + 2.121;
-            end
-            
             figure
             plot(xs, single)
             hold on

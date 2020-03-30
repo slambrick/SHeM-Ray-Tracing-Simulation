@@ -52,20 +52,21 @@ classdef RectangleInfo < handle
         aperture_axes;
         aperture_c;
         dist_to_sample;
+        raster_pattern;
     end % End properties
     
     methods
         function obj = RectangleInfo(counters, num_killed, sample_surface, ...
                 xrange, zrange, raster_movment_x, raster_movment_z, ...
                 rays_per_pixel, n_effuse, time, t_estimate, cntr_effuse, ...
-                n_detector, maxScatter, dist_to_sample, direct_beam)
-            if nargin ~= 16
+                n_detector, maxScatter, dist_to_sample, direct_beam, raster_pattern)
+            if nargin ~= 17
                 error('Wrong numer of input arguments');
             else
                 obj.n_detector = n_detector;
                 obj.num_killed = num_killed;
-                obj.nx_pixels = length(xrange(1):raster_movment_x:xrange(2));
-                obj.nz_pixels = length(zrange(1):raster_movment_z:zrange(2));
+                obj.nx_pixels = raster_pattern.nx;
+                obj.nz_pixels = raster_pattern.nz;
                 obj.N_pixels = obj.nx_pixels*obj.nz_pixels;
                 obj.sample_surface = sample_surface;
                 obj.xrange = xrange;
@@ -103,8 +104,61 @@ classdef RectangleInfo < handle
                 obj.beam_param = direct_beam;
                 obj.aperture_c = NaN;
                 obj.aperture_axes = NaN;
+                obj.raster_pattern = raster_pattern;
             end
         end % End constructor
+        
+        function cntrSum2 = getSingle(obj, detector)
+        % Gets the single scattering image matrix from the results object for
+        % the specified detector.
+        % 
+        % Calling syntax:
+        %  cntrSum = obj.getSingle(detector)
+        %
+        % INPUTS:
+        %  detector - which detector to use, defaults to 1
+        %
+        % OUTPUT:
+        %  cntrSum - raw image matrix of single scattering counts
+            if nargin == 1
+                detector = 1;
+            end
+            
+            counters = obj.counters{detector}; %#ok<PROPLC>
+            cntrSummed = counters(1,:,:); %#ok<PROPLC>
+            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
+            for i_=1:obj.nx_pixels
+                for j_=1:obj.nz_pixels
+                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
+                end
+            end
+        end
+        
+        function cntrSum2 = getMultiple(obj, detector)
+        % Gets the multiple scattering image matrix from the results object for
+        % the specified detector.
+        % 
+        % Calling syntax:
+        %  cntrSum = obj.getMultiple(detector)
+        %
+        % INPUTS:
+        %  detector - which detector to use, defaults to 1
+        %
+        % OUTPUT:
+        %  cntrSum - raw image matrix of multiple scattering counts
+            if nargin == 1
+                detector = 1;
+            end
+            
+            counters2 = obj.counters{detector}(2:end, :, :);
+            cntrSummed = sum(counters2, 1);
+            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
+            for i_=1:obj.nx_pixels
+                for j_=1:obj.nz_pixels
+                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
+                end
+            end
+        end
         
         function addDetectorInfo(obj, aperture_c, aperture_axes)
             obj.aperture_c = aperture_c;
@@ -359,14 +413,7 @@ classdef RectangleInfo < handle
                 make_plot = true;
             end
             
-            counters = obj.counters{detector}; %#ok<PROPLC>
-            cntrSummed = counters(1,:,:); %#ok<PROPLC>
-            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
-            for i_=1:obj.nx_pixels
-                for j_=1:obj.nz_pixels
-                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
-                end
-            end
+            cntrSum2 = obj.getSingle(detector);
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')
@@ -420,14 +467,7 @@ classdef RectangleInfo < handle
                 make_plot = true;
             end
             
-            counters2 = obj.counters{detector}(2:end, :, :);
-            cntrSummed = sum(counters2, 1);
-            cntrSum2 = zeros(obj.nz_pixels, obj.nx_pixels);
-            for i_=1:obj.nx_pixels
-                for j_=1:obj.nz_pixels
-                    cntrSum2(j_,i_) = cntrSummed(1, j_, i_);
-                end
-            end
+            cntrSum2 = obj.getMultiple(detector);
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')
@@ -673,6 +713,12 @@ classdef RectangleInfo < handle
         % Produces and saves a series of images from the simulation. Saves them
         % to the path provided. The colour scale takes black to be the lowest
         % number of counts and white to be the highest number of counts.
+        %
+        % Calling syntax:
+        %  obj.produceImages(thePath)
+        %
+        % INPUT:
+        %  thePath - data directory to save the images to
         
             for i_=1:obj.n_detector
                 I = obj.imageSingle('detector', i_);
@@ -745,6 +791,7 @@ classdef RectangleInfo < handle
             
         end
         
+        function [im, param, beam_param] = formatOutput(obj, dataPath)
         % Formats the results of a simulation into a more useful/simple format.
         % Useful for then using with Photo-Stereo reconstruction or similar. Ouputs
         % the data in structures rather than objects so that the class file is not
@@ -763,7 +810,7 @@ classdef RectangleInfo < handle
         %  im         - Image results
         %  param      - General parameters of the simulation
         %  beam_param - Parameters for the set up of the beam
-        function [im, param, beam_param] = formatOutput(obj, dataPath)
+        
             % Core information on the image produced
             if obj.n_detector == 1
                 [~, im.single{1}] = obj.imageSingle('plot', false);

@@ -16,7 +16,7 @@
 function thePath = simulationDir(name)
     % Get all th esubdirectories in the simulations folder
     d = dir('simulations');
-    isub = [d(:).isdir]; %# returns logical vector
+    isub = [d(:).isdir]; % returns logical vector
     nameFolds = {d(isub).name}';
     nameFolds(ismember(nameFolds,{'.','..'})) = [];
     

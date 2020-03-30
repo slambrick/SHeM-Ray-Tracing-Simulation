@@ -68,6 +68,9 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
     if strcmp(ray_model, 'MATLAB')
         % We generate the rays in matlab
         
+        % I see no need to keep this part of the code, can abandon it and
+        % keep C ray generation only
+        
         % TODO: if we have a lot of rays split this up into running ~100,000
         % rays at once and then collating the results.
         
@@ -95,13 +98,10 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
                     traceRays('rays', rays, 'sample', sample, 'maxScatter', ...
                     maxScatter, 'plate', pinhole_surface, ...
                     'dist', dist_to_sample, 'sphere', sphere);
+            case 'N circle'
+                % TODO
             case 'abstract'
                 % TODO
-            case 'circle'
-                [cnt, killed, ~, ~, ~, numScattersRay, ~] = ...
-                    traceSimple('rays', rays, 'sample', sample, 'maxScatter', ...
-                        maxScatter, 'plate', thePlate,  ...
-                        'dist', dist_to_sample, 'sphere', sphere);
         end
         
         numScattersRay = binMyWay(numScattersRay, maxScatter);
@@ -115,11 +115,6 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
                     sphere, 'source', which_beam, 'beam', beam);
             case 'abstract'
                 % TODO
-            case 'circle'
-                [cnt, killed, ~, numScattersRay] = traceSimpleGen('sample', ...
-                    sample, 'maxScatter', maxScatter, 'plate', thePlate, ...
-                    'dist', dist_to_sample, 'sphere', ...
-                    sphere, 'source', which_beam, 'beam', beam);
             case 'N circle'
                 [cnt, killed, ~, numScattersRay] = traceSimpleMultiGen('sample', ...
                     sample, 'maxScatter', maxScatter, 'plate', thePlate, ...

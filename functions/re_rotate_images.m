@@ -5,14 +5,20 @@
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
 %
-% Generates the raster pattern for the 2D scan
+% If the raster pattern was adapted to follow the rotations of the sample then
+% this fucntion produced the images in the correct orientation.
 %
-% Calling syntax: 
+% Calling syntax:
+%  ims = re_rotate_images(simulationData, thePath, rot_angles)
 %
 % INPUTS:
+%  simulationData - cell array of rectangleInfo objects
+%  thePath        - data directory to save the images to
+%  rot_angles     - list of the rotation angles used
 %
 % OUTPUTS:
-function ims = re_rotate_images(simulationData, rot_angles, thePath)
+%  ims - cell array of structs containing all the images produced
+function ims = re_rotate_images(simulationData, thePath, rot_angles)
     ims = cell(size(rot_angles));
     
     for i_=1:length(simulationData)

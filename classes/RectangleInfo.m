@@ -713,6 +713,12 @@ classdef RectangleInfo < handle
         % Produces and saves a series of images from the simulation. Saves them
         % to the path provided. The colour scale takes black to be the lowest
         % number of counts and white to be the highest number of counts.
+        %
+        % Calling syntax:
+        %  obj.produceImages(thePath)
+        %
+        % INPUT:
+        %  thePath - data directory to save the images to
         
             for i_=1:obj.n_detector
                 I = obj.imageSingle('detector', i_);

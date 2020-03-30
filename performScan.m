@@ -260,7 +260,7 @@ end
 %% Paths to functions
 addpath('stlread', 'functions', 'functions/interface_functions', 'classes', ...
         'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', 'functions/standard_samples', ...
-        'surf2stl');
+        'surf2stl', 'functions/scanning_functions');
 
 %% Path for simulation results
 
@@ -575,7 +575,7 @@ switch typeScan
 
         end
         
-        re_rotate_images(simulationData, rot_angles, thePath)
+        re_rotate_images(simulationData, thePath, rot_angles)
         close(h);
         delete(h);
     otherwise

@@ -1,5 +1,10 @@
 % rotx.m
 %
+% Copyright (c) 2020, Sam Lambrick.
+% All rights reserved.
+% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% GNU/GPL-3.0-or-later.
+%
 % Generates a 3D rotation matrix about the x axis
 %
 % Calling syntax:

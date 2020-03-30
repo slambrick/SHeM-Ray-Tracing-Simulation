@@ -9,19 +9,19 @@
 % there are a series of rotated simulations.
 % 
 % Calling syntax:
-%  [im, param, beam_param] = formatOutput(simData, rot_angles, dataPath)
+%  [im, param, beam_param] = formatOutputRotations(simData, dataPath, rot_angles)
 % 
 % INPUTS:
 %  simData    - Cell array of simulation data objects
-%  rot_angles - Vector of the rotation angles used.
 %  dataPath   - Relative path to save the formatted output to. Output is
 %               put in a subdirectory in this path
+%  rot_angles - Vector of the rotation angles used.
 %
 % OUTPUTS:
 %  im         - Cell array of image results
 %  param      - Cell array of general parameters of the simulation
 %  beam_param - Cell array of parameters for the set up of the beam
-function [im, param, beam_param] = formatOutputRotation(simData, rot_angles, dataPath)
+function [im, param, beam_param] = formatOutputRotation(simData, dataPath, rot_angles)
     for i_=1:length(simData)
         save_path = [dataPath '/rotation' num2str(rot_angles(i_))];
         if ~exist(save_path, 'dir')

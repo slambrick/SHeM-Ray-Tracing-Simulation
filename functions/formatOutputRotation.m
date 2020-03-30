@@ -31,4 +31,3 @@ function [im, param, beam_param] = formatOutputRotation(simData, dataPath, rot_a
             simData{i_}.formatOutput(save_path); %#ok<AGROW>
     end
 end
-

@@ -177,11 +177,12 @@ working_dist = 1;
 sphere_r = 0.1;
 
 % Centre of the anayltic sphere (mm)
-sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
+%sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
+sphere_c = [0, -dist_to_sample, 0];
 
 % If a flat sample is being used or if a sphere on a flat surface what is the 
 % length of the sides of the square.
-square_size = 8;
+square_size = 1;
 
 %% Output and plotting parameters
 

@@ -15,8 +15,8 @@ clear
 % simulation.
 maxScatter = 20;
 
-% Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'rectangular';
+% Type of scan 'line', 'rectangular', 'multiple_rectangular', 'rotations', or 'single pixel'
+typeScan = 'multiple_rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
@@ -29,7 +29,7 @@ n_rays = 5e4;
 init_angle = 45;
 
 % Geometry of pinhole
-pinhole_c = 2.5*[-tand(init_angle), 0, 0];
+pinhole_c = 2.1*[-tand(init_angle), 0, 0];
 pinhole_r = 1e-3;
 
 % Number of rays to use and the width of the source
@@ -100,7 +100,7 @@ circle_plate_r = 4;
 % by the specified amount.
 n_detectors = 1;
 aperture_axes = [0.5    0.5];
-aperture_c = [2.5    0];
+aperture_c = [2.1    0];
 plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
@@ -120,6 +120,10 @@ raster_movment2D_z = 0.003;
 xrange = [-0.15    0.15];
 zrange = [-0.15    0.15];
 
+%% Parameters for multiple rectangular scans
+raster_movement_y = 0.1;   % increment between 2 scans
+range_y = [-0.6   3];        % range of y positions relative to 'dist_to_sample'
+
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
 rot_angles = [0, 72, 144, 216, 288];
@@ -127,8 +131,8 @@ rot_angles = [0, 72, 144, 216, 288];
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
 % behind the pinhole plate.
-init_displacement = [0, 0, 0];  % initial position of sample from 'centred'
-raster_movment1D = 0.1;         % movement increment
+init_displacement = [-0.05, 0, 0];  % initial position of sample from 'centred'
+raster_movment1D = 0.02;         % movement increment
 range1D = [-1 4];               % range
 Direction = 'y';                % 'x', 'y' or 'z' - along which direction to move
 
@@ -161,14 +165,14 @@ defMaterial.function = 'cosine';
 defMaterial.params = 0;
 defMaterial.color = [0.8 0.8 1.0];
 
+% The nominal working distance of the geometry
+working_dist = 2.1;
+
 % How close should the nearest point of the sample be to the pinhole plate, the
 % defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
 % used then this is the distance between the flat surface the sphere sits on and
 % the pinhole plate.
 dist_to_sample = 2.1;
-
-% The nominal working distance of the geometry
-working_dist = 2.5;
 
 % The radius of the anayltic sphere (mm) (if it being included)
 sphere_r = 0.1;
@@ -435,6 +439,12 @@ switch typeScan
             maxScatter, pinhole_surface, effuse_beam, ...
             dist_to_sample, sphere, results_path, pinhole_model, ...
             thePlate, apertureAbstract, ray_model, n_detectors);
+    case 'multiple_rectangular'
+        simulationData = multipleRectangularScan(sample_surface, range_y, raster_movement_y,...
+            xrange, zrange, direct_beam, raster_movment2D_x, raster_movment2D_z, ...
+            maxScatter, pinhole_surface, effuse_beam, ...
+            dist_to_sample, sphere, results_path, pinhole_model, ...
+            thePlate, apertureAbstract, ray_model, n_detectors);
     case 'line'
         % For a line scan
         % TODO: update with the new lower level functions
@@ -487,6 +497,9 @@ switch typeScan
                '"rectangular", "single pixel"']);
 end
 
+% kill parallel pool
+delete(gcp('nocreate'));
+
 %% Output data about simulation to files
 
 % Create input structs to hole input data
@@ -494,6 +507,15 @@ end
 scan_inputs.type_scan = typeScan;
 scan_inputs.maxScatter = maxScatter;
 switch typeScan
+    case 'multiple_rectangular'
+        scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = raster_movment2D_x;
+        scan_inputs.raster_movment2D_z = raster_movment2D_z;
+        scan_inputs.xrange = xrange;
+        scan_inputs.zrange = zrange;
+        scan_inputs.raster_movment1D = raster_movement_y;
+        scan_inputs.range1D = range_y;
+        scan_inputs.direction_1D = 'y';
     case 'rotations'
         scan_inputs.rotationAngles = rot_angles;
         scan_inputs.raster_movment2D_x = raster_movment2D_x;
@@ -579,9 +601,9 @@ end
 % Save formatted data to a .mat file, does not include all the parameters
 % but does include the core outputs.
 if output_data && strcmp(typeScan, 'rotations')
-    simulationData.formatOutput(rot_angles, dataPath);
+    simulationData.formatOutput(rot_angles, results_path);
 elseif output_data
-    simulationData.formatOutput(dataPath);
+    simulationData.formatOutput(results_path);
 end
 
 % Save main data to a text file

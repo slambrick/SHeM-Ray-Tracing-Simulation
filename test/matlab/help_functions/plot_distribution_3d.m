@@ -29,6 +29,6 @@ function plot_distribution_3d(radius, phi, rad_limits, rad_bins, name)
     ylabel([name ' sin(\phi)'])
     zlabel('Counts')
     % title([name ' spatial distribution'])
-    % set(gca, 'FontSize', 30)
+    set(gca, 'FontSize', 18)
 
 end

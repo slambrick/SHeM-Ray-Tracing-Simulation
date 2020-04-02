@@ -17,8 +17,8 @@ function distribution_test()
 
     material.function = 'diffraction';
     % material.params = [0.9, 0.2];
-    material.params = [0,...          % diffuse level
-                       4, 4, 0.2858,...  % maxp, maxq, ratio
+    material.params = [0.7,...          % diffuse level
+                       4, 4, 0.1996,...  % maxp, maxq, ratio
                        1, 0, 0, 1,...   % b1 and b2
                        0.03, 2];        % peak and envelope sigma
     material.color = [0.8, 0.8, 1.0];

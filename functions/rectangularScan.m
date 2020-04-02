@@ -43,9 +43,10 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     N_pixels = nx_pixels*nz_pixels;
 
     % Estimate of the time for the simulation
-    t_estimate = time_estimate('n_rays', direct_beam.n, 'n_effuse', ...
-        effuse_beam.n, 'sample_surface', sample_surface,...
-        'n_pixels', N_pixels, 'pinhole_model', pinhole_model);
+    % t_estimate = time_estimate('n_rays', direct_beam.n, 'n_effuse', ...
+    %     effuse_beam.n, 'sample_surface', sample_surface,...
+    %     'n_pixels', N_pixels, 'pinhole_model', pinhole_model);
+    t_estimate = 0;
 
     tic
 
@@ -134,10 +135,10 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     end
 
     % Close the parallel pool
-    if ~isOctave
-        current_pool = gcp('nocreate');
-        delete(current_pool);
-    end
+    % if ~isOctave
+    %     current_pool = gcp('nocreate');
+    %     delete(current_pool);
+    % end
 
     t = toc;
 

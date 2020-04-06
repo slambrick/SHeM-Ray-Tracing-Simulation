@@ -272,8 +272,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
         int detected;
         
         the_ray = create_ray_source(source_parameters[0], &source_parameters[1], 
-            source_parameters[3], source_parameters[4], source_model, my_rng, 
-            source_parameters[5]);
+            source_parameters[4], source_parameters[5], source_model, my_rng, 
+            source_parameters[6]);
         
         detected = trace_ray_triagPlate(&the_ray, &killed, &cntr_detected,
             maxScatters, Sample, Plate, the_sphere, backWall, my_rng);

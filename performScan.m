@@ -28,14 +28,14 @@ recompile = true;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 30;
+init_angle = 0;
 
 % Geometry of pinhole
 pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 200000/10;
+n_rays = 200000/5;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 

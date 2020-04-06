@@ -83,7 +83,7 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(var
     end
     
     % Pass the source parameters to C
-    source_parameters = [pinhole_r, pinhole_c(1), pinhole_c(2), theta_max, ...
+    source_parameters = [pinhole_r, pinhole_c(1), pinhole_c(2), pinhole_c(3), theta_max, ...
         init_angle, sigma_source];
     
     % The calling of the mex function, ... here be dragons ... don't meddle

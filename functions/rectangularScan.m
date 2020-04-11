@@ -66,6 +66,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     else
         progressBar = true;
     end
+    progressBar = false;
     if progressBar && ~isOctave
         ppm = ParforProgMon('Simulation progress: ', N_pixels);
         h = 0;
@@ -168,9 +169,7 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     %  black - pixel with fewest counts
     %  white - pixel with the most counts
     % Only draws them if there is a GUI.
-    if progressBar
-        square_scan_info.produceImages(thePath);
-    end
+    square_scan_info.produceImages(thePath);
 
     % Also save a reduced set of formatted data
     %formatOutput(square_scan_info, thePath);

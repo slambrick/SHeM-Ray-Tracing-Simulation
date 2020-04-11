@@ -21,7 +21,7 @@ function datasets = multipleRectangularScan(sample_surface, range_y, raster_move
         sphere.c = sphere.c + [y_displacement, -y_displacement, 0];
 
         % create a directory for this scan
-        dirname = sprintf('z%+.4fmm', y_displacement);
+        dirname = sprintf('z%.4fmm', y_displacement+dist_to_sample);
         dirname = fullfile(thePath, dirname);
         mkdir(dirname);
 

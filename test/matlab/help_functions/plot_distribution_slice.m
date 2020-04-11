@@ -28,6 +28,7 @@ function plot_distribution_slice(theta, phi, direction, slice_width, name)
     histogram([negative_theta; positive_theta], 'BinLimits', [-pi/2 pi/2]);
     % title(name)
     set(gca, 'FontSize', 18)
+    set(gcf, 'Position', [100, 100, 1000, 800])
     xlabel('\theta (rad)')
     ylabel('Counts')
 end

@@ -106,12 +106,10 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng) {
 
     double e1[3], e2[3];    // unit vectors spanning the surface
-    double t1[3], t2[3];    // vectors orthogonal to diffraction peak
     double ni[3], nf[3];    // initial and final directions relative to surface
-    double peak[3];         // direction of some diffraction peak
-    double theta, phi;      // angles with respect to diffraction peak
+    double delta[2];        // perturbation to smudge the peaks
     double plane_component2;// squared length of the projection parallel to surface
-    double tester, exp_val; // tester for distributions
+    double tester, gaussian_value; // tester for distributions
     int p, q;               // diffraction peak indices
 
     // unpack the arguments
@@ -141,35 +139,38 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
             q = gsl_rng_uniform_int(my_rng, 2*maxq+1) - maxq;
 
             // reject to give a Gaussian probability of peaks
-            exp_val = exp(-(p*p + q*q) / 2 / (envelope_sig*envelope_sig));
+            gaussian_value = exp(-(p*p + q*q) / 2 / (envelope_sig*envelope_sig));
             tester = gsl_rng_uniform(my_rng);
-        } while(tester > exp_val);
+        } while(tester > gaussian_value);
+
+        // generate gaussian-distributed random perturbation to smudge the peaks
+        gsl_ran_bivariate_gaussian(my_rng, peak_sig, peak_sig, 0, delta, delta+1);
 
         // add it to the in-plane components of incident direction
-        peak[0] = ni[0] + ratio * (p*b1[0] + q*b2[0]);
-        peak[1] = ni[1] + ratio * (p*b1[1] + q*b2[1]);
-        plane_component2 = peak[0]*peak[0] + peak[1]*peak[1];
+        nf[0] = ni[0] + ratio * (p*b1[0] + q*b2[0]) + delta[0];
+        nf[1] = ni[1] + ratio * (p*b1[1] + q*b2[1]) + delta[1];
+        plane_component2 = nf[0]*nf[0] + nf[1]*nf[1];
 
     } while(plane_component2 > 1);
 
-    // find the normal component to normalise peak
-    peak[2] = sqrt(1 - plane_component2);
+    // find the normal component to normalise nf
+    nf[2] = sqrt(1 - plane_component2);
 
-    // to smudge the peaks, find tangential vectors to this direction
-    // and then use the broad_specular algorithm.
-    perpendicular_plane(peak, t1, t2);
+    // // to smudge the peaks, find tangential vectors to this direction
+    // // and then use the broad_specular algorithm.
+    // perpendicular_plane(peak, t1, t2);
 
-    do {
-        theta = theta_generate(peak_sig, my_rng);
-        phi = 2*M_PI*gsl_rng_uniform(my_rng);
+    // do {
+    //     theta = theta_generate(peak_sig, my_rng);
+    //     phi = 2*M_PI*gsl_rng_uniform(my_rng);
 
-        for(int j = 0; j < 3; j++)
-            nf[j] = t1[j]*cos(phi)*sin(theta) + t2[j]*sin(phi)*sin(theta) +
-                peak[j]*cos(theta);
-        normalise(nf);
-    // reject the directions into the surface
-    // NB in the surface coordinates, z is up
-    } while(nf[2] <= 0);
+    //     for(int j = 0; j < 3; j++)
+    //         nf[j] = t1[j]*cos(phi)*sin(theta) + t2[j]*sin(phi)*sin(theta) +
+    //             peak[j]*cos(theta);
+    //     normalise(nf);
+    // // reject the directions into the surface
+    // // NB in the surface coordinates, z is up
+    // } while(nf[2] <= 0);
 
     // transform back to lab frame
     for(int i = 0; i < 3; i++)

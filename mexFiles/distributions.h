@@ -26,6 +26,29 @@ typedef void (*distribution_func)(const double normal[3], const double init_dir[
 
 distribution_func distribution_by_name(const char * name);
 
+/*
+ * Generate rays with some original distribution, and the apply a Debye-Waller
+ * factor to the resulting rays by rejecting with a probability given by the DWF.
+ *
+ * PARAMS:
+ *  incident energy in meV
+ *  lattice atomic mass (in multiples of proton mass)
+ *  lattice temperature in kelvin
+ *  lattice Debye temperature in kelvin
+ *  std dev of final/initial energy ratio
+ * + followed by all the params for the original distribution
+ */
+void debye_waller_specular_diffuse(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
+
+/*
+ * Generate rays in a broad specular peak and then accept with a probability
+ * proportional to the DWF of that direction. This is made to test the effect
+ * the DWF has on the shape of the peak, rather than on its height relative to
+ * the background, but it's not necessarily a physically accurate model.
+ */
+void debye_waller_specular(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
 
 /*
  * Generate rays with broadened specular distribution and a diffuse background.
@@ -62,22 +85,6 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
  */
 void diffraction_pattern(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
-
-/*
- * Generate rays with a gaussian-distributed polar angle relative to the specular direction.
- * NB this is not entirely physically realistic, the purpose is mostly to illustrate the need
- * for extra complexity in the broad specular distribution. For actual specular reflections,
- * use broad_specular_scatter instead.
- *
- * INPUTS:
- *  normal - the surface normal at the ray surface intersection
- *  init_dir - the initial direction of the ray
- *  new_dir  - array to put the new direction in
- *  params   - first element must be standard deviation of gaussian distribution
- *  my_rng   - random number generator object
- */
-void gaussian_specular_scatter(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng);
 
 /*

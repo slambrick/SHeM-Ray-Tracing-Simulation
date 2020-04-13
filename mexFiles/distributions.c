@@ -33,8 +33,6 @@
  * If no such name can be found, NULL is returned.
  */
 distribution_func distribution_by_name(const char * name) {
-    if(strcmp(name, "gaussian_specular") == 0)
-        return gaussian_specular_scatter;
     if(strcmp(name, "broad_specular") == 0)
         return diffuse_and_specular;
     if(strcmp(name, "cosine") == 0)
@@ -45,6 +43,8 @@ distribution_func distribution_by_name(const char * name) {
         return uniform_scatter;
     if(strcmp(name, "diffraction") == 0)
         return diffuse_and_diffraction;
+    if(strcmp(name, "dw_specular") == 0)
+        return debye_waller_specular_diffuse;
     return NULL;
 }
 
@@ -88,6 +88,77 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
         diffraction_pattern(normal, init_dir, new_dir, params+1, my_rng);
 }
 
+
+/*
+ * Generate rays with some original distribution, and the apply a Debye-Waller
+ * factor to the resulting rays. The rays that are rejected are added to the
+ * diffuse background.
+ *
+ * PARAMS:
+ *  incident energy in meV
+ *  lattice atomic mass (in multiples of proton mass)
+ *  lattice temperature in kelvin
+ *  lattice Debye temperature in kelvin
+ *  std dev of final/initial energy ratio
+ * + followed by all the params for the original distribution
+ */
+void debye_waller_specular_diffuse(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng) {
+
+    // this prefactor appears in the DW exponent if the following
+    // are to be in the units stated in the comment above
+    const double prefactor = 278.5085;
+    double inc_energy = params[0];
+    double latt_mass = params[1];
+    double temp = params[2];
+    double debye_temp = params[3];
+    double energy_sigma = params[4];
+    double energy_ratio, dwf, tester;
+
+    double exponent = prefactor * inc_energy * temp / latt_mass / (debye_temp * debye_temp);
+    energy_ratio = 1.0 + gsl_ran_gaussian_tail(my_rng, -1.0, energy_sigma);
+
+    // generate a new direction in the specular peak
+    broad_specular_scatter(normal, init_dir, new_dir, params+5, my_rng);
+
+    // with probability proportional to debye-waller factor turn it into diffuse scattering
+    dwf = exp(- exponent * (1.0 + energy_ratio - 2 * sqrt(energy_ratio) * dot(init_dir, new_dir)));
+    tester = gsl_rng_uniform(my_rng);
+
+    if(tester > dwf)
+        cosine_scatter(normal, init_dir, new_dir, NULL, my_rng);
+}
+
+
+/*
+ * Generate rays in a broad specular peak and then accept with a probability
+ * proportional to the DWF of that direction. This is made to test the effect
+ * the DWF has on the shape of the peak, rather than on its height relative to
+ * the background, but it's not necessarily a physically accurate model.
+ */
+void debye_waller_specular(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng) {
+
+    // this prefactor appears in the DW exponent if the following
+    // are to be in the units stated in the comment above
+    const double prefactor = 278.5085;
+    double inc_energy = params[0];
+    double latt_mass = params[1];
+    double temp = params[2];
+    double debye_temp = params[3];
+    double energy_sigma = params[4];
+    double energy_ratio, dwf, tester;
+
+    double exponent = prefactor * inc_energy * temp / latt_mass / (debye_temp * debye_temp);
+
+    do {
+        energy_ratio = 1.0 + gsl_ran_gaussian_tail(my_rng, -1.0, energy_sigma);
+        broad_specular_scatter(normal, init_dir, new_dir, params+5, my_rng);
+
+        dwf = exp(- exponent * (1.0 + energy_ratio - 2 * sqrt(energy_ratio) * dot(init_dir, new_dir)));
+        tester = gsl_rng_uniform(my_rng);
+    } while(tester > dwf);
+}
 
 /*
  * Generate rays according to a 2D diffraction pattern given by two
@@ -176,59 +247,6 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
     for(int i = 0; i < 3; i++)
         new_dir[i] = nf[0] * e1[i] + nf[1] * e2[i] + nf[2] * normal[i];
 }
-
-
-/*
- * Generate rays with a gaussian-distributed polar angle relative to the specular direction.
- * NB this is not entirely physically realistic, the purpose is mostly to illustrate the need
- * for extra complexity in the broad specular distribution. For actual specular reflections,
- * use broad_specular_scatter instead.
- *
- * INPUTS:
- *  normal - the surface normal at the ray surface intersection
- *  init_dir - the initial direction of the ray
- *  new_dir  - array to put the new direction in
- *  params   - first element must be standard deviation of gaussian distribution
- *  my_rng   - random number generator object
- */
-void gaussian_specular_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
-
-    double theta, phi, normal_dot;
-    double sigma = params[0];
-    double specular[3], t1[3], t2[3];
-    // double tester;
-
-    // calculate the specular direction
-    reflect3D(normal, init_dir, specular);
-    // get the tangent vectors
-    perpendicular_plane(specular, t1, t2);
-
-
-    /* NB: the range of coordinates here is theta in [-pi, pi], phi in [0, pi]
-     * rather than the usual [0, pi] and [0, 2pi]. The reason is that we are
-     * generating theta via a gaussian distribution centred at zero.
-     */
-
-    do {
-        phi = M_PI*gsl_rng_uniform(my_rng);
-
-        // generate a zero-centred Gaussian distribution with cut-off at pi
-        do {
-            theta = gsl_ran_gaussian(my_rng, sigma);
-        } while(fabs(theta) > M_PI);
-
-        for (int k = 0; k < 3; k++) {
-            new_dir[k] = t1[k]*cos(phi)*sin(theta) + t2[k]*sin(phi)*sin(theta) +
-                specular[k]*cos(theta);
-        }
-        normalise(new_dir);
-
-        normal_dot = dot(normal, new_dir);
-        // tester = gsl_rng_uniform(my_rng);
-    } while(normal_dot < 0);
-}
-
 
 /*
  * Generate a random direction according to the Gaussian broadened specular:

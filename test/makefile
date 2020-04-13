@@ -7,13 +7,13 @@ BDIR = bin
 ODIR = obj
 EODIR = extobj
 MDIR = mex
-INC = -I$(EDIR) -I$(HOME)/.local/share/MATLAB/R2019b/extern/include
+INC = -I$(EDIR) -I$(HOME)/.local/MATLAB/R2020a/extern/include
 
 # source file names of the tests
 SRC = $(shell find $(SDIR) -type f -regex '.*\.c')
 
 # external sources -- source files being tested
-_ESRC = small_functions3D.c distributions.c ray_tracing_structs3D.c common_helpers.c extract_inputs.c
+_ESRC = small_functions3D.c
 ESRC = $(patsubst %,$(EDIR)/%,$(_ESRC))
 
 # external headers
@@ -23,7 +23,7 @@ EH = $(patsubst %.c,%.h,$(ESRC))
 EOBJ = $(patsubst %.c,$(EODIR)/%.o,$(_ESRC))
 
 .PHONY: all remove clean debug
-all: $(BDIR)/simple
+all: $(BDIR)/simple $(BDIR)/random
 
 # create the necessary directories
 directories:
@@ -48,12 +48,12 @@ $(BDIR)/simple: $(ODIR)/simple.o $(EOBJ)
 	$(CC) $(CFLAGS) $(INC) $^ $(LIBS) -o $@
 
 # link to executable
-# $(BDIR)/%: $(ODIR)/%.o $(OBJ)
-#         $(CC) $(CFLAGS) $^ $(LIBS) -o $@
-
-remove:
-	rm -f $(ODIR)/*.o
-	rm -f $(BDIR)/*
+$(BDIR)/random: $(ODIR)/random.o
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 clean:
 	rm -f $(ODIR)/*.o
+	rm -f $(EODIR)/*.o
+
+remove: clean
+	rm -f $(BDIR)/*

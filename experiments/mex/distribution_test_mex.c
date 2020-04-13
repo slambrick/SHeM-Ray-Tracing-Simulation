@@ -98,7 +98,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // cross(normal, direction, perpendicular);
     // cross(perpendicular, normal, dir_projection);
 
-    mexPrintf("Reflecting your rays...\n");
+    mexPrintf("Reflecting your rays... ");
     // for the specified number of rays, perform the scattering event
     // and accumulate the angle of (new_dir, normal) in the output array
     for(int iray = 0; iray < n_rays; iray++) {
@@ -118,7 +118,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         phis[iray] = atan2(sin_phi, cos_phi);
     }
 
-    mexPrintf("\n");
+    mexPrintf("done.\n\n");
     return;
 }
 

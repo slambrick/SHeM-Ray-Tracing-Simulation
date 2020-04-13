@@ -15,18 +15,16 @@ function distribution_test()
     direction = direction/norm(direction);
     normal = [0, 1, 0];
 
-    material.function = 'diffraction';
-    % material.params = [0.9, 0.2];
-    material.params = [0.9,...          % diffuse level
-                       4, 4, 0.1996,... % maxp, maxq, ratio
-                       0.970,   0.242,   -0.242,   0.970,...   % b1 and b2
-                       0.0316, 2];      % peak and envelope sigma
+    material.function = 'dw_specular';
+    material.params = [60, 197, 298, 178, 0, 0.1];
+    % material.function = 'broad_specular';
+    % material.params = [0 0.2];
     material.color = [0.8, 0.8, 1.0];
 
     [theta, phi] = distribution_test_mex(num_rays, direction, material, normal);
 
     plot_distribution_3d(sin(theta), phi, 1, 100, '\theta')
-    plot_distribution_slice(theta, phi, 0, 0.05, '<110> direction diffraction')
+    plot_distribution_slice(theta, phi, 0, 0.05, 100, '<110> direction diffraction')
 end
 
 % figure

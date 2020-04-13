@@ -1,10 +1,10 @@
-function plot_distribution_slice(theta, phi, direction, slice_width, name)
+function plot_distribution_slice(theta, phi, direction, slice_width, nbins, name)
 
     % compute the direction opposite. NB phi is in (-pi, pi)
     % first bring to (0, 2pi) by adding pi,
     % then add another pi and take mod for the opposite
     % then subtract pi to bring back to (-pi, pi)
-    opposite_dir = mod((direction + 2*pi), 2*pi) - pi;
+    % opposite_dir = mod((direction + 2*pi), 2*pi) - pi;
 
     % filter out the thetas which are within slice_width
     % of the line defined by (cos(direction), sin(direction)) * length
@@ -25,7 +25,7 @@ function plot_distribution_slice(theta, phi, direction, slice_width, name)
     negative_theta = - theta(flags == -1);
 
     figure
-    histogram([negative_theta; positive_theta], 'BinLimits', [-pi/2 pi/2]);
+    histogram([negative_theta; positive_theta], nbins, 'BinLimits', [-pi/2 pi/2]);
     % title(name)
     set(gca, 'FontSize', 18)
     set(gcf, 'Position', [100, 100, 1000, 800])

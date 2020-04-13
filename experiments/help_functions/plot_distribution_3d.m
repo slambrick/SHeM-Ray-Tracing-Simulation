@@ -6,29 +6,16 @@
 %          rad_bins - number of bins per side on the 2D plot
 %          name - the name of the plot distribution
 function plot_distribution_3d(radius, phi, rad_limit, rad_bins, name)
-    % figure
-    % histogram(phi, 'BinLimits', [-pi, pi])
-    % title('\phi distribution')
-    % % set(gca, 'FontSize', 30)
-
-    % figure
-    % histogram(radius, 'BinLimits', rad_limits)
-    % % title([name ' distribution'])
-    % % set(gca, 'FontSize', 30)
-    % xlabel('\theta (rad)')
-    % ylabel('Counts')
-
     figure
     pos2d = [radius.*cos(phi), radius.*sin(phi)];
     rad_step = 2*rad_limit / rad_bins;
     rad_edges = -rad_limit:rad_step:rad_limit;
 
-    % hist3(pos2d, 'Edges', {rad_edges rad_edges}, 'FaceColor','interp','CDataMode','auto')
-
     histogram2(pos2d(:, 1), pos2d(:, 2), rad_edges, rad_edges, 'FaceColor', 'flat',...
     'Normalization', 'probability')
 
-    view([0,0,1]); colorbar;
+    view([0,0,1]);
+    colorbar;
     xlim([-rad_limit, rad_limit])
     ylim([-rad_limit, rad_limit])
     % xlabel([name ' cos(\phi)'])

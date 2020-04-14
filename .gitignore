@@ -10,6 +10,8 @@ test/extobj
 *.eps
 simulations/*test
 simulations/*/*.mat
+simulations/*/*.csv
+simulations/*/formatted
 
 # IDE things
 .clangd

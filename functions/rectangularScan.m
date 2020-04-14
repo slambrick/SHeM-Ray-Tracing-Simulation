@@ -66,7 +66,6 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
     else
         progressBar = true;
     end
-    progressBar = false;
     if progressBar && ~isOctave
         ppm = ParforProgMon('Simulation progress: ', N_pixels);
         h = 0;
@@ -96,6 +95,8 @@ function square_scan_info = rectangularScan(sample_surface, xrange, zrange, ...
         if z_pix == -1
             z_pix = nz_pixels - 1;
         end
+
+        % disp(['scanning pixel x = ' num2str(x_pix) ' z = ' num2str(z_pix)]);
 
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);

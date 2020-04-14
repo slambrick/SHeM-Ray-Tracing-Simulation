@@ -61,5 +61,6 @@ function bin_values = norm_histogram2(rad, phi, rad_limit, nbins)
 
     pos2d = [rad.*cos(phi), rad.*sin(phi)];
     hist_1 = histogram2(pos2d(:, 1), pos2d(:, 2), rad_edges, rad_edges, 'FaceColor', 'flat');
+    % bin_values = hist_1.Values;
     bin_values = hist_1.Values ./ max(hist_1.Values, [], 'all');
 end

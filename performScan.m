@@ -20,17 +20,17 @@ typeScan = 'multiple_rectangular';
 
 % Recompile mex files?
 % Required if using on a new computer or if changes to .c files have been made.
-recompile = false;
+recompile = true;
 
 %% Beam/source parameters %%
-n_rays = 5e4;
+n_rays = 1e4;
 
 % The inicidence angle in degrees
 init_angle = 45;
 
 % Geometry of pinhole
 pinhole_c = 2.1*[-tand(init_angle), 0, 0];
-pinhole_r = 1e-3;
+pinhole_r = 0.6e-3;
 
 % Number of rays to use and the width of the source
 
@@ -99,7 +99,7 @@ circle_plate_r = 4;
 % direction ('z'). The aperture is always centred on the x-axis and is displaced
 % by the specified amount.
 n_detectors = 1;
-aperture_axes = [0.5    0.5];
+aperture_axes = [1*sqrt(2)    1];
 aperture_c = [2.1    0];
 plate_represent = 0;
 
@@ -115,14 +115,14 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.003;
-raster_movment2D_z = 0.003;
-xrange = [-0.15    0.15];
-zrange = [-0.15    0.15];
+raster_movment2D_x = 2.4e-3;
+raster_movment2D_z = 2.4e-3;
+xrange = [-0.12      0.12];
+zrange = [-0.12      0.12];
 
 %% Parameters for multiple rectangular scans
 raster_movement_y = 0.1;   % increment between 2 scans
-range_y = [-0.6   3];        % range of y positions relative to 'dist_to_sample'
+range_y = [-1   4];        % range of y positions relative to 'dist_to_sample'
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -131,8 +131,8 @@ rot_angles = [0, 72, 144, 216, 288];
 %% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
 % behind the pinhole plate.
-init_displacement = [-0.05, 0, 0];  % initial position of sample from 'centred'
-raster_movment1D = 0.02;         % movement increment
+init_displacement = [0, 0, 0];  % initial position of sample from 'centred'
+raster_movment1D = 0.02;        % movement increment
 range1D = [-1 4];               % range
 Direction = 'y';                % 'x', 'y' or 'z' - along which direction to move
 
@@ -140,6 +140,7 @@ Direction = 'y';                % 'x', 'y' or 'z' - along which direction to mov
 
 % What type of sample to use :
 %  'flat'   - A flat square (need to specify square_size)
+%  'strips' - Two parallel series of strips with varying parameters
 %  'sphere' - An anlaytic sphere on a flat square surface (need to specify
 %             square_size and sphere_r)
 %  'photoStereo' - A test sample for photo stereo that includes part of a
@@ -150,7 +151,7 @@ Direction = 'y';                % 'x', 'y' or 'z' - along which direction to mov
 sample_type = 'custom';
 
 % The sample file, include the full path
-sample_fname = 'simulations/lif4.obj';
+sample_fname = 'simulations/peaks2.obj';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -158,7 +159,7 @@ scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'Tilted strip with diffraction pattern';
+sample_description = 'Sample with several LiF diffractive peaks.';
 
 %% Parameters of the default material, to use for faces where no material is specified
 defMaterial.function = 'cosine';
@@ -188,7 +189,7 @@ square_size = 0.8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'LiF_rect';
+directory_label = 'peaks';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -294,6 +295,10 @@ switch sample_type
         make_sphere = 0;
         sample_description = ['A flat square sample size ' ...
             num2str(square_size) 'mm.'];
+    case 'strips'
+        sample_surface = strip_series(dist_to_sample, working_dist);
+        make_sphere = 0;
+        sample_description = 'A sample made up of two series of strips with properties varying across';
     case 'sphere'
         sample_surface = flatSample(square_size, dist_to_sample, defMaterial);
         make_sphere = 1;
@@ -344,7 +349,8 @@ if feature('ShowFigureWindows')
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
     end
 
-    if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations')
+    if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations') ||...
+            strcmp(typeScan, 'multiple_rectangular')
         xlim([-xrange(2) -xrange(1)]);
         zlim(zrange);
         ylim(zrange - dist_to_sample);
@@ -498,7 +504,7 @@ switch typeScan
 end
 
 % kill parallel pool
-delete(gcp('nocreate'));
+% delete(gcp('nocreate'));
 
 %% Output data about simulation to files
 

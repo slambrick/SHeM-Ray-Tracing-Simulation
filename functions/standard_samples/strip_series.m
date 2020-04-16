@@ -30,7 +30,7 @@ function sample_surface = strip_series(dist_to_sample, working_dist)
     M = cell(n_strips*4+2, 1);  % face compositions
 
     % make the background
-    [vb, fb] = rectangle(xs, zs, 0);
+    [vb, fb] = rectangle(xs, zs, 0, 0);
     V(1:4, :) = vb;
     F(1:2, :) = fb;
 
@@ -46,18 +46,18 @@ function sample_surface = strip_series(dist_to_sample, working_dist)
         face_idx = (istrip-1)*4 + 2; % index where faces of current strips start
 
         % first row strip
-        [v1, f1] = rectangle(strip_xs, row_1_zs, strip_height);
+        [v1, f1] = rectangle(strip_xs, row_1_zs, strip_height, vert_idx);
 
         V((vert_idx + 1):(vert_idx + 4), :) = v1;
-        F((face_idx + 1):(face_idx + 2), :) = f1 + vert_idx;
+        F((face_idx + 1):(face_idx + 2), :) = f1;
         M{face_idx+1} = ['a' num2str(istrip)];
         M{face_idx+2} = ['a' num2str(istrip)];
 
         % same for second row strip
-        [v2, f2] = rectangle(strip_xs, row_2_zs, strip_height);
+        [v2, f2] = rectangle(strip_xs, row_2_zs, strip_height, vert_idx + 4);
 
         V((vert_idx + 5):(vert_idx + 8), :) = v2;
-        F((face_idx + 3):(face_idx + 4), :) = f2 + vert_idx + 4;
+        F((face_idx + 3):(face_idx + 4), :) = f2;
         M{face_idx+3} = ['b' num2str(istrip)];
         M{face_idx+4} = ['b' num2str(istrip)];
     end
@@ -111,7 +111,7 @@ function sample_surface = strip_series(dist_to_sample, working_dist)
 
 end
 
-function [vertices, faces] = rectangle(xs, zs, height)
+function [vertices, faces] = rectangle(xs, zs, height, vertex_idx)
     vertices = [xs(1), height, zs(1);
                 xs(2), height, zs(1);
                 xs(1), height, zs(2);
@@ -119,4 +119,5 @@ function [vertices, faces] = rectangle(xs, zs, height)
 
     faces = [1, 2, 3;
              4, 3, 2];
+    faces = faces + vertex_idx;
 end

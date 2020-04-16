@@ -7,7 +7,7 @@ d 0
 func diffraction
 params 0.6          # diffuse level
     6   6   0.1996  # maxp, maxq, lambda/a
-    1   0   0   1   # b1, b2
+    0.970   0.242   -0.242   0.970   # b1, b2
     0.0316  2.0     # peak_sig, envelope_sig
 
 newmtl diffuse

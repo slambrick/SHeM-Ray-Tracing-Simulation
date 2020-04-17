@@ -1,7 +1,7 @@
 % Load the LiF movie dataset
-dirname = '../results/LiF_movie';
+dirname = '../results/peaks_movie';
 data = load(fullfile(dirname, 'scatteringData.mat'));
-dirname = fullfile(dirname, 'movie1');
+dirname = fullfile(dirname, 'movie');
 if ~exist(dirname, 'dir')
     mkdir(dirname);
 end
@@ -57,9 +57,9 @@ for idx = 1:length(ys)
     img = sim_data.imageAll('scale', 'manual', 'specifyScale', limits);
     set(gca, 'xtick', [], 'ytick', []);
     xlabel(''); ylabel('');
-    text(-0.15, -0.13, sprintf('z = %.2f mm', y), 'Color', 'white', 'FontSize', 7);
+    text(-0.12, -0.11, sprintf('z = %.2f mm', y), 'Color', 'white', 'FontSize', 7);
     % imwrite(img, fname);
-    exportgraphics(gca, fname, 'Resolution', 300, 'BackgroundColor', 'none');
+    exportgraphics(gca, fname, 'Resolution', 300, 'BackgroundColor', 'black');
     % close(gcf);
 end
 

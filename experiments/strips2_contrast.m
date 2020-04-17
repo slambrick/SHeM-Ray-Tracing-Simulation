@@ -12,11 +12,11 @@ err_b = zeros(1, 10);
 
 inc_energy = 20:8:92;
 
-top_z = [0.5, 0.9];
-bot_z = [0.1, 0.5];
+top_z = [0.501, 0.899];
+bot_z = [0.101, 0.499];
 
 for idx = 1:10
-    x_slice = [0.01 + 0.1*(idx-1), 0.1*idx];
+    x_slice = [0.011 + 0.1*(idx-1), 0.099*idx];
 
     strip_a = slice_by_coords(sim_data.cntrSum{1},...
         [0.0, 1.0], [0.0, 1.0], x_slice, bot_z);

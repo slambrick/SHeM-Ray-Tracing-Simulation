@@ -75,12 +75,12 @@ function sample_surface = strip_series(dist_to_sample, working_dist)
     %% procedurally generate materials. Colors are a simple gradient and don't matter
     for istrip = 1:n_strips
         mat_a.function = 'dw_specular';
-        mat_a.params = [100 - 8*istrip, 28, 298, 692, 0, 0.1];
+        mat_a.params = [100 - 8*istrip, 28, 298, 625, 0, 0.1];
         mat_a.color = [0, istrip*color_step, 1 - istrip*color_step];
         matlib(['a' num2str(istrip)]) = mat_a;
 
         mat_b.function = 'dw_specular';
-        mat_b.params = [100 - 8*istrip, 197, 298, 178, 0, 0.1];
+        mat_b.params = [100 - 8*istrip, 197, 298, 170, 0, 0.1];
         mat_b.color = [0.8, istrip*color_step, 0];
         matlib(['b' num2str(istrip)]) = mat_b;
     end

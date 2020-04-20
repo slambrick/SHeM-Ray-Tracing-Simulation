@@ -81,8 +81,8 @@ function [vertices, fdef, fnorm, fmat, materials] = objread(fname)
 
     % read materials library
     % First must prepend path to filename
-    obj_folder = split(string(fname), '/'); obj_folder = obj_folder(1:end-1);
-    mtl_fname = fullfile(obj_folder, mtl_fname);
+    obj_folder = strsplit(fname, '/'); obj_folder = obj_folder(1:end-1);
+    mtl_fname = fullfile(obj_folder{:}, mtl_fname);
     materials = mtlread(mtl_fname);
 end
 
@@ -97,7 +97,7 @@ function normal = getNormal(face, normals, vertices)
     if sum(isnan(face.vn), 'all') == 0  % first check if all are present
         ns = normals(face.vn, :);  % take all vertex normals of the face
         if all(ns == ns(1, :))
-            disp("Normal taken from data")
+            % disp("Normal taken from data")
             normal = ns(1, :)/norm(ns(1, :));
             return
         end

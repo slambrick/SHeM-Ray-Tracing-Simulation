@@ -15,11 +15,18 @@ function distribution_test()
     direction = direction/norm(direction);
     normal = [0, 1, 0];
 
-    material.function = 'dw_specular';
-    material.params = [60, 197, 298, 178, 0, 0.1];
-    % material.function = 'broad_specular';
-    % material.params = [0 0.2];
+    diff_params = [
+        6,   6,   0.1996,... % maxp and maxq
+        1,   0,   0,   1,... % rec lattice vectors
+        0.0316,  100];       % peak sigma and envelope sigma
+
+    material.function = 'dw_diffraction';
+    material.params = [60, 197, 298, 170, 0, diff_params];
+    % material.function = 'diffraction';
+    % material.params = [0.5, diff_params];
     material.color = [0.8, 0.8, 1.0];
+
+    material
 
     [theta, phi] = distribution_test_mex(num_rays, direction, material, normal);
 

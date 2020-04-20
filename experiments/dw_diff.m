@@ -6,14 +6,21 @@ direction = [sin(pi/6), -cos(pi/6), 0];
 direction = direction/norm(direction);
 normal = [0, 1, 0];
 
-mat_dw.function = 'dw_specular';
-mat_dw.params = [20, 197, 298, 178, 0, 0.1];
+diff_params = [
+        6,   6,   0.1996,... % maxp and maxq
+        1,   0,   0,   1,... % rec lattice vectors
+        0.0316,  100];       % peak sigma and envelope sigma
+
+dw_params = [60, 197, 298, 170, 0];
+
+mat_dw.function = 'dw_diffraction_retry';
+mat_dw.params = [dw_params, 0.6, diff_params];
 mat_dw.color = [0.8, 0.8, 1.0];
 
 [theta_1, phi_1] = distribution_test_mex(num_rays, direction, mat_dw, normal);
 
-mat_spec.function = 'broad_specular';
-mat_spec.params = [0, 0.1];
+mat_spec.function = 'diffraction';
+mat_spec.params = [0.6, diff_params];
 mat_spec.color = [0.8, 0.8, 1.0];
 
 [theta_2, phi_2] = distribution_test_mex(num_rays, direction, mat_spec, normal);
@@ -27,8 +34,8 @@ bin_values_2 = norm_histogram2(sin(theta_2), phi_2, rad_limit, nbins);
 close(gcf);
 
 %% plot the two original distributions
-% plot_distribution_3d(sin(theta_1), phi_1, 1, 100, '\theta');
-% plot_distribution_3d(sin(theta_2), phi_2, 1, 100, '\theta');
+plot_distribution_3d(sin(theta_1), phi_1, 1, 100, '\theta');
+plot_distribution_3d(sin(theta_2), phi_2, 1, 100, '\theta');
 
 %% plot the differences
 % first diff the two histograms
@@ -61,6 +68,6 @@ function bin_values = norm_histogram2(rad, phi, rad_limit, nbins)
 
     pos2d = [rad.*cos(phi), rad.*sin(phi)];
     hist_1 = histogram2(pos2d(:, 1), pos2d(:, 2), rad_edges, rad_edges, 'FaceColor', 'flat');
-    % bin_values = hist_1.Values;
-    bin_values = hist_1.Values ./ max(hist_1.Values, [], 'all');
+    bin_values = hist_1.Values;
+    % bin_values = hist_1.Values ./ max(hist_1.Values, [], 'all');
 end

@@ -38,7 +38,7 @@ distribution_func distribution_by_name(const char * name);
  *  std dev of final/initial energy ratio
  * + followed by all the params for the original distribution
  */
-void debye_waller_specular_diffuse(const double normal[3], const double init_dir[3],
+void debye_waller_specular(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng);
 
 /*
@@ -47,7 +47,13 @@ void debye_waller_specular_diffuse(const double normal[3], const double init_dir
  * the DWF has on the shape of the peak, rather than on its height relative to
  * the background, but it's not necessarily a physically accurate model.
  */
-void debye_waller_specular(const double normal[3], const double init_dir[3],
+void debye_waller_specular_retry(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
+
+void debye_waller_diffraction(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, gsl_rng *my_rng);
+
+void debye_waller_diffraction_retry(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng);
 
 /*

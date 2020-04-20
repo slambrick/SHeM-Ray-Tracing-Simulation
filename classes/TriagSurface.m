@@ -214,6 +214,27 @@ classdef TriagSurface < handle
             obj.normals = -obj.normals;
         end
 
+        function reflect_axis(obj, axis_name)
+            % reflect the coordinates on one axis
+            % axis_name should be 'x', 'y' or 'z'
+            switch axis_name
+            case 'x'
+                idx = 1;
+            case 'y'
+                idx = 2;
+            case 'z'
+                idx = 3;
+            otherwise
+                error('Axis name must be x, y or z');
+            end
+
+            V = obj.vertices;
+            N = obj.normals;
+
+            obj.vertices(:, idx) = -V(:, idx);
+            obj.normals(:, idx) = -N(:, idx);
+        end
+
         function patchPlot(obj, new_fig, fname)
         % Produces a plot of the sample surface, if a file name is provided
         % then the plot is saved to that file. Can either plot in a new figure

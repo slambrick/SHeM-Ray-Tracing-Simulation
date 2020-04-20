@@ -1,5 +1,5 @@
 # Created by FreeCAD <http://www.freecadweb.org>
-mtllib lif.mtl
+mtllib lif_tilt.mtl
 v -0.282250 -0.012400 -0.192590
 v -0.282250 0.000000 -0.192590
 v 0.000000 -0.012400 -0.192590

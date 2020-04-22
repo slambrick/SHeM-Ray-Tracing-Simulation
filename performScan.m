@@ -19,16 +19,16 @@ maxScatter = 20;
 typeScan = 'rotations';
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
-scan_pattern = 'rotation';
+scan_pattern = 'regular';
 
-% Recompile mex files?
+% Recompile mescan_patternx files?
 % Required if using on a new computer or if changes to .c files have been made.
 recompile = true;
 
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 0;
+init_angle = 30;
 
 % Geometry of pinhole
 pinhole_c = [-tand(init_angle), 0, 0];
@@ -188,7 +188,7 @@ square_size = 1;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'Photostereo_spherePlace';
+directory_label = 'Photostereo_nonNormal_rotations';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -556,9 +556,18 @@ switch typeScan
                 mkdir(subPath)
             end
             
-            raster_pattern = generate_raster_pattern('raster_movment2D', ...
-                [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
-                'zrange', zrange, 'rot_angle', rot_angles(i_), 'init_angle', init_angle);
+            switch scan_pattern
+                case 'rotations'
+                    raster_pattern = generate_raster_pattern('raster_movment2D', ...
+                        [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
+                        'zrange', zrange, 'rot_angle', rot_angles(i_), 'init_angle', init_angle);
+                case 'regular'
+                    raster_pattern = generate_raster_pattern('raster_movment2D', ...
+                        [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
+                        'zrange', zrange, 'init_angle', init_angle);
+                otherwise
+                    error('Please specify an existing scan pattern')
+            end
             
             simulationData{i_} = rectangularScan(s_surface, raster_pattern, ...
                 direct_beam, ...
@@ -576,7 +585,9 @@ switch typeScan
 
         end
         
-        re_rotate_images(simulationData, thePath, rot_angles)
+        if strcmp(scan_pattern, 'rotations')
+            re_rotate_images(simulationData, thePath, rot_angles)
+        end
         close(h);
         delete(h);
     otherwise
@@ -595,7 +606,7 @@ end
 % Save formatted data to a .mat file, does not include all the parameters
 % but does include the core outputs.
 if output_data && strcmp(typeScan, 'rotations')
-    formatOutputRotation(simulationData, rot_angles, thePath);
+    formatOutputRotation(simulationData, thePath, rot_angles);
 elseif output_data
     simulationData.formatOutput(thePath);
 end

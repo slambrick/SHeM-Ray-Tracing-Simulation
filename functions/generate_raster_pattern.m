@@ -8,10 +8,17 @@
 % Generates the raster pattern for the 2D scan
 %
 % Calling syntax: 
+%  raster_pattern = generate_raster_pattern('name', value, ...)
 %
 % INPUTS:
+%  raster_movement2D - [double, double]m the [x,z] raster movement
+%  xrange            - 
+%  zrange            - 
+%  rot_angle         - 
+%  init_angle        - 
 %
 % OUTPUTS:
+%  raster_pattern - 
 function raster_pattern = generate_raster_pattern(varargin)
     for i_=1:2:length(varargin)
         switch varargin{i_}

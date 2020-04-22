@@ -81,6 +81,10 @@ function sample_surface = inputSample(varargin)
         scattering_parameters = 0;
     end
     
+    if ~exist('working_dist', 'var')
+        working_dist = 2.121;
+    end
+    
     % Input checking
     if ((diffuseLvl > 1 || diffuseLvl < 0) && diffuseLvl ~= 2)
         error('inputSample: scattering must be between 0 and 1, or be 2.')

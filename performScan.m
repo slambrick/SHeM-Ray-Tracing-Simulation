@@ -189,7 +189,7 @@ square_size = 0.8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'lif_real';
+directory_label = 'lif_real_mirrored';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -321,6 +321,8 @@ switch sample_type
         sample_surface.moveBy([0, -2.121, 0]);
         make_sphere = 0;
 end
+
+sample_surface.reflect_axis('x');
 
 if strcmp(typeScan, 'line')
     sample_surface.moveBy(init_displacement);

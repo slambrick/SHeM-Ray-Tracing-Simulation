@@ -15,18 +15,19 @@
  * Random number generation is performed using the GNU/SL. Functions and code
  * snippets are present that use the C standard library insead.
  */
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_math.h>
+//#include <gsl/gsl_rng.h>
+//#include <gsl/gsl_randist.h>
+//#include <gsl/gsl_math.h>
 #include "small_functions3D.h"
+#include "common_helpers.h"
 #include "scattering_processes3D.h"
 #include "ray_tracing_structs3D.h"
 #include <stdlib.h>
+#include <math.h>
 
-static double theta_generate(double sigma, gsl_rng *myrng);
+static double theta_generate(double sigma);
 
-static double phi_generate(gsl_rng *myrng);
-
+static double phi_generate();
 
 /* 
  * Generates a new direction for a ray given the initial direction, unit normal 
@@ -38,12 +39,11 @@ static double phi_generate(gsl_rng *myrng);
  *  init_dir   - initial direction of the ray, 3 element double array
  *  new_dir    - 3 element array to put the new direction in
  *  scattering - double describing the scattering off the sample
- *  my_rng      - pointer to a GSL random number generator object
  *  sigma      - standard deviation of the broad specular distribution, may be
  *               unused.
  */
 void new_direction3D(Ray3D *the_ray, double normal[3], double scattering, 
-                     gsl_rng *my_rng, double parameters) {
+                     double parameters) {
     
     double tester;
     int j;
@@ -56,18 +56,18 @@ void new_direction3D(Ray3D *the_ray, double normal[3], double scattering,
      */
     if (fabs(scattering - 2) < 0.000001) {
         /* Uniform scattering selected */
-        uniformScatter3D(normal, new_dir, my_rng);
+        uniformScatter3D(normal, new_dir);
     } else if (fabs(scattering - 3) < 0.000001) {
         /* Specuarly centred cosine scattering selected */
-        cosineSpecularScatter3D(normal, the_ray->direction, new_dir, my_rng);
+        cosineSpecularScatter3D(normal, the_ray->direction, new_dir);
     } else if (fabs(scattering - 4) < 0.000001) {
         /* Broad Gaussian specular scattering selected */
-        broadSpecular3D(normal, the_ray->direction, new_dir, parameters, my_rng);
+        broadSpecular3D(normal, the_ray->direction, new_dir, parameters);
     } else {
         /* A combination of diffse cosine and pure specular scattering selected */
-        tester = gsl_rng_uniform(my_rng);
+        tester = (double)rand() / (double)RAND_MAX;
         if (tester < scattering) {
-            cosineScatter3D(normal, new_dir, my_rng);
+            cosineScatter3D(normal, new_dir);
         } else {
             reflect3D(normal, the_ray->direction, new_dir);
         }
@@ -86,10 +86,9 @@ void new_direction3D(Ray3D *the_ray, double normal[3], double scattering,
  *  init_dir - the initial direction of the ray
  *  new_dir  - array to put the new direction in
  *  sigma    - parameter standard deviation of the scattering distribution
- *  my_rng   - random number genertor object
  */
 void broadSpecular3D(double normal[3], double init_dir[3], double new_dir[3],
-        double sigma, gsl_rng *my_rng) {
+        double sigma) {
     
     double theta, phi;
     double theta_normal;
@@ -137,8 +136,8 @@ void broadSpecular3D(double normal[3], double init_dir[3], double new_dir[3],
         double dotted;
         
         /* Generate a random theta and phi */
-        theta = theta_generate(sigma, my_rng);
-        phi = phi_generate(my_rng);
+        theta = theta_generate(sigma);
+        phi = phi_generate();
         
         /* Generate the new direction */
         for (k = 0; k < 3; k++) {
@@ -163,7 +162,7 @@ void broadSpecular3D(double normal[3], double init_dir[3], double new_dir[3],
          * cos(theta_normal) 
          */
         c_theta = cos(theta_normal);
-        tester = gsl_rng_uniform(my_rng);
+        tester = (double)rand() / (double)RAND_MAX;
     } while (c_theta < tester);
     /* We have successfully generated a new direction */
 }
@@ -172,18 +171,35 @@ void broadSpecular3D(double normal[3], double init_dir[3], double new_dir[3],
  * Generate the polar angle theta according to the Gaussian broaded specular,
  * this angle is the polar angle relative to the specular direction.
  */
-static double theta_generate(double sigma, gsl_rng *my_rng) {
+static double theta_generate(double sigma) {
     double theta;
     double s_theta;
     double tester;
+    int cnt;
+    double Z[2];
+    
     tester = 0;
     s_theta = 0;
+    gaussian_random(0, sigma, Z);
     
     /* Sample the Gaussian distribution then reject with a probability that
      * is proportional to sin(theta) */
+    cnt = 0;
     do {
-        /* Generate a random Gaussian number, note that theta must by non-negative */
-        theta = fabs(gsl_ran_gaussian(my_rng, sigma));
+        double rand1;
+                
+        /* Generate a random Gaussian number, note that theta must by
+         * non-negative. The Box-muller generates 2 random numbers, store both 
+         * and use the previously generated one if we are on an even iteration 
+         * (2nd, 4th, etc.)
+         */
+        if (cnt % 2) {
+            gaussian_random(0, sigma, Z);
+            rand1 = Z[0];
+        } else {
+            rand1 = Z[1];
+        }
+        theta = fabs(rand1);
         
         /* If theta exceeds pi then try again */
         if (theta > M_PI)
@@ -193,17 +209,21 @@ static double theta_generate(double sigma, gsl_rng *my_rng) {
         s_theta = 0.5*sin(theta);
         
         /* Generate a tester variable */
-        tester = gsl_rng_uniform(my_rng);
+        tester = (double)rand() / (double)RAND_MAX;
+        
+        cnt += 1;
     } while (s_theta < tester);
     
     return(theta);
 }
 
 /* Generate a random phi angle for use in the broad specular distribution */
-static double phi_generate(gsl_rng *my_rng) {
+static double phi_generate() {
     double phi;
+    double rand1;
     
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
+    rand1 = (double)rand() / (double)RAND_MAX;
+    phi = 2*M_PI*rand1;
     return(phi);
 }
 
@@ -214,16 +234,15 @@ static double phi_generate(gsl_rng *my_rng) {
  * INPUTS:
  *  normal  - double array, the normal to the surface at the point of scattering
  *  new_dir - double array, an array to store the new direction of the ray
- *  my_rng   - gsl_rng pointer, pointer to a GSL random number generator that has
- *            been created and set up with setupGSL()
  */
-void cosineScatter3D(double normal[3], double new_dir[3], gsl_rng *my_rng) {
+void cosineScatter3D(double normal[3], double new_dir[3]) {
     double s_theta, c_theta, phi;
     double a, b, c;
     double t1[3];
     double t2[3];
     int k;
     double epsilon;
+    double rand1, rand2;
     
     epsilon = 1e-3;
     
@@ -252,8 +271,11 @@ void cosineScatter3D(double normal[3], double new_dir[3], gsl_rng *my_rng) {
     t2[1] = b;
     t2[2] = c;
     
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    s_theta = sqrt(gsl_rng_uniform(my_rng));
+    rand1 = (double)rand() / (double)RAND_MAX;
+    rand2 = (double)rand() / (double)RAND_MAX;
+    
+    phi = 2*M_PI*rand1;
+    s_theta = sqrt(rand2);
     c_theta = sqrt(1 - s_theta*s_theta);
     
     /* Create the new random direction from the two random angles */
@@ -266,8 +288,7 @@ void cosineScatter3D(double normal[3], double new_dir[3], gsl_rng *my_rng) {
  * Generated a random normalized direction according to a cosine distribution
  * about the specular direction and stores the results in the provided array.
  */
-void cosineSpecularScatter3D(double normal[3], double initial_dir[3], 
-        double new_dir[3], gsl_rng *my_rng) {
+void cosineSpecularScatter3D(double normal[3], double initial_dir[3], double new_dir[3]) {
     double s_theta, c_theta, phi;
     double theta_normal;
     double a, b, c;
@@ -276,6 +297,7 @@ void cosineSpecularScatter3D(double normal[3], double initial_dir[3],
     double t2[3];
     int k;
     double epsilon;
+    double rand1, rand2;
     
     epsilon = 1e-3;
     
@@ -311,9 +333,12 @@ void cosineSpecularScatter3D(double normal[3], double initial_dir[3],
     /* Keep generating direction until one is in the allowed range (not going 
      * into the surface */
     do {
-        /* Generate random numbers for phi and cos(theta) using the GSL */
-        phi = 2*M_PI*gsl_rng_uniform(my_rng);
-        s_theta = sqrt(gsl_rng_uniform(my_rng));
+        /* Generate random numbers for phi and cos(theta) */
+        rand1 = (double)rand() / (double)RAND_MAX;
+        rand2 = (double)rand() / (double)RAND_MAX;
+        
+        phi = 2*M_PI*rand1;
+        s_theta = sqrt(rand2);
         c_theta = sqrt(1 - s_theta*s_theta);
         
         /* Create the new random direction from the two random angles */
@@ -336,16 +361,15 @@ void cosineSpecularScatter3D(double normal[3], double initial_dir[3],
  * INPUTS:
  *  normal  - double array, the normal to the surface at the point of scattering
  *  new_dir - double array, an array to store the new direction of the ray
- *  my_rng   - gsl_rng pointer, pointer to a GSL random number generator that has
- *            been created and set up with setupGSL()
  */
-void uniformScatter3D(double normal[3], double new_dir[3], gsl_rng *my_rng) {
+void uniformScatter3D(double normal[3], double new_dir[3]) {
     double s_theta, c_theta, phi;
     double a, b, c;
     double t1[3];
     double t2[3];
     int k;
     double epsilon;
+    double rand1, rand2;
     
     epsilon = 1e-3;
     
@@ -374,10 +398,11 @@ void uniformScatter3D(double normal[3], double new_dir[3], gsl_rng *my_rng) {
     t2[1] = b;
     t2[2] = c;
     
-    /* Generate random numbers for phi and cos(theta) */    
-    /* Using the GSL */
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    c_theta = fabs(0.99*gsl_rng_uniform(my_rng) - 1);
+    /* Generate random numbers for phi and cos(theta) */
+    rand1 = (double)rand() / (double)RAND_MAX;
+    rand2 = (double)rand() / (double)RAND_MAX;
+    phi = 2*M_PI*rand1;
+    c_theta = fabs(0.999*rand2 - 1);
     s_theta = sqrt(1 - c_theta*c_theta);
     
     /* Create the new random direction from the two random angles */

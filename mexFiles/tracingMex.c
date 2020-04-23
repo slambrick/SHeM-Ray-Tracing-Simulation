@@ -61,18 +61,19 @@
  *  time.h
  */
 #include "mex.h"
-#include <gsl/gsl_rng.h>
+//#include <gsl/gsl_rng.h>
 #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "trace_ray.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
 #include <time.h>
+#include <stdlib.h>
 
 /* Function for tracing a single ray */
-int32_t trace_ray(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
-        Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere, double backWall[],
-        gsl_rng *my_rng);
+//int32_t trace_ray(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
+//        Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere, 
+//        double backWall[]);
 
 /* 
  * The gateway function.
@@ -117,7 +118,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Declare other variables */
     int i;
-    gsl_rng *my_rng;
+    //gsl_rng *my_rng;
     int sample_index, sphere_index, plate_index;
     
     /* Declare structs */
@@ -247,7 +248,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     killed = 0;
     
     /* Set up the GSL random number generator */
-    my_rng = setupGSL();
+    //my_rng = setupGSL();
+    
+    /* See the random number generator with the current time */
+    srand(time(0));
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -277,7 +281,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Loop through all the rays, tracing each one */
     for (i = 0; i < all_rays.nrays; i++) {
         detected[i] = trace_ray_triagPlate(&all_rays.rays[i], &killed, &cntr_detected,
-            maxScatters, Sample, Plate, the_sphere, backWall, my_rng);
+            maxScatters, Sample, Plate, the_sphere, backWall);
     }
     
     /**************************************************************************/
@@ -309,7 +313,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[1] = mxCreateDoubleScalar(killed);
     
     /* Free the space used by the random number generator */
-    gsl_rng_free(my_rng);
+    //gsl_rng_free(my_rng);
     
     return;
 }

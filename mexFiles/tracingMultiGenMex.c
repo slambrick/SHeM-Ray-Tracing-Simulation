@@ -14,12 +14,14 @@
  */
 
 #include "mex.h"
-#include <gsl/gsl_rng.h>
+//#include <gsl/gsl_rng.h>
 #include "trace_ray.h"
 #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
+#include <time.h>
+#include <stdlib.h>
 
 /* 
  * The gateway function.
@@ -60,7 +62,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Declare other variables */
     int i;
-    gsl_rng *my_rng;
+    //gsl_rng *my_rng;
     int sample_index, sphere_index, plate_index;
     int detector;
     
@@ -183,7 +185,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     killed = 0;
     
     /* Set up the GSL random number generator */
-    my_rng = setupGSL();
+    /*my_rng = setupGSL();*/
+    
+    /* See the random number generator with the current time */
+    srand(time(0));
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -227,11 +232,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
         int detected;
         
         the_ray = create_ray_source(source_parameters[0], &source_parameters[1], 
-            source_parameters[4], source_parameters[5], source_model, my_rng, 
+            source_parameters[4], source_parameters[5], source_model, 
             source_parameters[6]);
         
         detected = trace_ray_simpleMulti(&the_ray, &killed, cntr_detected,
-            maxScatters, Sample, Plate, the_sphere, my_rng, &detector);
+            maxScatters, Sample, Plate, the_sphere, &detector);
                 
         /* 
          * Add the number of scattering events the ray has undergon to the
@@ -250,7 +255,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[1] = mxCreateDoubleScalar(killed);
     
     /* Free the space used by the random number generator */
-    gsl_rng_free(my_rng);
+    //gsl_rng_free(my_rng);
     
     return;
 }

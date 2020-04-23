@@ -21,12 +21,14 @@
  *  time.h
  */
 #include "mex.h"
-#include <gsl/gsl_rng.h>
+//#include <gsl/gsl_rng.h>
 #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "trace_ray.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
+#include <time.h>
+#include <stdlib.h>
 
 /* 
  * The gateway function.
@@ -57,7 +59,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Declare other variables */
     int i;
-    gsl_rng *my_rng;
+    //gsl_rng *my_rng;
     int sample_index;
     
     /* Declare structs */
@@ -99,7 +101,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     killed = 0;
     
     /* Set up the GSL random number generator */
-    my_rng = setupGSL();
+    //my_rng = setupGSL();
+    
+    /* See the random number generator with the current time */
+    srand(time(0));
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -142,7 +147,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
             the_ray.direction[j] = start_dir[j];
         }
         
-        trace_ray_justSample(&the_ray, &killed, maxScatters, Sample, the_sphere, my_rng);
+        trace_ray_justSample(&the_ray, &killed, maxScatters, Sample, 
+            the_sphere);
         
         /* Update final position an directions of ray */
         for (j = 0; j < 3; j++) {
@@ -159,7 +165,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[0] = mxCreateDoubleScalar(killed);
     
     /* Free the space used by the random number generator */
-    gsl_rng_free(my_rng);
+    //gsl_rng_free(my_rng);
     
     return;
 }

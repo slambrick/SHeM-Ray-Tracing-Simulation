@@ -11,8 +11,8 @@ function plot_distribution_3d(radius, phi, rad_limit, rad_bins, name)
     rad_step = 2*rad_limit / rad_bins;
     rad_edges = -rad_limit:rad_step:rad_limit;
 
-    histogram2(pos2d(:, 1), pos2d(:, 2), rad_edges, rad_edges, 'FaceColor', 'flat',...
-    'Normalization', 'probability')
+    hist_obj = histogram2(pos2d(:, 1), pos2d(:, 2), rad_edges, rad_edges, 'FaceColor', 'flat',...
+    'EdgeColor', 'None');
 
     view([0,0,1]);
     colorbar;
@@ -24,7 +24,8 @@ function plot_distribution_3d(radius, phi, rad_limit, rad_bins, name)
     ylabel('n_{f, y}')
     zlabel('Counts')
     % title([name ' spatial distribution'])
-    set(gca, 'FontSize', 18)
-    set(gcf, 'Position', [100, 100, 1000, 800])
+    set(gca, 'FontSize', 30)
+    set(gcf, 'Position', [100, 100, 900, 800])
+    daspect([1 1 1])
 
 end

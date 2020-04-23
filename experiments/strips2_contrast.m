@@ -38,7 +38,7 @@ errorbar(inc_energy, contrast_val, contrast_err, 'LineWidth', 1.5);
 % xlim([0.05, 0.85])
 xlabel('E_i / meV')
 ylabel('Michelson Contrast')
-set(gca, 'FontSize', 18)
+set(gca, 'FontSize', 30)
 set(gcf, 'Position', [100 100 800 600])
 
 figure;
@@ -50,6 +50,6 @@ errorbar(inc_energy, log(avg_b), err_b./avg_b, 'LineWidth', 1.5);
 legend('Gold', 'Silicon')
 
 xlabel('E_i / meV')
-ylabel('log(I / a.u.)')
-set(gca, 'FontSize', 18)
+ylabel('log(Intensity / a.u.)')
+set(gca, 'FontSize', 30)
 set(gcf, 'Position', [100 100 800 600])

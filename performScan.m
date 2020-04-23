@@ -23,7 +23,7 @@ typeScan = 'multiple_rectangular';
 recompile = true;
 
 %% Beam/source parameters %%
-n_rays = 1e4;
+n_rays = 2e4;
 
 % The inicidence angle in degrees
 init_angle = 45;
@@ -115,14 +115,14 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 2e-3;
-raster_movment2D_z = 2e-3;
+raster_movment2D_x = 1e-3;
+raster_movment2D_z = 1e-3;
 xrange = [-0.15      0.15];
-zrange = [-0.10      0.10];
+zrange = [-0.1       0.1];
 
 %% Parameters for multiple rectangular scans
-raster_movement_y = 0.1;   % increment between 2 scans
-range_y = [-1   4];        % range of y positions relative to 'dist_to_sample'
+raster_movement_y = 1.4;   % increment between 2 scans
+range_y = [2.1  3.5];      % range of y positions relative to 'dist_to_sample'
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.
@@ -159,7 +159,7 @@ scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'Realistic representation of the LiF sample.';
+sample_description = 'Attempt to reproduce top left corner of the real LiF sample.';
 
 %% Parameters of the default material, to use for faces where no material is specified
 defMaterial.function = 'cosine';
@@ -189,7 +189,7 @@ square_size = 0.8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'lif_real_mirrored';
+directory_label = 'lif_real_scan';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point

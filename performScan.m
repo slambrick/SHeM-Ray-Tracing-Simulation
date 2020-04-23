@@ -16,7 +16,7 @@ clear
 maxScatter = 20;
 
 % Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'rotations';
+typeScan = 'rectangular';
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
 scan_pattern = 'regular';
@@ -28,14 +28,14 @@ recompile = true;
 %% Beam/source parameters %%
 
 % The inicidence angle in degrees
-init_angle = 30;
+init_angle = 0;
 
 % Geometry of pinhole
 pinhole_c = [-tand(init_angle), 0, 0];
 pinhole_r = 0.001;
 
 % Number of rays to use and the width of the source
-n_rays = 200000/5;
+n_rays = 200000/20;
 
 % skimmer radius over source - pinhole distance
 theta_max = atan(0.01/100); 
@@ -120,8 +120,8 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 0.0015;
-raster_movment2D_z = 0.0015;
+raster_movment2D_x = 0.005;
+raster_movment2D_z = 0.005;
 xrange = [-0.200    0.200];
 zrange = [-0.200    0.200];
 
@@ -146,7 +146,7 @@ scale = 0.1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'Test sample for photometric stereo.';
+sample_description = 'Test sample for photometric stereo (on windows :o).';
 
 % What type of sample to use :
 %  'flat'   - A flat square (need to specify square_size)
@@ -510,7 +510,7 @@ switch typeScan
     case 'rectangular'
         % For a rectangular scan
         
-        raster_pattern = generate_raster_pattern('raster_movement2D', ...
+        raster_pattern = generate_raster_pattern('raster_movment2D', ...
             [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
             'zrange', zrange, 'init_anlge', init_angle);
 
@@ -624,8 +624,8 @@ elseif save_to_text
 end
 
 % Save the parameters to a text file
-if saveParams
-    saveParam(sample_inputs, direct_beam, effuse_beam, ...
-        pinhole_plate_inputs, scan_inputs);
-end
+%if saveParams
+%    saveParam(sample_inputs, direct_beam, effuse_beam, ...
+%        pinhole_plate_inputs, scan_inputs);
+%end
 

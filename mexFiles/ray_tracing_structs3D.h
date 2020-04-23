@@ -80,7 +80,7 @@ typedef struct _sphere {
 typedef struct _ray3d {
     double position[3];   /* First vertex of the surface element */
     double direction[3];  /* Second vertex of the surface element */
-    int32_t nScatters;    /* The number of scattering events the ray has undergone */
+    int nScatters;    /* The number of scattering events the ray has undergone */
     int on_element;       /* The index of the surface element that the ray is on */
     int on_surface;       /* The index of the surface that the ray is on */
 } Ray3D;
@@ -123,7 +123,7 @@ void get_positions(Rays3D *all_rays, double *final_pos);
 void get_directions(Rays3D *all_rays, double *final_dir);
 
 /* Get the number of scattering events for the rays */
-void get_scatters(Rays3D *all_rays, int32_t *nScatters);
+void get_scatters(Rays3D *all_rays, int *nScatters);
 
 /* Prints information on a ray to the terminal */
 void print_ray(Ray3D *the_ray);

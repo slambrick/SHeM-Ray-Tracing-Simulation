@@ -202,7 +202,7 @@ void get_directions(Rays3D *all_rays, double *final_dir) {
 }
 
 /* Get the number of scattering events per ray */
-void get_scatters(Rays3D *all_rays, int32_t *nScatters) {
+void get_scatters(Rays3D *all_rays, int *nScatters) {
     int i;
     
     /* Loop through all the rays */
@@ -210,7 +210,7 @@ void get_scatters(Rays3D *all_rays, int32_t *nScatters) {
         Ray3D *current_ray;
         
         current_ray = &all_rays->rays[i];
-        nScatters[i] = (int32_t)current_ray->nScatters;
+        nScatters[i] = (int)current_ray->nScatters;
     }
 }
 

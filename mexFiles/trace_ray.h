@@ -15,15 +15,15 @@
 //#include <gsl/gsl_rng.h>
 
 /* Function for tracing a single ray */
-int32_t trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
+int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
         Surface3D Sample, BackWall Plate, AnalytSphere the_sphere);
 
 /* Trace a single ray */
-int32_t trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
+int trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
         Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere,
         double backWall[]);
 
-int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
+int trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
         int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere,
         int *detector);
 

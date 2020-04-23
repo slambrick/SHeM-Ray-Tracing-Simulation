@@ -19,7 +19,7 @@
  * 
  * Trace a single ray returns 1 or 0 depending on if the ray is detected. 
  */
-int32_t trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected, 
+int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected, 
         int maxScatters, Surface3D Sample, BackWall Plate, AnalytSphere the_sphere) {
     int n_allScatters;
     int dead;
@@ -118,7 +118,7 @@ int32_t trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
  * 
  * Traces a single ray
  */
-int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
+int trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
         int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere,
         int *detector) {
     int n_allScatters;
@@ -219,7 +219,7 @@ int32_t trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected,
  * 
  * Trace a single ray 
  */
-int32_t trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
+int trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
         Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere,
         double backWall[]) {
     int n_allScatters;
@@ -363,6 +363,6 @@ void trace_ray_justSample(Ray3D *the_ray, int *killed, int maxScatters, Surface3
  * all positions and directions of the ray.
  * 
  */
-/*int32_t trace_ray_trajectory() {
+/*int trace_ray_trajectory() {
     
 }*/

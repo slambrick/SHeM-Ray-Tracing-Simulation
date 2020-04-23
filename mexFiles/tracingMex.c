@@ -67,11 +67,11 @@
 #include "trace_ray.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
-#include <time.h>
+#include <sys/time.h>
 #include <stdlib.h>
 
 /* Function for tracing a single ray */
-//int32_t trace_ray(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
+//int trace_ray(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
 //        Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere, 
 //        double backWall[]);
 
@@ -112,9 +112,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int killed;              /* The number of killed rays */
     double *final_pos;       /* The final positions of the detected rays */
     double *final_dir;       /* The final directions of the detected rays */
-    int32_t *numScattersRay; /* The number of sample scatters that each
+    int *numScattersRay; /* The number of sample scatters that each
                               * ray has undergone */
-    int32_t *detected;       /* Logical array, detected? */
+    int *detected;       /* Logical array, detected? */
     
     /* Declare other variables */
     int i;
@@ -251,7 +251,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     //my_rng = setupGSL();
     
     /* See the random number generator with the current time */
-    srand(time(0));
+    struct timeval tv;
+    double t;
+    gettimeofday(&tv, 0);
+    t =  tv.tv_sec + tv.tv_usec;
+    srand(t);
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -272,7 +276,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         sphere_r, sphere_diffuse, sphere_parameters, sphere_index);
     
     plhs[5] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    detected = (int32_t*)mxGetData(plhs[5]);
+    detected = (int*)mxGetData(plhs[5]);
     
     /**************************************************************************/
     
@@ -298,7 +302,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Pointers to the output matrices so we may change them*/
     final_pos       = mxGetPr(plhs[2]);
     final_dir       = mxGetPr(plhs[3]);
-    numScattersRay  = (int32_t*)mxGetData(plhs[4]);
+    numScattersRay  = (int*)mxGetData(plhs[4]);
     
     /* Put data into the output matrices */
     get_positions(&all_rays, final_pos);

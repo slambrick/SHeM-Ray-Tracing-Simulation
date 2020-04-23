@@ -20,7 +20,7 @@
 #include "common_helpers.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
-#include <time.h>
+#include <sys/time.h>
 #include <stdlib.h>
 
 /* 
@@ -55,9 +55,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double *source_parameters;
     
     /* Declare the output variables */
-    int32_t *cntr_detected;       /* The number of detected rays */
+    int *cntr_detected;       /* The number of detected rays */
     int killed;              /* The number of killed rays */
-    int32_t *numScattersRay; /* The number of sample scatters that each
+    int *numScattersRay; /* The number of sample scatters that each
                               * ray has undergone */
     
     /* Declare other variables */
@@ -188,7 +188,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*my_rng = setupGSL();*/
     
     /* See the random number generator with the current time */
-    srand(time(0));
+    struct timeval tv;
+    double t;
+    gettimeofday(&tv, 0);
+    t =  tv.tv_sec + tv.tv_usec;
+    srand(t);
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -219,8 +223,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[2] = mxCreateNumericMatrix(1, n_detector*maxScatters, mxINT32_CLASS, mxREAL);
     
     /* Pointers to the output matrices so we may change them*/
-    cntr_detected = (int32_t*)mxGetData(plhs[0]);
-    numScattersRay = (int32_t*)mxGetData(plhs[2]);
+    cntr_detected = (int*)mxGetData(plhs[0]);
+    numScattersRay = (int*)mxGetData(plhs[2]);
     
     /**************************************************************************/
     

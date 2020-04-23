@@ -27,7 +27,7 @@
 #include "trace_ray.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
-#include <time.h>
+#include <sys/time.h>
 #include <stdlib.h>
 
 /* 
@@ -52,7 +52,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Declare the output variables */
     int killed;              /* The number of killed rays */
-    int32_t *numScattersRay; /* The number of sample scatters that each
+    int *numScattersRay; /* The number of sample scatters that each
                               * ray has undergone */
     double *final_pos;       /* The final positions of the rays */
     double *final_dir;       /* The final directions of the rays */
@@ -104,7 +104,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     //my_rng = setupGSL();
     
     /* See the random number generator with the current time */
-    srand(time(0));
+    struct timeval tv;
+    double t;
+    gettimeofday(&tv, 0);
+    t =  tv.tv_sec + tv.tv_usec;
+    srand(t);
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -125,7 +129,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[3] = mxCreateDoubleMatrix(3, nrays, mxREAL);
     
     /* Pointers to the output matrices so we may change them*/
-    numScattersRay = (int32_t*)mxGetData(plhs[1]);
+    numScattersRay = (int*)mxGetData(plhs[1]);
     final_pos = mxGetPr(plhs[2]);
     final_dir = mxGetPr(plhs[3]);
     

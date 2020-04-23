@@ -122,7 +122,7 @@ zrange = [-0.1       0.1];
 
 %% Parameters for multiple rectangular scans
 raster_movement_y = 1.4;   % increment between 2 scans
-range_y = [2.1  3.5];      % range of y positions relative to 'dist_to_sample'
+range_y = [0    1.4];      % range of y positions relative to 'dist_to_sample'
 
 %% Rotating parameters
 % Parameters for multiple images while rotating the sample.

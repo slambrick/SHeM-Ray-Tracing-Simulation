@@ -115,10 +115,10 @@ aperture_half_cone = 15;
 % Ususally the ranges should go from -x to x. Note that these limits are in the
 % coordiante system of the final image - the x axis of the final image is the
 % inverse of the simulation x axis.
-raster_movment2D_x = 1e-3;
-raster_movment2D_z = 1e-3;
-xrange = [-0.15      0.15];
-zrange = [-0.1       0.1];
+raster_movment2D_x = 1.2e-3;
+raster_movment2D_z = 1.2e-3;
+xrange = [-0.12      0.12];
+zrange = [-0.12      0.12];
 
 %% Parameters for multiple rectangular scans
 raster_movement_y = 1.4;   % increment between 2 scans
@@ -151,7 +151,7 @@ Direction = 'y';                % 'x', 'y' or 'z' - along which direction to mov
 sample_type = 'custom';
 
 % The sample file, include the full path
-sample_fname = 'samples/lif_real.obj';
+sample_fname = 'samples/peaks2.obj';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
@@ -159,7 +159,7 @@ scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
-sample_description = 'Attempt to reproduce top left corner of the real LiF sample.';
+sample_description = 'Sample with series of diffractive peaks.';
 
 %% Parameters of the default material, to use for faces where no material is specified
 defMaterial.function = 'cosine';
@@ -189,7 +189,7 @@ square_size = 0.8;
 
 % Where to save figures/data files
 % All figures and output data will be saved to this directory.
-directory_label = 'lif_real_scan';
+directory_label = 'peaks_scan';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point

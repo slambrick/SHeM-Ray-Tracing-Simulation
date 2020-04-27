@@ -4,10 +4,66 @@
 % GNU/GPL-3.0-or-later.
 
 clear
+clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start of parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% General Parameters
+
+%% Read parameters from text file
+param_fname = 'ray_tracing_parameters.txt';
+param_list = read_parameters(param_fname);
+
+% Set up virtual microscope
+working_dist = str2double(param_list{1});
+init_angle = str2double(param_list{2});
+typeScan = strtrim(param_list{3});
+n_detectors = str2double(param_list{4});
+aperture_axes = parse_list_input(param_list{5});
+aperture_c = parse_list_input(param_list{6});
+rot_angles = parse_list_input(param_list{7});
+
+% Set up source
+n_rays = str2double(param_list{8});
+pinhole_r = str2double(param_list{9});
+source_model = strtrim(param_list{10});
+theta_max = str2double(param_list{11});
+sigma_source = str2double(param_list{12});
+if ~parse_yes_no(param_list{13})
+    effuse_size = 0;
+else
+    effuse_size = str2double(param_list{14});
+end
+
+% Set up sample
+sample_type = strtrim(param_list{15});
+diffuse = parse_scattering(strtrim(param_list{16}), str2double(param_list{17}), ...
+    str2double(param_list{18}));
+sample_description = param_list{19};
+dist_to_sample = str2double(param_list{20});
+sphere_r = str2double(param_list{21});
+square_size = str2double(param_list{22});
+sample_fname = strtrim(param_list{23});
+
+% Set up scan
+pixel_seperation = str2double(param_list{24});
+range_x = str2double(param_list{25});
+range_z = str2double(param_list{26});
+
+% Other parameters
+directory_label = strtrim(param_list{27});
+recompile = parse_yes_no(param_list{28});
+
+%% Generate parameters from the inputs 
+
+pinhole_c = [-working_dist*tand(init_angle), 0, 0];
+n_effuse = n_rays*effuse_size;
+raster_movment2D_x = pixel_seperation;
+raster_movment2D_z = pixel_seperation;
+xrange = [-range_x/2, range_x/2];
+zrange = [-range_z/2, range_z/2];
+sphere_c = [0, -dist_to_sample, 0];
+
+%% Define remaining parameters
 
 % The maximum number of sample scatters per ray. There is a hard-coded total
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
@@ -15,71 +71,17 @@ clear
 % simulation.
 maxScatter = 20;
 
-% Type of scan 'line', 'rectangular', 'rotations', or 'single pixel'
-typeScan = 'rectangular';
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
 scan_pattern = 'regular';
-
-% Recompile mescan_patternx files?
-% Required if using on a new computer or if changes to .c files have been made.
-recompile = true;
-
-%% Beam/source parameters %%
-
-% The inicidence angle in degrees
-init_angle = 0;
-
-% Geometry of pinhole
-pinhole_c = [-tand(init_angle), 0, 0];
-pinhole_r = 0.001;
-
-% Number of rays to use and the width of the source
-n_rays = 200000/20;
-
-% skimmer radius over source - pinhole distance
-theta_max = atan(0.01/100); 
-
-% Standard deviationo of the Gaussian model of the source
-sigma_source = 0.1;
-
-% Model for the virtual source to use, 'Gaussian' or 'Uniform'
-source_model = 'Uniform';
-
-% Put the information in a cell array to pass through functions
-% TODO: use a struct rather than a cell array.
-direct_beam.n = n_rays;
-direct_beam.pinhole_c = pinhole_c;
-direct_beam.pinhole_r = pinhole_r;
-direct_beam.theta_max = theta_max;
-direct_beam.source_model = source_model;
-direct_beam.init_angle = init_angle;
-direct_beam.sigma_source = sigma_source;
-%= {n_rays, pinhole_c, pinhole_r, theta_max, source_model, ...
-%    init_angle, sigma_source};
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
 ray_model = 'C';
 
-%% Effusive beam parameters
-
-% If a cosine is being used then specify the exponent of the cosine
+% Exponant of the cosine in the effuse beam model
 cosine_n = 1;
 
-% How large is the effusive beam (proportion of the size of the main beam). Set
-% to zero if the effusive beam is not to be moddeled
-effuse_size = 0;
-
-% Information on the effuse beam
-n_effuse = n_rays*effuse_size;
-% TODO: use a struct rather than a cell array.
-effuse_beam.n = n_effuse;
-effuse_beam.pinhole_c = pinhole_c;
-effuse_beam.pinhole_r = pinhole_r;
-effuse_beam.cosine_n = cosine_n;
-
-%% Pinhole plate parameters
 % Specify how to model the pinhole plate:
 %  'stl'       - Use the predefined CAD model of the pinhole plate (plate as it
 %                is Feb 2018)
@@ -99,96 +101,46 @@ plate_accuracy = 'low';
 % In the case of 'circle', specify the radius of the circle (mm).
 circle_plate_r = 4;
 
-% In the case of 'aperture' or 'circle' specify the axes of the aperture. Axis 1
-% is along the beam direction ('x') and axis 2 is perpendicular to the beam
-% direction ('z'). The apert0ure is always centred on the x-axis and is displaced
-% by the specified amount.
-n_detectors = 4;
-aperture_axes = [  0.2000    0.2000    0.2000    0.2000    0.2000    0.2000    0.2000    0.2000];
-aperture_c = [0.5000    0.5000    0.5000   -0.5000   -0.5000    0.5000   -0.5000   -0.5000];
-plate_represent = 0;
+% Should a flat pinhole plate be modelled (with 'N circle'). not including may
+% speed up the simulation but won't model the effuse and multiple scattering
+% backgrounds properly.
+plate_represent = 1;
 
 % In the case of 'abstract', specify the two angles of the location of the
 % detector aperture and the half cone angle of its extent. Note that the
 % aperture can only be placed in the hemisphere facing the sample. All
 % angles in degrees.
+% TODO: this
 aperture_theta = 0;
 aperture_phi = 0;
 aperture_half_cone = 15;
 
-%% Parameters for a 2d scan
-% Ususally the ranges should go from -x to x. Note that these limits are in the
-% coordiante system of the final image - the x axis of the final image is the
-% inverse of the simulation x axis.
-raster_movment2D_x = 0.005;
-raster_movment2D_z = 0.005;
-xrange = [-0.200    0.200];
-zrange = [-0.200    0.200];
-
-%% Rotating parameters
-% Parameters for multiple images while rotating the sample.
-rot_angles = [0, 72, 144, 216, 288];
-
-%% Parameters for a 1d scan
 % For line scans in the y-direction be careful that the sample doesn't go
 % behind the pinhole plate.
 raster_movment1D = 200e-3;
 range1D = [-1 4];
 Direction = 'y';
 
-%% Sample parameters
-% The sample file, include the full path
-sample_fname = 'simulations/block_test2.stl';
-
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times larger (Inventor exports in cm by default...).
-scale = 0.1;
+scale = 1;
 
-% A string giving a brief description of the sample, for use with
-% sample_type = 'custom'
-sample_description = 'Test sample for photometric stereo (on windows :o).';
+%% Create parameter structs
 
-% What type of sample to use :
-%  'flat'   - A flat square (need to specify square_size)
-%  'sphere' - An anlaytic sphere on a flat square surface (need to specify 
-%             square_size and sphere_r)
-%  'photoStereo' - A test sample for photo stereo that includes part of a
-%                  sphere along with input from a CAD file
-%  'custom' - Uses the CAD model provided in the .stl file
-%  'airy'   - TODO
-%  'corrugation' - TODO
-sample_type = 'photoStereo';
+direct_beam.n = n_rays;
+direct_beam.pinhole_c = pinhole_c;
+direct_beam.pinhole_r = pinhole_r;
+direct_beam.theta_max = theta_max;
+direct_beam.source_model = source_model;
+direct_beam.init_angle = init_angle;
+direct_beam.sigma_source = sigma_source;
 
-% The level of diffuse scattering for the sample, between 0 and 1, 2 gives a 
-% uniform distribution. This is used for both triangulated surface and the
-% analytic sphere if it is being used.
-diffuse = [1, 90*pi/180];
-
-% How close should the nearest point of the sample be to the pinhole plate, the
-% defualt is 2.121 to maintain the 45o geometry. If an analytic sphere is being
-% used then this is the distance between the flat surface the sphere sits on and
-% the pinhole plate.
-dist_to_sample = 1;
-
-% The nominal working distance of the geometry
-working_dist = 1;
-
-% The radius of the anayltic sphere (mm) (if it being included)
-sphere_r = 0.1;
-
-% Centre of the anayltic sphere (mm)
-%sphere_c = [0.05, -dist_to_sample - sphere_r*2/3, 0.05];
-sphere_c = [0, -dist_to_sample, 0];
-
-% If a flat sample is being used or if a sphere on a flat surface what is the 
-% length of the sides of the square.
-square_size = 1;
+effuse_beam.n = n_effuse;
+effuse_beam.pinhole_c = pinhole_c;
+effuse_beam.pinhole_r = pinhole_r;
+effuse_beam.cosine_n = cosine_n;
 
 %% Output and plotting parameters
-
-% Where to save figures/data files
-% All figures and output data will be saved to this directory.
-directory_label = 'Photostereo_nonNormal_rotations';
 
 % Which figures to plot
 % The starting positions of the rays and the number of rays at each point
@@ -512,7 +464,7 @@ switch typeScan
         
         raster_pattern = generate_raster_pattern('raster_movment2D', ...
             [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
-            'zrange', zrange, 'init_anlge', init_angle);
+            'zrange', zrange, 'init_angle', init_angle);
 
         simulationData = rectangularScan(sample_surface, raster_pattern, ...
             direct_beam, ...

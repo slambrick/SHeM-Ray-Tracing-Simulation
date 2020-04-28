@@ -3,7 +3,8 @@ function sample_surface = photo_stereo_test(working_dist)
         'working_dist', working_dist, 'scattering', 1, 'plate_dist', working_dist, ...
         'dontMeddle', true);
     
-    sample_surface.moveBy([0, -2, 0]);
+    sample_surface.moveBy([0, -1, 0]);
+    sample_surface.moveBy([0, -working_dist, 0])
     sample_surface.rotateY;
 end
 

@@ -48,10 +48,11 @@ sample_fname = strtrim(param_list{23});
 pixel_seperation = str2double(param_list{24});
 range_x = str2double(param_list{25});
 range_z = str2double(param_list{26});
+incit_angle_pattern = ~parse_yes_no(param_list{27});
 
 % Other parameters
-directory_label = strtrim(param_list{27});
-recompile = parse_yes_no(param_list{28});
+directory_label = strtrim(param_list{28});
+recompile = parse_yes_no(param_list{29});
 
 %% Generate parameters from the inputs 
 
@@ -371,7 +372,9 @@ end
     
 %% Compile the mex files
 
-if recompile
+files_exist = exist('tracingMultiGenMex.mexa64', 'file');
+
+if recompile || ~files_exist
     mexCompile();
 end
 
@@ -461,10 +464,15 @@ end
 switch typeScan
     case 'rectangular'
         % For a rectangular scan
-        
-        raster_pattern = generate_raster_pattern('raster_movment2D', ...
-            [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
-            'zrange', zrange, 'init_angle', init_angle);
+        if init_anlge_pattern
+            raster_pattern = generate_raster_pattern('raster_movment2D', ...
+                [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
+                'zrange', zrange, 'init_angle', init_angle);
+        else
+            raster_pattern = generate_raster_pattern('raster_movment2D', ...
+                [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
+                'zrange', zrange);
+        end
 
         simulationData = rectangularScan(sample_surface, raster_pattern, ...
             direct_beam, ...
@@ -508,6 +516,11 @@ switch typeScan
                 mkdir(subPath)
             end
             
+            tmp_angle = init_angle;
+            if init_anlge_pattern
+                init_angle = 0;
+            end
+            
             switch scan_pattern
                 case 'rotations'
                     raster_pattern = generate_raster_pattern('raster_movment2D', ...
@@ -520,6 +533,7 @@ switch typeScan
                 otherwise
                     error('Please specify an existing scan pattern')
             end
+            init_angle = tmp_angle;
             
             simulationData{i_} = rectangularScan(s_surface, raster_pattern, ...
                 direct_beam, ...

@@ -38,7 +38,7 @@ Effuse size (relative to the direct beam): 1
 %  - If you are using the 'sphere' option specify the radius of sphere.
 %  - If using the 'flat' option specify the size of the flat square sample.
 %  - If specifying your own sample specify the name and path to the stl file,
-%    please use a file name and path WITHOUT SPACES
+%    please use a file name and path without spaces
 What type of sample are you useing: photoStereo
 Scattering: cosine
 Reflectivity: 0.1
@@ -55,8 +55,9 @@ Custom sample stl file: simulations/block_test2.stl
 Pixel seperation (mm): 0.005
 Scan range x (mm): 0.4
 Scan range y (mm): 0.4
+Ignore incidence angle in scan pattern: yes
 
 %% Other parameters
 Label for the output directory (no spaces please): Windows_Output_Test
-Sould the C code be recompiled: nope
+Sould the C code be recompiled: no
 

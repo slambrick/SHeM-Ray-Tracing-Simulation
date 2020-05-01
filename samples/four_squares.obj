@@ -1,6 +1,6 @@
 # FreeCAD v0.18 build14555 (Git shallow) Arch module
 # http://www.freecadweb.org
-mtllib four_squares.mtl
+mtllib four_squares_bulk.mtl
 o Box004
 usemtl gold
 v 0.55 0.0501 0.55

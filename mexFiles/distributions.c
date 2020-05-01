@@ -45,12 +45,8 @@ distribution_func distribution_by_name(const char * name) {
         return diffuse_and_diffraction;
     if(strcmp(name, "dw_specular") == 0)
         return debye_waller_specular;
-    if(strcmp(name, "dw_specular_retry") == 0)
-        return debye_waller_specular_retry;
     if(strcmp(name, "dw_diffraction") == 0)
         return debye_waller_diffraction;
-    if(strcmp(name, "dw_diffraction_retry") == 0)
-        return debye_waller_diffraction_retry;
     return NULL;
 }
 
@@ -148,52 +144,6 @@ void debye_waller_diffraction(const double normal[3], const double init_dir[3],
     return debye_waller_filter_diffuse(diffraction_pattern, normal, init_dir,
         new_dir, params, my_rng);
 }
-
-
-/*
- * With some original distribution, then accept with a probability
- * proportional to the DWF of that direction, or reject and try again.
- * This is made to test the effect the DWF has on the shape of peaks,
- * rather than on its height relative to the background,
- * but it's not necessarily a physically accurate model.
- */
-void debye_waller_filter_retry(distribution_func original_distr,
-        const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
-
-    // this prefactor appears in the DW exponent if the following
-    // are to be in the units stated in the comment above
-    const double prefactor = 278.5085;
-    double inc_energy = params[0];
-    double latt_mass = params[1];
-    double temp = params[2];
-    double debye_temp = params[3];
-    double energy_sigma = params[4];
-    double energy_ratio, dwf, tester;
-
-    double exponent = prefactor * inc_energy * temp / latt_mass / (debye_temp * debye_temp);
-
-    do {
-        energy_ratio = 1.0 + gsl_ran_gaussian_tail(my_rng, -1.0, energy_sigma);
-        original_distr(normal, init_dir, new_dir, params+5, my_rng);
-
-        dwf = exp(- exponent * (1.0 + energy_ratio - 2 * sqrt(energy_ratio) * dot(init_dir, new_dir)));
-        tester = gsl_rng_uniform(my_rng);
-    } while(tester > dwf);
-}
-
-void debye_waller_specular_retry(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
-    return debye_waller_filter_retry(diffuse_and_specular, normal, init_dir,
-        new_dir, params, my_rng);
-}
-
-void debye_waller_diffraction_retry(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
-    return debye_waller_filter_retry(diffuse_and_diffraction, normal, init_dir,
-        new_dir, params, my_rng);
-}
-
 
 /*
  * Generate rays according to a 2D diffraction pattern given by two

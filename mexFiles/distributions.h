@@ -41,19 +41,7 @@ distribution_func distribution_by_name(const char * name);
 void debye_waller_specular(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng);
 
-/*
- * Generate rays in a broad specular peak and then accept with a probability
- * proportional to the DWF of that direction. This is made to test the effect
- * the DWF has on the shape of the peak, rather than on its height relative to
- * the background, but it's not necessarily a physically accurate model.
- */
-void debye_waller_specular_retry(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
-
 void debye_waller_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
-
-void debye_waller_diffraction_retry(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, gsl_rng *my_rng);
 
 /*

@@ -14,7 +14,6 @@
  */
 
 #include "mex.h"
-//#include <gsl/gsl_rng.h>
 #include "trace_ray.h"
 #include "small_functions3D.h"
 #include "common_helpers.h"
@@ -62,7 +61,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Declare other variables */
     int i;
-    //gsl_rng *my_rng;
     int sample_index, sphere_index, plate_index;
     int detector;
     
@@ -82,74 +80,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
                           "Six outpus required for tracingMex.");
     }
-    
-    /* Check the type of the inputs */
-    /*if (!mxIsDouble(prhs[0]) || mxIsComplex(prhs[0])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Input positions must be type double.");
-    } if (!mxIsDouble(prhs[1]) || mxIsComplex(prhs[1])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Input directions must be type double.");
-    } if (!mxIsDouble(prhs[2]) || mxIsComplex(prhs[2])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface vertices must be type double.");
-    } if (!mxIsDouble(prhs[3]) || mxIsComplex(prhs[3])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface face indices must be type double.");
-    } if (!mxIsDouble(prhs[4]) || mxIsComplex(prhs[4])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface normals must be type double.");
-    } if (!mxIsDouble(prhs[5]) || mxIsComplex(prhs[5])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface scattering indices must be type double.");
-    } if (!mxIsDouble(prhs[6]) || mxIsComplex(prhs[6]) || 
-          mxGetNumberOfElements(prhs[6]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Maximum number of sample scatters be real scalar.");
-    } if (!mxIsDouble(prhs[7]) || mxIsComplex(prhs[7])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface vertices must be type double.");
-    } if (!mxIsDouble(prhs[8]) || mxIsComplex(prhs[8])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface face indices must be type double.");
-    } if (!mxIsDouble(prhs[9]) || mxIsComplex(prhs[9])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface normals must be type double.");
-    } if (!mxIsDouble(prhs[10]) || mxIsComplex(prhs[10])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface scattering indices must be type double.");
-    } if (!mxIsDouble(prhs[11]) || mxIsComplex(prhs[11])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Information of the detector must be type double.");
-    } if (!mxIsDouble(prhs[12]) || mxIsComplex(prhs[12]) || 
-          mxGetNumberOfElements(prhs[12]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "x position must be real scalar.");
-    } if (!mxIsDouble(prhs[13]) || mxIsComplex(prhs[13]) || 
-          mxGetNumberOfElements(prhs[13]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "z position must be real scalar.");
-    } if (!mxIsDouble(prhs[14]) || mxIsComplex(prhs[14]) || 
-          mxGetNumberOfElements(prhs[14]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          " must be real scalar.");
-    } if (!mxIsDouble(prhs[15]) || mxIsComplex(prhs[15]) || 
-          mxGetNumberOfElements(prhs[15]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Distance to the sample must be a real scalar.");
-    } if (!mxIsDouble(prhs[16]) || mxIsComplex(prhs[16]) || 
-          mxGetNumberOfElements(prhs[16]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Sphere radius must be real scalar.");
-    } if (!mxIsDouble(prhs[17]) || mxIsComplex(prhs[17]) || 
-          mxGetNumberOfElements(prhs[17]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Scattering idex for the sphere must be real scalar.");
-    } if (!mxIsDouble(prhs[18]) || mxIsComplex(prhs[18]) ||
-          mxGetNumberOfElements(prhs[18]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar",
-                          "First scattering position must be real scalar.");
-    }*/
     
     /**************************************************************************/
     
@@ -257,9 +187,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Output number of rays went into the detector */
     plhs[1] = mxCreateDoubleScalar(killed);
-    
-    /* Free the space used by the random number generator */
-    //gsl_rng_free(my_rng);
     
     return;
 }

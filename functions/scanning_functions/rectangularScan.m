@@ -138,7 +138,7 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
     
     % Add optional detector locations to square_scan_info
     if strcmp(pinhole_model, 'N circle')
-        square_scan_info.addDetectorInfo(thePlate{5}, thePlate{4})
+        square_scan_info.addDetectorInfo(thePlate.aperture_c, thePlate.aperture_axes)
     end
     
     % Draw and save images

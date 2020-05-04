@@ -437,7 +437,7 @@ int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
         /* propogate the ray to that position */
         propogate(e, d, alpha, wall_hit);
         
-        test = 10;
+        test = 10; /* Number greater than 1 */
         for (i = 0; i < wallPlate.n_detect; i++) {
             BackWall plate;
             get_nth_aperture(i, &wallPlate, &plate);

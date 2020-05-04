@@ -9,6 +9,12 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start of parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+%% Paths to functions
+addpath('stlread', genpath('functions'), 'classes', ...
+        'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', ...
+        'surf2stl');
+
 %% Read parameters from text file
 param_fname = 'ray_tracing_parameters.txt';
 param_list = read_parameters(param_fname);
@@ -48,7 +54,7 @@ sample_fname = strtrim(param_list{23});
 pixel_seperation = str2double(param_list{24});
 range_x = str2double(param_list{25});
 range_z = str2double(param_list{26});
-incit_angle_pattern = ~parse_yes_no(param_list{27});
+init_angle_pattern = ~parse_yes_no(param_list{27});
 
 % Other parameters
 directory_label = strtrim(param_list{28});
@@ -78,7 +84,7 @@ scan_pattern = 'regular';
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
-ray_model = 'C';
+ray_model = 'MATLAB';
 
 % Exponant of the cosine in the effuse beam model
 cosine_n = 1;
@@ -207,14 +213,10 @@ if false
     if (~strcmp(pinhole_model, 'stl') && ~strcmp(pinhole_model, 'circle') && ...
             ~strcmp(pinhole_model, 'aperture') && ~strcmp(pinhole_model, 'new') ...
             && ~strcmp(pinhole_model, 'abstract'))
-        error('Specify a correct model of pinhole plate.');
+        error('Specify a correct model of pinhole .');
     end
 end
 
-%% Paths to functions
-addpath('stlread', 'functions', 'functions/interface_functions', 'classes', ...
-        'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', 'functions/standard_samples', ...
-        'surf2stl', 'functions/scanning_functions');
 
 %% Path for simulation results
 
@@ -366,7 +368,12 @@ switch pinhole_model
 
         % List with the information about the plate in
         % TODO: use a struct rather than a cell array.
-        thePlate = {plate_represent, n_detectors, circle_plate_r, aperture_axes, aperture_c};
+        thePlate.plate_represent = plate_represent;
+        thePlate.n_detectors = n_detectors;
+        thePlate.circle_plate_r = circle_plate_r;
+        thePlate.aperture_axes = aperture_axes;
+        thePlate.aperture_c = aperture_c;
+        %thePlate = {plate_represent, n_detectors, circle_plate_r, aperture_axes, aperture_c};
         apertureAbstract = {aperture_theta, aperture_phi, aperture_half_cone};
 end
     
@@ -464,7 +471,7 @@ end
 switch typeScan
     case 'rectangular'
         % For a rectangular scan
-        if init_anlge_pattern
+        if init_angle_pattern
             raster_pattern = generate_raster_pattern('raster_movment2D', ...
                 [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
                 'zrange', zrange, 'init_angle', init_angle);
@@ -517,7 +524,7 @@ switch typeScan
             end
             
             tmp_angle = init_angle;
-            if init_anlge_pattern
+            if init_angle_pattern
                 init_angle = 0;
             end
             

@@ -263,8 +263,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     sphere_index = 2;
     
     /* Put the rays into a struct */
-
-    /* Put the data into the struct */
     all_rays = compose_rays3D(ray_pos, ray_dir, nrays);
     
     /* Put the sample and pinhole plate surface into structs */
@@ -315,9 +313,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Output number of rays went into the detector */
     plhs[0] = mxCreateDoubleScalar(cntr_detected);
     plhs[1] = mxCreateDoubleScalar(killed);
-    
-    /* Free the space used by the random number generator */
-    //gsl_rng_free(my_rng);
     
     return;
 }

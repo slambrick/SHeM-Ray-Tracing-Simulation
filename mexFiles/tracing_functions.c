@@ -9,7 +9,6 @@
  * ray is scattered once. There are different ways to do that depending on the
  * simulation being run. 
  */
-//#include <gsl/gsl_rng.h>
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
 #include "scattering3D.h"

@@ -11,9 +11,9 @@
 Design working distance (mm): 2.121
 Incidence angle (deg): 45
 Type of scan: rectangular
-Number of detectors: 1
-Detector full axes (x,y): (1.4142, 1)
-Detector centres (x,y): (2.121, 0)
+Number of detectors: 2
+Detector full axes (x,y): (1.4142, 1, 1.4142, 1)
+Detector centres (x,y): (2.121, 0, -2.121, 0)
 Rotation angles (only needed if 'rotaions' scan used): (0, 72, 144, 216, 288)
 
 %% Set up your source
@@ -21,7 +21,7 @@ Rotation angles (only needed if 'rotaions' scan used): (0, 72, 144, 216, 288)
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 40000
+Number of Rays: 20000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1.0000e-04
@@ -55,9 +55,9 @@ Custom sample stl file: simulations/block_test2.stl
 Pixel seperation (mm): 0.005
 Scan range x (mm): 0.4
 Scan range y (mm): 0.4
-Ignore incidence angle in scan pattern: yes
+Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): Windows_Output_Test
-Sould the C code be recompiled: no
+Label for the output directory (no spaces please): New_Source_Method_Test
+Sould the C code be recompiled: false
 

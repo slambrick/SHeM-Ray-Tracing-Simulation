@@ -21,7 +21,6 @@
  *  time.h
  */
 #include "mex.h"
-//#include <gsl/gsl_rng.h>
 #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "trace_ray.h"
@@ -29,6 +28,7 @@
 #include <math.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include "mtwister.h"
 
 /* 
  * The gateway function.
@@ -66,6 +66,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Surface3D Sample;
     AnalytSphere the_sphere;
     
+    /* For random number generation */
+    struct timeval tv;
+    unsigned long t;
+    MTRand myrng;
+    
     /*******************************************************************************/
     
     /* Check for the right number of inputs and outputs */
@@ -100,15 +105,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Number of rays that are killed as they have scattered too many times */
     killed = 0;
     
-    /* Set up the GSL random number generator */
-    //my_rng = setupGSL();
-    
-    /* See the random number generator with the current time */
-    struct timeval tv;
-    double t;
+    /* Seed the random number generator with the current time */
     gettimeofday(&tv, 0);
-    t =  tv.tv_sec + tv.tv_usec;
+    t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
     srand(t);
+    /* Set up the MTwister random number generator */
+    myrng = seedRand(t);
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -152,7 +154,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         }
         
         trace_ray_justSample(&the_ray, &killed, maxScatters, Sample, 
-            the_sphere);
+            the_sphere, &myrng);
         
         /* Update final position an directions of ray */
         for (j = 0; j < 3; j++) {

@@ -12,22 +12,22 @@
 #define _trace_ray_h
 
 #include "ray_tracing_structs3D.h"
-//#include <gsl/gsl_rng.h>
+#include "mtwister.h"
 
 /* Function for tracing a single ray */
 int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
-        Surface3D Sample, BackWall Plate, AnalytSphere the_sphere);
+        Surface3D Sample, BackWall Plate, AnalytSphere the_sphere, MTRand *myrng);
 
 /* Trace a single ray */
 int trace_ray_triagPlate(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
         Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere,
-        double backWall[]);
+        double backWall[], MTRand *myrng);
 
 int trace_ray_simpleMulti(Ray3D *the_ray, int *killed, int *cntr_detected, 
         int maxScatters, Surface3D Sample, NBackWall Plate, AnalytSphere the_sphere,
-        int *detector);
+        int *detector, MTRand *myrng);
 
 void trace_ray_justSample(Ray3D *the_ray, int *killed, int maxScatters, Surface3D Sample,
-        AnalytSphere the_sphere);
+        AnalytSphere the_sphere, MTRand *myrng);
 
 #endif

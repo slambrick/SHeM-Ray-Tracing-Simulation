@@ -16,8 +16,8 @@
 #include "ray_tracing_structs3D.h"
 #include "scattering_processes3D.h"
 #include <stdlib.h>
-//#include <gsl/gsl_rng.h>
 #include <math.h>
+#include "mtwister.h"
 
 /* 
  * Set up a surface containing the information on a triangulated surface.
@@ -290,48 +290,41 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
  *  gen_ray - ray3D struct with information on a ray in it
  */
 Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max, 
-        double init_angle, int source_model, double sigma) {
+        double init_angle, int source_model, double sigma, MTRand *myrng) {
     Ray3D gen_ray;
     double r, theta, phi;
     double rot_angle;
     double B;
     double normal[3];
     double dir[3];
-    double rand1, rand2, rand3;
     
     /* Enuse theta is initialized */
     theta = 0;
     
     /* Generate the position of the ray */
-    rand1 = (double)rand() / (double)RAND_MAX;
-    rand2 = (double)rand() / (double)RAND_MAX;
-    phi = 2*M_PI*rand1;
-    r = pinhole_r*sqrt(rand2);
+    phi = 2*M_PI*genRand(myrng);
+    r = pinhole_r*sqrt(genRand(myrng));
     gen_ray.position[0] = r*cos(phi);
     gen_ray.position[1] = 0;
     gen_ray.position[2] = r*sin(phi);
     
     /* Generate the direction of the ray */
-    rand3 = (double)rand() / (double)RAND_MAX;
-    phi = 2*M_PI*rand3;
+    phi = 2*M_PI*genRand(myrng);
     switch (source_model) {
         case 0:
             /* Uniform virtual source model */
-            rand1 = (double)rand() / (double)RAND_MAX;
-            theta = theta_max*sqrt(rand1);
+            theta = theta_max*sqrt(genRand(myrng));
             break;
         case 1:
             /* Gaussian virtual source model */
-            B = 1/(1 - exp(-M_PI*M_PI/(2*sigma*sigma)));
-            rand1 = (double)rand() / (double)RAND_MAX;
-            theta = sigma*sqrt(-2*log((B - rand1/B)));
+            theta = sigma*sqrt(-2*log((1 - genRand(myrng)/1)));
             break;
         case 2:
             /* Diffuse cosine model */
             normal[0] = 0;
             normal[1] = -1;
             normal[2] = 0;
-            cosineScatter3D(normal, gen_ray.direction);
+            cosineScatter3D(normal, gen_ray.direction, myrng);
             break;
     }
     

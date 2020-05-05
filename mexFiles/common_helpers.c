@@ -7,37 +7,10 @@
  * Contains small helper functions common to both 2D and 3D ray Tracing.
  */
 #include "mex.h"
-//#include <gsl/gsl_rng.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <math.h>
-
-/* 
- * Sets up the GNU/SL random number generator and returns a pointer to the
- * generator. This must be called before cosineScatter and the generator this 
- * returns should be passed to cosieScatter.
- * 
- * OUTPUTS:
- *  r - a pointer to a GSL random number generator
- */
-//gsl_rng* setupGSL(void) {
-//    gsl_rng *r;
-//    unsigned long int t;
-//    
-//    /*t = (unsigned long int)time(NULL);*/
-//    
-//    struct timeval tv;
-//    gettimeofday(&tv, 0);
-//    t =  tv.tv_sec + tv.tv_usec;
-//        
-//    /* We use the standard random number generator algorithm the Mersenne 
-//Twister */
-//    r = gsl_rng_alloc(gsl_rng_mt19937);
-//    
-//    gsl_rng_set(r, t);
-//    
-//    return r;
-//}
+#include "mtwister.h"
 
 /* 
  * Prints a 2 or 3 element 1D array to the terminal.
@@ -86,11 +59,11 @@ void print3x3(double matrix[3][3]) {
 /* 
  * Generates two gaussian random numbers using the box-muller transform.
  */
-void gaussian_random(double mu, double sigma, double Z[2]) {
+void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
     double U1, U2;
     
-    U1 = (double)rand() / (double)RAND_MAX;
-    U2 = (double)rand() / (double)RAND_MAX;
+    U1 = genRand(myrng);
+    U2 = genRand(myrng);
     
     Z[0] = sqrt(-2*log(U1))*cos(2*M_PI*U2);
     Z[1] = sqrt(-2*log(U1))*sin(2*M_PI*U2);

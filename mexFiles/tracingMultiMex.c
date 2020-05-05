@@ -56,6 +56,7 @@
 #include <math.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include "mtwister.h"
 
 /* 
  * The gateway function.
@@ -106,6 +107,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     AnalytSphere the_sphere;
     Rays3D all_rays;
     
+    /* For random number generation */
+    struct timeval tv;
+    unsigned long t;
+    MTRand myrng;
+    
     /*******************************************************************************/
     
     /* Check for the right number of inputs and outputs */
@@ -150,15 +156,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Number of rays that are killed as they have scattered too many times */
     killed = 0;
     
-    /* Set up the GSL random number generator */
-    //my_rng = setupGSL();
-    
-    /* See the random number generator with the current time */
-    struct timeval tv;
-    double t;
+    /* Seed the random number generator with the current time */
     gettimeofday(&tv, 0);
-    t =  tv.tv_sec + tv.tv_usec;
+    t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
     srand(t);
+    /* Set up the MTwister random number generator */
+    myrng = seedRand(t);
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -202,7 +205,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Loop through all the rays, tracing each one */
     for (i = 0; i < all_rays.nrays; i++) {
         detected[i] = trace_ray_simpleMulti(&all_rays.rays[i], &killed, cntr_detected,
-            maxScatters, Sample, Plate, the_sphere, &detector);
+            maxScatters, Sample, Plate, the_sphere, &detector, &myrng);
         which_detector[i] = detector;
     }
     

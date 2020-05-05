@@ -12,7 +12,7 @@
 #define _ray_tracing_structures_h
 
 #include "mex.h"
-//#include <gsl/gsl_rng.h>
+#include "mtwister.h"
 
 /******************************************************************************/
 /*                          Structure declarations                            */
@@ -139,6 +139,6 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
 Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max, 
-        double init_angle, int source_model, double sigma);
+        double init_angle, int source_model, double sigma, MTRand *myrng);
 
 #endif

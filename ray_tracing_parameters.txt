@@ -8,12 +8,12 @@
 %% Set up your virtual microscope
 % stl models of the pinhole plate can also be used but must be specified
 % manually in the simulation script in the current version.
-Design working distance (mm): 2.121
-Incidence angle (deg): 45
+Design working distance (mm): 1
+Incidence angle (deg): 0
 Type of scan: rectangular
-Number of detectors: 2
-Detector full axes (x,y): (1.4142, 1, 1.4142, 1)
-Detector centres (x,y): (2.121, 0, -2.121, 0)
+Number of detectors: 4
+Detector full axes (x,y): (0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
+Detector centres (x,y): (0.25, 0.25, 0.25, -0.25, -0.25, 0.25, -0.25, -0.25)
 Rotation angles (only needed if 'rotaions' scan used): (0, 72, 144, 216, 288)
 
 %% Set up your source
@@ -21,7 +21,7 @@ Rotation angles (only needed if 'rotaions' scan used): (0, 72, 144, 216, 288)
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 20000
+Number of Rays: 100000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1.0000e-04
@@ -39,25 +39,25 @@ Effuse size (relative to the direct beam): 1
 %  - If using the 'flat' option specify the size of the flat square sample.
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
-What type of sample are you useing: photoStereo
+What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.1
 Standard deviation (deg): 90 
 Sample description: Test sample
-Working distance to place the sample at: 2.121
+Working distance to place the sample at: 1
 Sphere radius (mm): 0.1
 Length of side of flat sample: 1
-Custom sample stl file: simulations/block_test2.stl
+Custom sample stl file: simulations/aspect_ratio_test.stl
 
 %% Set up your scan
 % For now this assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.005
-Scan range x (mm): 0.4
-Scan range y (mm): 0.4
+Pixel seperation (mm): 0.002
+Scan range x (mm): 0.2
+Scan range y (mm): 0.2
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): New_Source_Method_Test
+Label for the output directory (no spaces please): PhotoStereo_AspectRatio_~Test
 Sould the C code be recompiled: false
 

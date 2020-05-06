@@ -84,7 +84,7 @@ scan_pattern = 'regular';
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
-ray_model = 'MATLAB';
+ray_model = 'C';
 
 % Exponant of the cosine in the effuse beam model
 cosine_n = 1;

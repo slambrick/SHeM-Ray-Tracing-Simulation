@@ -124,7 +124,7 @@ function sample_surface = inputSample(varargin)
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
         moveX = (plate_dist - working_dist) - middleX;
-        sample_surface.moveBy([moveX, 0, -middleZ]);
+        sample_surface.moveBy([moveX, 0, middleZ]);
     end
 end
 

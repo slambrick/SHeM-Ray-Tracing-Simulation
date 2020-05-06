@@ -91,7 +91,7 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(var
                    plate.n_detectors, plate.circle_plate_r, ...
                    plate.aperture_axes, plate.aperture_c, n_rays, source_model, source_parameters);
     
-    numScattersRay = reshape(numScattersRay, maxScatter, plate{2});
+    numScattersRay = reshape(numScattersRay, maxScatter, plate.n_detectors);
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.

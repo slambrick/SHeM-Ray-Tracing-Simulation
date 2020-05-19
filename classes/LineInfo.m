@@ -117,44 +117,56 @@ classdef LineInfo
             xs = obj.sample_positions;
 
             figure
-            plot(xs, single)
+            plot(xs, single, 'LineWidth', 3)
             hold on
-            plot(xs, multiple)
-            plot(xs, total)
+            plot(xs, multiple, 'LineWidth', 3)
+            plot(xs, total, 'LineWidth', 3)
+            % mark the specular distance condition
+            plot([obj.specular, obj.specular], ylim, '--k', 'LineWidth', 3);
+
+            % legend depending on whether effuse exists
             if sum(effuse_single + effuse_multiple) > 0
                 plot(xs, effuse_single + effuse_multiple)
-                legend('Single', 'Multiple', 'Total', 'Effuse');
+                legend('Single', 'Multiple', 'Total', 'Specular', 'Effuse');
             else
-                legend('Single', 'Multiple', 'Total')
+                legend('Single', 'Multiple', 'Total', 'Specular')
             end
-            % mark the specular distance condition
-            plot([obj.specular, obj.specular], ylim, '--k');
 
             if obj.Direction == 'y'
                 xlabel('Distance from pinhole plate/mm')
             else
                 xlabel([obj.Direction '/mm']);
             end
-            ylabel('Number of rays detected');
-            grid on
+            ylabel('Counts');
+
+            % size and font for report
+            xlim([obj.sample_positions(1), obj.sample_positions(end)])
+            set(gca, 'FontSize', 30)
+            set(gcf, 'Position', [100 100 900 800])
+            % grid on
             if nargin == 2
                 saveas(gcf, [thePath '/line_comparison_plot.eps'], 'epsc');
             end
 
             figure
-            plot(xs, total)
+            plot(xs, total, 'LineWidth', 3)
 
             % mark the specular distance condition
             hold on
-            plot([obj.specular, obj.specular], ylim, '--k');
+            plot([obj.specular, obj.specular], ylim, '--k', 'LineWidth', 3);
 
             if obj.Direction == 'y'
                 xlabel('Distance from pinhole plate/mm')
             else
                 xlabel([obj.Direction '/mm']);
             end
-            ylabel('Number of rays detected');
-            grid on
+            ylabel('Counts');
+
+            % size and font for report
+            xlim([obj.sample_positions(1), obj.sample_positions(end)])
+            set(gca, 'FontSize', 30)
+            set(gcf, 'Position', [100 100 900 800])
+            % grid on
             if nargin == 2
                 saveas(gcf, [thePath '/line_plot.eps'], 'epsc');
             end

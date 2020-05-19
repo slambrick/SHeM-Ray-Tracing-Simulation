@@ -129,8 +129,8 @@ range1D = [-1 4];
 Direction = 'y';
 
 % Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
-% make the model 10 times larger (Inventor exports in cm by default...).
-scale = 1;
+% make the model 10 times smaller (Inventor exports in cm by default...).
+scale = 2;
 
 %% Create parameter structs
 
@@ -226,6 +226,8 @@ thePath = simulationDir(directory_label);
 if ~exist(thePath, 'dir')
     mkdir(thePath)
 end
+copyfile(param_fname, thePath)
+
 
 % Are we running in GNU Octave
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;

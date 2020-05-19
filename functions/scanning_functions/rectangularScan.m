@@ -73,6 +73,9 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
     plate_represent = pinhole_model;
     
     % TODO: make this parallel in Octave
+    % TODO: Make each iteration loop over multiple pixels so that the parfor is
+    % more optimal
+    % NOTE: could use parfeval
     parfor i_=1:N_pixels
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);

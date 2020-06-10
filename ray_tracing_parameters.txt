@@ -47,7 +47,7 @@ Sample description: Test sample
 Working distance to place the sample at: 1
 Sphere radius (mm): 0.1
 Length of side of flat sample: 1
-Custom sample stl file: simulations/aspect_ratio_test_01.stl
+Custom sample stl file: simulations/aspect_ratio_test_02.stl
 
 %% Set up your scan
 % For now this assumes you are doing a 2D rectangular scan centering on the
@@ -58,6 +58,6 @@ Scan range y (mm): 0.25
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): aspect_ratio_test01
+Label for the output directory (no spaces please): aspect_ratio_test02
 Sould the C code be recompiled: false
 

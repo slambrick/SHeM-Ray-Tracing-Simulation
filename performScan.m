@@ -3,6 +3,7 @@
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
 
+close all
 clear
 clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -111,7 +112,7 @@ circle_plate_r = 4;
 % Should a flat pinhole plate be modelled (with 'N circle'). not including may
 % speed up the simulation but won't model the effuse and multiple scattering
 % backgrounds properly.
-plate_represent = 1;
+plate_represent = 0;
 
 % In the case of 'abstract', specify the two angles of the location of the
 % detector aperture and the half cone angle of its extent. Note that the
@@ -260,6 +261,9 @@ switch sample_type
             diffuse(1), 'plate_dist', dist_to_sample, 'scale', scale, ...
             'parameters', diffuse(2), 'working_dist', working_dist);
         make_sphere = 0;
+        sample_surface.rotateY;
+        sample_surface.rotateY;
+        sample_surface.rotateY;
     case 'photoStereo'
         sample_surface = photo_stereo_test(working_dist);
         make_sphere = 1;

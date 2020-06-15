@@ -47,17 +47,17 @@ Sample description: Test sample
 Working distance to place the sample at: 1
 Sphere radius (mm): 0.1
 Length of side of flat sample: 1
-Custom sample stl file: simulations/aspect_ratio_test_02.stl
+Custom sample stl file: ../samples/example_sample.stl
 
 %% Set up your scan
 % For now this assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
 Pixel seperation (mm): 0.002
-Scan range x (mm): 0.25
-Scan range y (mm): 0.25
+Scan range x (mm): 0.4
+Scan range y (mm): 0.4
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): aspect_ratio_test02
+Label for the output directory (no spaces please): aspect_ratio_test_06_seperation_test_35
 Sould the C code be recompiled: false
 

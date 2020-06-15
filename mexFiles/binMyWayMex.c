@@ -31,13 +31,13 @@
  */
 #include "mex.h"
 
-void binIt(int32_t numScattersRay[], int histRay[], int maxScatters, int nRays);
+void binIt(int numScattersRay[], int histRay[], int maxScatters, int nRays);
 
 void mexFunction(int nlhs, mxArray *plhs[], 
                  int nrhs, const mxArray *prhs[]) {
     
     /* Declare input variables */
-    int32_t *numScattersRay;
+    int *numScattersRay;
     int maxScatters;
     int nRays;
     
@@ -90,13 +90,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*************************************************************************/
     
     /* Read input variables */
-    numScattersRay = (int32_t*)mxGetData(prhs[0]);
+    numScattersRay = (int*)mxGetData(prhs[0]);
     maxScatters = (int)mxGetScalar(prhs[1]);
     nRays = mxGetN(prhs[0]);
     
     /* Create output varibles */
     plhs[0] = mxCreateNumericMatrix(1, maxScatters, mxINT32_CLASS, mxREAL);
-    histRay = (int32_t*)mxGetData(plhs[0]); /* Safe to cast */
+    histRay = (int*)mxGetData(plhs[0]); /* Safe to cast */
     
     /* Check that non of the numbers in the input array are negative */
     for (i = 0; i < nRays; i++) {
@@ -114,7 +114,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     return;
 }
 
-void binIt(int32_t numScattersRay[], int histRay[], int maxScatters, int nRays) {
+void binIt(int numScattersRay[], int histRay[], int maxScatters, int nRays) {
     int i, j;
     
     for (i = 0; i < nRays; i++) {

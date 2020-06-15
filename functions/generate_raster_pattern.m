@@ -45,6 +45,10 @@ function raster_pattern = generate_raster_pattern(varargin)
     
     if ~exist('init_angle', 'var')
         init_angle = 0;
+    end
+    
+    if ~exist('init_angle', 'var')
+        init_angle = 0;
         disp('No Incident angle specified ignoring incident direction projection.');
     end
     

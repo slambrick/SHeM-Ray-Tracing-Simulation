@@ -19,7 +19,6 @@
 %  maxScatter - The maximum allowed scattering events
 %  plate      - TraigSurface of the pinhole plate
 %  scan_pos   - [scan_pos_x, scan_pos_z]
-%  dist       - distance from the sample to the pinhole plate
 %  sphere     - Information on the analytic sphere in a cell array
 %
 %
@@ -45,9 +44,7 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
             case 'maxScatter'
                 maxScatter = varargin{i_+1};
             case 'plate'
-                pinhole_surface = varargin{i_+1};
-            case 'dist'
-                dist_to_sample = varargin{i_+1};
+                plate = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
             otherwise
@@ -99,5 +96,7 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     final_pos = final_pos(detected,:);
     final_dir = final_dir(detected,:);
     numScattersRayDetect = numScattersRay(detected);
+    
+    numScattersRay = binMyWay(numScattersRayDetect, maxScatter);
 end
 

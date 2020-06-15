@@ -12,7 +12,7 @@
 #define _ray_tracing_structures_h
 
 #include "mex.h"
-#include <gsl/gsl_rng.h>
+#include "mtwister.h"
 
 /******************************************************************************/
 /*                          Structure declarations                            */
@@ -80,7 +80,7 @@ typedef struct _sphere {
 typedef struct _ray3d {
     double position[3];   /* First vertex of the surface element */
     double direction[3];  /* Second vertex of the surface element */
-    int32_t nScatters;    /* The number of scattering events the ray has undergone */
+    int nScatters;    /* The number of scattering events the ray has undergone */
     int on_element;       /* The index of the surface element that the ray is on */
     int on_surface;       /* The index of the surface that the ray is on */
 } Ray3D;
@@ -123,7 +123,7 @@ void get_positions(Rays3D *all_rays, double *final_pos);
 void get_directions(Rays3D *all_rays, double *final_dir);
 
 /* Get the number of scattering events for the rays */
-void get_scatters(Rays3D *all_rays, int32_t *nScatters);
+void get_scatters(Rays3D *all_rays, int *nScatters);
 
 /* Prints information on a ray to the terminal */
 void print_ray(Ray3D *the_ray);
@@ -139,6 +139,6 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
 Ray3D create_ray_source(double pinhole_r, double *pinhole_c, double theta_max, 
-        double init_angle, int source_model, gsl_rng *my_rng, double sigma);
+        double init_angle, int source_model, double sigma, MTRand *myrng);
 
 #endif

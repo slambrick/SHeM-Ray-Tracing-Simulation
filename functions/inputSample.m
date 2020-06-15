@@ -107,8 +107,6 @@ function sample_surface = inputSample(varargin)
     P = zeros(size(F,1), 1) + scattering_parameters;
     sample_surface = TriagSurface(V, N, F, C, P);
     
-    sample_surface.rotateY;
-    
     if ~dontMeddle
         % Move the sample into the right starting position
         move = -plate_dist - max(sample_surface.vertices(:,2));
@@ -116,6 +114,7 @@ function sample_surface = inputSample(varargin)
         
         % Position the interesting part of the sample into the correct place, so
         % that is is centered at '0 raster movment'
+        V = sample_surface.vertices;
         minY = min(V(:,2));
         backVertices = find(V(:,2) == minY);
         backXs = V(backVertices,1); %#ok<FNDSB>
@@ -124,7 +123,9 @@ function sample_surface = inputSample(varargin)
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
         moveX = (plate_dist - working_dist) - middleX;
+        sample_surface.patchPlot;
         sample_surface.moveBy([moveX, 0, -middleZ]);
+        sample_surface.patchPlot;
     end
 end
 

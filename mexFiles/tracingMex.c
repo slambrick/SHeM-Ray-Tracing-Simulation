@@ -52,27 +52,15 @@
  * This is a MEX file for MATLAB.
  */
 
-/* 
- * tracing_functions.h results also in the including of:
- *  small_functions.h
- *  math.h
- *  stdio.h
- *  stdlib.h
- *  time.h
- */
 #include "mex.h"
-#include <gsl/gsl_rng.h>
 #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "trace_ray.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
-#include <time.h>
-
-/* Function for tracing a single ray */
-int32_t trace_ray(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
-        Surface3D Sample, Surface3D Plate, AnalytSphere the_sphere, double backWall[],
-        gsl_rng *my_rng);
+#include <sys/time.h>
+#include <stdlib.h>
+#include "mtwister.h"
 
 /* 
  * The gateway function.
@@ -111,13 +99,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int killed;              /* The number of killed rays */
     double *final_pos;       /* The final positions of the detected rays */
     double *final_dir;       /* The final directions of the detected rays */
-    int32_t *numScattersRay; /* The number of sample scatters that each
+    int *numScattersRay; /* The number of sample scatters that each
                               * ray has undergone */
-    int32_t *detected;       /* Logical array, detected? */
+    int *detected;       /* Logical array, detected? */
     
     /* Declare other variables */
     int i;
-    gsl_rng *my_rng;
+    //gsl_rng *my_rng;
     int sample_index, sphere_index, plate_index;
     
     /* Declare structs */
@@ -125,6 +113,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Surface3D Plate;
     AnalytSphere the_sphere;
     Rays3D all_rays;
+    
+    /* For random number generation */
+    struct timeval tv;
+    unsigned long t;
+    MTRand myrng;
     
     /*******************************************************************************/
     
@@ -137,74 +130,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
                           "Six outpus required for tracingMex.");
     }
-    
-    /* Check the type of the inputs */
-    /*if (!mxIsDouble(prhs[0]) || mxIsComplex(prhs[0])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Input positions must be type double.");
-    } if (!mxIsDouble(prhs[1]) || mxIsComplex(prhs[1])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Input directions must be type double.");
-    } if (!mxIsDouble(prhs[2]) || mxIsComplex(prhs[2])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface vertices must be type double.");
-    } if (!mxIsDouble(prhs[3]) || mxIsComplex(prhs[3])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface face indices must be type double.");
-    } if (!mxIsDouble(prhs[4]) || mxIsComplex(prhs[4])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface normals must be type double.");
-    } if (!mxIsDouble(prhs[5]) || mxIsComplex(prhs[5])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface scattering indices must be type double.");
-    } if (!mxIsDouble(prhs[6]) || mxIsComplex(prhs[6]) || 
-          mxGetNumberOfElements(prhs[6]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Maximum number of sample scatters be real scalar.");
-    } if (!mxIsDouble(prhs[7]) || mxIsComplex(prhs[7])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface vertices must be type double.");
-    } if (!mxIsDouble(prhs[8]) || mxIsComplex(prhs[8])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface face indices must be type double.");
-    } if (!mxIsDouble(prhs[9]) || mxIsComplex(prhs[9])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface normals must be type double.");
-    } if (!mxIsDouble(prhs[10]) || mxIsComplex(prhs[10])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Sample surface scattering indices must be type double.");
-    } if (!mxIsDouble(prhs[11]) || mxIsComplex(prhs[11])) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notDouble", 
-                          "Information of the detector must be type double.");
-    } if (!mxIsDouble(prhs[12]) || mxIsComplex(prhs[12]) || 
-          mxGetNumberOfElements(prhs[12]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "x position must be real scalar.");
-    } if (!mxIsDouble(prhs[13]) || mxIsComplex(prhs[13]) || 
-          mxGetNumberOfElements(prhs[13]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "z position must be real scalar.");
-    } if (!mxIsDouble(prhs[14]) || mxIsComplex(prhs[14]) || 
-          mxGetNumberOfElements(prhs[14]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          " must be real scalar.");
-    } if (!mxIsDouble(prhs[15]) || mxIsComplex(prhs[15]) || 
-          mxGetNumberOfElements(prhs[15]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Distance to the sample must be a real scalar.");
-    } if (!mxIsDouble(prhs[16]) || mxIsComplex(prhs[16]) || 
-          mxGetNumberOfElements(prhs[16]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Sphere radius must be real scalar.");
-    } if (!mxIsDouble(prhs[17]) || mxIsComplex(prhs[17]) || 
-          mxGetNumberOfElements(prhs[17]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar", 
-                          "Scattering idex for the sphere must be real scalar.");
-    } if (!mxIsDouble(prhs[18]) || mxIsComplex(prhs[18]) ||
-          mxGetNumberOfElements(prhs[18]) != 1) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:notScalar",
-                          "First scattering position must be real scalar.");
-    }*/
     
     /**************************************************************************/
     
@@ -246,8 +171,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Number of rays that are killed as they have scattered too many times */
     killed = 0;
     
-    /* Set up the GSL random number generator */
-    my_rng = setupGSL();
+    /* Seed the random number generator with the current time */
+    gettimeofday(&tv, 0);
+    t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
+    srand(t);
+    /* Set up the MTwister random number generator */
+    myrng = seedRand(t);
     
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -255,8 +184,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     sphere_index = 2;
     
     /* Put the rays into a struct */
-
-    /* Put the data into the struct */
     all_rays = compose_rays3D(ray_pos, ray_dir, nrays);
     
     /* Put the sample and pinhole plate surface into structs */
@@ -268,7 +195,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         sphere_r, sphere_diffuse, sphere_parameters, sphere_index);
     
     plhs[5] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    detected = (int32_t*)mxGetData(plhs[5]);
+    detected = (int*)mxGetData(plhs[5]);
     
     /**************************************************************************/
     
@@ -277,7 +204,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Loop through all the rays, tracing each one */
     for (i = 0; i < all_rays.nrays; i++) {
         detected[i] = trace_ray_triagPlate(&all_rays.rays[i], &killed, &cntr_detected,
-            maxScatters, Sample, Plate, the_sphere, backWall, my_rng);
+            maxScatters, Sample, Plate, the_sphere, backWall, &myrng);
     }
     
     /**************************************************************************/
@@ -294,7 +221,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Pointers to the output matrices so we may change them*/
     final_pos       = mxGetPr(plhs[2]);
     final_dir       = mxGetPr(plhs[3]);
-    numScattersRay  = (int32_t*)mxGetData(plhs[4]);
+    numScattersRay  = (int*)mxGetData(plhs[4]);
     
     /* Put data into the output matrices */
     get_positions(&all_rays, final_pos);
@@ -307,9 +234,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Output number of rays went into the detector */
     plhs[0] = mxCreateDoubleScalar(cntr_detected);
     plhs[1] = mxCreateDoubleScalar(killed);
-    
-    /* Free the space used by the random number generator */
-    gsl_rng_free(my_rng);
     
     return;
 }

@@ -1,6 +1,8 @@
+Copyright (c) 2019, Frerk Saxen
 Copyright (c) 2016, Dylan Muir
 Copyright (c) 2011, Willem-Jan de Goeij
 Copyright (c) 2009, The MathWorks, Inc.
+Copyright (c) 2005, Steve Hoelzer
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

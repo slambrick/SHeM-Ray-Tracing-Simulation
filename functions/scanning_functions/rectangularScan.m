@@ -55,7 +55,7 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
         progressBar = true;
     end
     if progressBar && ~isOctave
-        ppm = ParforProgMon('Simulation progress: ', N_pixels);
+        ppm = ParforProgressbar(N_pixels, 'showWorkerProgress', true);
         h = 0;
     elseif isOctave
         h = waitbar(0, 'Simulation progress: ');
@@ -119,6 +119,10 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
     if ~isOctave
         current_pool = gcp('nocreate');
         delete(current_pool);
+    end
+    
+    if progressBar && ~isOctave
+        delete(ppm);
     end
     
     t = toc;

@@ -1,2 +1,3 @@
 # Reclassify *.h files as C not Objective-C
 *.h linguist-language=C
+*.m linguist-language=matlab

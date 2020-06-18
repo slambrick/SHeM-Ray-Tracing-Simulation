@@ -1,24 +1,6 @@
 SHeM ray tracing simulation
 ===========================
 
-## Principles
-
-The code here is used to perform a simulation of the Cambridge scanning helium
-microscope (SHeM), though it is easily adapted to other similar atomic
-microscopes, and with more difficulty may be applied to other forms of
-microscopy. The basic idea consists of modelling the atoms in the SHeM as rays
-that travel in straight lines and scatter randomly according to a predefined
-distribution when they hit a surface. The surfaces are defined by a
-traiangulated mesh. The brightness of a pixel is determined by the number of
-rays that reach a surface that is defined to be the detector.
-
-To gain a fuller understanding of the principles of the simulation and its
-capabilities it is recommended to read the the associated publication: [A ray tracing method for predicting contrast in neutral atom beam imaging](https://doi.org/10.1016/j.micron.2018.06.014). The design of the Cambridge SHeM is detailed in
-[A design for a pinhole scanning helium microscope](https://doi.org/10.1016/j.nimb.2014.06.028)
-M. Barr *et al.* 2014.
-
----
-
 ## The simulation
 
 ### Structure of the simulation

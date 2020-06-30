@@ -16,7 +16,6 @@
 #include <mex.h>
 #include <matrix.h>
 
-#include <gsl/gsl_rng.h>
 #include <stdint-gcc.h>
 #include <math.h>
 
@@ -25,6 +24,9 @@
 #include "common_helpers.h"
 #include "ray_tracing_structs3D.h"
 
+#include <sys/time.h>
+#include <stdlib.h>
+#include "mtwister.h"
 
 /*
  * The gateway function.
@@ -64,6 +66,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Indexing the surfaces, -1 refers to no surface */
     int sample_index = 0, plate_index = 1, sphere_index = 2;
+    /* For random number generation */
+    struct timeval tv;
+    unsigned long t;
+    MTRand myrng;
+    
 
     /* Check for the right number of inputs and outputs */
     if (nrhs != NINPUTS) {
@@ -100,6 +107,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int num_materials = mxGetN(prhs[6]);
     M = mxCalloc(num_materials, sizeof(Material));
     get_materials_array(prhs[6], prhs[7], prhs[8], M);
+    /* Seed the random number generator with the current time */
+    gettimeofday(&tv, 0);
+    t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec + (unsigned long)tv.tv_nsec;
+    srand(t);
+    /* Set up the MTwister random number generator */
+    myrng = seedRand(t);
 
     // simulation parameters
     maxScatters = (int)mxGetScalar(prhs[9]);
@@ -125,8 +138,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[2] = mxCreateNumericMatrix(1, plate.n_detect*maxScatters, mxINT32_CLASS, mxREAL);
 
     /* Pointers to the output matrices so we may change them*/
-    cntr_detected = (int32_t*)mxGetData(plhs[0]);
-    numScattersRay = (int32_t*)mxGetData(plhs[2]);
+    cntr_detected = (int*)mxGetData(plhs[0]);
+    numScattersRay = (int*)mxGetData(plhs[2]);
 
     /**************************************************************************/
 
@@ -137,11 +150,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
         int detected;
 
         create_ray(&the_ray, pinhole_r, pinhole_c, src_theta_max,
-            src_init_angle, source_model, src_sigma, my_rng);
+            src_init_angle, source_model, src_sigma, myrng);
 
         detected = trace_ray_simple_multi(&the_ray, &killed, cntr_detected,
-            maxScatters, sample, plate, sphere, my_rng, &detector);
-
+            maxScatters, sample, plate, sphere, myrng, &detector);
+        
         /*
          * Add the number of scattering events the ray has undergone to the
          * histogram. But only if it is detected.
@@ -158,11 +171,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[1] = mxCreateDoubleScalar(killed);
 
     /* Free space */
-    gsl_rng_free(my_rng);
     mxFree(C);
     mxFree(M);
     clean_up_surface(&sample);
-
     return;
 }
 

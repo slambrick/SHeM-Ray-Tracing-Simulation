@@ -12,7 +12,7 @@
 #define _ray_tracing_structures_h
 
 #include <mex.h>
-#include <gsl/gsl_rng.h>
+#include "mtwister.h"
 #include <stdint-gcc.h>
 
 #include "distributions.h"
@@ -143,7 +143,7 @@ void get_positions(Rays3D *all_rays, double *final_pos);
 void get_directions(Rays3D *all_rays, double *final_dir);
 
 /* Get the number of scattering events for the rays */
-void get_scatters(Rays3D *all_rays, int32_t *nScatters);
+void get_scatters(Rays3D *all_rays, int *nScatters);
 
 /* Print details of material */
 void print_material(const Material * mat);
@@ -168,6 +168,6 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
 void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c,
-        double theta_max, double init_angle, int source_model, double sigma, gsl_rng *my_rng);
+        double init_angle, int source_model, double sigma, MTRand *myrng);
 
 #endif

@@ -17,7 +17,6 @@
 %  maxScatter - The maximum allowed scattering events
 %  plate      - Information on the pinhole plate model in a cell array
 %  scan_pos   - [scan_pos_x, scan_pos_z]
-%  dist       - distance from the sample to the pinhole plate
 %  sphere     - Information on the analytic sphere in a cell array
 %  which_beam - What kind of beam is being moddled, 'Effuse, 'Uniform', or
 %               'Gaussian'
@@ -39,8 +38,6 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
                 maxScatter = varargin{i_+1};
             case 'plate'
                 plate = varargin{i_+1};
-            case 'dist'
-                dist_to_sample = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
             case 'source'
@@ -97,7 +94,7 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
         mat_names, mat_functions, mat_params,...
         maxScatter, beam.n, source_model, source_parameters);
 
-    numScattersRay = reshape(numScattersRay, maxScatter, plate{2});
+    numScattersRay = reshape(numScattersRay, maxScatter, plate.n_detectors);
 
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.

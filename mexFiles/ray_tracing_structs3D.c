@@ -14,13 +14,12 @@
 #include "common_helpers.h"
 #include "small_functions3D.h"
 #include "distributions.h"
-
-// #include <stdlib.h>
 #include <mex.h>
-#include <gsl/gsl_rng.h>
+#include <stdlib.h>
 #include <gsl/gsl_math.h>
 #include <math.h>
 #include <string.h>
+#include "mtwister.h"
 
 /*
  * Set up a surface containing the information on a triangulated surface.
@@ -248,7 +247,7 @@ void get_directions(Rays3D *all_rays, double *final_dir) {
 }
 
 /* Get the number of scattering events per ray */
-void get_scatters(Rays3D *all_rays, int32_t *nScatters) {
+void get_scatters(Rays3D *all_rays, int *nScatters) {
     int i;
 
     /* Loop through all the rays */
@@ -256,7 +255,7 @@ void get_scatters(Rays3D *all_rays, int32_t *nScatters) {
         Ray3D *current_ray;
 
         current_ray = &all_rays->rays[i];
-        nScatters[i] = (int32_t)current_ray->nScatters;
+        nScatters[i] = (int)current_ray->nScatters;
     }
 }
 
@@ -367,31 +366,30 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
  *  gen_ray - ray3D struct with information on a ray in it
  */
 void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, double theta_max,
-        double init_angle, int source_model, double sigma, gsl_rng *my_rng) {
+        double init_angle, int source_model, double sigma, MTRand *myrng) {
     double r, theta=0, phi;
     double rot_angle;
     double B;
     double normal[3];
     double dir[3];
-
+    
     /* Generate the position of the ray */
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    r = pinhole_r*sqrt(gsl_rng_uniform(my_rng));
+    phi = 2*M_PI*genRand(myrng);
+    r = pinhole_r*sqrt(genRand(myrng));
     gen_ray->position[0] = pinhole_c[0] + r*cos(phi);
     gen_ray->position[1] = pinhole_c[1];
     gen_ray->position[2] = pinhole_c[2] + r*sin(phi);
 
     /* Generate the direction of the ray */
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
+    phi = 2*M_PI*genRand(myrng);
     switch (source_model) {
         case 0:
             /* Uniform virtual source model */
-            theta = theta_max*sqrt(gsl_rng_uniform(my_rng));
+            theta = theta_max*sqrt(genRand(myrng));
             break;
         case 1:
             /* Gaussian virtual source model */
-            B = 1/(1 - exp(-M_PI*M_PI/(2*sigma*sigma)));
-            theta = sigma*sqrt(-2*log((B - gsl_rng_uniform(my_rng)/B)));
+            theta = sigma*sqrt(-2*log((1 - genRand(myrng)/1)));
             break;
         case 2:
             /* Diffuse cosine model */

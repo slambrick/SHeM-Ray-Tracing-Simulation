@@ -71,6 +71,7 @@ function sample_surface = inputSample(varargin)
         data = load('objects/defMaterial.mat');
         defMaterial = data.defMaterial;
     end
+<<<<<<< HEAD
 
     % Import from file
     % Matlab does not allow these 3 trivial operations to be combined :(
@@ -87,6 +88,20 @@ function sample_surface = inputSample(varargin)
     otherwise
         error(['File with extension ' extension ' unrecognised.'...
         ' Only stl and obj are supported.'])
+=======
+    
+    if ~exist('working_dist', 'var')
+        working_dist = 2.121;
+    end
+    
+    % Input checking
+    if ((diffuseLvl > 1 || diffuseLvl < 0) && diffuseLvl ~= 2)
+        error('inputSample: scattering must be between 0 and 1, or be 2.')
+    end
+    if ~strcmp('.stl', fname(end-3:end))
+        error(['inputSample: wrong type of file name provided, only' ...
+            '.stl files accepted.'])
+>>>>>>> master
     end
     vertices = vertices/scale;
 
@@ -96,10 +111,23 @@ function sample_surface = inputSample(varargin)
     else
         materials('default') = defMaterial;
     end
+<<<<<<< HEAD
 
     % finally, construct the surface object
     sample_surface = TriagSurface(vertices, fdef, fnorm, fmat, materials);
 
+=======
+    
+    % Import from file
+    [F, V, N] = stlread(fname);
+    V = V/scale;
+    
+    % Set the scattering off the sample and any scattering parameters
+    C = diffuseLvl + zeros(size(F,1), 1);
+    P = zeros(size(F,1), 1) + scattering_parameters;
+    sample_surface = TriagSurface(V, N, F, C, P);
+    
+>>>>>>> master
     if ~dontMeddle
         % Move the sample into the right starting position
         moveY = - sampleDist - max(sample_surface.vertices(:,2));
@@ -107,6 +135,7 @@ function sample_surface = inputSample(varargin)
 
         % Position the interesting part of the sample into the correct place, so
         % that is is centered at '0 raster movment'
+<<<<<<< HEAD
         minY = min(vertices(:,2));
         backVertices = find(vertices(:,2) == minY);
         backXs = vertices(backVertices,1); %#ok<FNDSB>
@@ -118,6 +147,20 @@ function sample_surface = inputSample(varargin)
         if ~isempty(middleZ) && ~isempty(moveX)
             sample_surface.moveBy([moveX, 0, -middleZ]);
         end
+=======
+        V = sample_surface.vertices;
+        minY = min(V(:,2));
+        backVertices = find(V(:,2) == minY);
+        backXs = V(backVertices,1); %#ok<FNDSB>
+        ind = ismember(V(:,1), backXs);
+        interestingV = V(~ind,:);
+        middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
+        middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
+        moveX = (plate_dist - working_dist) - middleX;
+        sample_surface.patchPlot;
+        sample_surface.moveBy([moveX, 0, -middleZ]);
+        sample_surface.patchPlot;
+>>>>>>> master
     end
 end
 

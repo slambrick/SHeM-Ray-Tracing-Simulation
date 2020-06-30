@@ -9,7 +9,6 @@
  * ray is scattered once. There are different ways to do that depending on the
  * simulation being run.
  */
-#include <gsl/gsl_rng.h>
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
 #include "intersect_detection.h"
@@ -32,7 +31,7 @@
  *         met), 0 is alive (has met)
  */
 int scatterOffSurface(Ray3D *the_ray, Surface3D *sample, AnalytSphere the_sphere,
-        gsl_rng *my_rng) {
+        MTRand *myrng) {
     double min_dist;
     int meets;
     int tri_hit;
@@ -75,7 +74,7 @@ int scatterOffSurface(Ray3D *the_ray, Surface3D *sample, AnalytSphere the_sphere
 
         /* Find the new direction and update position*/
         composition->func(nearest_n, the_ray->direction,
-            new_direction, composition->params, my_rng);
+            new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
 
@@ -99,7 +98,7 @@ int scatterOffSurface(Ray3D *the_ray, Surface3D *sample, AnalytSphere the_sphere
  *         surface)
  */
 int scatterPinholeSurface(Ray3D *the_ray, Surface3D *plate, double backWall[],
-        gsl_rng *my_rng) {
+        MTRand *myrng) {
 
     double min_dist;
     int meets;
@@ -134,7 +133,7 @@ int scatterPinholeSurface(Ray3D *the_ray, Surface3D *plate, double backWall[],
 
         /* Update the direction and position of the ray */
         composition->func(nearest_n, the_ray->direction,
-            new_direction, composition->params, my_rng);
+            new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
 
@@ -196,7 +195,7 @@ int scatterPinholeSurface(Ray3D *the_ray, Surface3D *plate, double backWall[],
  *         surface)
  */
 int scatterSurfaces(Ray3D *the_ray, Surface3D *sample, Surface3D *plate,
-        AnalytSphere the_sphere, double backWall[], gsl_rng *my_rng) {
+        AnalytSphere the_sphere, double backWall[], MTRand *myrng) {
 
     double min_dist;
     int meets;
@@ -254,7 +253,7 @@ int scatterSurfaces(Ray3D *the_ray, Surface3D *sample, Surface3D *plate,
 
         /* Find the new direction and update position*/
         composition->func(nearest_n, the_ray->direction,
-            new_direction, composition->params, my_rng);
+            new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
 
@@ -314,7 +313,7 @@ int scatterSurfaces(Ray3D *the_ray, Surface3D *sample, Surface3D *plate,
  *         surface)
  */
 int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *sample, BackWall plate,
-        AnalytSphere the_sphere, gsl_rng *my_rng) {
+        AnalytSphere the_sphere, MTRand *myrng) {
 
     double min_dist;
     int meets;
@@ -348,8 +347,6 @@ int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *sample, BackWall plate,
     scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, &meets,
         &tri_hit, &which_surface);
 
-    //mexPrintf("meets = %i\n", meets);
-
     /* Should the sphere be represented */
     if (the_sphere.make_sphere) {
         /* Check the sphere if we are not on it */
@@ -361,7 +358,6 @@ int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *sample, BackWall plate,
 
     /* Try to scatter off the simple pinhole plate */
     if (the_ray->on_surface != plate.surf_index) {
-        //mexPrintf("Trying to intersect plate\n");
         detected =  backWallScatter(the_ray, plate, &min_dist, nearest_inter,
             nearest_n, &meets, &tri_hit, &which_surface) ;
     }
@@ -378,7 +374,7 @@ int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *sample, BackWall plate,
     /* Update position/direction etc. */
     if (meets || meets_sphere) {
         Material * composition;
-
+        
         if (meets_sphere) {
             /* sphere is defined to be uniform */
             composition = &(the_sphere.material);
@@ -391,7 +387,7 @@ int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *sample, BackWall plate,
 
         /* Find the new direction and update position*/
         composition->func(nearest_n, the_ray->direction,
-            new_direction, composition->params, my_rng);
+            new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
 
@@ -419,7 +415,7 @@ int scatterSimpleSurfaces(Ray3D *the_ray, Surface3D *sample, BackWall plate,
  *         met), 0 is alive (has met), n is detected from the detector (n-1)
  */
 int scatterSimpleMulti(Ray3D *the_ray, Surface3D *sample, NBackWall plate,
-        AnalytSphere the_sphere, gsl_rng *my_rng, int *detector) {
+        AnalytSphere the_sphere, int *detector, MTRand *myrng) {
 
     double min_dist;
     int meets;
@@ -495,7 +491,7 @@ int scatterSimpleMulti(Ray3D *the_ray, Surface3D *sample, NBackWall plate,
 
         /* Find the new direction and update position*/
         composition->func(nearest_n, the_ray->direction,
-            new_direction, composition->params, my_rng);
+            new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
 
@@ -516,7 +512,7 @@ int scatterSimpleMulti(Ray3D *the_ray, Surface3D *sample, NBackWall plate,
  * specified by two angles and a half cone angle.
  */
 int scatterAbstractSurfaces(Ray3D *the_ray, Surface3D *sample, AbstractHemi plate,
-        AnalytSphere the_sphere, gsl_rng *my_rng) {
+        AnalytSphere the_sphere, MTRand *myrng) {
 
     int meets;
     meets = 0;

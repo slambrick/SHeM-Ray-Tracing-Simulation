@@ -13,7 +13,7 @@
 #include "small_functions3D.h"
 #include <math.h>
 #include <stdlib.h>
-#include <gsl/gsl_rng.h>
+#include "mtwister.h"
 
 /*
  * For the simple model of the pinhole plate as a circle.
@@ -22,7 +22,7 @@
  */
 int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
         int maxScatters, Surface3D sample, BackWall plate, AnalytSphere the_sphere,
-        gsl_rng *my_rng) {
+        MTRand *myrng) {
     int n_allScatters;
     int dead;
 
@@ -63,7 +63,7 @@ int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
-            dead = scatterOffSurface(the_ray, &sample, the_sphere, my_rng);
+            dead = scatterOffSurface(the_ray, &sample, the_sphere, myrng);
             if (dead == 0) {
                 /* Hit the sample */
                 the_ray->nScatters += 1;
@@ -84,7 +84,7 @@ int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
         }
 
         /* Try to scatter of both surfaces. */
-        dead = scatterSimpleSurfaces(the_ray, &sample, plate, the_sphere, my_rng);
+        dead = scatterSimpleSurfaces(the_ray, &sample, plate, the_sphere, myrng);
 
         /******************************************************************/
         /* Update counters */
@@ -122,7 +122,7 @@ int trace_ray_simple(Ray3D *the_ray, int *killed, int *cntr_detected,
  */
 int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         int maxScatters, Surface3D sample, NBackWall plate, AnalytSphere the_sphere,
-        gsl_rng *my_rng, int *detector) {
+        int *detector, MTRand *myrng) {
     /*
      * The total number of scattering events undergone (sample and pinhole
      * plate) 1000 events are allowed in total. A separate limit is placed
@@ -160,7 +160,7 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
-            dead = scatterOffSurface(the_ray, &sample, the_sphere, my_rng);
+            dead = scatterOffSurface(the_ray, &sample, the_sphere, myrng);
             if (dead == 0) {
                 /* Hit the sample */
                 the_ray->nScatters += 1;
@@ -180,7 +180,7 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         }
 
         /* Try to scatter of both surfaces. */
-        dead = scatterSimpleMulti(the_ray, &sample, plate, the_sphere, my_rng, detector);
+        dead = scatterSimpleMulti(the_ray, &sample, plate, the_sphere, myrng, detector);
 
         /******************************************************************/
         /* Update counters */
@@ -218,7 +218,7 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
  */
 int trace_ray_triag_plate(Ray3D *the_ray, int *killed, int *cntr_detected, int maxScatters,
         Surface3D sample, Surface3D plate, AnalytSphere the_sphere,
-        double backWall[], gsl_rng *my_rng) {
+        double backWall[], MTRand *myrng) {
     int n_allScatters;
     int dead;
 
@@ -259,7 +259,7 @@ int trace_ray_triag_plate(Ray3D *the_ray, int *killed, int *cntr_detected, int m
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
-            dead = scatterOffSurface(the_ray, &sample, the_sphere, my_rng);
+            dead = scatterOffSurface(the_ray, &sample, the_sphere, myrng);
 
             if (dead == 0) {
                 /* Hit the sample */
@@ -282,7 +282,7 @@ int trace_ray_triag_plate(Ray3D *the_ray, int *killed, int *cntr_detected, int m
 
         /* Try to scatter of both surfaces. */
         dead = scatterSurfaces(the_ray, &sample, &plate, the_sphere,
-            backWall, my_rng);
+            backWall, myrng);
 
         /******************************************************************/
         /* Update counters */
@@ -320,7 +320,7 @@ int trace_ray_triag_plate(Ray3D *the_ray, int *killed, int *cntr_detected, int m
  * Trace a single ray
  */
 void trace_ray_just_sample(Ray3D *the_ray, int *killed, int maxScatters, Surface3D sample,
-        AnalytSphere the_sphere, gsl_rng *my_rng) {
+        AnalytSphere the_sphere, MTRand *myrng) {
     int dead;
 
     /*
@@ -337,7 +337,7 @@ void trace_ray_just_sample(Ray3D *the_ray, int *killed, int maxScatters, Surface
         dead = 1;
 
         /* Try to scatter off the sample */
-        dead = scatterOffSurface(the_ray, &sample, the_sphere, my_rng);
+        dead = scatterOffSurface(the_ray, &sample, the_sphere, myrng);
         if (dead == 0) {
             /* Hit the sample */
             the_ray->nScatters += 1;
@@ -360,6 +360,6 @@ void trace_ray_just_sample(Ray3D *the_ray, int *killed, int maxScatters, Surface
  * all positions and directions of the ray.
  *
  */
-/*int32_t trace_ray_trajectory() {
+/*int trace_ray_trajectory() {
 
 }*/

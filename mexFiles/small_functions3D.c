@@ -14,7 +14,8 @@
 #include "mex.h"
 #include "common_helpers.h"
 #include "small_functions3D.h"
-#include <gsl/gsl_math.h>
+//#include <gsl/gsl_math.h>
+#include <math.h>
 
 /*
  * Adds a 3 element array to another 3 element array multiplied by a scalar

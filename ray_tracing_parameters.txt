@@ -1,0 +1,63 @@
+%% Parameter file for SHeM ray tracing
+% Most of the basic parameters can be specified here, although there is some 
+% greater functionality available through directly editing the main script.
+% refer to the seperate file for in depth descritions of parameters.
+%
+% Lines that start with '%' will be ignored, feel free to add your own comments.
+
+%% Set up your virtual microscope
+% stl models of the pinhole plate can also be used but must be specified
+% manually in the simulation script in the current version.
+Design working distance (mm): 1
+Incidence angle (deg): 0
+Type of scan: rectangular
+Number of detectors: 4
+Detector full axes (x,y): (0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
+Detector centres (x,y): (0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5)
+Rotation angles (only needed if 'rotaions' scan used): (0, 72, 144, 216, 288)
+
+%% Set up your source
+% There are two models of the source, 'Uniform' source at the skimmer, or a
+% 'Gaussian'. In the first case provide the maximum angular value, in the second
+% case provide the angular standard deviation. A cosine effuse beam may also be
+% modelled coming from the pinhole.
+Number of Rays: 200000
+Pinhole radius (mm): 0.001
+Source model: Uniform
+Angular source size (rad): 1e-4
+Source standard deviation (rad): 0.1
+Effuse beam: Off
+Effuse size (relative to the direct beam): 1
+
+%% Set up your sample
+% There are a few inbuilt samples or you can provide your own stl file of a
+% sample, options are: 'flat', 'sphere', 'custom', 'photoStereo'
+% The scattering from the sample must also be defined, options:
+% 'cosine', 'uniform', 'specular', 'broad_specular'. The latter 2 require
+% parameters. 
+%  - If you are using the 'sphere' option specify the radius of sphere.
+%  - If using the 'flat' option specify the size of the flat square sample.
+%  - If specifying your own sample specify the name and path to the stl file,
+%    please use a file name and path without spaces
+What type of sample are you useing: custom
+Scattering: cosine
+Reflectivity: 0.1
+Standard deviation (deg): 90 
+Sample description: Test sample
+Working distance to place the sample at: 1
+Sphere radius (mm): 0.1
+Length of side of flat sample: 1
+Custom sample stl file: ../samples/example_sample.stl
+
+%% Set up your scan
+% For now this assumes you are doing a 2D rectangular scan centering on the
+% middle on the sample.
+Pixel seperation (mm): 0.002
+Scan range x (mm): 0.4
+Scan range y (mm): 0.4
+Ignore incidence angle in scan pattern: no
+
+%% Other parameters
+Label for the output directory (no spaces please): aspect_ratio_test_06_seperation_test_35
+Sould the C code be recompiled: false
+

@@ -21,12 +21,14 @@
  *  time.h
  */
 #include "mex.h"
-#include <gsl/gsl_rng.h>
 #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "trace_ray.h"
 #include "ray_tracing_structs3D.h"
 #include <math.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include "mtwister.h"
 
 /*
  * The gateway function.
@@ -50,20 +52,25 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Declare the output variables */
     int killed;              /* The number of killed rays */
-    int32_t *numScattersRay; /* The number of sample scatters that each
+    int *numScattersRay; /* The number of sample scatters that each
                               * ray has undergone */
     double *final_pos;       /* The final positions of the rays */
     double *final_dir;       /* The final directions of the rays */
 
     /* Declare other variables */
     int i;
-    gsl_rng *my_rng;
+    //gsl_rng *my_rng;
     int sample_index;
 
     /* Declare structs */
     Surface3D Sample;
     AnalytSphere the_sphere;
 
+    /* For random number generation */
+    struct timeval tv;
+    unsigned long t;
+    MTRand myrng;
+    
     /*******************************************************************************/
 
     /* Check for the right number of inputs and outputs */
@@ -98,8 +105,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Number of rays that are killed as they have scattered too many times */
     killed = 0;
 
-    /* Set up the GSL random number generator */
-    my_rng = setupGSL();
+    /* Seed the random number generator with the current time */
+    gettimeofday(&tv, 0);
+    t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
+    srand(t);
+    /* Set up the MTwister random number generator */
+    myrng = seedRand(t);
 
     /* Indexing the surfaces, -1 referes to no surface */
     sample_index = 0;
@@ -120,7 +131,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[3] = mxCreateDoubleMatrix(3, nrays, mxREAL);
 
     /* Pointers to the output matrices so we may change them*/
-    numScattersRay = (int32_t*)mxGetData(plhs[1]);
+    numScattersRay = (int*)mxGetData(plhs[1]);
     final_pos = mxGetPr(plhs[2]);
     final_dir = mxGetPr(plhs[3]);
 
@@ -142,7 +153,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
             the_ray.direction[j] = start_dir[j];
         }
 
-        trace_ray_just_sample(&the_ray, &killed, maxScatters, Sample, the_sphere, my_rng);
+        trace_ray_just_sample(&the_ray, &killed, maxScatters, Sample, the_sphere, &myrng);
 
         /* Update final position an directions of ray */
         for (j = 0; j < 3; j++) {
@@ -159,7 +170,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[0] = mxCreateDoubleScalar(killed);
 
     /* Free the space used by the random number generator */
-    gsl_rng_free(my_rng);
+    //gsl_rng_free(my_rng);
 
     return;
 }

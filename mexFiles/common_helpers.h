@@ -16,6 +16,7 @@
  * such as a 3-column n-row matrix of vertices of a Surface3D
  */
 int lin(int row, int col);
+
 /* Prints a 2 or three element vector */
 void print1D_double(double *vect, int dim);
 
@@ -26,5 +27,9 @@ void print1D_int(int *vect, int dim);
 void print3x3(double matrix[3][3]);
 
 void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng);
+
+double gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrand);
+
+int gen_random_int(int max, MTRand *myrand);
 
 #endif

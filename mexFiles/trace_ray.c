@@ -5,7 +5,7 @@
  * GNU/GPL-3.0-or-later.
  */
 
-#include "mex.h"
+#include <mex.h>
 #include "trace_ray.h"
 #include "tracing_functions.h"
 #include "ray_tracing_structs3D.h"
@@ -180,7 +180,7 @@ int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
         }
 
         /* Try to scatter of both surfaces. */
-        dead = scatterSimpleMulti(the_ray, &sample, plate, the_sphere, myrng, detector);
+        dead = scatterSimpleMulti(the_ray, &sample, plate, the_sphere, detector, myrng);
 
         /******************************************************************/
         /* Update counters */
@@ -314,7 +314,7 @@ int trace_ray_triag_plate(Ray3D *the_ray, int *killed, int *cntr_detected, int m
 }
 
 /*
- * For scattering a ray off a surface only so that the distribution may be
+ * For scattering a ray off a surface only. So that the distribution may be
  * acquired from the scattering.
  *
  * Trace a single ray
@@ -358,7 +358,7 @@ void trace_ray_just_sample(Ray3D *the_ray, int *killed, int maxScatters, Surface
 /*
  * Trace the full trajectory of a ray scattering off a single surface. Records
  * all positions and directions of the ray.
- *
+ * TODO: this for de-bugging
  */
 /*int trace_ray_trajectory() {
 

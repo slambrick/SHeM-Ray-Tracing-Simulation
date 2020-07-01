@@ -14,8 +14,8 @@
 %
 % INPUTS:
 %  sample     - TriagSurface of the sample
-%  maxScatter - The maximum allowed scattering events
-%  plate      - Information on the pinhole plate model in a cell array
+%  max_scatter - The maximum allowed scattering events
+%  plate      - Information on the pinhole plate model in a struct
 %  scan_pos   - [scan_pos_x, scan_pos_z]
 %  sphere     - Information on the analytic sphere in a cell array
 %  which_beam - What kind of beam is being moddled, 'Effuse, 'Uniform', or
@@ -34,8 +34,8 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
         switch varargin{i_}
             case 'sample'
                 sample_surface = varargin{i_+1};
-            case 'maxScatter'
-                maxScatter = varargin{i_+1};
+            case 'max_scatter'
+                max_scatter = varargin{i_+1};
             case 'plate'
                 plate = varargin{i_+1};
             case 'sphere'
@@ -92,9 +92,9 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     [counted, killed, numScattersRay]  = tracingMultiGenMex(...
         V, F, N, C, sphere, plate,...
         mat_names, mat_functions, mat_params,...
-        maxScatter, beam.n, source_model, source_parameters);
+        max_scatter, beam.n, source_model, source_parameters);
 
-    numScattersRay = reshape(numScattersRay, maxScatter, plate.n_detectors);
+    numScattersRay = reshape(numScattersRay, max_scatter, plate.n_detectors);
 
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.

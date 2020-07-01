@@ -18,13 +18,17 @@
 #include "distributions.h"
 
 #include <stdlib.h>
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_math.h>
+//#include <gsl/gsl_rng.h>
+//#include <gsl/gsl_randist.h>
+//#include <gsl/gsl_math.h>
 #include <string.h>
 
+#include "mtwister.h"
+#include "common_helpers.h"
+#include <math.h>
 #include "small_functions3D.h"
 
+static double theta_generate(double sigma, MTRand *myrng);
 
 /*
  * Resolve the distribution function name.
@@ -50,9 +54,6 @@ distribution_func distribution_by_name(const char * name) {
     return NULL;
 }
 
-
-static double theta_generate(double sigma, gsl_rng *myrng);
-
 /*
  * Generate rays with broadened specular distribution and a diffuse background.
  *
@@ -61,14 +62,14 @@ static double theta_generate(double sigma, gsl_rng *myrng);
  * broad_specular.
  */
 void diffuse_and_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
 
     double diffuse_lvl = params[0];
-    double tester = gsl_rng_uniform(my_rng);
+    double tester = genRand(myrng);
     if(tester < diffuse_lvl)
-        cosine_scatter(normal, init_dir, new_dir, params+1, my_rng);
+        cosine_scatter(normal, init_dir, new_dir, params+1, myrng);
     else
-        broad_specular_scatter(normal, init_dir, new_dir, params+1, my_rng);
+        broad_specular_scatter(normal, init_dir, new_dir, params+1, myrng);
 }
 
 /*
@@ -80,14 +81,14 @@ void diffuse_and_specular(const double normal[3], const double init_dir[3],
  * diffraction_pattern.
  */
 void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
 
     double diffuse_lvl = params[0];
-    double tester = gsl_rng_uniform(my_rng);
+    double tester = genRand(myrng);
     if(tester < diffuse_lvl)
-        cosine_scatter(normal, init_dir, new_dir, params+1, my_rng);
+        cosine_scatter(normal, init_dir, new_dir, params+1, myrng);
     else
-        diffraction_pattern(normal, init_dir, new_dir, params+1, my_rng);
+        diffraction_pattern(normal, init_dir, new_dir, params+1, myrng);
 }
 
 
@@ -106,7 +107,7 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  */
 void debye_waller_filter_diffuse(distribution_func original_distr,
         const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
 
     // this prefactor appears in the DW exponent if the following
     // are to be in the units stated in the comment above
@@ -119,30 +120,30 @@ void debye_waller_filter_diffuse(distribution_func original_distr,
     double energy_ratio, dwf, tester;
 
     double exponent = prefactor * inc_energy * temp / latt_mass / (debye_temp * debye_temp);
-    energy_ratio = 1.0 + gsl_ran_gaussian_tail(my_rng, -1.0, energy_sigma);
+    energy_ratio = gaussian_random_tail(1, energy_sigma, -1, myrng);
 
     // generate a new direction with the original distribution
-    original_distr(normal, init_dir, new_dir, params+5, my_rng);
+    original_distr(normal, init_dir, new_dir, params+5, myrng);
 
     // with probability proportional to debye-waller factor turn it into diffuse scattering
     dwf = exp(- exponent * (1.0 + energy_ratio - 2 * sqrt(energy_ratio) * dot(init_dir, new_dir)));
-    tester = gsl_rng_uniform(my_rng);
+    tester = genRand(myrng);
 
     if(tester > dwf)
-        cosine_scatter(normal, init_dir, new_dir, NULL, my_rng);
+        cosine_scatter(normal, init_dir, new_dir, NULL, myrng);
 }
 
 void debye_waller_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
     return debye_waller_filter_diffuse(broad_specular_scatter, normal, init_dir,
-        new_dir, params, my_rng);
+        new_dir, params, myrng);
 }
 
 
 void debye_waller_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
     return debye_waller_filter_diffuse(diffraction_pattern, normal, init_dir,
-        new_dir, params, my_rng);
+        new_dir, params, myrng);
 }
 
 /*
@@ -159,7 +160,7 @@ void debye_waller_diffraction(const double normal[3], const double init_dir[3],
  *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
  */
 void diffraction_pattern(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
 
     double e1[3], e2[3];    // unit vectors spanning the surface
     double ni[3], nf[3];    // initial and final directions relative to surface
@@ -191,16 +192,16 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
         do {
             // generate a random reciprocal vector
             // p is between [-maxp, +maxp], and same for q and maxq
-            p = gsl_rng_uniform_int(my_rng, 2*maxp+1) - maxp;
-            q = gsl_rng_uniform_int(my_rng, 2*maxq+1) - maxq;
-
+            p = gen_random_int(2*maxp+1, myrng) - maxp;
+            q = gen_random_int(2*maxq+1, myrng) - maxq;
+            
             // reject to give a Gaussian probability of peaks
             gaussian_value = exp(-(p*p + q*q) / 2 / (envelope_sig*envelope_sig));
-            tester = gsl_rng_uniform(my_rng);
+            tester = genRand(myrng);
         } while(tester > gaussian_value);
 
         // generate gaussian-distributed random perturbation to smudge the peaks
-        gsl_ran_bivariate_gaussian(my_rng, peak_sig, peak_sig, 0, delta, delta+1);
+        gaussian_random(0, peak_sig, delta, myrng);
 
         // add it to the in-plane components of incident direction
         nf[0] = ni[0] + ratio * (p*b1[0] + q*b2[0]) + delta[0];
@@ -231,10 +232,10 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
  *  init_dir - the initial direction of the ray
  *  new_dir  - array to put the new direction in
  *  params   - first element must be standard deviation of gaussian distribution
- *  my_rng   - random number generator object
+ *  myrng    - 
  */
 void broad_specular_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
 
     double theta, phi;
     double cos_normal;
@@ -249,8 +250,8 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
 
     do {
         /* Generate a random theta and phi */
-        theta = theta_generate(sigma, my_rng);
-        phi = 2*M_PI*gsl_rng_uniform(my_rng);
+        theta = theta_generate(sigma, myrng);
+        phi = 2*M_PI*genRand(myrng);
 
         /* Generate the new direction */
         for (int k = 0; k < 3; k++) {
@@ -269,7 +270,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
         /* We reject the direction with a probability proportional to
          * cos(theta_normal)
          */
-        tester = gsl_rng_uniform(my_rng);
+        tester = genRand(myrng);
     } while (cos_normal < tester);
     /* We have successfully generated a new direction */
 }
@@ -281,17 +282,31 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
  * The distribution is P = sin(theta) * exp(-theta^2/(2*sigma^2)),
  * where the sine comes from the solid angle integrated over azimuthal directions.
  */
-static double theta_generate(double sigma, gsl_rng *my_rng) {
+static double theta_generate(double sigma, MTRand *myrng) {
     double theta;
     double s_theta = 0;
     double tester = 0;
+    int cnt;
+    double Z[2];
+    double rand1;
 
     /* Sample the Gaussian distribution then reject with a probability that
      * is proportional to sin(theta) */
+    cnt = 0;
     do {
-        /* Generate a random Gaussian number, note that theta must by non-negative */
-        theta = fabs(gsl_ran_gaussian(my_rng, sigma));
-
+        /* Generate a random Gaussian number, note that theta must by
+         * non-negative. The Box-muller generates 2 random numbers, store both 
+         * and use the previously generated one if we are on an even iteration 
+         * (2nd, 4th, etc.)
+         */
+        if (cnt % 2) {
+            gaussian_random(0, sigma, Z, myrng);
+            rand1 = Z[0];
+        } else {
+            rand1 = Z[1];
+        }
+        theta = fabs(rand1);
+        
         /* If theta exceeds pi then try again */
         if (theta > M_PI)
             continue;
@@ -300,7 +315,9 @@ static double theta_generate(double sigma, gsl_rng *my_rng) {
         s_theta = 0.5*sin(theta);
 
         /* Generate a tester variable */
-        tester = gsl_rng_uniform(my_rng);
+        tester = genRand(myrng);
+        
+        cnt++;
     } while (s_theta < tester);
 
     return(theta);
@@ -316,19 +333,18 @@ static double theta_generate(double sigma, gsl_rng *my_rng) {
  *  initial_dir - can be NULL
  *  new_dir - double array, an array to store the new direction of the ray
  *  params  - no parameters expected, can be NULL
- *  my_rng   - gsl_rng pointer, pointer to a GSL random number generator that has
- *            been created and set up with setupGSL()
+ *  myrng   - 
  */
 void cosine_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
     double s_theta, c_theta, phi;
     double t1[3];
     double t2[3];
 
     perpendicular_plane(normal, t1, t2);
 
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    s_theta = sqrt(gsl_rng_uniform(my_rng));
+    phi = 2*M_PI*genRand(myrng);
+    s_theta = sqrt(genRand(myrng));
     c_theta = sqrt(1 - s_theta*s_theta);
 
     /* Create the new random direction from the two random angles */
@@ -342,7 +358,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
  * about the specular direction.
  */
 void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
     double s_theta, c_theta, phi;
     double dot_normal;
     double t0[3];
@@ -357,9 +373,9 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
     /* Keep generating direction until one is in the allowed range (not going
      * into the surface */
     do {
-        /* Generate random numbers for phi and cos(theta) using the GSL */
-        phi = 2*M_PI*gsl_rng_uniform(my_rng);
-        s_theta = sqrt(gsl_rng_uniform(my_rng));
+        /* Generate random numbers for phi and cos(theta) */
+        phi = 2*M_PI*genRand(myrng);
+        s_theta = sqrt(genRand(myrng));
         c_theta = sqrt(1 - s_theta*s_theta);
 
         /* Create the new random direction from the two random angles */
@@ -384,11 +400,10 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
  *  initial_dir - can be NULL
  *  new_dir - double array, an array to store the new direction of the ray
  *  params  - no parameters expected, can be NULL
- *  my_rng  - gsl_rng pointer, pointer to a GSL random number generator that has
- *            been created and set up with setupGSL()
+ *  myrng   - 
  */
 void uniform_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng) {
+        double new_dir[3], const double * params, MTRand *myrng) {
     double s_theta, c_theta, phi;
     double t1[3];
     double t2[3];
@@ -396,9 +411,8 @@ void uniform_scatter(const double normal[3], const double initial_dir[3],
     perpendicular_plane(normal, t1, t2);
 
     /* Generate random numbers for phi and cos(theta) */
-    /* Using the GSL */
-    phi = 2*M_PI*gsl_rng_uniform(my_rng);
-    c_theta = fabs(0.999*gsl_rng_uniform(my_rng) - 1);
+    phi = 2*M_PI*genRand(myrng);
+    c_theta = fabs(0.9999*genRand(myrng) - 1);
     s_theta = sqrt(1 - c_theta*c_theta);
 
     /* Create the new random direction from the two random angles */

@@ -48,7 +48,7 @@
  * This is a MEX file for MATLAB.
  */
 
-#include "mex.h"
+#include <mex.h>
 #include "small_functions3D.h"
 #include "common_helpers.h"
 #include "trace_ray.h"

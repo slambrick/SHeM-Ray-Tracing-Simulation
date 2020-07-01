@@ -11,10 +11,9 @@
  * This file contains a number of small functions that are used in the SHeM ray
  * tracing simulation, or would be useful in adaptions of that simulation.
  */
-#include "mex.h"
+#include <mex.h>
 #include "common_helpers.h"
 #include "small_functions3D.h"
-//#include <gsl/gsl_math.h>
 #include <math.h>
 
 /*
@@ -116,7 +115,8 @@ void reflect3D(const double normal[3], const double init_dir[3], double new_dir[
 }
 
 
-/* find two (unit) directions perpendicular to a given unit vector n,
+/* 
+ * Find two (unit) directions perpendicular to a given unit vector n,
  * and write them to v1 and v2.
  *
  * The idea is that (x, y, z) . (-y, x, 0) = 0

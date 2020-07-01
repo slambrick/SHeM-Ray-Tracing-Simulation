@@ -369,7 +369,6 @@ void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, doub
         double init_angle, int source_model, double sigma, MTRand *myrng) {
     double r, theta=0, phi;
     double rot_angle;
-    double B;
     double normal[3];
     double dir[3];
     
@@ -396,7 +395,7 @@ void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, doub
             normal[0] = 0;
             normal[1] = -1;
             normal[2] = 0;
-            cosine_scatter(normal, NULL, gen_ray->direction, NULL, my_rng);
+            cosine_scatter(normal, NULL, gen_ray->direction, NULL, myrng);
             break;
     }
 

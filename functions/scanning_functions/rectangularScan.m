@@ -16,14 +16,48 @@
 % OUTPUTS:
 %  square_scan_info - An object of class RectangleInfo that contains all
 %                     the results and information about the simulation
-function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
-        direct_beam, maxScatter, ...
-        pinhole_surface, effuse_beam, dist_to_sample, ...
-        sphere, thePath, pinhole_model, thePlate, apertureAbstract, ray_model, ...
-        n_detector)
-
+function square_scan_info = rectangularScan(varargin)
+    
+    for i_=1:2:length(varargin)
+        switch varargin{i_}
+            case 'sample_surface'
+                sample_surface = varargin{i_+1};
+            case 'raster_pattern'
+                raster_pattern = varargin{i_+1};
+            case 'direct_beam'
+                direct_beam = varargin{i_+1};
+            case 'max_scatter'
+                max_scatter = varargin{i_+1};
+            case 'pinhole_surface'
+                pinhole_surface = varargin{i_+1};
+            case 'effuse_beam'
+                effuse_beam = varargin{i_+1};
+            case 'dist_to_sample'
+                dist_to_sample = varargin{i_+1};
+            case 'sphere'
+                sphere = varargin{i_+1};
+            case 'thePath'
+                thePath = varargin{i_+1};
+            case 'pinhole_model'
+                pinhole_model = varargin{i_+1};
+            case 'thePlate'
+                thePlate = varargin{i_+1};
+            case 'aperture_abstract'
+                aperture_abstract = varargin{i_+1};
+            case 'ray_model'
+                ray_model = varargin{i_+1};
+            case 'n_detector'
+                n_detector = varargin{i_+1};
+            otherwise
+                error(['input ' num2str(i_) ' not recognised:']);
+        end
+    end
+    
+    % Default inputs
+    % TODO
+    
     % Create the variables for output data
-    counters = zeros(maxScatter, n_detector, raster_pattern.nz, raster_pattern.nx);
+    counters = zeros(max_scatter, n_detector, raster_pattern.nz, raster_pattern.nx);
     effuse_counters = zeros(n_detector, raster_pattern.nz, raster_pattern.nx);
     num_killed = zeros(raster_pattern.nz, raster_pattern.nx);
 
@@ -78,8 +112,6 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
     % more optimal
     % NOTE: could use parfeval
     parfor i_=1:N_pixels
-        % disp(['scanning pixel x = ' num2str(x_pix) ' z = ' num2str(z_pix)]);
-
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);
         this_surface.moveBy([xx(i_), 0, zz(i_)]);
@@ -89,16 +121,16 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
 
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
-            plate_represent, 'sample', this_surface, 'maxScatter', maxScatter, ...
+            plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'dist', dist_to_sample, 'sphere', this_sphere, 'ray_model', ...
+            'sphere', this_sphere, 'ray_model', ...
             ray_model, 'which_beam', direct_beam.source_model, 'beam', direct_beam);
 
         % Effuse beam
         [effuse_cntr, ~, ~] = switch_plate('plate_represent', ...
-            plate_represent, 'sample', this_surface, 'maxScatter', maxScatter, ...
+            plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'dist', dist_to_sample, 'sphere', this_sphere, 'ray_model', ...
+            'sphere', this_sphere, 'ray_model', ...
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
 
         % Update the progress bar if we are working in the MATLAB GUI.
@@ -143,7 +175,7 @@ function square_scan_info = rectangularScan(sample_surface, raster_pattern, ...
     % Generate output square scan class
     square_scan_info = RectangleInfo(counters, num_killed, sample_surface, ...
         raster_pattern.xrange, raster_pattern.zrange, raster_pattern.movement_x, raster_pattern.movement_z, direct_beam.n, ...
-        effuse_beam.n, t, t_estimate, effuse_counters, n_detector, maxScatter, ...
+        effuse_beam.n, t, t_estimate, effuse_counters, n_detector, max_scatter, ...
         dist_to_sample, direct_beam, raster_pattern);
 
     % Add optional detector locations to square_scan_info

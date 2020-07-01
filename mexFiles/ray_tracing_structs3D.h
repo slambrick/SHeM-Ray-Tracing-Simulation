@@ -167,7 +167,7 @@ void print_sphere(const AnalytSphere * sphere);
 void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
-void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c,
+void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, double theta_max,
         double init_angle, int source_model, double sigma, MTRand *myrng);
 
 #endif

@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020, Sam Lambrick, Dan Serment.
+ * All rights reserved.
+ * This file is part of the SHeM ray tracing simulation, subject to the
+ * GNU/GPL-3.0-or-later.
+ */
 #include "extract_inputs.h"
 
 /*
@@ -165,7 +171,7 @@ void get_source(const mxArray * source, double * pinhole_r, double * pinhole_c,
 
 
 /*
- * Extract the plate properties from MATLAB cell array of length 5
+ * Extract the plate properties from MATLAB struct of length 5
  * and write to NBackWall struct.
  *
  * INPUTS:
@@ -174,19 +180,56 @@ void get_source(const mxArray * source, double * pinhole_r, double * pinhole_c,
  */
 NBackWall get_plate(const mxArray * plate_opts, int plate_index) {
     NBackWall plate;
+    mxArray * field;
 
-    if(!mxIsCell(plate_opts))
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:plate",
-                          "Must be cell array");
-    if(mxGetN(plate_opts) != 5 && mxGetM(plate_opts) != 5)
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:plate",
-                          "Must be of length 5");
+    if(!mxIsStruct(plate_opts))
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:plate_opts",
+                          "Must be struct array");
+    if(mxGetN(plate_opts) != 1 || mxGetM(plate_opts) != 1)
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:plate_opts",
+                          "Must be one struct");
+        
+    // Get whether to represent the pinhole plate as scattering
+    field = mxGetField(plate_opts, 0, "plate_represent");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("MuToolbox:tracingMex:plate_opts",
+                          "Representation of pinhole plate must be scalar");
+    plate.plate_represent = (int)mxGetScalar(field);
+    
+    // Get the number of detectors
+    field = mxGetField(plate_opts, 0, "n_detectors");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("MuToolbox:tracingMex:plate_opts",
+                          "Number of detectors must be scalar");
+    plate.n_detect = (int)mxGetScalar(field);
+    
+    // Get the radius of the pinhole plate
+    field = mxGetField(plate_opts, 0, "circle_plate_r");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("MuToolbox:tracingMex:plate_opts",
+                          "Radius of pinhole plate must be scalar");
+    plate.circle_plate_r = mxGetScalar(field);
+    
+    // Get the axes of the apertures
+    field = mxGetField(plate_opts, 0, "aperture_axes");
+    if (!mxIsDouble(field) || mxGetN(field) != 2*plate.n_detect)
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:plate_opts",
+                          "Aperture axes must be array of 2xnumber of detectors doubles.");
+    plate.aperture_axes = mxGetDoubles(field);
+    
+    // Get the centres of the apertures
+    field = mxGetField(plate_opts, 0, "aperture_c");
+    if (!mxIsDouble(field) || mxGetN(field) != 2*plate.n_detect)
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:plate_opts",
+                          "Aperture centres must be array of 2xnumber of detectors doubles.");
+    plate.aperture_c = mxGetDoubles(field);
 
-    plate.plate_represent = (int)mxGetScalar(mxGetCell(plate_opts, 0));
-    plate.n_detect = (int)mxGetScalar(mxGetCell(plate_opts, 1));
-    plate.circle_plate_r = mxGetScalar(mxGetCell(plate_opts, 2));
-    plate.aperture_axes = mxGetDoubles(mxGetCell(plate_opts, 3));
-    plate.aperture_c = mxGetDoubles(mxGetCell(plate_opts, 4));
+    // Get the number of detectors
+    field = mxGetField(plate_opts, 0, "n_detectors");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("MuToolbox:tracingMex:plate_opts",
+                          "Number of detectors must be scalar");
+
     plate.surf_index = plate_index;
 
     return plate;

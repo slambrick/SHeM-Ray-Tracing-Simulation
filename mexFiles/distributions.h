@@ -11,8 +11,7 @@
 #ifndef _distributions
 #define _distributions
 
-#include <gsl/gsl_rng.h>
-
+#include "mtwister.h"
 /*
  * This is the TYPE of a distribution function. They take in:
  * - a surface normal
@@ -22,7 +21,7 @@
  * - a GSL random number generator
  */
 typedef void (*distribution_func)(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng*);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 distribution_func distribution_by_name(const char * name);
 
@@ -39,10 +38,10 @@ distribution_func distribution_by_name(const char * name);
  * + followed by all the params for the original distribution
  */
 void debye_waller_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 void debye_waller_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 /*
  * Generate rays with broadened specular distribution and a diffuse background.
@@ -52,7 +51,7 @@ void debye_waller_diffraction(const double normal[3], const double init_dir[3],
  * broad_specular.
  */
 void diffuse_and_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 /*
  * Generate rays according to a 2D diffraction pattern but with cosine-distributed
@@ -63,7 +62,7 @@ void diffuse_and_specular(const double normal[3], const double init_dir[3],
  * diffraction_pattern.
  */
 void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 /*
  * Generate rays according to a 2D diffraction pattern given by two
@@ -79,7 +78,7 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
  */
 void diffraction_pattern(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 /*
  * Generate a random direction according to the Gaussian broadened specular:
@@ -98,7 +97,7 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
  *  my_rng   - random number generator object
  */
 void broad_specular_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 /*
  * Generates a random normalized direction according to a cosine distribution
@@ -113,7 +112,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
  *            been created and set up with setupGSL()
  */
 void cosine_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 
 /*
@@ -121,7 +120,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
  * about the specular direction.
  */
 void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 
 /*
@@ -137,6 +136,6 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
  *            been created and set up with setupGSL()
  */
 void uniform_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, gsl_rng *my_rng);
+        double new_dir[3], const double * params, MTRand *myrng);
 
 #endif

@@ -7,10 +7,8 @@
  * Contains small helper functions common to both 2D and 3D ray Tracing.
  */
 #include "common_helpers.h"
-
-#include "mex.h"
+#include <mex.h>
 #include <stdlib.h>
-#include <sys/time.h>
 #include <math.h>
 #include "mtwister.h"
 
@@ -82,4 +80,41 @@ void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
     Z[1] = Z[1]*sigma + mu;
     
     return;
+}
+
+/* 
+ * Samples from the top tail of a Gaussian distribution. Samples from the
+ * distribution and then checks to see if the value is below the cutoff.
+ */
+double gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrng) {
+    double Z[2];
+    double rand1;
+    int cnt = 0;
+    
+    do {
+        if (cnt % 2) {
+            gaussian_random(mu, sigma, Z, myrng);
+            rand1 = Z[0];
+        } else {
+            rand1 = Z[1];
+        }
+        
+        cnt++;
+    } while (rand1 < cutoff);
+    
+    return rand1;
+}
+
+/*
+ * Create a random int in the desired range, 0 to max-1
+ */
+int gen_random_int(int max, MTRand *myrand) {
+    double uniform_rand;
+    int random_int;
+    
+    uniform_rand = genRand(myrand);
+    uniform_rand = uniform_rand*(double)max;
+    random_int = (int)floor(uniform_rand);
+    
+    return random_int;
 }

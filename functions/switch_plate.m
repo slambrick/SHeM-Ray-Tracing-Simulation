@@ -17,11 +17,10 @@
 % INPUTS:
 %  plate_represent - How is the pinhole plate being represented
 %  sample          - TriagSurface of the sample
-%  maxScatter      - The maximum allowed number of scattering events
+%  max_scatter      - The maximum allowed number of scattering events
 %  pinhole_surface - TriagSurface of the pinhole plate
 %  thePlate        - information on the simple model of the pinhole plate
 %  scan_pos        - [scan_pos_x. scan_pos_z]
-%  dist            - Distance from the sample to the pinhole plate
 %  sphere          - Information on an analytic sphere
 %  ray_model       - Are the rays being generated in 'C' or 'MATLAB'
 %  which_beam      - What kind of beam is being moddled, 'Effuse, 'Uniform', or
@@ -41,14 +40,12 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
                 plate_represent = varargin{i_+1};
             case 'sample'
                 sample = varargin{i_+1};
-            case 'maxScatter'
-                maxScatter = varargin{i_+1};
+            case 'max_scatter'
+                max_scatter = varargin{i_+1};
             case 'pinhole_surface'
                 pinhole_surface = varargin{i_+1};
             case 'thePlate'
                 thePlate = varargin{i_+1};
-            case 'dist'
-                dist_to_sample = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
             case 'ray_model'
@@ -99,12 +96,12 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
         switch plate_represent
             case 'stl'
                 [cnt, killed, ~, ~, ~, numScattersRay, ~] = ...
-                    traceRays('rays', rays, 'sample', sample, 'maxScatter', ...
-                    maxScatter, 'plate', pinhole_surface, ...
+                    traceRays('rays', rays, 'sample', sample, 'max_scatter', ...
+                    max_scatter, 'plate', pinhole_surface, ...
                     'sphere', sphere);
             case 'N circle'
                 [cnt, killed, ~, numScattersRay] = traceSimpleMulti('rays', rays, ...
-                    'sample', sample', 'maxScatter', maxScatter, ...
+                    'sample', sample', 'max_scatter', max_scatter, ...
                     'sphere', sphere, 'plate', thePlate);
             case 'abstract'
                 % TODO
@@ -115,13 +112,13 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
         switch plate_represent
             case 'stl'
                 [cnt, killed, ~, numScattersRay] = traceRaysGen('sample', ...
-                    sample, 'maxScatter', maxScatter, 'plate', pinhole_surface, ...
+                    sample, 'max_scatter', max_scatter, 'plate', pinhole_surface, ...
                     'sphere', sphere, 'source', which_beam, 'beam', beam);
             case 'abstract'
                 % TODO
             case 'N circle'
                 [cnt, killed, ~, numScattersRay] = traceSimpleMultiGen('sample', ...
-                    sample, 'maxScatter', maxScatter, 'plate', thePlate, ...
+                    sample, 'max_scatter', max_scatter, 'plate', thePlate, ...
                     'sphere', sphere, 'source', which_beam, 'beam', beam);
         end
     end

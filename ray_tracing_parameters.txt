@@ -14,7 +14,7 @@ Type of scan: rectangular
 Number of detectors: 4
 Detector full axes (x,y): (0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
 Detector centres (x,y): (0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5)
-Rotation angles (only needed if 'rotaions' scan used): (0, 72, 144, 216, 288)
+Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
@@ -47,14 +47,14 @@ Sample description: Test sample
 Working distance to place the sample at: 1
 Sphere radius (mm): 0.1
 Length of side of flat sample: 1
-Custom sample stl file: ../samples/example_sample.stl
+Custom sample stl file: ../samples/four_squares.obj
 
 %% Set up your scan
 % For now this assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.002
-Scan range x (mm): 0.4
-Scan range y (mm): 0.4
+Pixel seperation (mm): 0.05
+Scan range x (mm): 1
+Scan range y (mm): 1
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters

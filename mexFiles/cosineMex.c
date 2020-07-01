@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "mex.h"
+#include <mex.h>
 #include <gsl/gsl_rng.h>
 #include "small_functions.h"
 

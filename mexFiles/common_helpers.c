@@ -88,18 +88,17 @@ void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
  */
 double gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrng) {
     double Z[2];
-    double rand1 = 0;
-    int cnt = 0;
+    double rand1;
+    int cnt;
     
-    cutoff = -1.0;
+    cnt = 0;
     do {
-        if (cnt % 2) {
+        if (!(cnt % 2)) {
             gaussian_random(mu, sigma, Z, myrng);
             rand1 = Z[0];
         } else {
             rand1 = Z[1];
         }
-        
         cnt++;
     } while (rand1 < cutoff);
     

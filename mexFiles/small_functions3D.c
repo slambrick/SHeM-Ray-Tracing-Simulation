@@ -11,7 +11,6 @@
  * This file contains a number of small functions that are used in the SHeM ray
  * tracing simulation, or would be useful in adaptions of that simulation.
  */
-#include <mex.h>
 #include "common_helpers.h"
 #include "small_functions3D.h"
 #include <math.h>

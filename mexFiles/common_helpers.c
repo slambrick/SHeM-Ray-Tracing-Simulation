@@ -7,7 +7,7 @@
  * Contains small helper functions common to both 2D and 3D ray Tracing.
  */
 #include "common_helpers.h"
-#include <mex.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "mtwister.h"
@@ -29,11 +29,11 @@ int lin(int row, int col) {
  */
 void print1D_double(double *vect, int dim) {
     if (dim == 2)
-        mexPrintf("[%f, %f]\n", vect[0], vect[1]);
+        printf("[%f, %f]\n", vect[0], vect[1]);
     else if (dim == 3)
-        mexPrintf("[%f, %f, %f]\n", vect[0], vect[1], vect[2]);
+        printf("[%f, %f, %f]\n", vect[0], vect[1], vect[2]);
     else
-        mexPrintf("dim into print1D must be 2 or 3.");
+        printf("dim into print1D must be 2 or 3.");
 }
 
 /*
@@ -45,23 +45,23 @@ void print1D_double(double *vect, int dim) {
  */
 void print1D_int(int *vect, int dim) {
     if (dim == 2)
-        mexPrintf("[%i, %i]\n", vect[0], vect[1]);
+        printf("[%i, %i]\n", vect[0], vect[1]);
     else if (dim == 3)
-        mexPrintf("[%i, %i, %i]\n", vect[0], vect[1], vect[2]);
+        printf("[%i, %i, %i]\n", vect[0], vect[1], vect[2]);
     else
-        mexPrintf("dim into print1D must be 2 or 3.");
+        printf("dim into print1D must be 2 or 3.");
 }
 
 /* Prints out a 3 by 3 double array passed as an argument. */
 void print3x3(double matrix[3][3]) {
     int i;
-    mexPrintf("{\n");
+    printf("{\n");
     for (i = 0; i < 3; i++) {
-        mexPrintf("%f, ", matrix[i][0]);
-        mexPrintf("%f, ", matrix[i][1]);
-        mexPrintf("%f\n", matrix[i][2]);
+        printf("%f, ", matrix[i][0]);
+        printf("%f, ", matrix[i][1]);
+        printf("%f\n", matrix[i][2]);
     }
-    mexPrintf("}\n");
+    printf("}\n");
 }
 
 /* 
@@ -88,9 +88,10 @@ void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
  */
 double gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrng) {
     double Z[2];
-    double rand1;
+    double rand1 = 0;
     int cnt = 0;
     
+    cutoff = -1.0;
     do {
         if (cnt % 2) {
             gaussian_random(mu, sigma, Z, myrng);

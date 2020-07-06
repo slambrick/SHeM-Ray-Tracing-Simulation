@@ -7,7 +7,7 @@
  * Intersect the ray with a particular surface. combinations of surfaces are
  * used to create a single iteraction of the ray path.
  */
-#include "intersect_detection.h"
+#include "intersect_detection3D.h"
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
 #include "distributions.h"

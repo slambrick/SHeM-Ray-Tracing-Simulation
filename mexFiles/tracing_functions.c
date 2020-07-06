@@ -11,7 +11,7 @@
  */
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
-#include "intersect_detection.h"
+#include "intersect_detection3D.h"
 #include "distributions.h"
 #include <math.h>
 

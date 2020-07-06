@@ -6,13 +6,13 @@
  */
 
 #include "ray_tracing_structs2D.h"
-#include "scattering_processes2D.h"
+#include "distributions2D.h"
 #include "common_helpers.h"
 #include "small_functions2D.h"
 #include "mtwister.h"
 
-#ifndef _scattering2D_h
-#define _scattering2D_h
+#ifndef _intersect_detection2D_h
+#define _intersect_detection2D_h
 
 /* Scatters all the rays stored in a Rays struct off the surface. */
 void scatterRays2D(Surface2D Sample, Rays2D all_rays);

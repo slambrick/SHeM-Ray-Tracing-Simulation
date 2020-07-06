@@ -9,8 +9,8 @@
 #include "mex.h"
 #include "small_functions2D.h"
 #include "ray_tracing_structs2D.h"
-#include "scattering2D.h"
-#include "scattering_processes2D.h"
+#include "intersect_detection2D.h"
+#include "distributions2D.h"
 #include <stdlib.h>
 #include "mtwister.h"
 

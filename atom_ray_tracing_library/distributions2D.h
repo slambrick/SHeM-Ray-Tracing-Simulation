@@ -7,8 +7,8 @@
 #include "ray_tracing_structs2D.h"
 #include "mtwister.h"
 
-#ifndef _scattering_processes2D_h
-#define _scattering_processes2D_h
+#ifndef _distributions2D_h
+#define _distributions2D_h
 
 /* Gives a ray a new direction according to the specified scattering
  * distribution. */

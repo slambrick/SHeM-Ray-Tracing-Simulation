@@ -15,7 +15,7 @@
  */
 #include "mex.h"
 #include "small_functions2D.h"
-#include "scattering_processes2D.h"
+#include "distributions2D.h"
 #include <stdlib.h>
 #include "mtwister.h"
 #include <math.h>

@@ -406,11 +406,7 @@ end
 
 %% Compile the mex files
 
-files_exist = exist('tracingMultiGenMex.mexa64', 'file');         
-
-if recompile || ~files_exist
-    mexCompile();
-end
+mexCompile(recompile);
 
 %% Create input structs to hole input data
 % delete(gcp('nocreate'));

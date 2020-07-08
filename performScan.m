@@ -12,9 +12,7 @@ clc
 
 
 %% Paths to functions
-addpath(genpath('functions'), 'classes', ...
-        'mexFiles', 'ParforProgMon', ...
-        'surf2stl', genpath('import_3d'));
+loadpath
 
 %% Read parameters from text file
 param_fname = 'ray_tracing_parameters.txt';

@@ -8,14 +8,13 @@
  * Structues for use with the SHeM Ray Tracing Simulation.
  */
 
-#ifndef _ray_tracing_structures_h
-#define _ray_tracing_structures_h
+#ifndef _ray_tracing_structures3D_h
+#define _ray_tracing_structures3D_h
 
 #include <mex.h>
 #include "mtwister.h"
 #include <stdint-gcc.h>
-
-#include "distributions.h"
+#include "distributions3D.h"
 
 /******************************************************************************/
 /*                          Structure declarations                            */

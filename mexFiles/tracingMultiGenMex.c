@@ -8,7 +8,13 @@
  * The main MEX function for performing the SHeM Simulation.
  *
  * The calling syntax is:
- *
+ *  [] = tracingMultiGenMex()
+ * 
+ * INPUTS:
+ *  - 
+ * 
+ * OUTPUTS:
+ *  - 
  *
  * This is a MEX file for MATLAB.
  */
@@ -19,9 +25,7 @@
 #include <math.h>
 #include <sys/time.h>
 #include <stdlib.h>
-
 #include "mtwister.h"
-
 #include "trace_ray.h"
 #include "extract_inputs.h"
 #include "common_helpers.h"
@@ -97,7 +101,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
      */
     nvert = mxGetN(prhs[0]);
     V = mxGetDoubles(prhs[0]);
-
     ntriag_sample = mxGetN(prhs[1]);
     F = mxGetInt32s(prhs[1]);
     N = mxGetDoubles(prhs[2]);
@@ -123,7 +126,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     source_model = (int)mxGetScalar(prhs[11]);
     
     // TODO: pass through source as a struct?
-    get_source(prhs[12], &pinhole_r, pinhole_c, &src_theta_max, &src_init_angle, &src_sigma);
+    get_source(prhs[12], &pinhole_r, pinhole_c, &src_theta_max, &src_init_angle,
+               &src_sigma);
 
     /**************************************************************************/
         
@@ -136,7 +140,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     /* Put the sample and pinhole plate surface into structs */
     // TODO: can we make a sample struct that can be passed from Matlab to C?
-    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index);
+    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert,
+                            sample_index);
 
     /**************************************************************************/
     
@@ -146,7 +151,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
      * difference in indexing between MATLAB and C.
      */
     plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);
-    plhs[2] = mxCreateNumericMatrix(1, plate.n_detect*maxScatters, mxINT32_CLASS, mxREAL);
+    plhs[2] = mxCreateNumericMatrix(1, plate.n_detect*maxScatters, mxINT32_CLASS,
+                                    mxREAL);
 
     /* Pointers to the output matrices so we may change them*/
     cntr_detected = (int*)mxGetData(plhs[0]);

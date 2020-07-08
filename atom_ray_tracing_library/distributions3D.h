@@ -8,10 +8,11 @@
  * simulation.
  */
 
-#ifndef _distributions
-#define _distributions
+#ifndef _distributions3D_h
+#define _distributions3D_h
 
 #include "mtwister.h"
+
 /*
  * This is the TYPE of a distribution function. They take in:
  * - a surface normal

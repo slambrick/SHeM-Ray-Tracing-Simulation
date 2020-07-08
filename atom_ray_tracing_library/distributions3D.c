@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-19, Sam Lambrick.
+ * Copyright (c) 2018-20, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -15,14 +15,9 @@
  * Random number generation is performed using the GNU/SL. Functions and code
  * snippets are present that use the C standard library insead.
  */
-#include "distributions.h"
-
+#include "distributions3D.h"
 #include <stdlib.h>
-//#include <gsl/gsl_rng.h>
-//#include <gsl/gsl_randist.h>
-//#include <gsl/gsl_math.h>
 #include <string.h>
-
 #include "mtwister.h"
 #include "common_helpers.h"
 #include <math.h>
@@ -135,14 +130,14 @@ void debye_waller_filter_diffuse(distribution_func original_distr,
 
 void debye_waller_specular(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, MTRand *myrng) {
-    return debye_waller_filter_diffuse(broad_specular_scatter, normal, init_dir,
+    debye_waller_filter_diffuse(broad_specular_scatter, normal, init_dir,
         new_dir, params, myrng);
 }
 
 
 void debye_waller_diffraction(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, MTRand *myrng) {
-    return debye_waller_filter_diffuse(diffraction_pattern, normal, init_dir,
+    debye_waller_filter_diffuse(diffraction_pattern, normal, init_dir,
         new_dir, params, myrng);
 }
 

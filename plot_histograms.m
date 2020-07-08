@@ -27,7 +27,7 @@ init_angle = 45;
 
 %% Preperation
 
-addpath(genpath('functions'), genpath('classes'))
+loadpath
 
 load(data_file)
 

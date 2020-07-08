@@ -7,8 +7,8 @@
  * Function declarations for scattering off different types of surface.
  */
 
-#ifndef _intersect_detection_h
-#define _intersect_detection_h
+#ifndef _intersect_detection3D_h
+#define _intersect_detection3D_h
 
 #include "ray_tracing_structs3D.h"
 
@@ -24,7 +24,6 @@ int backWallScatter(Ray3D *the_ray, BackWall wallPlate,  double *min_dist,
         double nearest_inter[3], double nearest_n[3], int *meets, int *tri_hit,
         int *which_surface);
 
-/* Scatter off a back wall with n detectors */
 int multiBackWall(Ray3D *the_ray, NBackWall wallPlate, double *min_dist,
         double nearest_inter[3], double nearest_n[3], int *meets, int *tri_hit,
         int *which_surface);

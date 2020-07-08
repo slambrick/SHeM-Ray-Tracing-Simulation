@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Sam Lambrick.
+ * Copyright (c) 2018-2020, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -12,7 +12,7 @@
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
 #include "intersect_detection3D.h"
-#include "distributions.h"
+#include "distributions3D.h"
 #include <math.h>
 
 

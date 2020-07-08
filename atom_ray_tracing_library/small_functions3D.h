@@ -8,8 +8,8 @@
  * simulation.
  */
 
-#ifndef _small_functions_h
-#define _small_functions_h
+#ifndef _small_functions3D_h
+#define _small_functions3D_h
 
 /* Adds a 3 element array to another 3 element array multiplied by a scalar
  * (propagates an array). */

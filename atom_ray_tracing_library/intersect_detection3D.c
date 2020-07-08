@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Sam Lambrick.
+ * Copyright (c) 2018-20, Sam Lambrick.
  * All rights reserved.
  * This file is part of the Sub-beam Ray Tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -10,7 +10,7 @@
 #include "intersect_detection3D.h"
 #include "small_functions3D.h"
 #include "ray_tracing_structs3D.h"
-#include "distributions.h"
+#include "distributions3D.h"
 #include "mtwister.h"
 #include <mex.h>
 #include <math.h>

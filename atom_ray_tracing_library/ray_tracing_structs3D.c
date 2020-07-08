@@ -13,7 +13,7 @@
 #include "ray_tracing_structs3D.h"
 #include "common_helpers.h"
 #include "small_functions3D.h"
-#include "distributions.h"
+#include "distributions3D.h"
 #include <mex.h>
 #include <stdlib.h>
 #include <gsl/gsl_math.h>

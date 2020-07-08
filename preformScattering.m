@@ -1,4 +1,4 @@
-% Copyright (c) 2018, Sam Lambrick.
+% Copyright (c) 2018-20, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.

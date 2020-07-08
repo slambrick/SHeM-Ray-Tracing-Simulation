@@ -40,7 +40,7 @@ if ~exist('../results1D/', 'dir')
 end
 file_name = ['../results1D/' file_name];
 
-addpath(genpath('functions'), genpath('classes'), genpath('ParforProgMon'))
+loadpath
 
 mexCompile(recompile);
 

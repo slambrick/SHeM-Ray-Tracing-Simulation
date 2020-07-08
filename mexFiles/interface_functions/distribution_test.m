@@ -2,14 +2,12 @@
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
-
+%
+% Interface for testing 
 function distribution_test()
-    clear
+    mexCompile(true);
 
-    %% compile
-    compile_tests()
-
-    %% Parameters
+    % Parameters
     num_rays = 1e6;
     direction = [sin(pi/6), -cos(pi/6), 0];
     direction = direction/norm(direction);

@@ -8,7 +8,7 @@
  * The main MEX function for performing the SHeM Simulation.
  *
  * The calling syntax is:
- *  [] = tracingMultiGenMex()
+ *  [] = tracingMultiGenMex();
  * 
  * INPUTS:
  *  - 

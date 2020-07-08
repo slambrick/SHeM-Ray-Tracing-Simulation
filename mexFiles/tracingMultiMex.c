@@ -9,54 +9,20 @@
  *
  * The calling syntax is:
  *
- *  [cntr, killed, numScattersRay, detected, which_detector]  = ...
- *      tracingMultiMex(init_pos, init_dir, V, F, N, C, P, maxScatter, ...
- *                 make_sphere, sphere_c, sphere_r, sphere_diffuse, sphere_parameters, ...
- *                 plate_represent, n_detector, circle_plate_r, aperture_axes, aperture_c);
- *  
- *  INPUTS:
- *   init_pos    - the initial positions of the rays
- *   init_dir    - the initial directions of the rays
- *   V           - a list of the locations of the vertices in the surface
- *   F           - lists which vertices make up the triangles in the surface
- *   N           - lists the normals to the triangles in the surface
- *   C           - indices of the scattering off of each triangle in the 
- *                 sample surface
- *   maxScatter  - the maximum number of scatters off of the sample that rays
- *                 are allowed to undergo
- *   make_sphere - should an analytic sphere be moddelled
- *   sphere_c    - the centre coordinate of the analytic sphere
- *   sphere_r    - the radius of the analytic sphere
- *   sphere_diffuse
- *   sphere_parameters
- *   plate_represent
- *   n_detector
- *   circle_plate_r
- *   aperture_axes
- *   aperture_c
- *
- *  OUTPUTS:
- *   cntr           - the number of rays that have gone into the detector
- *   killed         - the number of rays that were killed because they reached 
- *                    the max number of scattering events allowed
- *   numScattersRay - the number of sample scattering events that each ray has 
- *                    undergone
- *   detected       - array, 1/0, is each ray detected
- *   which_detector - array, if the ray was detected which detector did it go 
- *                    into
- * 
  * This is a MEX file for MATLAB.
  */
 
 #include <mex.h>
-#include "small_functions3D.h"
-#include "common_helpers.h"
-#include "trace_ray.h"
-#include "ray_tracing_structs3D.h"
+#include <matrix.h>
+#include <stdint-gcc.h>
 #include <math.h>
 #include <sys/time.h>
 #include <stdlib.h>
 #include "mtwister.h"
+#include "trace_ray.h"
+#include "extract_inputs.h"
+#include "common_helpers.h"
+#include "ray_tracing_structs3D.h"
 
 /* 
  * The gateway function.
@@ -65,28 +31,22 @@
  */
 void mexFunction(int nlhs, mxArray *plhs[], 
                  int nrhs, const mxArray *prhs[]) {
+    /* Expected number of inputs and outputs */
+    const int NINPUTS = 13;
+    const int NOUTPUTS = 3;
     
     /* Declare the input variables */
     double *ray_pos;        /* inital ray positions 3xN */
     double *ray_dir;        /* inital ray directions 3xN */
     double *V;              /* sample triangle vertices 3xn */
-    double *F;              /* sample triangle faces 3xM */
+    int32_t *F;              /* sample triangle faces 3xM */
     double *N;              /* sample triangle normals 3xM */
-    double *C;              /* sample triangle diffuse level, length M */
-    double *P;              /* sample scattering parameters */
+    char **C;              /* sample triangle diffuse level, length M */
+    Material *M;              /* sample scattering parameters */
     int nrays;              /* number of rays */
+    int nvert;              /* number of vertices in the sample */
     int ntriag_sample;      /* number of sample triangles */
     int maxScatters;        /* Maximum number of scattering events per ray */
-    int make_sphere;        /* Should the analytic sphere be added to the model */
-    double *sphere_c;
-    double sphere_r;        /* Radius of the analytic sphere if it to be made */
-    double sphere_diffuse;  /* The scattering off of the analytic sphere */
-    double sphere_parameters; /* Scattering distribution parameters */
-    int plate_represent;    /* Should rays scatter off the pinhole plate */
-    int n_detector;         /* How many detectors */
-    double circle_plate_r;  /* The radius of the pinhole plate */
-    double *aperture_axes;  /* Array of the detector aperture axes */
-    double *aperture_c;     /* Array of the centres of the detector apertures */
     
     /* Declare the output variables */
     int *cntr_detected;     /* The number of detected rays */
@@ -98,13 +58,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Declare other variables */
     int i;
-    int sample_index, sphere_index, plate_index;
+    int sample_index = 0, plate_index = 1, sphere_index = 2;
     int detector;
 
     /* Declare structs */
-    Surface3D Sample;
-    NBackWall Plate;
-    AnalytSphere the_sphere;
+    Surface3D sample;
+    NBackWall plate;
+    AnalytSphere sphere;
     Rays3D all_rays;
     
     /* For random number generation */
@@ -115,11 +75,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*******************************************************************************/
     
     /* Check for the right number of inputs and outputs */
-    if (nrhs != 18) {
+    if (nrhs != NINPUTS) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
                           "Nineteen inputs required for tracingMex.");
     }
-    if (nlhs != 5) {
+    if (nlhs != NOUTPUTS) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
                           "Five outpus required for tracingMex.");
     }
@@ -131,25 +91,31 @@ void mexFunction(int nlhs, mxArray *plhs[],
      *       MATLAB were of type int it is safe to cast from double to int here.
      */
     ray_pos = mxGetPr(prhs[0]);
+    nrays = mxGetN(prhs[0]);
     ray_dir = mxGetPr(prhs[1]);
     V = mxGetPr(prhs[2]);
-    F = mxGetPr(prhs[3]); /* Reading in as double not int - cast later in code */
-    N = mxGetPr(prhs[4]);
-    C = mxGetPr(prhs[5]);
-    P = mxGetPr(prhs[6]);
-    maxScatters = (int)mxGetScalar(prhs[7]); /* mxGetScalar gives a double */
-    make_sphere = (int)mxGetScalar(prhs[8]); /* mxGetScalar gives a double */
-    sphere_c = mxGetPr(prhs[9]);
-    sphere_r = mxGetScalar(prhs[10]);
-    sphere_diffuse = mxGetScalar(prhs[11]);
-    sphere_parameters = mxGetScalar(prhs[12]);
-    plate_represent = (int)mxGetScalar(prhs[13]);
-    n_detector = (int)mxGetScalar(prhs[14]);
-    circle_plate_r = mxGetScalar(prhs[15]);
-    aperture_axes = mxGetPr(prhs[16]);
-    aperture_c = mxGetPr(prhs[17]);
-    nrays = mxGetN(prhs[0]);
+    nvert = mxGetN(prhs[2]);
+    F = mxGetInt32s(prhs[3]);
     ntriag_sample = mxGetN(prhs[3]);
+    N = mxGetPr(prhs[4]);
+    
+    // read in the material keys
+    C = mxCalloc(ntriag_sample, sizeof(char*));
+    get_string_cell_arr(prhs[5], C);
+
+    // get the sphere from struct
+    sphere = get_sphere(prhs[6], sphere_index);
+
+    // extract plate properties from theplate cell array containing plate options
+    plate = get_plate(prhs[7], plate_index);
+
+    // materials
+    int num_materials = mxGetN(prhs[8]);
+    M = mxCalloc(num_materials, sizeof(Material));
+    get_materials_array(prhs[9], prhs[10], prhs[11], M);
+    
+    // simulation parameters
+    maxScatters = (int)mxGetScalar(prhs[12]); /* mxGetScalar gives a double */
     
     /**************************************************************************/
 
@@ -172,22 +138,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     all_rays = compose_rays3D(ray_pos, ray_dir, nrays);
     
     /* Put the sample and pinhole plate surface into structs */
-    Sample = set_up_surface(V, N, F, C, P, ntriag_sample, sample_index);
-    Plate.aperture_c = aperture_c;
-    Plate.aperture_axes = aperture_axes;
-    Plate.circle_plate_r = circle_plate_r;
-    Plate.composition = 1;
-    Plate.scattering_parameters = 0;
-    Plate.plate_represent = plate_represent;
-    Plate.surf_index = plate_index;
-    Plate.n_detect = n_detector;
-    
-    /* Put information on the analytic sphere into a struct */
-    the_sphere = set_up_sphere(make_sphere, sphere_c,
-        sphere_r, sphere_diffuse, sphere_parameters, sphere_index);
+    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert,
+                            sample_index);
     
     /* Output matrix for total number of counts */
-    plhs[0] = mxCreateNumericMatrix(1, n_detector, mxINT32_CLASS, mxREAL);
+    plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);
     cntr_detected = (int*)mxGetData(plhs[0]);
     
     /* Output matrix for which rays were detected */
@@ -204,8 +159,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Loop through all the rays, tracing each one */
     for (i = 0; i < all_rays.nrays; i++) {
-        detected[i] = trace_ray_simpleMulti(&all_rays.rays[i], &killed, cntr_detected,
-            maxScatters, Sample, Plate, the_sphere, &detector, &myrng);
+        detected[i] = trace_ray_simple_multi(&all_rays.rays[i], &killed, cntr_detected,
+            maxScatters, sample, plate, sphere, &detector, &myrng);
         which_detector[i] = detector;
     }
     
@@ -221,6 +176,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Free the allocated memory associated with the rays */
     clean_up_rays(all_rays);
+    mxFree(C);
+    mxFree(M);
+    clean_up_surface(&sample);
     
     return;
 }

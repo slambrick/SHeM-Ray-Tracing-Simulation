@@ -1,0 +1,19 @@
+# compiled things
+*.mexa64
+*.o
+test/bin
+test/obj
+test/extobj
+
+# program output
+*.png
+*.eps
+simulations/*test
+simulations/*/*.mat
+simulations/*/*.csv
+simulations/*/formatted
+
+# IDE things
+.clangd
+.vscode
+compile_commands.json

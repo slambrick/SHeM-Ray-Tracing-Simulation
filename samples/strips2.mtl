@@ -1,0 +1,110 @@
+# FreeCAD v0.18 build14555 (Git shallow) Arch module
+# http://www.freecadweb.org
+newmtl diffuse
+Kd 0.474509805441 0.474509805441 0.474509805441
+d 0
+func cosine
+params 0
+
+newmtl a1
+Kd 0.137254908681 0.823529422283 0.0
+d 0
+func dw_specular
+params 92 28 298 692 0 0.1
+newmtl a2
+Kd 0.0 0.800000011921 0.0
+d 0
+func dw_specular
+params 84 28 298 692 0 0.1
+newmtl a3
+Kd 0.0 0.800000011921 0.133333340287
+d 0
+func dw_specular
+params 76 28 298 692 0 0.1
+newmtl a4
+Kd 0.0 0.800000011921 0.266666680574
+d 0
+func dw_specular
+params 68 28 298 692 0 0.1
+newmtl a5
+Kd 0.0 0.800000011921 0.40000000596
+d 0
+func dw_specular
+params 60 28 298 692 0 0.1
+newmtl a6
+Kd 0.0 0.800000011921 0.533333361149
+d 0
+func dw_specular
+params 52 28 298 692 0 0.1
+newmtl a7
+Kd 0.0 0.800000011921 0.666666686535
+d 0
+func dw_specular
+params 44 28 298 692 0 0.1
+newmtl a8
+Kd 0.0 0.800000011921 0.800000011921
+d 0
+func dw_specular
+params 36 28 298 692 0 0.1
+newmtl a9
+Kd 0.0 0.666666686535 0.800000011921
+d 0
+func dw_specular
+params 28 28 298 692 0 0.1
+newmtl a10
+Kd 0.0 0.533333361149 0.800000011921
+d 0
+func dw_specular
+params 20 28 298 692 0 0.1
+
+newmtl b1
+Kd 0.411764711142 0.823529422283 0.0
+d 0
+func dw_specular
+params 92 197 298 178 0 0.1
+newmtl b2
+Kd 0.533333361149 0.800000011921 0.0
+d 0
+func dw_specular
+params 84 197 298 178 0 0.1
+newmtl b3
+Kd 0.666666686535 0.800000011921 0.0
+d 0
+func dw_specular
+params 76 197 298 178 0 0.1
+newmtl b4
+Kd 0.800000011921 0.800000011921 0.0
+d 0
+func dw_specular
+params 68 197 298 178 0 0.1
+newmtl b5
+Kd 0.800000011921 0.666666686535 0.0
+d 0
+func dw_specular
+params 60 197 298 178 0 0.1
+newmtl b6
+Kd 0.800000011921 0.533333361149 0.0
+d 0
+func dw_specular
+params 52 197 298 178 0 0.1
+newmtl b7
+Kd 0.800000011921 0.40000000596 0.0
+d 0
+func dw_specular
+params 44 197 298 178 0 0.1
+newmtl b8
+Kd 0.800000011921 0.266666680574 0.0
+d 0
+func dw_specular
+params 36 197 298 178 0 0.1
+newmtl b9
+Kd 0.800000011921 0.133333340287 0.0
+d 0
+func dw_specular
+params 28 197 298 178 0 0.1
+newmtl b10
+Kd 0.800000011921 0.0 0.0
+d 0
+func dw_specular
+params 20 197 298 178 0 0.1
+# Material Count: 21

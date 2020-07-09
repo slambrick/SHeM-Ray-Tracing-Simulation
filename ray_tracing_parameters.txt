@@ -8,20 +8,20 @@
 %% Set up your virtual microscope
 % stl models of the pinhole plate can also be used but must be specified
 % manually in the simulation script in the current version.
-Design working distance (mm): 1
-Incidence angle (deg): 0
+Design working distance (mm): 2.1
+Incidence angle (deg): 45
 Type of scan: rectangular
-Number of detectors: 4
-Detector full axes (x,y): (0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
-Detector centres (x,y): (0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5)
-Rotation angles (only needed if 'rotaions' scan used): (0, 72, 144, 216, 288)
+Number of detectors: 1
+Detector full axes (x,y): (1.4, 1)
+Detector centres (x,y): (2.1, 0)
+Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 200000
+Number of Rays: 100000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
@@ -30,11 +30,8 @@ Effuse beam: Off
 Effuse size (relative to the direct beam): 1
 
 %% Set up your sample
-% There are a few inbuilt samples or you can provide your own stl file of a
+% There are a few inbuilt samples or you can provide your own stl/obj file of a
 % sample, options are: 'flat', 'sphere', 'custom', 'photoStereo'
-% The scattering from the sample must also be defined, options:
-% 'cosine', 'uniform', 'specular', 'broad_specular'. The latter 2 require
-% parameters. 
 %  - If you are using the 'sphere' option specify the radius of sphere.
 %  - If using the 'flat' option specify the size of the flat square sample.
 %  - If specifying your own sample specify the name and path to the stl file,
@@ -43,21 +40,21 @@ What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.1
 Standard deviation (deg): 90 
-Sample description: Test sample
-Working distance to place the sample at: 1
+Sample description: Test material sample
+Working distance to place the sample at: 2.1
 Sphere radius (mm): 0.1
 Length of side of flat sample: 1
-Custom sample stl file: ../samples/example_sample.stl
+Custom sample stl file: samples/four_squares.obj
 
 %% Set up your scan
 % For now this assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.002
-Scan range x (mm): 0.4
-Scan range y (mm): 0.4
+Pixel seperation (mm): 0.02
+Scan range x (mm): 1.1
+Scan range y (mm): 1.1
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): aspect_ratio_test_06_seperation_test_35
+Label for the output directory (no spaces please): test_of_material
 Sould the C code be recompiled: false
 

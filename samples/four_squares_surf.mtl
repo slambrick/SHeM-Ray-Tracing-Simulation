@@ -1,0 +1,33 @@
+# FreeCAD v0.18 build14555 (Git shallow) Arch module
+# http://www.freecadweb.org
+newmtl silicon
+Kd 0.345098048449 0.345098048449 0.345098048449
+d 0
+func dw_specular
+params 65 28 298 230 0 0.1
+
+newmtl chromium
+Kd 0.0 0.360784322023 0.635294139385
+d 0
+func dw_specular
+params 65 52 298 175 0 0.1
+
+newmtl gold
+Kd 0.800000011921 0.600000023842 0.0
+d 0
+func dw_specular
+params 65 197 298 83 0 0.1
+
+newmtl nickel
+Kd 0.800000011921 0.215686276555 0.215686276555
+d 0
+func dw_specular
+params 65 59 298 220 0 0.1
+
+newmtl platinum
+Kd 0.188235297799 0.635294139385 0.0
+d 0
+func dw_specular
+params 65 195 298 110 0 0.1
+
+# Material Count: 5

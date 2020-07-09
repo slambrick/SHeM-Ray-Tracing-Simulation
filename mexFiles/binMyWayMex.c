@@ -29,7 +29,7 @@
  * 
  * This is a MEX file for MATLAB.
  */
-#include "mex.h"
+#include <mex.h>
 
 void binIt(int numScattersRay[], int histRay[], int maxScatters, int nRays);
 

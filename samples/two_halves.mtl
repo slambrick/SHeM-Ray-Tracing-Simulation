@@ -1,0 +1,13 @@
+# FreeCAD v0.18 build14555 (Git shallow) Arch module
+# http://www.freecadweb.org
+newmtl color_03b0bf
+Kd 0.0117647061124 0.690196096897 0.749019622803
+func cosine
+params 0
+d 0
+newmtl color_f2c240
+Kd 0.949019610882 0.760784327984 0.250980407
+func broad_specular
+params 0.6 0.2
+d 0
+# Material Count: 2

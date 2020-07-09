@@ -1,6 +1,6 @@
 % Copyright (c) 2018-20, Sam Lambrick.
 % All rights reserved.
-% This file is part of the SHeM Ray Tracing Simulation, subject to the 
+% This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
 
 close all
@@ -12,9 +12,7 @@ clc
 
 
 %% Paths to functions
-addpath('stlread', genpath('functions'), 'classes', ...
-        'mexFiles', 'fsaxen-ParforProgMon', ...
-        'surf2stl');
+loadpath
 
 %% Read parameters from text file
 param_fname = 'ray_tracing_parameters.txt';
@@ -77,7 +75,7 @@ sphere_c = [0, -dist_to_sample, 0];
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
 % this uneccaserily large will increase the memory requirments of the
 % simulation.
-maxScatter = 20;
+max_scatter = 20;
 
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
@@ -123,15 +121,31 @@ aperture_theta = 0;
 aperture_phi = 0;
 aperture_half_cone = 15;
 
+
+%% Parameters for multiple rectangular scans
+raster_movement_y = 1.4;   % increment between 2 scans
+range_y = [0    1.4];      % range of y positions relative to 'dist_to_sample'
 % For line scans in the y-direction be careful that the sample doesn't go
 % behind the pinhole plate.
-raster_movment1D = 200e-3;
-range1D = [-1 4];
-Direction = 'y';
+init_displacement = [0, 0, 0];  % initial position of sample from 'centred'
+raster_movment1D = 0.02;        % movement increment
+range1D = [-1 4];               % range
+Direction = 'y';                % 'x', 'y' or 'z' - along which direction to move
 
-% Sample scaling, for if the CAD model had to be made at a larger scale. 10 will
 % make the model 10 times smaller (Inventor exports in cm by default...).
 scale = 2;
+%  'strips' - Two parallel series of strips with varying parameters
+% make the model 10 times larger (Inventor exports in cm by default...).
+scale = 1;
+
+% A string giving a brief description of the sample, for use with
+% sample_type = 'custom'
+sample_description = 'Sample with series of diffractive peaks.';
+
+%% Parameters of the default material, to use for faces where no material is specified
+defMaterial.function = 'cosine';
+defMaterial.params = 0;
+defMaterial.color = [0.8 0.8 1.0];
 
 %% Create parameter structs
 
@@ -159,7 +173,7 @@ output_data = true;
 data_fname = 'scatteringData.mat';
 saveParams = true;
 paramsFile = 'scatteringParameters.txt';
-% Applies only to line scans, saves in thePath with name 'data_for_plotting.csv'
+% Applies only to line scans, saves in results_path with name 'data_for_plotting.csv'
 save_to_text = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,7 +232,6 @@ if false
     end
 end
 
-
 %% Path for simulation results
 
 % Tha path to save the simulation results to
@@ -247,19 +260,23 @@ addpath(thePath);
 % simultion path.
 switch sample_type
     case 'flat'
-        sample_surface = flatSample(square_size, dist_to_sample, diffuse(1));
+        sample_surface = flatSample(square_size, dist_to_sample, defMaterial);
         make_sphere = 0;
         sample_description = ['A flat square sample size ' ...
             num2str(square_size) 'mm.'];
+    case 'strips'
+        sample_surface = strip_series(dist_to_sample, working_dist);
+        make_sphere = 0;
+        sample_description = 'A sample made up of two series of strips with properties varying across';
     case 'sphere'
-        sample_surface = flatSample(square_size, dist_to_sample, diffuse(1), diffuse(2));
+        sample_surface = flatSample(square_size, dist_to_sample, defMaterial);
         make_sphere = 1;
         sample_description = ['A single analytic sphere, radius ' ...
             num2str(sphere_r) 'mm on a flat square of ' num2str(square_size) 'mm.'];
     case 'custom'
-        sample_surface = inputSample('fname', sample_fname, 'scattering', ...
-            diffuse(1), 'plate_dist', dist_to_sample, 'scale', scale, ...
-            'parameters', diffuse(2), 'working_dist', working_dist);
+        sample_surface = inputSample('fname', sample_fname, 'sample_dist', dist_to_sample, ...
+                                     'working_dist', working_dist, 'scale', scale, ...
+                                     'defMaterial', defMaterial);
         make_sphere = 0;
         sample_surface.rotateY;
         sample_surface.rotateY;
@@ -269,7 +286,6 @@ switch sample_type
         make_sphere = 1;
         sphere_r = 0.05;
         sphere_c = [-0.1, -dist_to_sample - sphere_r*2/3, -0.1];
-        diffuse = [1, 90*pi/180];
     case 'special'
         sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, 'scale', 10e-4);
         sample_surface.rotateZ;
@@ -277,31 +293,36 @@ switch sample_type
         make_sphere = 0;
 end
 
-% A struct to represent the sphere
-shere_c = [dist_to_sample*tand(init_angle), dist_to_sample + sphere_r, 0];
-sphere.make = make_sphere;
-sphere.r = sphere_r;
-sphere.scattering = diffuse(1);
-sphere.scattering_parameter = diffuse(2);
-sphere.c = sphere_c;
+sample_surface.reflect_axis('x');
 
-% Do any extra manipulation of the sample here
-if false
-    %sample_surface.rotateX;
-    sample_surface.rotateY;
-    sample_surface.rotateY;
-    %sample_surface.rotateY;
-    %sample_surface.moveBy([0, -2.2, 2.3]);
+if strcmp(typeScan, 'line')
+    sample_surface.moveBy(init_displacement);
 end
 
+% A struct to represent the sphere
+sphere.c = sphere_c;
+sphere.make = make_sphere;
+sphere.r = sphere_r;
+sphere.material = defMaterial;
+
+% Do any extra manipulation of the sample here
+% if false
+%     %sample_surface.rotateX;
+%     sample_surface.rotateY;
+%     sample_surface.rotateY;
+%     %sample_surface.rotateY;
+%     %sample_surface.moveBy([0, -2.2, 2.3]);
+% end
+
 % Plot the sample surface in 3D space, if we are using a graphical window
-if true %feature('ShowFigureWindows')
+if feature('ShowFigureWindows')
     if ~strcmp(typeScan, 'single_pixel')
         sample_surface.patchPlot(true);
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
     end
-    
-    if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations')
+
+    if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations') ||...
+            strcmp(typeScan, 'multiple_rectangular')
         xlim([-xrange(2) -xrange(1)]);
         zlim(zrange);
         ylim(zrange - dist_to_sample);
@@ -313,11 +334,11 @@ if true %feature('ShowFigureWindows')
         xlim([-0.2, 0.2]);
         zlim([-0.2, 0.2]);
         ylim([-0.2, 0.2] - dist_to_sample);
-    
+
     end
-    
+
     if ~strcmp(typeScan, 'single pixel')
-        print([thePath '/sample_closeUp.eps'], '-depsc');
+        print(fullfile(thePath, 'sample_closeUp.eps'), '-depsc');
     end
 end
 
@@ -341,7 +362,7 @@ switch pinhole_model
 
         % To pass to the functions
         thePlate = 0;
-        apertureAbstract = 0;
+        aperture_abstract = 0;
     case 'new'
         pinhole_surface = import_newPlate(plate_accuracy);
 
@@ -357,11 +378,11 @@ switch pinhole_model
             pinhole_surface.patchPlot(false);
             view([-5 -5 5])
         end
-        
+
         % To pass to the functions
         thePlate = 0;
-        apertureAbstract = 0;
-        
+        aperture_abstract = 0;
+
         pinhole_model = 'stl';
     case 'new_micro'
         % TODO
@@ -372,30 +393,35 @@ switch pinhole_model
         % Create an empty TriagSurface as the pinhole plate
         pinhole_surface = TriagSurface();
 
-        % List with the information about the plate in
-        % TODO: use a struct rather than a cell array.
+        % Struct with the information about the plate in
         thePlate.plate_represent = plate_represent;
         thePlate.n_detectors = n_detectors;
         thePlate.circle_plate_r = circle_plate_r;
         thePlate.aperture_axes = aperture_axes;
         thePlate.aperture_c = aperture_c;
-        %thePlate = {plate_represent, n_detectors, circle_plate_r, aperture_axes, aperture_c};
-        apertureAbstract = {aperture_theta, aperture_phi, aperture_half_cone};
+        aperture_abstract = {aperture_theta, aperture_phi, aperture_half_cone};
 end
-    
+
 %% Compile the mex files
 
-files_exist = exist('tracingMultiGenMex.mexa64', 'file');
-
-if recompile || ~files_exist
-    mexCompile();
-end
+mexCompile(recompile);
 
 %% Create input structs to hole input data
+% delete(gcp('nocreate'));
+
 
 scan_inputs.type_scan = typeScan;
-scan_inputs.maxScatter = maxScatter;
+scan_inputs.max_scatter = max_scatter;
 switch typeScan
+    case 'multiple_rectangular'
+        scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = raster_movment2D_x;
+        scan_inputs.raster_movment2D_z = raster_movment2D_z;
+        scan_inputs.xrange = xrange;
+        scan_inputs.zrange = zrange;
+        scan_inputs.raster_movment1D = raster_movement_y;
+        scan_inputs.range1D = range_y;
+        scan_inputs.direction_1D = 'y';
     case 'rotations'
         scan_inputs.rotationAngles = rot_angles;
         scan_inputs.raster_movment2D_x = raster_movment2D_x;
@@ -422,7 +448,7 @@ switch typeScan
         scan_inputs.zrange = NaN;
         scan_inputs.raster_movment1D = raster_movment1D;
         scan_inputs.range1D = range1D;
-        scan_inputs.direction_1D = direction;
+        scan_inputs.direction_1D = Direction;
     case 'single pixel'
         scan_inputs.rotationAngles = 0;
         scan_inputs.raster_movment2D_x = NaN;
@@ -435,7 +461,7 @@ switch typeScan
 end
 
 sample_inputs.sample_type = sample_type;
-sample_inputs.scattering = diffuse;
+sample_inputs.material = defMaterial;
 sample_inputs.dist_to_sample = dist_to_sample;
 sample_inputs.sphere = sphere;
 sample_inputs.sample_description = sample_description;
@@ -486,25 +512,76 @@ switch typeScan
                 [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
                 'zrange', zrange);
         end
+        simulationData = rectangularScan('sample_surface', sample_surface, ...
+            'raster_pattern', raster_pattern,'direct_beam', direct_beam, ...
+            'max_scatter', max_scatter,      'pinhole_surface', pinhole_surface, ...
+            'effuse_beam', effuse_beam,      'dist_to_sample', dist_to_sample, ...
+            'sphere', sphere,                'thePath', thePath, ...
+            'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
+            'ray_model', ray_model,          'n_detector', n_detectors);
+    case 'multiple_rectangular'
+        simulationData = {};
+        
+        % find y positions
+        ys = range_y(1):raster_movement_y:range_y(2);
+        ny = length(ys);
 
-        simulationData = rectangularScan(sample_surface, raster_pattern, ...
-            direct_beam, ...
-            maxScatter, pinhole_surface, effuse_beam, ...
-            dist_to_sample, sphere, thePath, pinhole_model, ...
-            thePlate, apertureAbstract, ray_model, n_detectors);
+        % progress bar
+        h = waitbar(0, 'Proportion of simulations performed', 'Name', 'Ray tracing progress');
+
+        for i_ = 1:ny
+            y_displacement = ys(i_);
+
+            % Move the sample in y by given amount
+            surface_copy = copy(sample_surface);
+            surface_copy.moveBy([y_displacement, -y_displacement, 0]);
+            sphere.c = sphere.c + [y_displacement, -y_displacement, 0];
+            y_distance = dist_to_sample + y_displacement;
+            
+            % Create the raster pattern at this z
+            if init_angle_pattern
+                raster_pattern = generate_raster_pattern('raster_movment2D', ...
+                    [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
+                    'zrange', zrange, 'init_angle', init_angle);
+            else
+                raster_pattern = generate_raster_pattern('raster_movment2D', ...
+                    [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
+                    'zrange', zrange);
+            end
+            
+            % Create a directory for this scan
+            subPath = sprintf('z%.4fmm', y_displacement + dist_to_sample);
+            subPath = fullfile(thePath, subPath);
+            if ~exist(subPath, 'dir')
+                mkdir(subPath)
+            end
+
+            % Run the simulation at that z
+            simulationData{i_} = rectangularScan('sample_surface', surface_copy, ...
+                'raster_pattern', raster_pattern,'direct_beam', direct_beam, ...
+                'max_scatter', max_scatter,      'pinhole_surface', pinhole_surface, ...
+                'effuse_beam', effuse_beam,      'dist_to_sample', y_distance, ...
+                'sphere', sphere,                'thePath', subPath, ...
+                'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
+                'ray_model', ray_model,          'n_detector', n_detectors); %#ok<SAGROW>
+            waitbar(i_/ny, h);
+        end
+
+        close(h);
+        delete(h);
     case 'line'
         % For a line scan
         % TODO: update with the new lower level functions
         simulationData = lineScan(sample_surface, range1D, direct_beam, ...
-            raster_movment1D, maxScatter, Direction, pinhole_surface, effuse_beam, ...
+            raster_movment1D, max_scatter, Direction, pinhole_surface, effuse_beam, ...
             dist_to_sample, sphere, thePath, save_to_text, pinhole_model, ...
-            thePlate, apertureAbstract, ray_model);
+            thePlate, aperture_abstract, ray_model);
     case 'single pixel'
         % For a single pixel
         % TODO: update with the new lower level functions
         simulationData = singlePixel(sample_surface, direct_beam, ...
-            maxScatter, pinhole_surface, effuse_beam, dist_to_sample, sphere, ...
-            thePath, save_to_text, pinhole_model, thePlate, apertureAbstract);
+            max_scatter, pinhole_surface, effuse_beam, dist_to_sample, sphere, ...
+            thePath, save_to_text, pinhole_model, thePlate, aperture_abstract);
     case 'rotations'
         % Perform multiple scans while rotating the sample in between.
         simulationData = {};
@@ -548,11 +625,13 @@ switch typeScan
             end
             init_angle = tmp_angle;
             
-            simulationData{i_} = rectangularScan(s_surface, raster_pattern, ...
-                direct_beam, ...
-                maxScatter, pinhole_surface, effuse_beam, ...
-                dist_to_sample, sphere, subPath, pinhole_model, ...
-                thePlate, apertureAbstract, ray_model, n_detectors); %#ok<SAGROW>
+            simulationData{i_} = rectangularScan('sample_surface', s_surface, ...
+                'raster_pattern', raster_pattern,'direct_beam', direct_beam, ...
+                'max_scatter', max_scatter,      'pinhole_surface', pinhole_surface, ...
+                'effuse_beam', effuse_beam,      'dist_to_sample', dist_to_sample, ...
+                'sphere', sphere,                'thePath', subPath, ...
+                'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
+                'ray_model', ray_model,          'n_detector', n_detectors); %#ok<SAGROW>
             
             waitbar(i_/N, h);
             
@@ -578,7 +657,7 @@ end
 
 % Save all data to a .mat file
 if output_data
-    save([thePath '/' data_fname], 'simulationData', 'sample_inputs', ...
+    save(fullfile(thePath, data_fname), 'simulationData', 'sample_inputs', ...
         'direct_beam', 'effuse_beam', 'pinhole_plate_inputs', 'scan_inputs');
 end
 
@@ -591,7 +670,7 @@ elseif output_data
 end
 
 % Save main data to a text file
-textFname = 'data_for_plotting.csv';    
+textFname = 'data_for_plotting.csv';
 if save_to_text && strcmp(typeScan, 'rotations')
     for i_=1:length(rot_angles)
         % TODO: bug here

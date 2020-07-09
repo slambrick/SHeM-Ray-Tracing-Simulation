@@ -1,6 +1,6 @@
 % inputSample.m
 %
-% Copyright (c) 2018-19, Sam Lambrick.
+% Copyright (c) 2018-20, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
@@ -58,10 +58,10 @@ function sample_surface = inputSample(varargin)
     if ~exist('scale', 'var')
         scale = 1;
     end
-    if ~exist('workingDist', 'var')
+    if ~exist('plate_dist', 'var')
         plate_dist = 1;
     end
-    if ~exist('sampleDist', 'var')
+    if ~exist('sample_dist', 'var')
         sample_dist = 1;
     end
     if ~exist('dontMeddle', 'var')
@@ -116,9 +116,7 @@ function sample_surface = inputSample(varargin)
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
         moveX = (plate_dist - sample_dist) - middleX;
-        sample_surface.patchPlot;
         sample_surface.moveBy([moveX, 0, -middleZ]);
-        sample_surface.patchPlot;
     end
 end
 

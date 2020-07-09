@@ -27,13 +27,11 @@ recompile = false;
 %% Perform calculation
 
 % Paths to functions
-addpath('stlread', 'functions', 'functions/interface_functions', 'classes', ...
-        'mexFiles', 'DylanMuir-ParforProgMon-a80c9e9', 'functions/standard_samples', ...
-        'surf2stl', 'polarPcolor');
+loadpath
 
 % Manipulate the sample and beam starting point
 sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, ...
-    'scattering', 1, 'scale', 0.1);
+    'scale', 0.1);
 
 % Choose a spot on the sample then displace backwards
 init_pos = [0, 0.5, 0];
@@ -41,9 +39,7 @@ init_pos = init_pos - 10*init_dir;
 
 sample_surface.patchPlot();
 
-if recompile
-    mexCompile();
-end
+mexCompile(recompile);
 
 % Main computation
 [killed, numScattersRay, final_pos, final_dir] = ...

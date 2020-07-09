@@ -126,6 +126,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexPrintf("Scattering your rays... ");
     // for the specified number of rays, perform the scattering event
     // and accumulate the angle of (new_dir, normal) in the output array
+    
     for (i = 0; i < n_rays; i++) {
         double cos_phi, sin_phi;
         double new_dir_proj[3];

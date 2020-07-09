@@ -255,7 +255,8 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
         }
         normalise(new_dir);
 
-        /* Calculate the polar angle (normal, new_dir) to the surface normal for the new direction */
+        /* Calculate the polar angle (normal, new_dir) to the surface normal for
+         * the new direction */
         cos_normal = dot(normal, new_dir);
 
         /* If the value of theta_normal is greater than pi/2 reject */

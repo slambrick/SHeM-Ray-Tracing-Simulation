@@ -52,6 +52,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int maxScatters;       /* Maximum number of scattering events per ray */
     double *start_pos;
     double *start_dir;
+    int n_provided_rays;
 
     /* Declare the output variables */
     int killed = 0;          /* # rays stopped '.' they scattered too many times */
@@ -67,6 +68,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // surface indexing: -1 is no surface, 0 is the sample, etc
     int sample_index = 0;   
     int sphere_index = 1;
+    Rays3D all_rays;
+    int gen_rays;
     
     /* For random number generation */
     struct timeval tv;
@@ -111,14 +114,27 @@ void mexFunction(int nlhs, mxArray *plhs[],
     get_materials_array(prhs[4], prhs[5], prhs[6], M);
     
     /**************************************************************************/
-
+    
+    /* Depending on the size of the starting vectors we may or may not generate
+     * ray positions ourselves. */
+    n_provided_rays = mxGetN(prhs[9]);
+    gen_rays = n_provided_rays == 1;
+    if (nrays != n_provided_rays) {
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
+                          "Provided ray positions is neither 1 or the specified number of rays, for distributionCalcMex.");
+    }
+    if (!gen_rays) {
+        all_rays = compose_rays3D(start_pos, start_dir, n_provided_rays);
+    }
+        
+    
     /* Seed the random number generator with the current time */
     gettimeofday(&tv, 0);
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
     
     /* Set up the MTwister random number generator */
     myrng = seedRand(t);
-
+    
     /* Put the sample into a struct */
     sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert,
                             sample_index);
@@ -142,36 +158,46 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /**************************************************************************/
 
-    /* Main implementation of the ray tracing */
-
     /* Loop through all the rays, tracing each one */
     int i, j;
     for (i = 0; i < nrays; i++) {
         Ray3D the_ray;
-
-        /* Manually initiate the ray as disired */
-        the_ray.nScatters = 0;
-        the_ray.on_element = -1;
-        the_ray.on_surface = -1;
-        for (j = 0; j < 3; j++) {
-            the_ray.position[j] = start_pos[j];
-            the_ray.direction[j] = start_dir[j];
-        }
-
-        trace_ray_just_sample(&the_ray, &killed, maxScatters, sample, the_sphere,
+        
+        if (gen_rays) {
+            /* Manually initiate the ray as disired */
+            the_ray.nScatters = 0;
+            the_ray.on_element = -1;
+            the_ray.on_surface = -1;
+            for (j = 0; j < 3; j++) {
+                the_ray.position[j] = start_pos[j];
+                the_ray.direction[j] = start_dir[j];
+            }
+            
+            trace_ray_just_sample(&the_ray, &killed, maxScatters, sample, the_sphere,
                               &myrng);
-
-        /* Update final position an directions of ray */
-        for (j = 0; j < 3; j++) {
-            int n;
-            n = 3*i + j;
-            final_pos[n] = the_ray.position[j];
-            final_dir[n] = the_ray.direction[j];
+            /* Update final position an directions of ray */
+            for (j = 0; j < 3; j++) {
+                int n;
+                n = 3*i + j;
+                final_pos[n] = the_ray.position[j];
+                final_dir[n] = the_ray.direction[j];
+            }
+            numScattersRay[i] = the_ray.nScatters;
+        } else {
+            trace_ray_just_sample(&all_rays.rays[i], &killed, maxScatters, sample, the_sphere,
+                              &myrng);
         }
-        numScattersRay[i] = the_ray.nScatters;
     }
+    
     /**************************************************************************/
 
+    if (!gen_rays) {
+        get_scatters(&all_rays, numScattersRay);
+        get_positions(&all_rays, final_pos);
+        get_directions(&all_rays, final_dir);
+        clean_up_rays(all_rays);
+    }
+    
     /* Output number of rays went into the detector */
     plhs[0] = mxCreateDoubleScalar(killed);
 

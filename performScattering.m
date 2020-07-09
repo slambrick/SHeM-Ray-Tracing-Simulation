@@ -3,7 +3,9 @@
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
 
+close all
 clear
+clc
 
 %% Parameters
 
@@ -12,17 +14,17 @@ init_theta = 45;
 init_dir = [sind(init_theta), -cosd(init_theta), 0];
 
 % Number of rays to trace
-n_rays = 4000000;
+n_rays = 200000;
 
 % The maximum number of scattering events a ray is allowed to undergo
 maxScatter = 1000;
 
 % Specify the sample to scatter off and manipulate so you get the right
 % spot.
-sample_fname = 'deep_trench_sample.stl';
+sample_fname = 'samples/deep_trench_sample.stl';
 
 % Should the mex files be recompiled
-recompile = false;
+recompile = true;
 
 %% Perform calculation
 
@@ -32,14 +34,23 @@ loadpath
 % Manipulate the sample and beam starting point
 sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, ...
     'scale', 0.1);
+sample_surface.moveBy([0, -max(sample_surface.vertices(:,2)), 0]);
+sample_surface.rotateY();
 
 % Choose a spot on the sample then displace backwards
-init_pos = [0, 0.5, 0];
+init_pos = [0, 0, 0];
 init_pos = init_pos - 10*init_dir;
 
 sample_surface.patchPlot();
+hold on
+pos2 = init_pos + 15*init_dir;
+plot3([init_pos(1) pos2(1)], [init_pos(2) pos2(2)], [init_pos(3) pos2(3)])
+hold off
 
 mexCompile(recompile);
+
+init_pos = repmat(init_pos', 1, n_rays);
+init_dir = repmat(init_dir', 1, n_rays);
 
 % Main computation
 [killed, numScattersRay, final_pos, final_dir] = ...
@@ -49,7 +60,7 @@ mexCompile(recompile);
 %% Analyse results
 
 % Get the outgoing directions
-ind = numScattersRay > 1;
+ind = numScattersRay > 0;
 [az, el, r] = cart2sph(final_dir(1,ind), final_dir(3,ind), final_dir(2,ind));
 
 % Select the multiply scattered outgoing directions

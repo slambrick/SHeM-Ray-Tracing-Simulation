@@ -52,7 +52,10 @@ function [ray_pos, ray_dir] = makeUniform(varargin)
     if ~exist('plot_starting_positions', 'var')
         plot_starting_positions = false;
     end
-    
+    if ~exist('init_angle', 'var')
+        init_angle = 0;
+        warning('No incidence angle provided defaulting to normal');
+    end
     % Perform input checking
     if ~exist('ThePath', 'var') && plot_starting_positions
         error('Cant plot starting positions if no data path provided');

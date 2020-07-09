@@ -19,6 +19,7 @@
 #include <gsl/gsl_math.h>
 #include <math.h>
 #include <string.h>
+#include <mex.h>
 #include "mtwister.h"
 
 /*
@@ -53,7 +54,8 @@ Surface3D set_up_surface(double V[], double N[], int F[], char ** C,
     // assign references to the correct material
     // loop through faces and look for the material that fits the name
     surf.compositions = mxCalloc(ntriag, sizeof(Material*));
-    for(int iface = 0; iface < ntriag; iface++) {
+    
+    for (int iface = 0; iface < ntriag; iface++) {
         bool found = false;
         int imat = 0;
         do {

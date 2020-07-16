@@ -36,6 +36,7 @@ Effuse size (relative to the direct beam): 1
 %  - If using the 'flat' option specify the size of the flat square sample.
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
+% In general it is advised to avoid manual alignment of the sample
 What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.1
@@ -44,7 +45,8 @@ Sample description: Test material sample
 Working distance to place the sample at: 2.1
 Sphere radius (mm): 0.1
 Length of side of flat sample: 1
-Custom sample stl file: samples/four_squares.obj
+Custom sample stl file: ../samples/four_squares.obj
+Manual alignment: no
 
 %% Set up your scan
 % For now this assumes you are doing a 2D rectangular scan centering on the
@@ -55,6 +57,6 @@ Scan range y (mm): 1.1
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): test_of_material
+Label for the output directory (no spaces please): annabelle_sample_squares
 Sould the C code be recompiled: false
 

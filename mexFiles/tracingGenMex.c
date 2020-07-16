@@ -212,7 +212,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     plhs[1] = mxCreateDoubleScalar(killed);
 
     /* Free the space used by the random number generator */
-    //gsl_rng_free(my_rng);
 
     return;
 }

@@ -14,9 +14,7 @@
 #include "common_helpers.h"
 #include "small_functions3D.h"
 #include "distributions3D.h"
-#include <mex.h>
 #include <stdlib.h>
-#include <gsl/gsl_math.h>
 #include <math.h>
 #include <string.h>
 #include <mex.h>
@@ -263,69 +261,69 @@ void get_scatters(Rays3D *all_rays, int *nScatters) {
 
 /* print details of Material struct */
 void print_material(const Material * mat) {
-    mexPrintf("\tMAT %-10s func %-12s", mat->name, mat->func_name);
+    printf("\tMAT %-10s func %-12s", mat->name, mat->func_name);
     for (int i = 0; i < mat->n_params; i++)
-        mexPrintf(" %.2f ", mat->params[i]);
+        printf(" %.2f ", mat->params[i]);
 }
 
 /* Print details of whole sample to console */
 void print_surface(const Surface3D * s) {
     for(int ivert = 0; ivert < s->n_vertices; ivert++)
-        mexPrintf("\n VERT % .2f % .2f % .2f", s->vertices[lin(ivert, 0)],
+        printf("\n VERT % .2f % .2f % .2f", s->vertices[lin(ivert, 0)],
             s->vertices[lin(ivert, 1)], s->vertices[lin(ivert, 2)]);
     for(int iface = 0; iface < s->n_faces; iface++) {
-        mexPrintf("\n FACE %2d", iface);
-        mexPrintf("\tV %3d %3d %3d", s->faces[lin(iface, 0)],
+        printf("\n FACE %2d", iface);
+        printf("\tV %3d %3d %3d", s->faces[lin(iface, 0)],
                     s->faces[lin(iface, 1)], s->faces[lin(iface, 2)]);
-        mexPrintf("\tN % .2f % .2f % .2f", s->normals[lin(iface, 0)],
+        printf("\tN % .2f % .2f % .2f", s->normals[lin(iface, 0)],
                     s->normals[lin(iface, 1)], s->normals[lin(iface, 2)]);
         print_material(s->compositions[iface]);
     }
-    mexPrintf("\n");
+    printf("\n");
 }
 
 /* Prints all the information about the ray to the terminal */
 void print_ray(Ray3D *the_ray) {
-    mexPrintf("\non_element = %i\n", the_ray->on_element);
-    mexPrintf("on_surface = %i\n", the_ray->on_surface);
-    mexPrintf("nScatters = %i\n", the_ray->nScatters);
-    mexPrintf("Position: ");
+    printf("\non_element = %i\n", the_ray->on_element);
+    printf("on_surface = %i\n", the_ray->on_surface);
+    printf("nScatters = %i\n", the_ray->nScatters);
+    printf("Position: ");
     print1D_double(the_ray->position, 3);
-    mexPrintf("Direction: ");
+    printf("Direction: ");
     print1D_double(the_ray->direction, 3);
 }
 
 /* Prints all the information about a BackWall struct */
 void print_BackWall(BackWall *wall) {
-    mexPrintf("\nSurface index = %i\n", wall->surf_index);
-    mexPrintf("Plate represent = %i\n", wall->plate_represent);
-    mexPrintf("Aperture centre: ");
+    printf("\nSurface index = %i\n", wall->surf_index);
+    printf("Plate represent = %i\n", wall->plate_represent);
+    printf("Aperture centre: ");
     print1D_double(wall->aperture_c, 2);
-    mexPrintf("Aperture axes: ");
+    printf("Aperture axes: ");
     print1D_double(wall->aperture_axes, 2);
-    mexPrintf("Radius of the plate = %f\n", wall->circle_plate_r);
+    printf("Radius of the plate = %f\n", wall->circle_plate_r);
     print_material(&(wall->material));
-    mexPrintf("\n");
+    printf("\n");
 }
 
 /* Prints all the information on all the apertues in the NBackWall struct */
 void print_nBackWall(NBackWall *all_apertures) {
-    mexPrintf("\nNumber of apertures = %i\n", all_apertures->n_detect);
+    printf("\nNumber of apertures = %i\n", all_apertures->n_detect);
     for (int i = 0; i < all_apertures->n_detect; i++) {
-        mexPrintf("Aperture %i:\n", i);
-        mexPrintf("Centre: ");
+        printf("Aperture %i:\n", i);
+        printf("Centre: ");
         print1D_double(&all_apertures->aperture_c[2*i], 2);
-        mexPrintf("Axes: ");
+        printf("Axes: ");
         print1D_double(&all_apertures->aperture_axes[2*i], 2);
     }
     // print_material(&(all_apertures->material));
-    mexPrintf("\n");
+    printf("\n");
 }
 
 
 /* Print the position, radius, material etc of a sphere */
 void print_sphere(const AnalytSphere * sphere){
-    mexPrintf("\n\t Sphere make %d \t R %3.3f\t C %3.3f %3.3f %3.3f", sphere->make_sphere,
+    printf("\n\t Sphere make %d \t R %3.3f\t C %3.3f %3.3f %3.3f", sphere->make_sphere,
               sphere->sphere_r, sphere->sphere_c[0],
               sphere->sphere_c[1], sphere->sphere_c[2]);
     print_material(&(sphere->material));

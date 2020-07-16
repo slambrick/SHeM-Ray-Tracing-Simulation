@@ -105,7 +105,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Declare other variables */
     int i;
-    //gsl_rng *my_rng;
     int sample_index, sphere_index, plate_index;
 
     /* Declare structs */

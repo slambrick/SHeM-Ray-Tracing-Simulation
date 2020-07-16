@@ -48,16 +48,17 @@ dist_to_sample = str2double(param_list{20});
 sphere_r = str2double(param_list{21});
 square_size = str2double(param_list{22});
 sample_fname = strtrim(param_list{23});
+dontMeddle = parse_yes_no(param_list{24});
 
 % Set up scan
-pixel_seperation = str2double(param_list{24});
-range_x = str2double(param_list{25});
-range_z = str2double(param_list{26});
-init_angle_pattern = ~parse_yes_no(param_list{27});
+pixel_seperation = str2double(param_list{25});
+range_x = str2double(param_list{26});
+range_z = str2double(param_list{27});
+init_angle_pattern = ~parse_yes_no(param_list{28});
 
 % Other parameters
-directory_label = strtrim(param_list{28});
-recompile = parse_yes_no(param_list{29});
+directory_label = strtrim(param_list{29});
+recompile = parse_yes_no(param_list{30});
 
 %% Generate parameters from the inputs 
 
@@ -276,11 +277,8 @@ switch sample_type
     case 'custom'
         sample_surface = inputSample('fname', sample_fname, 'sample_dist', dist_to_sample, ...
                                      'working_dist', working_dist, 'scale', scale, ...
-                                     'defMaterial', defMaterial);
+                                     'defMaterial', defMaterial, 'dontMeddle', dontMeddle);
         make_sphere = 0;
-        sample_surface.rotateY;
-        sample_surface.rotateY;
-        sample_surface.rotateY;
     case 'photoStereo'
         sample_surface = photo_stereo_test(working_dist);
         make_sphere = 1;
@@ -291,6 +289,11 @@ switch sample_type
         sample_surface.rotateZ;
         sample_surface.moveBy([0, -2.121, 0]);
         make_sphere = 0;
+end
+
+if dontMeddle
+    disp('Sample has not been automatically places, you will need to do it manually.')
+    keyboard
 end
 
 sample_surface.reflect_axis('x');

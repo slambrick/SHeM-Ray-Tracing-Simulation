@@ -21,7 +21,7 @@
 
 #include <mex.h>
 #include <matrix.h>
-#include <stdint-gcc.h>
+#include <stdint.h>
 #include <math.h>
 #include <sys/time.h>
 #include <stdlib.h>

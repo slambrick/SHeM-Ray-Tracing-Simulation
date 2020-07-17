@@ -13,7 +13,7 @@
 
 #include <mex.h>
 #include "mtwister.h"
-#include <stdint-gcc.h>
+#include <stdint.h>
 #include "distributions3D.h"
 
 /******************************************************************************/

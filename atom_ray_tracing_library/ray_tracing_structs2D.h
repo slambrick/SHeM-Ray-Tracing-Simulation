@@ -7,6 +7,7 @@
  * Contains structs used in the 2D ray tracing off surfaces.
  */
 #include "mtwister.h"
+#include <stdint.h>
 
 #ifndef _ray_tracing_structs2D_h
 #define _ray_tracing_structs2D_h

@@ -11,7 +11,6 @@
 #include "ray_tracing_structs2D.h"
 #include "common_helpers.h"
 #include "small_functions2D.h"
-#include <gsl/gsl_math.h>
 
 /* 
  * Calculates the dot product of two two element vectors passed as arrays.

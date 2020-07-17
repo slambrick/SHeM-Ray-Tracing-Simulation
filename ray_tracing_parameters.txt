@@ -45,7 +45,7 @@ Sample description: Test material sample
 Working distance to place the sample at: 2.1
 Sphere radius (mm): 0.1
 Length of side of flat sample: 1
-Custom sample stl file: ../samples/four_squares.obj
+Custom sample stl file: samples/four_squares.obj
 Manual alignment: no
 
 %% Set up your scan
@@ -57,6 +57,6 @@ Scan range y (mm): 1.1
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): annabelle_sample_squares
+Label for the output directory (no spaces please): test_square_sample
 Sould the C code be recompiled: false
 

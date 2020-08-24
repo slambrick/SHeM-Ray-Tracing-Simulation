@@ -46,7 +46,14 @@ distribution_func distribution_by_name(const char * name) {
         return debye_waller_specular;
     if(strcmp(name, "dw_diffraction") == 0)
         return debye_waller_diffraction;
+    if(strcmp(name, "pure_specular") == 0)
+        return pure_specular;
     return NULL;
+} 
+
+void pure_specular(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, MTRand *myrng) {
+    reflect3D(normal, init_dir, new_dir);
 }
 
 /*

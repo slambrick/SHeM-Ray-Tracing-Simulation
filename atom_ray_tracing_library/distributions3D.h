@@ -26,6 +26,10 @@ typedef void (*distribution_func)(const double normal[3], const double init_dir[
 
 distribution_func distribution_by_name(const char * name);
 
+/* Perfect specular scattering */
+void pure_specular(const double normal[3], const double init_dir[3],
+        double new_dir[3], const double * params, MTRand *myrng);
+
 /*
  * Generate rays with some original distribution, and the apply a Debye-Waller
  * factor to the resulting rays by rejecting with a probability given by the DWF.

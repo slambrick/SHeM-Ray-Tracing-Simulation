@@ -3,187 +3,129 @@ classdef roughSurf1D
     %   Detailed explanation goes here
     
     properties
-        % Grouping class
+        vertices % Vertex points
+        normals  % Surface normals
+        N        % Number of surface segments
     end
     
     methods
-        function [f,x,Z] = rsgeng(N,rL,h,cl)
-            %
-            % [f,x] = rsgeng1D(N,rL,h,cl) 
-            %
-            % generates a 1-dimensional random rough surface f(x) with N surface points. 
-            % The surface has a Gaussian height distribution function and a Gaussian 
-            % autocovariance function, where rL is the length of the surface, h is the 
-            % RMS height and cl is the correlation length.
-            %
-            % Input:    N   - number of surface points
-            %           rL  - length of surface
-            %           h   - rms height
-            %           cl  - correlation length
-            %
-            % Output:   f   - surface heights
-            %           x   - surface points
-            %
-            % Last updated: 2010-07-26 (David Bergström).  
-            %
-
-            format long;
-
-            x = linspace(-rL/2,rL/2,N);
-
-            Z = h.*randn(1,N); % uncorrelated Gaussian random rough surface distribution
-                                 % with mean 0 and standard deviation h
-
-            % Gaussian filter
-            F = exp(-x.^2/(cl^2/2));
-
-            % correlation of surface using convolution (faltung), inverse
-            % Fourier transform and normalizing prefactors
-            f = sqrt(2/sqrt(pi))*sqrt(rL/N/cl)*ifft(fft(Z).*fft(F));
-        end
-        
-        function [f,x] = rsgene(N,rL,h,cl)
-            %
-            % [f,x] = rsgene1D(N,rL,h,cl) 
-            %
-            % generates a 1-dimensional random rough surface f(x) with N surface points.
-            % The surface has a Gaussian height distribution and an
-            % exponential autocovariance function, where rL is the length of the surface, 
-            % h is the RMS height and cl is the correlation length.
-            %
-            % Input:    N   - number of surface points
-            %           rL  - length of surface
-            %           h   - rms height
-            %           cl  - correlation length
-            %
-            % Output:   f   - surface heights
-            %           x   - surface points
-            %
-            % Last updated: 2010-07-26 (David Bergström).  
-            %
-
-            format long;
-
-            x = linspace(-rL/2,rL/2,N);
-
-            Z = h.*randn(1,N); % uncorrelated Gaussian random rough surface distribution
-                               % with rms height h
-
-            % Exponential filter
-            % NOTE: I think this means that the correlation function remains unnormalized 
-            F = exp(-abs(x)/cl);
-
-            % correlated surface generation including convolution (faltning) and inverse
-            % Fourier transform and normalizing prefactors
-            f = ifft(fft(Z).*fft(F));
-            f2 = sqrt(2)*sqrt(rL/N/cl)*ifft(fft(Z).*fft(F));
-        end
-        
-        function [hdf,bc,h] = hdf(f,b,opt)
-            %
-            % [hdf,bc,h] = hdf1D(f,b,opt)
-            %
-            % calculates the height distribution function and rms height of a 
-            % 1-d surface profile f(x) using b bins.
-            %
-            % Input:    f   - surface heights
-            %           b   - number of bins
-            %           opt - optional parameter (type 'hist' for drawing histogram,
-            %                 type 'plot' for continuous plot) 
-            %
-            % Output:   hdf - height distribution function
-            %           bc  - bin centers
-            %           h   - rms height
-            %
-            % Last updated: 2009-03-11 (David Bergström)
-            %
-
-            format long
-
-            h = std(f); % rms height
-
-            [hdf,bc] = hist(f,b); 
-            hdf = hdf/sum(hdf); % normalization to get height distribution function
-
-            % optional plotting
-            if nargin<3 || isempty(opt)
-                return;
+        % Creates a random surface according to Bently's method
+        function obj = random_surf_gen(h_RMS, Dx, corr_len, N)
+            if ~exist('N', 'var')
+                N = 10001;
             end
-            if nargin==3
-                if ischar(opt)
-                    if strcmp(opt,'hist')
-                        bar(bc,hdf);
-                        xlabel('surface height')
-                        ylabel('probability')
-                        title('Histogram of height distribution function for height of surface profile y=f(x)')
-                    elseif strcmp(opt,'plot');
-                        plot(bc,hdf);
-                        xlabel('surface height')
-                        ylabel('probability')
-                        title('Plot of height distribution function for height of surface profile y=f(x)')
-                    else
-                        fprintf('%s is not a valid option. Type \''help pmf1D\'' for further details.\n',opt);
-                    end
-                else
-                    fprintf('Option must be a string. Type \''help pmf1D\'' for further details.\n');
+            if mod(N, 2) == 0
+                error('Number of points in the random surface must be odd')
+            end
+            
+            lambd = 2*corr_len^(2/3);
+            h = h_RMS*sqrt(tanh(Dx/lambd));
+            Z = randn(N, 1);
+            ms = linspacee(-round(N/2), round(N/2), N);
+            hs = h*conv(Z, e, 'same');
+            xs = ms*Dx;
+            
+            obj.vertices = [xs; hs];
+            ns = [hs(1:end-1) - hs(2:end); abs(xs(2:end) - xs(1:end-1))];
+            obj.normals = ns./sqrt(sum(ns.^2, 1));
+            obj.N = length(obj.normals);
+        end % End surface generation method
+        
+        % Reads a random surface from a text file
+        function obj = load_2Dsurface(fname)
+            opts = delimitedTextImportOptions("NumVariables", 2);
+
+            % Specify range and delimiter
+            opts.DataLines = [10, Inf];
+            opts.Delimiter = ",";
+
+            % Specify column names and types
+            opts.VariableNames = ["x", "y"];
+            opts.VariableTypes = ["double", "double"];
+            opts.ExtraColumnsRule = "ignore";
+            opts.EmptyLineRule = "read";
+
+            % Import the data
+            surfaceused = readtable(fname, opts);
+            xs = surfaceused.x;
+            hs = surfaceused.y;
+            
+            obj.vertices = [x; y];
+            ns = [hs(1:end-1) - hs(2:end); abs(xs(2:end) - xs(1:end-1))];
+            obj.normals = ns./sqrt(sum(ns.^2, 1));
+            obj.N = length(obj.normals);
+        end % End load surface method
+        
+        % Uses a (more) analytic model to calculate the scattering distribution from a
+        % random surface -- assumes only single scattering. The final angle from an
+        % element of surface is calculated from the incident angle and the angle of the
+        % surface element, the weighting of the result from the element is calucated
+        % from the dot product of the element with the incidence direction.
+        %     Warnings are produced if it appears that the surface appears too rought
+        % for this model to be applied, although it is possible that no warning is
+        % produced and the model is not applicabel. Where the incidence angle (angle to
+        % the surface normal) is large the limit of the model is approached quicker (for
+        % less rough surfaces).
+        %
+        % INPUTS:
+        %  xs         - The x positions of the surface points
+        %  hs         - The heights of the surface points
+        %  init_angle - The incidence angle in degrees
+        %
+        % OUTPUTS:
+        %  analytic_thetas - The final directions from all the surface elements, in
+        %                    degrees.
+        %  weights         - The weighting 
+        function [analytic_thetas, weights] = alalytic_random_scatter(obj, init_angle, make_plots)
+            % The incidence direction
+            init_dir = [-sind(init_angle); -cosd(init_angle)];
+
+            % Final directions across the whole surface
+            % TODO: vectorise this
+            analytic_dirs = zeros(size(obj.normals));
+            for i_=1:length(analytic_dirs)
+                analytic_dirs(:,i_) = init_dir - 2*(dot(obj.normals(:,i_), init_dir))*obj.normals(:,i_);
+            end
+
+            % Tangent vectors
+            tangents = [obj.xs(2:end) - obj.xs(1:end-1); obj.hs(2:end) - obj.hs(1:end-1)];
+            tangents = tangents./sqrt(sum(tangents.^2, 1));
+
+            % Weights of the directions
+            weights = zeros(1, length(analytic_dirs));
+            for i_ = 1:length(weights)
+                weights(i_) = dot(init_dir, tangents(:,i_));
+            end
+
+            % Directions into the surface are given 0 weight
+            if sum(analytic_dirs(2,:) < 0) > 0
+                warning('Surface possibly too rough for single scattering model')
+                fprintf('%f proportion of rays go into the surface\n', ...
+                    (sum(analytic_dirs(2,:) < 0))/(obj.N - 1));
+            end
+            weights(analytic_dirs(2,:) < 0) = 0;
+
+            if sum(weights < 0) < obj.N/20
+                if sum(weights < 0) > 0
+                    warning('Surface possibly too rough for single scattering model')
                 end
-            end
-        end
-        
-        function [acf,cl,lags] = acf(f,x,opt)
-            %
-            % [acf,cl,lags] = acf1D(f,x)
-            %
-            % calculates the autocovariance function and correlation length of a 
-            % 1-d surface profile f(x).
-            %
-            % Input:    f    - surface heights
-            %           x    - surface points
-            %           opt - optional parameter (type 'plot' for plotting the 
-            %                 normalized autocovariance function)
-            %
-            % Output:   acf  - autocovariance function
-            %           cl   - correlation length
-            %           lags - lag length vector (useful for plotting the acf)
-            %
-            % Last updated: 2010-07-26 (David Bergstrom)
-            %
 
-            format long
+                % Calculate the angles to the normal
+                analytic_thetas = atand(analytic_dirs(1,:)./analytic_dirs(2,:));
 
-            N = length(x); % number of sample points
-            lags = linspace(0,x(N)-x(1),N); % lag lengths
-
-            % autocovariance function calculation
-            c=xcov(f,'coeff'); % the autocovariance function
-            acf=c(N:2*N-1); % right-sided version
-
-            % correlation length calculation
-            k = 1;
-            while (acf(k) > 1/exp(1))
-                k = k + 1;
-            end
-            cl = 1/2*(x(k-1)+x(k)-2*x(1)); % the correlation length
-
-            % optional plotting
-            if nargin<3 || isempty(opt)
-                return;
-            end
-            if nargin==3 
-                if ischar(opt)
-                    if strcmp(opt,'plot')
-                        plot(lags,acf);
-                        xlabel('lag length')
-                        ylabel('acf (normalized)')
-                        title('Plot of the normalized acf')
-                    else
-                        fprintf('%s is not a valid option. Type \''help acf1D\'' for further details.\n',opt);
-                    end
-                else
-                    fprintf('Option must be a string. Type \''help acf1D\'' for further details.\n');
+                if make_plots
+                    % Plot of the resulting histogram
+                    weighted_histogram(analytic_thetas, weights, 75);
+                    xlabel('\theta/\circ')
+                    title('Single scattering off the surface')
                 end
+            else
+                % Calculate the angles to the normal
+                analytic_thetas = atand(analytic_dirs(1,:)./-analytic_dirs(2,:));
+                warning(['Surface too rough for single scattering model over 5% or' ...
+                    'the results cannot be calculated.'])
             end
-        end
-    end
+        end % End analytic scatter method
+    end % End methods
 end
 

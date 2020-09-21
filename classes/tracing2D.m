@@ -5,10 +5,11 @@
 classdef tracing2D
     
     properties
-        % No properties, just grouping funcitons
+        % Just for grouping
+        % Contains useful functions for 1D random scattering
     end
     
-    methods
+    methods(Static)
         % Plots a multiple scattering vs single scattering histogram
         function [f, propotion_multiple] = multiple_scattering_hist(num_scatters, ratios)
             ind = num_scatters == 1;
@@ -48,85 +49,6 @@ classdef tracing2D
 
             % Intensity
             intensity = (1./N).*cosd(theta).*exp(-(theta_S - theta).^2/(2*sigma_P^2));
-        end
-        
-        % Uses a (more) analytic model to calculate the scattering distribution from a
-        % random surface -- assumes only single scattering. The final angle from an
-        % element of surface is calculated from the incident angle and the angle of the
-        % surface element, the weighting of the result from the element is calucated
-        % from the dot product of the element with the incidence direction.
-        %     Warnings are produced if it appears that the surface appears too rought
-        % for this model to be applied, although it is possible that no warning is
-        % produced and the model is not applicabel. Where the incidence angle (angle to
-        % the surface normal) is large the limit of the model is approached quicker (for
-        % less rough surfaces).
-        %
-        % INPUTS:
-        %  xs         - The x positions of the surface points
-        %  hs         - The heights of the surface points
-        %  init_angle - The incidence angle in degrees
-        %
-        % OUTPUTS:
-        %  analytic_thetas - The final directions from all the surface elements, in
-        %                    degrees.
-        %  weights         - The weighting 
-        function [analytic_thetas, weights] = alalytic_random_scatter(xs, hs, ...
-                init_angle, make_plots)
-            % The incidence direction
-            init_dir = [-sind(init_angle); -cosd(init_angle)];
-
-            % The number of surface points
-            N = length(xs);
-
-            % Calculate the normals to the surface elements
-            normals = [hs(1:end-1) - hs(2:end); abs(xs(2:end) - xs(1:end-1))];
-            normals = normals./sqrt(sum(normals.^2, 1));
-
-            % Final directions across the whole surface
-            % TODO: vectorise this
-            analytic_dirs = zeros(size(normals));
-            for i_=1:length(analytic_dirs)
-                analytic_dirs(:,i_) = init_dir - 2*(dot(normals(:,i_), init_dir))*normals(:,i_);
-            end
-
-            % Tangent vectors
-            tangents = [xs(2:end) - xs(1:end-1); hs(2:end) - hs(1:end-1)];
-            tangents = tangents./sqrt(sum(tangents.^2, 1));
-
-            % Weights of the directions
-            weights = zeros(1, length(analytic_dirs));
-            for i_ = 1:length(weights)
-                weights(i_) = dot(init_dir, tangents(:,i_));
-            end
-
-            % Directions into the surface are given 0 weight
-            if sum(analytic_dirs(2,:) < 0) > 0
-                warning('Surface possibly too rough for single scattering model')
-                fprintf('%f proportion of rays go into the surface\n', ...
-                    (sum(analytic_dirs(2,:) < 0))/(N - 1));
-            end
-            weights(analytic_dirs(2,:) < 0) = 0;
-
-            if sum(weights < 0) < N/20
-                if sum(weights < 0) > 0
-                    warning('Surface possibly too rough for single scattering model')
-                end
-
-                % Calculate the angles to the normal
-                analytic_thetas = atand(analytic_dirs(1,:)./analytic_dirs(2,:));
-
-                if make_plots
-                    % Plot of the resulting histogram
-                    weighted_histogram(analytic_thetas, weights, 75);
-                    xlabel('\theta/\circ')
-                    title('Single scattering off the surface')
-                end
-            else
-                % Calculate the angles to the normal
-                analytic_thetas = atand(analytic_dirs(1,:)./-analytic_dirs(2,:));
-                warning(['Surface too rough for single scattering model over 5% or' ...
-                    'the results cannot be calculated.'])
-            end
         end
         
         % A function to calculate the mean and standard deviation of the broad specular
@@ -201,6 +123,10 @@ classdef tracing2D
                         scattering = varargin{i_+1};
                     case 'scattering_parameters'
                         scattering_parameters = varargin{i_+1};
+                    case 'init_pos'
+                        init_pos = varargin{i_+1};
+                    case 'init_dir'
+                        init_dir = varargin{i_+1};
                 end
             end
 
@@ -208,8 +134,15 @@ classdef tracing2D
             if ~exist('n_rays', 'var')
                 error('Specify a number of rays.')
             end
+            gen_rays = false;
             if ~exist('init_angle', 'var')
-                error('Specify an incident angle.')
+                if ~exist('init_pos', 'var') || ~exist('init_dir', 'var')
+                    error('Either specify initial conditions or incident angle.');
+                end
+            elseif exist('init_pos', 'var') || exist('init_dir', 'var')
+                error('Only specify incidence angle *or* initial conditions.');
+            else
+                gen_rays = true;
             end
             if ~exist('make_plots', 'var')
                 make_plots = false;
@@ -234,11 +167,13 @@ classdef tracing2D
                 % Generate a random Gaussian surface with a Gaussian height distribution
                 % function and an exponential correlation length.
                 [hs, xs] = roughSurf1D.rsgene(Nelements+1, (Nelements+1)/100, ratio, 1);
+                gen_surf = true;
             elseif exist('xs', 'var') && exist('hs', 'var')
                 if exist('ratio', 'var') || exist('Nelements', 'var')
                     error(['Do not specify both a surface profile and statistic for' ...
                         'gernerating a surface profile. Do one or the other.'])
                 end
+                gen_surf = false;
             else
                 error(['Provide either a surface profile or the statistics for a' ...
                     'profile to be generated.'])
@@ -249,44 +184,52 @@ classdef tracing2D
                 % Plot a section of surface with equal axes
                 figure
                 plot(xs, hs)
-                xlim([-ratio*20, ratio*20])
+                if gen_surf
+                    xlim([-ratio*20, ratio*20])
+                end
                 axis equal
                 title('Example surface profile')
 
-                % Plot a histogram of the heights overlayed with the Gaussian distribution it
-                % was generated from
-                figure
-                histogram(hs, 'Normalization', 'pdf')
-                hold on
-                height = linspace(min(hs), max(hs), 1000);
-                plot(height, normpdf(height, 0, ratio))
-                hold off
-                xlabel('Height of surface in units of the correlation length')
-                legend('Generated surface', 'Ideal surface')
+                if gen_surf
+                    % Plot a histogram of the heights overlayed with the Gaussian distribution it
+                    % was generated from
+                    figure
+                    histogram(hs, 'Normalization', 'pdf')
+                    hold on
+                    height = linspace(min(hs), max(hs), 1000);
+                    plot(height, normpdf(height, 0, ratio))
+                    hold off
+                    xlabel('Height of surface in units of the correlation length')
+                    legend('Generated surface', 'Ideal surface')
+                end
             end
+            
+            if gen_rays
+                % The minimum and maxium nominal intersection points
+                min_x = min(xs)/2;
+                max_x = max(xs)/2;
 
-            % The minimum and maxium nominal intersection points
-            min_x = min(xs)/2;
-            max_x = max(xs)/2;
+                % The starting positions
+                init_y = range(xs);
+                init_x = linspace(min_x, max_x, n_rays);
+                init_pos = [init_x; repmat(init_y, 1, n_rays)];
+                init_pos = init_pos - [tand(init_angle)*range(xs); 0];
 
-            % The starting positions
-            init_y = range(xs);
-            init_x = linspace(min_x, max_x, n_rays);
-            init_pos = [init_x; repmat(init_y, 1, n_rays)];
-            init_pos = init_pos - [tand(init_angle)*range(xs); 0];
-
-            % The starting directions
-            init_dir = [sind(init_angle); -cosd(init_angle)];
+                % The starting directions
+                init_dir = [sind(init_angle); -cosd(init_angle)];
+            end
 
             % Calculate the normals to each surface elements
             vertices = [xs; hs];
             normals = [hs(1:end-1) - hs(2:end); abs(xs(2:end) - xs(1:end-1))];
             normals = normals./sqrt(sum(normals.^2, 1));
 
+            tic
             % Scatter the rays using the ray tracing mex program
-            [final_dirs, ~, num_scatters] = scatter_rays({vertices, normals}, ...
+            [final_dirs, ~, num_scatters] = scatter_rays2D({vertices, normals}, ...
                 {init_pos, init_dir}, {scattering, scattering_parameters});
-
+            disp(toc)
+            
             % Calculate the angle to the surface normal for the final directions of the rays
             thetas = atand(final_dirs(1,:)./final_dirs(2,:));
 
@@ -305,7 +248,7 @@ classdef tracing2D
                 histogram(num_scatters, 'BinWidth', 1, 'Normalization', 'pdf')
                 xlabel('Number of scatters')
             end
-        end
-    end
-end
+        end % End scattering function
+    end % End static methods
+end % End class
 

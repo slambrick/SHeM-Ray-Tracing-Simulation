@@ -15,6 +15,7 @@ clc
 loadpath
 
 %% Read parameters from text file
+% TODO: update the parameter file so that 
 param_fname = 'ray_tracing_parameters.txt';
 param_list = read_parameters(param_fname);
 
@@ -148,20 +149,6 @@ defMaterial.function = 'cosine';
 defMaterial.params = 0;
 defMaterial.color = [0.8 0.8 1.0];
 
-%% Create parameter structs
-
-direct_beam.n = n_rays;
-direct_beam.pinhole_c = pinhole_c;
-direct_beam.pinhole_r = pinhole_r;
-direct_beam.theta_max = theta_max;
-direct_beam.source_model = source_model;
-direct_beam.init_angle = init_angle;
-direct_beam.sigma_source = sigma_source;
-
-effuse_beam.n = n_effuse;
-effuse_beam.pinhole_c = pinhole_c;
-effuse_beam.pinhole_r = pinhole_r;
-effuse_beam.cosine_n = cosine_n;
 
 %% Output and plotting parameters
 
@@ -180,6 +167,151 @@ save_to_text = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% End of parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Create input structs to hold input data
+
+% TODO: convert from structs into classes??
+direct_beam.n = n_rays;
+direct_beam.pinhole_c = pinhole_c;
+direct_beam.pinhole_r = pinhole_r;
+direct_beam.theta_max = theta_max;
+direct_beam.source_model = source_model;
+direct_beam.init_angle = init_angle;
+direct_beam.sigma_source = sigma_source;
+
+effuse_beam.n = n_effuse;
+effuse_beam.pinhole_c = pinhole_c;
+effuse_beam.pinhole_r = pinhole_r;
+effuse_beam.cosine_n = cosine_n;
+
+% NOTE: I think this has to remain in the main script, however it could be
+% placed earlier and then only a few parameter structs would need to be passed
+% around... ??
+scan_inputs.type_scan = typeScan;
+scan_inputs.max_scatter = max_scatter;
+switch typeScan
+    case 'multiple_rectangular'
+        scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = raster_movment2D_x;
+        scan_inputs.raster_movment2D_z = raster_movment2D_z;
+        scan_inputs.xrange = xrange;
+        scan_inputs.zrange = zrange;
+        scan_inputs.raster_movment1D = raster_movement_y;
+        scan_inputs.range1D = range_y;
+        scan_inputs.direction_1D = 'y';
+    case 'rotations'
+        scan_inputs.rotationAngles = rot_angles;
+        scan_inputs.raster_movment2D_x = raster_movment2D_x;
+        scan_inputs.raster_movment2D_z = raster_movment2D_z;
+        scan_inputs.xrange = xrange;
+        scan_inputs.zrange = zrange;
+        scan_inputs.raster_movment1D = NaN;
+        scan_inputs.range1D = NaN;
+        scan_inputs.direction_1D = NaN;
+    case 'rectangular'
+        scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = raster_movment2D_x;
+        scan_inputs.raster_movment2D_z = raster_movment2D_z;
+        scan_inputs.xrange = xrange;
+        scan_inputs.zrange = zrange;
+        scan_inputs.raster_movment1D = NaN;
+        scan_inputs.range1D = NaN;
+        scan_inputs.direction_1D = NaN;
+    case 'line'
+        scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = NaN;
+        scan_inputs.raster_movment2D_z = NaN;
+        scan_inputs.xrange = NaN;
+        scan_inputs.zrange = NaN;
+        scan_inputs.raster_movment1D = raster_movment1D;
+        scan_inputs.range1D = range1D;
+        scan_inputs.direction_1D = Direction;
+    case 'single pixel'
+        scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = NaN;
+        scan_inputs.raster_movment2D_z = NaN;
+        scan_inputs.xrange = NaN;
+        scan_inputs.zrange = NaN;
+        scan_inputs.raster_movment1D = NaN;
+        scan_inputs.range1D = NaN;
+        scan_inputs.direction_1D = NaN;
+end
+
+sample_inputs.sample_type = sample_type;
+sample_inputs.material = defMaterial;
+sample_inputs.dist_to_sample = dist_to_sample;
+sample_inputs.sphere = sphere;
+sample_inputs.sample_description = sample_description;
+if strcmp(sample_type, 'rectangular')
+    sample_inputs.square_size = square_size;
+else
+    sample_inputs.square_size = NaN;
+end
+if strcmp(sample_type, 'custom')
+    sample_inputs.sample_fname = sample_fname;
+else
+    sample_inputs.sample_fname = NaN;
+end
+sample_inputs.scale = scale;
+
+pinhole_plate_inputs.pinhole_model = pinhole_model;
+pinhole_plate_inputs.working_dist = working_dist;
+switch pinhole_model
+    case {'stl', 'new'}
+        pinhole_plate_inputs.plate_accuracy = plate_accuracy;
+        pinhole_plate_inputs.n_detectors = 1;
+        pinhole_plate_inputs.plate_represent = 1;
+        pinhole_plate_inputs.aperture_axes = NaN;
+        pinhole_plate_inputs.aperture_c = NaN;
+        pinhole_plate_inputs.circle_plate_r = NaN;
+        pinhole_plate_inputs.aperture_theta = NaN;
+        pinhole_plate_inputs.aperture_phi = NaN;
+        pinhole_plate_inputs.aperture_half_cone = NaN;
+    case 'circle'
+        pinhole_plate_inputs.plate_accuracy = NaN;
+        pinhole_plate_inputs.n_detectors = 1;
+        pinhole_plate_inputs.plate_represent = plate_represent;
+        pinhole_plate_inputs.aperture_axes = aperture_axes;
+        pinhole_plate_inputs.aperture_c = aperture_c;
+        pinhole_plate_inputs.circle_plate_r = circle_plate_r;
+        pinhole_plate_inputs.aperture_theta = NaN;
+        pinhole_plate_inputs.aperture_phi = NaN;
+        pinhole_plate_inputs.aperture_half_cone = NaN;
+    case 'N circle'
+        pinhole_plate_inputs.plate_accuracy = NaN;
+        pinhole_plate_inputs.n_detectors = n_detectors;
+        pinhole_plate_inputs.plate_represent = plate_represent;
+        pinhole_plate_inputs.aperture_axes = aperture_axes;
+        pinhole_plate_inputs.aperture_c = aperture_c;
+        pinhole_plate_inputs.circle_plate_r = circle_plate_r;
+        pinhole_plate_inputs.aperture_theta = NaN;
+        pinhole_plate_inputs.aperture_phi = NaN;
+        pinhole_plate_inputs.aperture_half_cone = NaN;
+    case 'abstract'
+        % TODO: make the 'abstract' simulations work
+        pinhole_plate_inputs.n_detectors = n_detectors;
+        pinhole_plate_inputs.plate_represent = 0;
+        pinhole_plate_inputs.circle_plate_r = NaN;
+        pinhole_plate_inputs.aperture_theta = NaN;
+        pinhole_plate_inputs.aperture_phi = NaN;
+        pinhole_plate_inputs.aperture_half_cone = NaN;
+end
+
+% Input structs are:
+%  - pinhole_plate_inputs
+%  - sample_inputs
+%  - scan_inputs
+%  - direct_beam
+%  - effuse_beam
+% I think they should be converted into classes
+% There can then be an overall struct/object of the inputs
+inputs.sample = sample_inputs;
+inputs.pinhole = pinhole_plate_inputs;
+inputs.scan = scan_inputs;
+inputs.effuse_beam = effuse_beam;
+inputs.direct_beam = direct_beam;
+% TODO: use inputs instead of the seperate structs
+
 %% Check some of the inputs.
 % This is by no means exhaustive. Most checks are for obvious errors.
 % TODO: update/fix
@@ -248,6 +380,7 @@ copyfile(param_fname, thePath)
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 
 % Add the required libraries if we are running in octave
+% TODO: check the compatibility
 if isOctave
     pkg load statistics;
     pkg load image;
@@ -256,68 +389,28 @@ end
 addpath(thePath);
 
 %% Sample import and plotting
+
+% A struct to represent the sphere
+sphere.c = sphere_c;
+sphere.r = sphere_r;
+sphere.material = defMaterial;
+
 % Importing the sample as a TriagSurface object.
-% Third argument asks if we wish to plot the surface in 3D, will save it to the
-% simultion path.
-switch sample_type
-    case 'flat'
-        sample_surface = flatSample(square_size, dist_to_sample, defMaterial);
-        make_sphere = 0;
-        sample_description = ['A flat square sample size ' ...
-            num2str(square_size) 'mm.'];
-    case 'strips'
-        sample_surface = strip_series(dist_to_sample, working_dist);
-        make_sphere = 0;
-        sample_description = 'A sample made up of two series of strips with properties varying across';
-    case 'sphere'
-        sample_surface = flatSample(square_size, dist_to_sample, defMaterial);
-        make_sphere = 1;
-        sample_description = ['A single analytic sphere, radius ' ...
-            num2str(sphere_r) 'mm on a flat square of ' num2str(square_size) 'mm.'];
-    case 'custom'
-        sample_surface = inputSample('fname', sample_fname, 'sample_dist', dist_to_sample, ...
-                                     'working_dist', working_dist, 'scale', scale, ...
-                                     'defMaterial', defMaterial, 'dontMeddle', dontMeddle);
-        make_sphere = 0;
-    case 'photoStereo'
-        sample_surface = photo_stereo_test(working_dist);
-        make_sphere = 1;
-        sphere_r = 0.05;
-        sphere_c = [-0.1, -dist_to_sample - sphere_r*2/3, -0.1];
-    case 'special'
-        sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, 'scale', 10e-4);
-        sample_surface.rotateZ;
-        sample_surface.moveBy([0, -2.121, 0]);
-        make_sphere = 0;
-end
-
-if dontMeddle
-    disp('Sample has not been automatically places, you will need to do it manually.')
-    keyboard
-end
-
-sample_surface.reflect_axis('x');
+[sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, ...
+    pinhole_plate_inputs.working_dist, dontMeddle);
+sample_inputs.sample_descrition = sample_description;
 
 if strcmp(typeScan, 'line')
     sample_surface.moveBy(init_displacement);
 end
 
-% A struct to represent the sphere
-sphere.c = sphere_c;
-sphere.make = make_sphere;
-sphere.r = sphere_r;
-sphere.material = defMaterial;
-
 % Do any extra manipulation of the sample here
-% if false
-%     %sample_surface.rotateX;
-%     sample_surface.rotateY;
-%     sample_surface.rotateY;
-%     %sample_surface.rotateY;
-%     %sample_surface.moveBy([0, -2.2, 2.3]);
-% end
+if true
+    sample_surface.reflect_axis('x');
+end
 
 % Plot the sample surface in 3D space, if we are using a graphical window
+% TODO: put in a seperate
 if feature('ShowFigureWindows')
     if ~strcmp(typeScan, 'single_pixel')
         sample_surface.patchPlot(true);
@@ -346,163 +439,15 @@ if feature('ShowFigureWindows')
 end
 
 %% Pinhole plate import and plotting
-switch pinhole_model
-    case 'stl'
-        pinhole_surface = import_plate(plate_accuracy);
-
-        % Plot if using a graphical window
-        if ~isOctave
-            if feature('ShowFigureWindows')
-                sample_surface.patchPlot(true);
-                pinhole_surface.patchPlot(false);
-                view([-5 -5 5]);
-            end
-        else
-            sample_surface.patchPlot(true);
-            pinhole_surface.patchPlot(false);
-            view([-5 -5 5]);
-        end
-
-        % To pass to the functions
-        thePlate = 0;
-        aperture_abstract = 0;
-    case 'new'
-        pinhole_surface = import_newPlate(plate_accuracy);
-
-        % Plot if using a graphical window
-        if ~isOctave
-            if feature('ShowFigureWindows')
-                sample_surface.patchPlot(true);
-                pinhole_surface.patchPlot(false);
-                view([-5 -5 5])
-            end
-        else
-            sample_surface.patchPlot(true);
-            pinhole_surface.patchPlot(false);
-            view([-5 -5 5])
-        end
-
-        % To pass to the functions
-        thePlate = 0;
-        aperture_abstract = 0;
-
-        pinhole_model = 'stl';
-    case 'new_micro'
-        % TODO
-        error('Not written this bit of code yet...');
-    otherwise
-        % Do not have a CAD repreentation of the pinhole plate
-
-        % Create an empty TriagSurface as the pinhole plate
-        pinhole_surface = TriagSurface();
-
-        % Struct with the information about the plate in
-        thePlate.plate_represent = plate_represent;
-        thePlate.n_detectors = n_detectors;
-        thePlate.circle_plate_r = circle_plate_r;
-        thePlate.aperture_axes = aperture_axes;
-        thePlate.aperture_c = aperture_c;
-        aperture_abstract = {aperture_theta, aperture_phi, aperture_half_cone};
-end
+[pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole_plate_inputs);
 
 %% Compile the mex files
 
 mexCompile(recompile);
 
-%% Create input structs to hole input data
-% delete(gcp('nocreate'));
-
-
-scan_inputs.type_scan = typeScan;
-scan_inputs.max_scatter = max_scatter;
-switch typeScan
-    case 'multiple_rectangular'
-        scan_inputs.rotationAngles = 0;
-        scan_inputs.raster_movment2D_x = raster_movment2D_x;
-        scan_inputs.raster_movment2D_z = raster_movment2D_z;
-        scan_inputs.xrange = xrange;
-        scan_inputs.zrange = zrange;
-        scan_inputs.raster_movment1D = raster_movement_y;
-        scan_inputs.range1D = range_y;
-        scan_inputs.direction_1D = 'y';
-    case 'rotations'
-        scan_inputs.rotationAngles = rot_angles;
-        scan_inputs.raster_movment2D_x = raster_movment2D_x;
-        scan_inputs.raster_movment2D_z = raster_movment2D_z;
-        scan_inputs.xrange = xrange;
-        scan_inputs.zrange = zrange;
-        scan_inputs.raster_movment1D = NaN;
-        scan_inputs.range1D = NaN;
-        scan_inputs.direction_1D = NaN;
-    case 'rectangular'
-        scan_inputs.rotationAngles = 0;
-        scan_inputs.raster_movment2D_x = raster_movment2D_x;
-        scan_inputs.raster_movment2D_z = raster_movment2D_z;
-        scan_inputs.xrange = xrange;
-        scan_inputs.zrange = zrange;
-        scan_inputs.raster_movment1D = NaN;
-        scan_inputs.range1D = NaN;
-        scan_inputs.direction_1D = NaN;
-    case 'line'
-        scan_inputs.rotationAngles = 0;
-        scan_inputs.raster_movment2D_x = NaN;
-        scan_inputs.raster_movment2D_z = NaN;
-        scan_inputs.xrange = NaN;
-        scan_inputs.zrange = NaN;
-        scan_inputs.raster_movment1D = raster_movment1D;
-        scan_inputs.range1D = range1D;
-        scan_inputs.direction_1D = Direction;
-    case 'single pixel'
-        scan_inputs.rotationAngles = 0;
-        scan_inputs.raster_movment2D_x = NaN;
-        scan_inputs.raster_movment2D_z = NaN;
-        scan_inputs.xrange = NaN;
-        scan_inputs.zrange = NaN;
-        scan_inputs.raster_movment1D = NaN;
-        scan_inputs.range1D = NaN;
-        scan_inputs.direction_1D = NaN;
-end
-
-sample_inputs.sample_type = sample_type;
-sample_inputs.material = defMaterial;
-sample_inputs.dist_to_sample = dist_to_sample;
-sample_inputs.sphere = sphere;
-sample_inputs.sample_description = sample_description;
-if strcmp(sample_type, 'rectangular')
-    sample_inputs.square_size = square_size;
-else
-    sample_inputs.square_size = NaN;
-end
-
-pinhole_plate_inputs.pinhole_model = pinhole_model;
-pinhole_plate_inputs.working_dist = working_dist;
-switch pinhole_model
-    case {'stl', 'new'}
-        pinhole_plate_inputs.plate_accuracy = plate_accuracy;
-        pinhole_plate_inputs.n_detectors = 1;
-        pinhole_plate_inputs.plate_represent = 1;
-        pinhole_plate_inputs.aperture_axes = NaN;
-        pinhole_plate_inputs.aperture_c = NaN;
-    case 'circle'
-        pinhole_plate_inputs.plate_accuracy = NaN;
-        pinhole_plate_inputs.n_detectors = 1;
-        pinhole_plate_inputs.plate_represent = plate_represent;
-        pinhole_plate_inputs.aperture_axes = aperture_axes;
-        pinhole_plate_inputs.aperture_c = aperture_c;
-    case 'N circle'
-        pinhole_plate_inputs.plate_accuracy = NaN;
-        pinhole_plate_inputs.n_detectors = n_detectors;
-        pinhole_plate_inputs.plate_represent = plate_represent;
-        pinhole_plate_inputs.aperture_axes = aperture_axes;
-        pinhole_plate_inputs.aperture_c = aperture_c;
-    case 'abstract'
-        % TODO: make the 'abstract' simulations work
-        pinhole_plate_inputs.n_detectors = n_detectors;
-        pinhole_plate_inputs.plate_represent = 0;
-end
-
 
 %% Performing the simulation
+% TODO: update
 switch typeScan
     case 'rectangular'
         % For a rectangular scan
@@ -523,6 +468,8 @@ switch typeScan
             'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
             'ray_model', ray_model,          'n_detector', n_detectors);
     case 'multiple_rectangular'
+        % TODO: check this works and then make it work with the new parameter
+        % specification file
         simulationData = {};
         
         % find y positions
@@ -587,6 +534,7 @@ switch typeScan
             thePath, save_to_text, pinhole_model, thePlate, aperture_abstract);
     case 'rotations'
         % Perform multiple scans while rotating the sample in between.
+        % TODO: add the ability to rotate about a different axis
         simulationData = {};
         h = waitbar(0, 'Proportion of simulations performed', 'Name', 'Ray tracing progress');
         N = length(rot_angles);

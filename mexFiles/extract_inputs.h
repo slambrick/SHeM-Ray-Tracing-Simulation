@@ -43,8 +43,7 @@ int get_materials_array(const mxArray * names, const mxArray * functions,
                         const mxArray * params, Material * materials);
 
 /* Extract source properties from a MATLAB array and write them to the given pointers */
-void get_source(const mxArray * source, double * pinhole_r, double * pinhole_c,
-                double * theta_max, double * init_angle, double * sigma);
+void get_source(const mxArray * source, int source_model, SourceParam * Source);
 
 /*
  * Extract the plate properties from MATLAB cell array of length 5

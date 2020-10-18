@@ -67,7 +67,8 @@ void diffuse_and_specular(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, MTRand *myrng) {
 
     double diffuse_lvl = params[0];
-    double tester = genRand(myrng);
+    double tester;
+    genRand(myrng, &tester);
     if(tester < diffuse_lvl)
         cosine_scatter(normal, init_dir, new_dir, params+1, myrng);
     else
@@ -86,7 +87,8 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * params, MTRand *myrng) {
 
     double diffuse_lvl = params[0];
-    double tester = genRand(myrng);
+    double tester;
+    genRand(myrng, &tester);
     if(tester < diffuse_lvl)
         cosine_scatter(normal, init_dir, new_dir, params+1, myrng);
     else
@@ -122,14 +124,16 @@ void debye_waller_filter_diffuse(distribution_func original_distr,
     double energy_ratio, dwf, tester;
 
     double exponent = prefactor * inc_energy * temp / latt_mass / (debye_temp * debye_temp);
-    energy_ratio = gaussian_random_tail(1, energy_sigma, -1, myrng);
+    gaussian_random_tail(1, energy_sigma, -1, myrng, &energy_ratio);
 
     // generate a new direction with the original distribution
     original_distr(normal, init_dir, new_dir, params+5, myrng);
 
     // with probability proportional to debye-waller factor turn it into diffuse scattering
-    dwf = exp(- exponent * (1.0 + energy_ratio - 2 * sqrt(energy_ratio) * dot(init_dir, new_dir)));
-    tester = genRand(myrng);
+    double tmp;
+    dot(init_dir, new_dir, &tmp);
+    dwf = exp(- exponent * (1.0 + energy_ratio - 2 * sqrt(energy_ratio) * tmp));
+    genRand(myrng, &tester);
 
     if(tester > dwf)
         cosine_scatter(normal, init_dir, new_dir, NULL, myrng);
@@ -186,20 +190,22 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
 
     // switch to surface-specific coordinates: (x, y) in the plane, z orthogonal:
     perpendicular_plane(normal, e1, e2);
-    ni[0] = dot(init_dir, e1);
-    ni[1] = dot(init_dir, e2);
-    ni[2] = dot(init_dir, normal);
+    dot(init_dir, e1, &ni[0]);
+    dot(init_dir, e2, &ni[1]);
+    dot(init_dir, normal, &ni[2]);
 
     do {
         do {
             // generate a random reciprocal vector
             // p is between [-maxp, +maxp], and same for q and maxq
-            p = gen_random_int(2*maxp+1, myrng) - maxp;
-            q = gen_random_int(2*maxq+1, myrng) - maxq;
+            gen_random_int(2*maxp+1, myrng, &p);
+            p = p - maxp;
+            gen_random_int(2*maxq+1, myrng, &q);
+            q = q - maxq;
             
             // reject to give a Gaussian probability of peaks
             gaussian_value = exp(-(p*p + q*q) / 2 / (envelope_sig*envelope_sig));
-            tester = genRand(myrng);
+            genRand(myrng, &tester);
         } while(tester > gaussian_value);
 
         // generate gaussian-distributed random perturbation to smudge the peaks
@@ -253,7 +259,9 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
     do {
         /* Generate a random theta and phi */
         theta = theta_generate(sigma, myrng);
-        phi = 2*M_PI*genRand(myrng);
+        double uni_rand;
+        genRand(myrng, &uni_rand);
+        phi = 2*M_PI*uni_rand;
 
         /* Generate the new direction */
         for (int k = 0; k < 3; k++) {
@@ -264,7 +272,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
 
         /* Calculate the polar angle (normal, new_dir) to the surface normal for
          * the new direction */
-        cos_normal = dot(normal, new_dir);
+        dot(normal, new_dir, &cos_normal);
 
         /* If the value of theta_normal is greater than pi/2 reject */
         if (cos_normal < 0)
@@ -273,7 +281,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
         /* We reject the direction with a probability proportional to
          * cos(theta_normal)
          */
-        tester = genRand(myrng);
+        genRand(myrng, &tester);
     } while (cos_normal < tester);
     /* We have successfully generated a new direction */
 }
@@ -318,7 +326,7 @@ static double theta_generate(double sigma, MTRand *myrng) {
         s_theta = 0.5*sin(theta);
 
         /* Generate a tester variable */
-        tester = genRand(myrng);
+        genRand(myrng, &tester);
         
         cnt++;
     } while (s_theta < tester);
@@ -346,8 +354,11 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
 
     perpendicular_plane(normal, t1, t2);
 
-    phi = 2*M_PI*genRand(myrng);
-    s_theta = sqrt(genRand(myrng));
+    double uni_rand;
+    genRand(myrng, &uni_rand);
+    phi = 2*M_PI*uni_rand;
+    genRand(myrng, &uni_rand);
+    s_theta = sqrt(uni_rand);
     c_theta = sqrt(1 - s_theta*s_theta);
 
     /* Create the new random direction from the two random angles */
@@ -377,8 +388,11 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
      * into the surface */
     do {
         /* Generate random numbers for phi and cos(theta) */
-        phi = 2*M_PI*genRand(myrng);
-        s_theta = sqrt(genRand(myrng));
+    	double uni_rand;
+        genRand(myrng, &uni_rand);
+        phi = 2*M_PI*uni_rand;
+        genRand(myrng, &uni_rand);
+        s_theta = sqrt(uni_rand);
         c_theta = sqrt(1 - s_theta*s_theta);
 
         /* Create the new random direction from the two random angles */
@@ -390,7 +404,7 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
         normalise(new_dir);
 
         /* Calculate the polar angle to the surface normal for the new direction */
-        dot_normal = dot(normal, new_dir);
+        dot(normal, new_dir, &dot_normal);
     } while (dot_normal < 0);
 }
 
@@ -414,8 +428,11 @@ void uniform_scatter(const double normal[3], const double initial_dir[3],
     perpendicular_plane(normal, t1, t2);
 
     /* Generate random numbers for phi and cos(theta) */
-    phi = 2*M_PI*genRand(myrng);
-    c_theta = fabs(0.9999*genRand(myrng) - 1);
+    double uni_rand;
+    genRand(myrng, &uni_rand);
+    phi = 2*M_PI*uni_rand;
+    genRand(myrng, &uni_rand);
+    c_theta = fabs(0.9999*uni_rand - 1);
     s_theta = sqrt(1 - c_theta*c_theta);
 
     /* Create the new random direction from the two random angles */

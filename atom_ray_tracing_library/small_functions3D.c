@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-19, Sam Lambrick.
+ * Copyright (c) 2018-20, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -42,17 +42,14 @@ void propagate(const double init[3], const double direc[3], double a, double res
  * INPUTS:
  *  a - double array, first vector
  *  b - double array, second vector
- *
- * OUTPUTS:
- *  result - double, the value of the dot product
+ *  result - double pointer, the value of the dot product
  */
-double dot(const double a[3], const double b[3]) {
+void dot(const double a[3], const double b[3], double* result) {
     int i;
-    double result = 0;
+    *result = 0;
     for (i = 0; i < 3; i++) {
-        result += a[i]*b[i];
+        *result += a[i]*b[i];
     }
-    return result;
 }
 
 /* Calculates the cross product of two 3-vectors and writes it to c */
@@ -71,13 +68,12 @@ void cross(const double a[3], const double b[3], double c[3]) {
  * OUTPUTS:
  *  result - the value of the norm^2
  */
-double norm2(const double vect[3]) {
-    double result = 0;
+void norm2(const double vect[3], double* result) {
+    *result = 0;
     int i;
     for (i = 0; i < 3; i++) {
-        result += vect[i]*vect[i];
+        *result += vect[i]*vect[i];
     }
-    return result;
 }
 
 /*
@@ -91,7 +87,7 @@ void normalise(double vect[3]) {
     double magnitude;
     int i;
 
-    magnitude = norm2(vect);
+    norm2(vect, &magnitude);
     for (i = 0; i < 3; i++) {
         vect[i] = vect[i]/sqrt(magnitude);
     }
@@ -109,7 +105,9 @@ void normalise(double vect[3]) {
  *  new_dir  - double array, an array to store the final direction of the ray
  */
 void reflect3D(const double normal[3], const double init_dir[3], double new_dir[3]) {
-    propagate(init_dir, normal, -2*dot(normal, init_dir), new_dir);
+	double tmp;
+	dot(normal, init_dir, &tmp);
+    propagate(init_dir, normal, -2*tmp, new_dir);
     normalise(new_dir);
 }
 
@@ -173,7 +171,7 @@ void perpendicular_plane(const double n[3], double v1[3], double v2[3]) {
  *       readable. The commented code here uses a series of variables to make
  *       the function more readable, it is kept for refernce.
  */
-int solve3x3(double A[3][3], double u[3], double v[3], double epsilon) {
+void solve3x3(double A[3][3], double u[3], double v[3], double epsilon, int* success) {
     double M, Dx, Dy, Dz, X1, X2, X3;
     /*double a,b,c,d,e,f,g,h,i,j,k,l;
 
@@ -206,7 +204,8 @@ int solve3x3(double A[3][3], double u[3], double v[3], double epsilon) {
 
     /* fabs() is the math.h abs function for floats */
     if (fabs(M) < epsilon) {
-        return 0;
+    	*success = 0;
+        return;
     }
     /*Dx = j*X1 + k*X2 + l*X3;
 
@@ -230,5 +229,5 @@ int solve3x3(double A[3][3], double u[3], double v[3], double epsilon) {
     u[1] = Dy/M;
     u[2] = Dz/M;
 
-    return 1;
+    *success = 1;
 }

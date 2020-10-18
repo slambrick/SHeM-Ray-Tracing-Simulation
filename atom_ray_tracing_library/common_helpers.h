@@ -15,21 +15,22 @@
  * Linearise [row][column] coordinates in an array of coordinates
  * such as a 3-column n-row matrix of vertices of a Surface3D
  */
-int lin(int row, int col);
+void lin(int row, int col, int* ind);
 
 /* Prints a 2 or three element vector */
-void print1D_double(double *vect, int dim);
+void print1D_double(double const * vect, int dim);
 
 /* Prints a 2 or three element vector */
-void print1D_int(int *vect, int dim);
+void print1D_int(int const * vect, int dim);
 
 /* Prints out a 3 by 3 double array passed as an argument. */
 void print3x3(double matrix[3][3]);
 
 void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng);
 
-double gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrand);
+void gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrand,
+		double* rand1);
 
-int gen_random_int(int max, MTRand *myrand);
+void gen_random_int(int max, MTRand *myrand, int* randint);
 
 #endif

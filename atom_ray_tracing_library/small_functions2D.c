@@ -11,7 +11,6 @@
 #include "ray_tracing_structs2D.h"
 #include "common_helpers.h"
 #include "small_functions2D.h"
-#include <gsl/gsl_math.h>
 
 /* 
  * Calculates the dot product of two two element vectors passed as arrays.
@@ -41,13 +40,12 @@ double dot2(double a[2], double b[2]) {
  * OUTPUTS:
  *  result - the value of the norm^2
  */
-double norm2(double vect[2]) {
-    double result = 0;
+void norm2(double vect[2], double* result) {
+    *result = 0;
     int i;
     for (i = 0; i < 2; i++) {
-        result += vect[i]*vect[i];
+        *result += vect[i]*vect[i];
     }
-    return result;
 }
 
 /* 
@@ -61,7 +59,7 @@ void normalise2(double vect[2]) {
     double magnitude;
     int i;
     
-    magnitude = norm2(vect);
+    norm2(vect, &magnitude);
     for (i = 0; i < 2; i++) {
         vect[i] = vect[i]/sqrt(magnitude);
     }

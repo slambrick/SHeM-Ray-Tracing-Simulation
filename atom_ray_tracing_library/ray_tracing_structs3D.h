@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Sam Lambrick.
+ * Copyright (c) 2018-20, Sam Lambrick. 2020 Dan Serment.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -100,25 +100,36 @@ typedef struct _rays3d {
     int nrays;  /* The number of rays that are stored in the struct */
 } Rays3D;
 
+// Contains the source information
+typedef struct _sourceParam {
+	double pinhole_r;
+	double pinhole_c[3];
+	double theta_max;
+	double init_angle;
+	int source_model;
+	double sigma;
+} SourceParam;
+
 /******************************************************************************/
 /*                           Function declarations                            */
 /******************************************************************************/
 
 /*  Set up a surface containing the information on a triangulated surface. */
-Surface3D set_up_surface(double V[], double N[], int F[], char * C[],
-        Material * materials, int nmaterials, int ntriag, int nvert, int surf_index);
+void set_up_surface(double V[], double N[], int F[], char * C[], Material M[],
+		int nmaterials, int ntriag, int nvert, int surf_index, Surface3D *surf);
 
 void clean_up_surface(Surface3D * surface);
 
 /* Set up a Sphere struct */
-AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
-        Material M, int surf_index);
+void set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
+        Material M, int surf_index, AnalytSphere *sph);
 
 /* Initialise a Material with given properties */
-Material set_up_material(char * name, char * function, double * params, int n_params);
+void set_up_material(char * name, char * function, double * params, int n_params,
+		Material *mat);
 
 /* Sets up a struct containing information on all the rays to be simulated. */
-Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays);
+void compose_rays3D(double ray_pos[], double ray_dir[], int nrays, Rays3D *all_rays);
 
 /* Updates the ray position */
 void update_ray_position(Ray3D *the_ray, const double new_pos[3]);
@@ -129,7 +140,7 @@ void update_ray_direction(Ray3D *the_ray, const double new_dir[3]);
 /* Gets an element of a triangulated surface. Vertices are written to
  * v1, v2, v3, and the normal to `normal`.
  */
-void get_element3D(Surface3D *sample, int index, double v1[3], double v2[3],
+void get_element3D(const Surface3D *sample, int index, double v1[3], double v2[3],
         double v3[3], double normal[3]);
 
 /* Cleans up the allocated memory inside the ray struct */
@@ -148,25 +159,24 @@ void get_scatters(Rays3D *all_rays, int *nScatters);
 void print_material(const Material * mat);
 
 /* Print details of whole sample to console */
-void print_surface(const Surface3D * sample);
+void print_surface(Surface3D const * sample);
 
 /* Prints information on a ray to the terminal */
-void print_ray(Ray3D *the_ray);
+void print_ray(Ray3D const * the_ray);
 
 /* Prints information on a BackWall to the terminal */
-void print_BackWall(BackWall *wall);
+void print_BackWall(BackWall const * wall);
 
 /* Prints the centres and axes of all the apertures in the NBackWall struct */
-void print_nBackWall(NBackWall *all_apertures);
+void print_nBackWall(NBackWall const * all_apertures);
 
 /* Print the position, radius, material etc of a sphere */
-void print_sphere(const AnalytSphere * sphere);
+void print_sphere(AnalytSphere const * sphere);
 
 /* Gets information on one aperure out of a series of apertures */
-void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall);
+void get_nth_aperture(int n, const NBackWall *allApertures, BackWall *this_wall);
 
 /* Creates a ray in the pinhole */
-void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, double theta_max,
-        double init_angle, int source_model, double sigma, MTRand *myrng);
+void create_ray(Ray3D * gen_ray, SourceParam const * source, MTRand *myrng);
 
 #endif

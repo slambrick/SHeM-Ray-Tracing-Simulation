@@ -17,7 +17,7 @@ function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole
             end
 
             % To pass to the functions
-            thePlate = 0;
+            thePlate = PinholeModel();
             aperture_abstract = 0;
         case 'new'
             pinhole_surface = import_newPlate(pinhole_plate_inputs.plate_accuracy);
@@ -36,7 +36,7 @@ function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole
             end
 
             % To pass to the functions
-            thePlate = 0;
+            thePlate = PinholeModel();
             aperture_abstract = 0;
         case 'new_micro'
             % TODO
@@ -48,11 +48,11 @@ function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole
             pinhole_surface = TriagSurface();
 
             % Struct with the information about the plate in
-            thePlate.plate_represent = pinhole_plate_inputs.plate_represent;
-            thePlate.n_detectors = pinhole_plate_inputs.n_detectors;
-            thePlate.circle_plate_r = pinhole_plate_inputs.circle_plate_r;
-            thePlate.aperture_axes = pinhole_plate_inputs.aperture_axes;
-            thePlate.aperture_c = pinhole_plate_inputs.aperture_c;
+            thePlate = PinholeModel(pinhole_plate_inputs.plate_represent, ...
+                                    pinhole_plate_inputs.n_detectors, ...
+                                    pinhole_plate_inputs.circle_plate_r, ...
+                                    pinhole_plate_inputs.aperture_axes, ...
+                                    pinhole_plate_inputs.aperture_c);
             aperture_abstract = {pinhole_plate_inputs.aperture_theta, ...
                 pinhole_plate_inputs.aperture_phi, pinhole_plate_inputs.aperture_half_cone};
     end

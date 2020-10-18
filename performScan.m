@@ -391,9 +391,7 @@ addpath(thePath);
 %% Sample import and plotting
 
 % A struct to represent the sphere
-sphere.c = sphere_c;
-sphere.r = sphere_r;
-sphere.material = defMaterial;
+sphere = Sphere(1, defMaterial, sphere_c, sphere_r);
 
 % Importing the sample as a TriagSurface object.
 [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, ...

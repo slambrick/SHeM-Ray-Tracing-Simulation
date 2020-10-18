@@ -17,3 +17,9 @@ simulations/*/formatted
 .clangd
 .vscode
 compile_commands.json
+.autotools
+*.cproject
+*.project
+
+# Other unrelated things
+*.Rhistory

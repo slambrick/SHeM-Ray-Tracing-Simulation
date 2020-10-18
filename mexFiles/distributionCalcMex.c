@@ -124,7 +124,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                           "Provided ray positions is neither 1 or the specified number of rays, for distributionCalcMex.");
     }
     if (!gen_rays) {
-        all_rays = compose_rays3D(start_pos, start_dir, n_provided_rays);
+        compose_rays3D(start_pos, start_dir, n_provided_rays, &all_rays);
     }
         
     
@@ -133,14 +133,14 @@ void mexFunction(int nlhs, mxArray *plhs[],
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
     
     /* Set up the MTwister random number generator */
-    myrng = seedRand(t);
+    seedRand(t, &myrng);
     
     /* Put the sample into a struct */
-    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert,
-                            sample_index);
+    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
 
     /* Define sphere not to exist */
-    the_sphere = set_up_sphere(0, start_pos, 1, M[0], sphere_index);
+    // TODO: sphere to be passed in as a struct
+    set_up_sphere(0, start_pos, 1, M[0], sphere_index, &the_sphere);
 
     /*
      * Create the output matrices
@@ -173,7 +173,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                 the_ray.direction[j] = start_dir[j];
             }
             
-            trace_ray_just_sample(&the_ray, &killed, maxScatters, sample, the_sphere,
+            trace_ray_just_sample(&the_ray, &killed, maxScatters, &sample, &the_sphere,
                               &myrng);
             /* Update final position an directions of ray */
             for (j = 0; j < 3; j++) {
@@ -184,7 +184,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
             }
             numScattersRay[i] = the_ray.nScatters;
         } else {
-            trace_ray_just_sample(&all_rays.rays[i], &killed, maxScatters, sample, the_sphere,
+            trace_ray_just_sample(&all_rays.rays[i], &killed, maxScatters, &sample, &the_sphere,
                               &myrng);
         }
     }

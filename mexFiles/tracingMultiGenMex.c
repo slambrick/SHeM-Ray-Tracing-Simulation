@@ -5,16 +5,32 @@
  * GNU/GPL-3.0-or-later.
  *
  *
- * The main MEX function for performing the SHeM Simulation.
+ * A main MEX function for performing the SHeM Simulation.
  *
  * The calling syntax is:
- *  [] = tracingMultiGenMex();
+ *  [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, C, sphere, ...
+ *  	plate, mat_names, mat_functions, mat_params, max_scatter, n_rays, ...
+ *      source_model, source_parameters);
  * 
  * INPUTS:
- *  - 
+ *  V - Vertices of the sample
+ *  F - Faces of the sample
+ *  N - Normals of the sample
+ *  C - compositions (materials) of the sample
+ *  sphere - matlab struct array of the parameters for an analytic sphere
+ *  plate  - matlab struct array of the parameters for the detectors/pinhole plate
+ *  mat_names - names of the materials used
+ *  mat_functions - names of the functions used
+ *  mat_params - array of parameters for the scattering functions used
+ *  max_scatter - maximum allowed sample scattering events
+ *  n_rays - number of rays to simulate
+ *  source_model - string, the source model to use to generate the rays
+ *  source_parameter - array of parameters for the source model
  * 
  * OUTPUTS:
- *  - 
+ *  counted - number of detected rays into each detector
+ *  killed  - number of rays that had to be stopped
+ *  numScattesRay - number of scattering events each detected ray underwent
  *
  * This is a MEX file for MATLAB.
  */
@@ -40,8 +56,8 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 13;
-    const int NOUTPUTS = 3;
+    int const NINPUTS = 13;
+    int const NOUTPUTS = 3;
 
     /* Declare the input variables */
     int ntriag_sample;     /* number of sample triangles */
@@ -52,12 +68,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     Material *M;           /* materials of the sample */
     int n_rays;            /* number of rays */
     int maxScatters;       /* Maximum number of scattering events per ray */
-    int source_model;
-    double pinhole_r;
-    double src_theta_max;
-    double src_init_angle;
-    double src_sigma;
-    double pinhole_c[3];
     
     /* Declare the output variables */
     int32_t * cntr_detected;       /* The number of detected rays */
@@ -72,6 +82,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     NBackWall plate;
     AnalytSphere sphere;
     Ray3D the_ray;
+    SourceParam source;
+    int i;
 
     /* Indexing the surfaces, -1 refers to no surface */
     int sample_index = 0, plate_index = 1, sphere_index = 2;
@@ -83,14 +95,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     
     /**************************************************************************/
 
+    // TODO: improve the input checking
     /* Check for the right number of inputs and outputs */
     if (nrhs != NINPUTS) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
-                          "%d inputs required for tracingMultiGenMex.", NINPUTS);
+        mexErrMsgIdAndTxt("AtomRayTracing:tracingMultiGenMex:nrhs",
+        		"%d inputs required for tracingMultiGenMex.", NINPUTS);
     }
     if (nlhs != NOUTPUTS) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
-                          "%d outpus required for tracingMultiGenMex.", NOUTPUTS);
+        mexErrMsgIdAndTxt("AtomRayTracing:tracingMultiGenMex:nrhs",
+        		"%d outputs required for tracingMultiGenMex.", NOUTPUTS);
     }
 
     /**************************************************************************/
@@ -123,25 +136,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     // simulation parameters
     maxScatters = (int)mxGetScalar(prhs[9]);
     n_rays = (int)mxGetScalar(prhs[10]);
-    source_model = (int)mxGetScalar(prhs[11]);
     
     // TODO: pass through source as a struct?
-    get_source(prhs[12], &pinhole_r, pinhole_c, &src_theta_max, &src_init_angle,
-               &src_sigma);
+    get_source(prhs[12], (int)mxGetScalar(prhs[11]), &source);
 
     /**************************************************************************/
         
-    /* Seed the random number generator with the current time */
+    // Seed the random number generator with the current time
     gettimeofday(&tv, 0);
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
     
-    /* Set up the MTwister random number generator */
-    myrng = seedRand(t);
+    // Set up the MTwister random number generator
+    seedRand(t, &myrng);
 
-    /* Put the sample and pinhole plate surface into structs */
+    // Put the sample and pinhole plate surface into structs
     // TODO: can we make a sample struct that can be passed from Matlab to C?
-    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert,
-                            sample_index);
+    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
 
     /**************************************************************************/
     
@@ -155,23 +165,30 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                                     mxREAL);
 
     /* Pointers to the output matrices so we may change them*/
-    cntr_detected = (int*)mxGetData(plhs[0]);
-    numScattersRay = (int*)mxGetData(plhs[2]);
+    cntr_detected = (int32_t*)mxGetData(plhs[0]);
+    numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
     /**************************************************************************/
+
+    // FOR DEBUG
+
+    //print_surface(&sample);
+
+
+    // END DEBUG
 
     /* Main implementation of the ray tracing */
 
     /* Loop through all the rays, tracing each one */
-    for (int i = 0; i < n_rays; i++) {
+    // TODO: move loop into experiments.c file
+    for (i = 0; i < n_rays; i++) {
         int detected;
 
         // TODO: create a source struct
-        create_ray(&the_ray, pinhole_r, pinhole_c, src_theta_max,
-            src_init_angle, source_model, src_sigma, &myrng);
+        create_ray(&the_ray, &source, &myrng);
 
-        detected = trace_ray_simple_multi(&the_ray, &killed, cntr_detected,
-            maxScatters, sample, plate, sphere, &detector, &myrng);
+        trace_ray_simple_multi(&the_ray, &killed, cntr_detected, maxScatters,
+        		 &sample, &plate, &sphere, &detector, &myrng, &detected);
         
         /*
          * Add the number of scattering events the ray has undergone to the
@@ -182,7 +199,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             numScattersRay[ind]++;
         }
     }
-
+	
     /**************************************************************************/
 
     /* Output number of rays went into the detector */
@@ -192,6 +209,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     mxFree(C);
     mxFree(M);
     clean_up_surface(&sample);
+
+    return;
 }
 
 

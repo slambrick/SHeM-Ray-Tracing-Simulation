@@ -37,21 +37,20 @@
  * OUTPUT:
  *  surf - a Surface struct that contains information of the surface.
  */
-Surface3D set_up_surface(double V[], double N[], int F[], char ** C,
-                         Material M[], int nmaterials, int ntriag, int nvert, int surf_index) {
-    Surface3D surf;
+void set_up_surface(double V[], double N[], int F[], char ** C, Material M[],
+		int nmaterials, int ntriag, int nvert, int surf_index, Surface3D * surf) {
 
     /* Allocate the components of the surface. */
-    surf.surf_index = surf_index;
-    surf.n_faces = ntriag;
-    surf.n_vertices = nvert;
-    surf.vertices = V;
-    surf.normals = N;
-    surf.faces = F;
+    surf->surf_index = surf_index;
+    surf->n_faces = ntriag;
+    surf->n_vertices = nvert;
+    surf->vertices = V;
+    surf->normals = N;
+    surf->faces = F;
 
     // assign references to the correct material
     // loop through faces and look for the material that fits the name
-    surf.compositions = mxCalloc(ntriag, sizeof(Material*));
+    surf->compositions = mxCalloc(ntriag, sizeof(Material*));
     
     for (int iface = 0; iface < ntriag; iface++) {
         bool found = false;
@@ -59,7 +58,7 @@ Surface3D set_up_surface(double V[], double N[], int F[], char ** C,
         do {
             if(strcmp(C[iface], M[imat].name) == 0) {
                 found = true;
-                surf.compositions[iface] = &M[imat];
+                surf->compositions[iface] = &M[imat];
             }
             imat++;
         } while(!found && imat < nmaterials);
@@ -67,9 +66,6 @@ Surface3D set_up_surface(double V[], double N[], int F[], char ** C,
             mexErrMsgIdAndTxt("MyToolbox:tracingMex:compositions",
                               "Composition of face %d not resolved.", iface);
     }
-
-    /* Return the struct itself */
-    return surf;
 }
 
 void clean_up_surface(Surface3D * surface) {
@@ -77,17 +73,13 @@ void clean_up_surface(Surface3D * surface) {
 }
 
 /* Set up a Sphere struct */
-AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
-                           Material material, int surf_index) {
-    AnalytSphere sph;
-
-    sph.surf_index = surf_index;
-    sph.sphere_c = sphere_c;
-    sph.sphere_r = sphere_r;
-    sph.make_sphere = make_sphere;
-    sph.material = material;
-
-    return sph;
+void set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
+                           Material material, int surf_index, AnalytSphere * sph) {
+    sph->surf_index = surf_index;
+    sph->sphere_c = sphere_c;
+    sph->sphere_r = sphere_r;
+    sph->make_sphere = make_sphere;
+    sph->material = material;
 }
 
 
@@ -96,20 +88,17 @@ AnalytSphere set_up_sphere(int make_sphere, double *sphere_c, double sphere_r,
  * be resolved, i.e. the scattering distributions will be searched by name
  * and the distribution function will be assigned to the func field.
  */
-Material set_up_material(char * name, char * function, double * params, int n_params) {
-    Material mat;
+void set_up_material(char * name, char * function, double * params,
+		int n_params, Material *mat) {
+    mat->name = name;
+    mat->func_name = function;
+    mat->params = params;
+    mat->n_params = n_params;
 
-    mat.name = name;
-    mat.func_name = function;
-    mat.params = params;
-    mat.n_params = n_params;
-
-    mat.func = distribution_by_name(mat.func_name);
-    if(mat.func == NULL)
+    mat->func = distribution_by_name(mat->func_name);
+    if(mat->func == NULL)
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:material",
-                          "Distribution name %s could not be resolved.", mat.func_name);
-
-    return mat;
+                          "Distribution name %s could not be resolved.", mat->func_name);
 }
 
 
@@ -117,9 +106,8 @@ Material set_up_material(char * name, char * function, double * params, int n_pa
  * Set up a struct of rays using the input vectors from MATLAB.
  *
  */
-Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays) {
+void compose_rays3D(double ray_pos[], double ray_dir[], int nrays, Rays3D *all_rays) {
     int i;
-    Rays3D all_rays;
     Ray3D *rays;
 
     /* Allocated the memory to the  */
@@ -144,10 +132,8 @@ Rays3D compose_rays3D(double ray_pos[], double ray_dir[], int nrays) {
     }
 
     /* Put the data into the struct */
-    all_rays.rays = rays;
-    all_rays.nrays = nrays;
-
-    return(all_rays);
+    all_rays->rays = rays;
+    all_rays->nrays = nrays;
 }
 
 /* Updates the ray postion */
@@ -176,7 +162,7 @@ void update_ray_direction(Ray3D *the_ray, const double new_dir[3]) {
  *  normal      - three element array for putting the unit normal in
  *  composition - pointer to a variable for puttin the element composition in
  */
-void get_element3D(Surface3D *sample, int idx, double v1[3], double v2[3],
+void get_element3D(const Surface3D *sample, int idx, double v1[3], double v2[3],
         double v3[3], double normal[3]) {
     int j;
     int vertices[3];
@@ -260,70 +246,79 @@ void get_scatters(Rays3D *all_rays, int *nScatters) {
 }
 
 /* print details of Material struct */
-void print_material(const Material * mat) {
-    printf("\tMAT %-10s func %-12s", mat->name, mat->func_name);
+void print_material(Material const * mat) {
+    mexPrintf("\tMAT %-10s func %-12s", mat->name, mat->func_name);
     for (int i = 0; i < mat->n_params; i++)
-        printf(" %.2f ", mat->params[i]);
+        mexPrintf(" %.2f ", mat->params[i]);
 }
 
 /* Print details of whole sample to console */
-void print_surface(const Surface3D * s) {
-    for(int ivert = 0; ivert < s->n_vertices; ivert++)
-        printf("\n VERT % .2f % .2f % .2f", s->vertices[lin(ivert, 0)],
-            s->vertices[lin(ivert, 1)], s->vertices[lin(ivert, 2)]);
-    for(int iface = 0; iface < s->n_faces; iface++) {
-        printf("\n FACE %2d", iface);
-        printf("\tV %3d %3d %3d", s->faces[lin(iface, 0)],
-                    s->faces[lin(iface, 1)], s->faces[lin(iface, 2)]);
-        printf("\tN % .2f % .2f % .2f", s->normals[lin(iface, 0)],
-                    s->normals[lin(iface, 1)], s->normals[lin(iface, 2)]);
+void print_surface(Surface3D const * s) {
+    for (int ivert = 0; ivert < s->n_vertices; ivert++) {
+        int ind0, ind1, ind2;
+        lin(ivert, 0, &ind0);
+        lin(ivert, 1, &ind1);
+        lin(ivert, 2, &ind2);
+        mexPrintf("\n VERT % .2f % .2f % .2f", s->vertices[ind0],
+            s->vertices[ind1], s->vertices[ind2]);
+    }
+    for (int iface = 0; iface < s->n_faces; iface++) {
+        mexPrintf("\n FACE %2d", iface);
+        int ind0, ind1, ind2;
+        lin(iface, 0, &ind0);
+        lin(iface, 1, &ind1);
+        lin(iface, 2, &ind2);
+        mexPrintf("\tV %3d %3d %3d", s->faces[ind1],
+                    s->faces[ind1], s->faces[ind2]);
+        mexPrintf("\tN % .2f % .2f % .2f", s->normals[ind0],
+                    s->normals[ind1], s->normals[ind2]);
         print_material(s->compositions[iface]);
     }
-    printf("\n");
+    mexPrintf("\n");
 }
 
 /* Prints all the information about the ray to the terminal */
-void print_ray(Ray3D *the_ray) {
-    printf("\non_element = %i\n", the_ray->on_element);
-    printf("on_surface = %i\n", the_ray->on_surface);
-    printf("nScatters = %i\n", the_ray->nScatters);
-    printf("Position: ");
+void print_ray(Ray3D const * the_ray) {
+    mexPrintf("\non_element = %i\n", the_ray->on_element);
+    mexPrintf("on_surface = %i\n", the_ray->on_surface);
+    mexPrintf("nScatters = %i\n", the_ray->nScatters);
+    mexPrintf("Position: ");
     print1D_double(the_ray->position, 3);
-    printf("Direction: ");
+    mexPrintf("Direction: ");
     print1D_double(the_ray->direction, 3);
 }
 
 /* Prints all the information about a BackWall struct */
-void print_BackWall(BackWall *wall) {
-    printf("\nSurface index = %i\n", wall->surf_index);
-    printf("Plate represent = %i\n", wall->plate_represent);
-    printf("Aperture centre: ");
+void print_BackWall(BackWall const * wall) {
+    mexPrintf("\nSurface index = %i\n", wall->surf_index);
+    mexPrintf("Plate represent = %i\n", wall->plate_represent);
+    mexPrintf("Aperture centre: ");
     print1D_double(wall->aperture_c, 2);
-    printf("Aperture axes: ");
+    mexPrintf("Aperture axes: ");
     print1D_double(wall->aperture_axes, 2);
-    printf("Radius of the plate = %f\n", wall->circle_plate_r);
+    mexPrintf("Radius of the plate = %f\n", wall->circle_plate_r);
     print_material(&(wall->material));
-    printf("\n");
+    mexPrintf("\n");
 }
 
 /* Prints all the information on all the apertues in the NBackWall struct */
-void print_nBackWall(NBackWall *all_apertures) {
-    printf("\nNumber of apertures = %i\n", all_apertures->n_detect);
+void print_nBackWall(NBackWall const * all_apertures) {
+    mexPrintf("\nNumber of apertures = %i\n", all_apertures->n_detect);
     for (int i = 0; i < all_apertures->n_detect; i++) {
-        printf("Aperture %i:\n", i);
-        printf("Centre: ");
+        mexPrintf("Aperture %i:\n", i);
+        mexPrintf("Centre: ");
         print1D_double(&all_apertures->aperture_c[2*i], 2);
-        printf("Axes: ");
+        mexPrintf("Axes: ");
         print1D_double(&all_apertures->aperture_axes[2*i], 2);
     }
     // print_material(&(all_apertures->material));
-    printf("\n");
+    mexPrintf("\n");
 }
 
 
 /* Print the position, radius, material etc of a sphere */
-void print_sphere(const AnalytSphere * sphere){
-    printf("\n\t Sphere make %d \t R %3.3f\t C %3.3f %3.3f %3.3f", sphere->make_sphere,
+void print_sphere(AnalytSphere const * sphere){
+    mexPrintf("\n\t Sphere make %d \t R %3.3f\t C %3.3f %3.3f %3.3f", sphere->make_sphere,
               sphere->sphere_r, sphere->sphere_c[0],
               sphere->sphere_c[1], sphere->sphere_c[2]);
     print_material(&(sphere->material));
@@ -333,7 +328,7 @@ void print_sphere(const AnalytSphere * sphere){
  * Gets the centre and the axes of the nth detector in the series and returns
  * a struct to that aperture.
  */
-void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
+void get_nth_aperture(int n, const NBackWall *allApertures, BackWall *this_wall) {
     /* The x and z coordinate of the apertures */
     this_wall->aperture_c = &(allApertures->aperture_c[2*n]);
 
@@ -365,30 +360,35 @@ void get_nth_aperture(int n, NBackWall *allApertures, BackWall *this_wall) {
  * OUTPUT:
  *  gen_ray - ray3D struct with information on a ray in it
  */
-void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, double theta_max,
-        double init_angle, int source_model, double sigma, MTRand *myrng) {
+void create_ray(Ray3D * gen_ray, SourceParam const * source, MTRand *myrng) {
     double r, theta=0, phi;
     double rot_angle;
     double normal[3];
     double dir[3];
     
     /* Generate the position of the ray */
-    phi = 2*M_PI*genRand(myrng);
-    r = pinhole_r*sqrt(genRand(myrng));
-    gen_ray->position[0] = pinhole_c[0] + r*cos(phi);
-    gen_ray->position[1] = pinhole_c[1];
-    gen_ray->position[2] = pinhole_c[2] + r*sin(phi);
+    double tmp;
+    genRand(myrng, &tmp);
+    phi = 2*M_PI*tmp;
+    genRand(myrng, &tmp);
+    r = source->pinhole_r*sqrt(tmp);
+    gen_ray->position[0] = source->pinhole_c[0] + r*cos(phi);
+    gen_ray->position[1] = source->pinhole_c[1];
+    gen_ray->position[2] = source->pinhole_c[2] + r*sin(phi);
 
     /* Generate the direction of the ray */
-    phi = 2*M_PI*genRand(myrng);
-    switch (source_model) {
+    genRand(myrng, &tmp);
+    phi = 2*M_PI*tmp;
+    switch (source->source_model) {
         case 0:
             /* Uniform virtual source model */
-            theta = theta_max*sqrt(genRand(myrng));
+            genRand(myrng, &tmp);
+            theta = source->theta_max*sqrt(tmp);
             break;
         case 1:
             /* Gaussian virtual source model */
-            theta = sigma*sqrt(-2*log((1 - genRand(myrng)/1)));
+            genRand(myrng, &tmp);
+            theta = source->sigma*sqrt(-2*log((1 - tmp/1)));
             break;
         case 2:
             /* Diffuse cosine model */
@@ -399,13 +399,13 @@ void create_ray(Ray3D * gen_ray, double pinhole_r, const double *pinhole_c, doub
             break;
     }
 
-    if (source_model != 2) {
+    if (source->source_model != 2) {
         dir[0] = cos(theta);
         dir[1] = sin(theta)*cos(phi);
         dir[2] = sin(theta)*sin(phi);
 
         /* Need to rotate the rays direction according to the incidence angle */
-        rot_angle = M_PI_2 - init_angle;
+        rot_angle = M_PI_2 - source->init_angle;
         gen_ray->direction[0] = cos(-rot_angle)*dir[0] -
             sin(-rot_angle)*dir[1];
         gen_ray->direction[1] = sin(-rot_angle)*dir[0] +

@@ -1,6 +1,8 @@
-function mexCompile(recompile)    
+function mexCompile(recompile, library)    
     if nargin == 0
         recompile = true;
+    elseif nargin == 2
+        recompile = false;
     end
     
     % Create a directory for the compiled mex binaries
@@ -9,21 +11,21 @@ function mexCompile(recompile)
     end
     
     % Compile the main 3D ray tracing library
-    if ~exist('atom_ray_tracing_library/atom_ray_tracing3D.o', 'file') || recompile
+    if ~exist('atom_ray_tracing_library/atom_ray_tracing3D.o', 'file') || recompile || strcmp(library, 'atom3D')
         mex -c -R2018a CFLAGS='$CFLAGS -Imtwister -Iatom_ray_tracing_library -Wall -pedantic -ffast-math' ...
             -outdir atom_ray_tracing_library ...
             atom_ray_tracing_library/atom_ray_tracing3D.c
     end
     
     % Compile the 2D ray tracing library
-    if ~exist('atom_ray_tracing_library/atom_ray_tracing2D.o', 'file') || recompile
+    if ~exist('atom_ray_tracing_library/atom_ray_tracing2D.o', 'file') || recompile || strcmp(library, 'atom2D')
         mex -c -R2018a CFLAGS='$CFLAGS -Imtwister -Iatom_ray_tracing_library -Wall -pedantic -ffast-math' ...
             -outdir atom_ray_tracing_library ...
             atom_ray_tracing_library/atom_ray_tracing2D.c
     end
     
     % Compile the mtwister library
-    if ~exist('mtwister/mtwister.o', 'file') || recompile
+    if ~exist('mtwister/mtwister.o', 'file') || recompile || strcmp(library, 'mtwister')
         mex -c -R2018a CFLAGS='$CFLAGS -std=c99 -Imtwister -Iatom_ray_tracing_library -Wall -pedantic -ffast-math' ...
             -outdir mtwister ...
             mtwister/mtwister.c

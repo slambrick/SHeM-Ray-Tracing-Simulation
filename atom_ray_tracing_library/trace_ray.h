@@ -17,16 +17,15 @@
 #include <stdint-gcc.h>
 
 
-/* Trace a single ray */
-int trace_ray_triag_plate(Ray3D *the_ray, int *killed, int32_t *cntr_detected, 
-        int maxScatters, Surface3D sample, Surface3D plate, AnalytSphere the_sphere,
-        double backWall[], MTRand *myrng);
+void trace_ray_simple_multi(Ray3D * the_ray, int * killed, int32_t * cntr_detected,
+        int maxScatters, Surface3D const * sample, NBackWall const *plate, AnalytSphere const * the_sphere,
+        int *detector, MTRand * myrng, int * dead);
 
-int trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
-        int maxScatters, Surface3D sample, NBackWall plate, AnalytSphere the_sphere,
-        int *detector, MTRand *myrng);
+void trace_ray_triag_plate(Ray3D *the_ray, int *killed, int32_t *cntr_detected,
+        int maxScatters, Surface3D const * sample, Surface3D const * plate, AnalytSphere const * the_sphere,
+        double const backWall[], MTRand * myrng, int * dead);
 
-void trace_ray_just_sample(Ray3D *the_ray, int *killed, int maxScatters,
-        Surface3D sample, AnalytSphere the_sphere, MTRand *myrng);
+void trace_ray_just_sample(Ray3D * the_ray, int * killed, int maxScatters,
+        Surface3D const * sample, AnalytSphere const * the_sphere, MTRand *myrng);
 
 #endif

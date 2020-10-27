@@ -9,11 +9,12 @@
  * ray is scattered once. There are different ways to do that depending on the
  * simulation being run.
  */
-#include "small_functions3D.h"
-#include "ray_tracing_structs3D.h"
+#include "ray_tracing_core3D.h"
 #include "intersect_detection3D.h"
 #include "distributions3D.h"
 #include <math.h>
+#include "mtwister.h"
+#include <stdbool.h>
 
 
 /*
@@ -23,27 +24,26 @@
  * is 'alive'. This function has undergone some low level optimisation, so it
  * may not be written in the most intuitive and simple manner.
  *
- * INPUTS:
-
+ * NOTE: this function run by itself does not cause seg faults
  *
- * OUTPUTS:
- *  dead - int 1, 0 declaring whether the ray is 'dead', 1 is dead (has not
+ * INPUTS:
+ *  the_ray - pointer to a ray struct
+ *  sample - pointer to a const Surface3D struct of the sample
+ *  the_sphere - pointer to a const AnalytSphere struct of the sphere
+ *  myrng - pointer to a random number generator object
+ *  status - int 1, 0 declaring whether the ray is 'dead', 1 is dead (has not
  *         met), 0 is alive (has met)
  */
 void scatterOffSurface(Ray3D * the_ray, Surface3D const * sample, AnalytSphere const * the_sphere,
-        MTRand * myrng, int * status) {
+        MTRand * const myrng, int * const status) {
     double min_dist;
-    int meets;
-    int tri_hit;
+    int meets = 0;// What is wrong with this variable!!!???
+    int tri_hit = -1;
     double nearest_n[3];
     double nearest_inter[3];
     double new_direction[3];
-    int meets_sphere;
-    int which_surface;
-
-    tri_hit = -1;
-    meets = 0;
-    meets_sphere = 0;
+    int meets_sphere = 0;
+    int which_surface = -1;
 
     /* Much further than any of the triangles */
     min_dist = 10.0e10;
@@ -98,7 +98,7 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D const * sample, AnalytSphere c
  *         surface)
  */
 void scatterPinholeSurface(Ray3D * the_ray, Surface3D const * plate, double const backWall[],
-        MTRand * myrng, int * status) {
+        MTRand * const myrng, int * const status) {
 
     double min_dist;
     int meets;
@@ -196,7 +196,7 @@ void scatterPinholeSurface(Ray3D * the_ray, Surface3D const * plate, double cons
  *         surface)
  */
 void scatterSurfaces(Ray3D * the_ray, Surface3D const * sample, Surface3D const * plate,
-		const AnalytSphere * the_sphere, double const backWall[], MTRand * myrng, int * status) {
+		const AnalytSphere * the_sphere, double const backWall[], MTRand * const myrng, int * const status) {
 
     double min_dist;
     int meets;
@@ -312,7 +312,7 @@ void scatterSurfaces(Ray3D * the_ray, Surface3D const * sample, Surface3D const 
  *         met), 0 is alive (has met), n is detected from the detector (n-1)
  */
 void scatterSimpleMulti(Ray3D * the_ray, Surface3D const * sample, NBackWall const * plate,
-		AnalytSphere const * the_sphere, int * detector, MTRand * myrng, int * status) {
+		AnalytSphere const * the_sphere, int * detector, MTRand * const myrng, int * const status) {
 
     double nearest_n[3];
     double nearest_inter[3];
@@ -330,15 +330,17 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D const * sample, NBackWall con
     /* By default don't hit the sphere */
     int meets_sphere = 0;
 
-    /* meets is 0/1 have we met a triangle */
+    /* meets is false/true have we met a triangle */
     int meets = 0;
 
     /* Much further than any of the triangles */
     double min_dist = 10.0e10;
 
     /* Try to scatter off the sample */
-    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, &meets,
+    int meets_sample = 0;
+    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, &meets_sample,
         &tri_hit, &which_surface);
+    meets = meets_sample;
 
     /* Should the sphere be represented */
     if (the_sphere->make_sphere) {
@@ -351,8 +353,10 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D const * sample, NBackWall con
 
     /* Try to scatter off the simple pinhole plate */
     if (the_ray->on_surface != plate->surf_index) {
+        int meets_wall = 0;
         multiBackWall(the_ray, plate, &min_dist, nearest_inter, nearest_n,
-        	&meets, &tri_hit, &which_surface, &detected);
+        	&meets_wall, &tri_hit, &which_surface, &detected);
+        meets = meets || meets_wall;
     }
 
     /* If we are detected */
@@ -363,6 +367,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D const * sample, NBackWall con
 
         /* 2 = detected ray */
         *status = 2;
+        return;
     }
 
     /* Update position/direction etc. */
@@ -382,9 +387,6 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D const * sample, NBackWall con
         /* Find the new direction and update position*/
         composition->func(nearest_n, the_ray->direction,
             new_direction, composition->params, myrng);
-        update_ray_direction(the_ray, new_direction);
-        update_ray_position(the_ray, nearest_inter);
-
         /* Updates the current triangle and surface the ray is on */
         the_ray->on_element = tri_hit;
         the_ray->on_surface = which_surface;
@@ -401,10 +403,10 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D const * sample, NBackWall con
  * Detects on a hemisphere centered on the sample plane, the aperture is
  * specified by two angles and a half cone angle.
  */
-void scatterAbstractSurfaces(Ray3D *the_ray, Surface3D const * sample, AbstractHemi const * plate,
-		AnalytSphere const * the_sphere, MTRand * myrng, int * status) {
-
-    int meets = 0;
-
-    *status =!meets;
-}
+//void scatterAbstractSurfaces(Ray3D *the_ray, Surface3D const * sample, AbstractHemi const * plate,
+//		AnalytSphere const * the_sphere, MTRand * const myrng, int * status) {
+//
+//    int meets = 0;
+//
+//    *status =!meets;
+//}

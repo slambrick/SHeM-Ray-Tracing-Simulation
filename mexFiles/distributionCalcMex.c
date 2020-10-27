@@ -21,11 +21,9 @@
  *  time.h
  */
 #include "mex.h"
-#include "small_functions3D.h"
-#include "common_helpers.h"
 #include "trace_ray.h"
 #include "extract_inputs.h"
-#include "ray_tracing_structs3D.h"
+#include "atom_ray_tracing3D.h"
 #include "mtwister.h"
 #include <stdio.h>
 #include <math.h>

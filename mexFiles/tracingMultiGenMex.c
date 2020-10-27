@@ -42,10 +42,8 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include "mtwister.h"
-#include "trace_ray.h"
+#include "atom_ray_tracing3D.h"
 #include "extract_inputs.h"
-#include "common_helpers.h"
-#include "ray_tracing_structs3D.h"
 
 
 /*
@@ -76,14 +74,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                                     * ray has undergone */
 
     /* Declare other variables */
-    int detector = 0;
     int nvert;
     Surface3D sample;
     NBackWall plate;
     AnalytSphere sphere;
-    Ray3D the_ray;
     SourceParam source;
-    int i;
 
     /* Indexing the surfaces, -1 refers to no surface */
     int sample_index = 0, plate_index = 1, sphere_index = 2;
@@ -170,36 +165,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     /**************************************************************************/
 
-    // FOR DEBUG
-
-    //print_surface(&sample);
-
-
-    // END DEBUG
-
     /* Main implementation of the ray tracing */
+    generating_rays_simple_pinhole(source, n_rays, &killed, cntr_detected,
+            maxScatters, &sample, plate, sphere, &myrng, numScattersRay);
 
-    /* Loop through all the rays, tracing each one */
-    // TODO: move loop into experiments.c file
-    for (i = 0; i < n_rays; i++) {
-        int detected;
-
-        // TODO: create a source struct
-        create_ray(&the_ray, &source, &myrng);
-
-        trace_ray_simple_multi(&the_ray, &killed, cntr_detected, maxScatters,
-        		 &sample, &plate, &sphere, &detector, &myrng, &detected);
-        
-        /*
-         * Add the number of scattering events the ray has undergone to the
-         * histogram. But only if it is detected.
-         */
-        if (detected) {
-            int ind = (detector - 1)*maxScatters + (the_ray.nScatters - 1);
-            numScattersRay[ind]++;
-        }
-    }
-	
     /**************************************************************************/
 
     /* Output number of rays went into the detector */

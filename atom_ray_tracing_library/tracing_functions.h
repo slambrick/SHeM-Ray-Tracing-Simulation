@@ -13,7 +13,7 @@
 #define _tracing_functions_h
 
 #include "mtwister.h"
-#include "ray_tracing_structs3D.h"
+#include "ray_tracing_core3D.h"
 
 /*
  *  Finds the intersection, normal at the point of intersection and distance to
@@ -21,33 +21,34 @@
  *  ray does not intersect the sphere.
  */
 void scatterOffSurface(Ray3D * the_ray, const Surface3D * sample, const AnalytSphere * the_sphere,
-        MTRand * myrng, int * status);
+        MTRand * const myrng, int * const status);
 
 /*
  *  Finds the intersection, normal at the point of intersection and distance to
  *  the intersection between the ray and a triangulated surface.
  */
 void scatterPinholeSurface(Ray3D * the_ray, const Surface3D * plate, const double backWall[],
-        MTRand * myrng, int * status);
+        MTRand * const myrng, int * const status);
 
 /*
  *  Scatters a ray off two triangulared surfaces, and an analytic sphere if
  *  desired.
  */
 void scatterSurfaces(Ray3D * the_ray, const Surface3D * sample, const Surface3D * plate,
-		const AnalytSphere * the_sphere, const double backWall[], MTRand * myrng, int * status);
+		const AnalytSphere * the_sphere, const double backWall[], MTRand * const myrng, int * const status);
+
 /*
  *  Scatters a ray off a triangulated surface, and a simple model of the pinhole plate
  *  with multiple detector apertures.
  */
 void scatterSimpleMulti(Ray3D * the_ray, const Surface3D * sample, const NBackWall * plate,
-		const AnalytSphere * the_sphere, int * detector, MTRand * myrng, int * status);
+		const AnalytSphere * the_sphere, int * detector, MTRand * const myrng, int * const status);
 
 /*
  *  Scatters the ray off a sample and a attempts dtection on a hemisphere with abstract
  *  detector apertures placed on it.
  */
-void scatterAbstractSurfaces(Ray3D * the_ray, Surface3D const  * sample, AbstractHemi const *  plate,
-		const AnalytSphere * the_sphere, MTRand * myrng, int * status) ;
+//void scatterAbstractSurfaces(Ray3D * the_ray, Surface3D const  * sample, AbstractHemi const *  plate,
+//		const AnalytSphere * the_sphere, MTRand * myrng, int * status) ;
 
 #endif

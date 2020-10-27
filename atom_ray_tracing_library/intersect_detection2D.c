@@ -6,7 +6,6 @@
  * 
  * Contains the algorithm for scattering rays off a surface in 2D.
  */
-#include "mex.h"
 #include "small_functions2D.h"
 #include "ray_tracing_structs2D.h"
 #include "intersect_detection2D.h"

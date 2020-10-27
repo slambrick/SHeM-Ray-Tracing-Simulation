@@ -21,9 +21,9 @@
 #include "mtwister.h"
 #include "common_helpers.h"
 #include <math.h>
-#include "small_functions3D.h"
+#include "ray_tracing_core3D.h"
 
-static double theta_generate(double sigma, MTRand *myrng);
+static double theta_generate(double sigma, MTRand * const myrng);
 
 /*
  * Resolve the distribution function name.
@@ -33,38 +33,38 @@ static double theta_generate(double sigma, MTRand *myrng);
  */
 distribution_func distribution_by_name(const char * name) {
     if(strcmp(name, "broad_specular") == 0)
-        return diffuse_and_specular;
+        return(diffuse_and_specular);
     if(strcmp(name, "cosine") == 0)
-        return cosine_scatter;
+        return(cosine_scatter);
     if(strcmp(name, "cosine_specular") == 0)
-        return cosine_specular_scatter;
+        return(cosine_specular_scatter);
     if(strcmp(name, "uniform") == 0)
-        return uniform_scatter;
+        return(uniform_scatter);
     if(strcmp(name, "diffraction") == 0)
-        return diffuse_and_diffraction;
+        return(diffuse_and_diffraction);
     if(strcmp(name, "dw_specular") == 0)
-        return debye_waller_specular;
+        return(debye_waller_specular);
     if(strcmp(name, "dw_diffraction") == 0)
-        return debye_waller_diffraction;
+        return(debye_waller_diffraction);
     if(strcmp(name, "pure_specular") == 0)
-        return pure_specular;
+        return(pure_specular);
     return NULL;
 } 
 
 void pure_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
     reflect3D(normal, init_dir, new_dir);
 }
 
 /*
  * Generate rays with broadened specular distribution and a diffuse background.
  *
- * PARAMS:
+ * const params:
  *  first the level (0 - 1) of the diffuse background, then sigma of
  * broad_specular.
  */
 void diffuse_and_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double diffuse_lvl = params[0];
     double tester;
@@ -79,12 +79,12 @@ void diffuse_and_specular(const double normal[3], const double init_dir[3],
  * Generate rays according to a 2D diffraction pattern but with cosine-distributed
  * diffuse background.
  *
- * PARAMS:
+ * const params:
  *  first the level (0 - 1) of the diffuse background, then as for
  * diffraction_pattern.
  */
 void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double diffuse_lvl = params[0];
     double tester;
@@ -101,7 +101,7 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  * factor to the resulting rays. The rays that are rejected are added to the
  * diffuse background.
  *
- * PARAMS:
+ * const params:
  *  incident energy in meV
  *  lattice atomic mass (in multiples of proton mass)
  *  lattice temperature in kelvin
@@ -111,7 +111,7 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  */
 void debye_waller_filter_diffuse(distribution_func original_distr,
         const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
 
     // this prefactor appears in the DW exponent if the following
     // are to be in the units stated in the comment above
@@ -140,14 +140,14 @@ void debye_waller_filter_diffuse(distribution_func original_distr,
 }
 
 void debye_waller_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
     debye_waller_filter_diffuse(broad_specular_scatter, normal, init_dir,
         new_dir, params, myrng);
 }
 
 
 void debye_waller_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
     debye_waller_filter_diffuse(diffraction_pattern, normal, init_dir,
         new_dir, params, myrng);
 }
@@ -159,14 +159,14 @@ void debye_waller_diffraction(const double normal[3], const double init_dir[3],
  * the surface of the sample satisfy kf = ki + g, where g is a
  * linear combination of the two basis vectors.
  *
- * PARAMS:
+ * const params:
  *  maximum orders in p and q
  *  a coefficient to pre-multiply the basis vectors
  *  4 floats for 2 x 2D basis vectors
  *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
  */
 void diffraction_pattern(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double e1[3], e2[3];    // unit vectors spanning the surface
     double ni[3], nf[3];    // initial and final directions relative to surface
@@ -243,7 +243,7 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
  *  myrng    - 
  */
 void broad_specular_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double theta, phi;
     double cos_normal;
@@ -293,7 +293,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
  * The distribution is P = sin(theta) * exp(-theta^2/(2*sigma^2)),
  * where the sine comes from the solid angle integrated over azimuthal directions.
  */
-static double theta_generate(double sigma, MTRand *myrng) {
+static double theta_generate(double sigma, MTRand * const myrng) {
     double theta;
     double s_theta = 0;
     double tester = 0;
@@ -347,7 +347,7 @@ static double theta_generate(double sigma, MTRand *myrng) {
  *  myrng   - 
  */
 void cosine_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
     double s_theta, c_theta, phi;
     double t1[3];
     double t2[3];
@@ -372,7 +372,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
  * about the specular direction.
  */
 void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
     double s_theta, c_theta, phi;
     double dot_normal;
     double t0[3];
@@ -420,7 +420,7 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
  *  myrng   - 
  */
 void uniform_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng) {
+        double new_dir[3], const double * const params, MTRand * const myrng) {
     double s_theta, c_theta, phi;
     double t1[3];
     double t2[3];

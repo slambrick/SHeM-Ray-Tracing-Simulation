@@ -13,7 +13,6 @@
  *  scatter(normal, init_dir, new_dir, distribution parameters..., random number
  *      generator)
  */
-#include "mex.h"
 #include "small_functions2D.h"
 #include "distributions2D.h"
 #include <stdlib.h>

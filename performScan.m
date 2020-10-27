@@ -395,7 +395,7 @@ sphere = Sphere(1, defMaterial, sphere_c, sphere_r);
 
 % Importing the sample as a TriagSurface object.
 [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, ...
-    pinhole_plate_inputs.working_dist, dontMeddle);
+    pinhole_plate_inputs.working_dist, dontMeddle, square_size);
 sample_inputs.sample_descrition = sample_description;
 
 if strcmp(typeScan, 'line')
@@ -446,6 +446,7 @@ mexCompile(recompile);
 
 %% Performing the simulation
 % TODO: update
+disp(sample_surface)
 switch typeScan
     case 'rectangular'
         % For a rectangular scan

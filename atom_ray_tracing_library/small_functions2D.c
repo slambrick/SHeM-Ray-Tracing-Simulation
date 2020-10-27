@@ -5,9 +5,8 @@
  * GNU/GPL-3.0-or-later.
  * 
  * Contains a series of small helper functions for performing the scattering of
- * ryas off of a surface in 2D. 
+ * rays off of a surface in 2D.
  */
-#include "mex.h"
 #include "ray_tracing_structs2D.h"
 #include "common_helpers.h"
 #include "small_functions2D.h"
@@ -81,14 +80,14 @@ void print_surface2D(Surface2D sample) {
         
         /* Get the vertices and normal for the ith element of surface */
         get_element2D(sample, i, v1, v2, nn);
-        mexPrintf("Elemnt %i:\n", i + 1);
-        mexPrintf("Vertex 1 = ");
+        printf("Elemnt %i:\n", i + 1);
+        printf("Vertex 1 = ");
         print1D_double(v1, 2);
-        mexPrintf("Vertex 2 = ");
+        printf("Vertex 2 = ");
         print1D_double(v2, 2);
-        mexPrintf("Normal = ");
+        printf("Normal = ");
         print1D_double(nn, 2);
-        mexPrintf("\n");
+        printf("\n");
     }
 }
 
@@ -152,8 +151,8 @@ void compse_rays2D(Ray2D *rays, double ray_pos[], double ray_dir[], int nrays) {
  *  ray - a Ray2D struct
  */
 void print_ray2D(Ray2D ray) {
-    mexPrintf("Position = [%f, %f]\n", ray.position[0], ray.position[1]);
-    mexPrintf("Direction = [%f, %f]\n\n", ray.direction[0], ray.direction[1]);
+    printf("Position = [%f, %f]\n", ray.position[0], ray.position[1]);
+    printf("Direction = [%f, %f]\n\n", ray.direction[0], ray.direction[1]);
 }
 
 /* 
@@ -166,7 +165,7 @@ void print_all_rays2D(Rays2D all_rays) {
     int i;
     
     for (i = 0; i < all_rays.nrays; i++) {
-        mexPrintf("Ray %i:\n", i + 1);
+        printf("Ray %i:\n", i + 1);
         print_ray2D(all_rays.rays[i]);
     }
 }

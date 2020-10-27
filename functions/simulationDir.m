@@ -14,8 +14,8 @@
 % OUTPUT:
 %  thePath - full simulation path to store simulation results in 
 function thePath = simulationDir(name)
-    if ~exist('../simulations', 'dir')
-        mkdir('../simulations');
+    if ~exist('simulations', 'dir')
+        mkdir('simulations');
     end
     
     d = dir('../simulations');

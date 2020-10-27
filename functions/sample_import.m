@@ -1,4 +1,4 @@
-function [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, working_dist, dontMeddle)
+function [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, working_dist, dontMeddle, square_size)
     switch sample_inputs.sample_type
         case 'flat'
             sample_surface = flatSample(square_size, sample_inputs.dist_to_sample, ...
@@ -15,7 +15,7 @@ function [sample_surface, sphere, sample_description] = sample_import(sample_inp
                 sample_inputs.material);
             sphere.make = 1;
             sample_description = ['A single analytic sphere, radius ' ...
-                num2str(sphere.r) 'mm on a flat square of ' num2str(square_size) 'mm.'];
+                num2str(sphere.radius) 'mm on a flat square of ' num2str(square_size) 'mm.'];
         case 'custom'
             sample_surface = inputSample('fname', sample_inputs.sample_fname, 'sample_dist', sample_inputs.dist_to_sample, ...
                                          'working_dist', working_dist, 'scale', sample_inputs.scale, ...

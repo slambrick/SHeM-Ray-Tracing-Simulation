@@ -1,6 +1,7 @@
 # compiled things
 *.mexa64
 *.o
+*.d
 test/bin
 test/obj
 test/extobj
@@ -12,6 +13,8 @@ simulations/*test
 simulations/*/*.mat
 simulations/*/*.csv
 simulations/*/formatted
+*.dat
+*.csv
 
 # IDE things
 .clangd

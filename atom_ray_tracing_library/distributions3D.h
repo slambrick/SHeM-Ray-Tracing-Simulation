@@ -22,13 +22,13 @@
  * - a GSL random number generator
  */
 typedef void (*distribution_func)(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 distribution_func distribution_by_name(const char * name);
 
 /* Perfect specular scattering */
 void pure_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
  * Generate rays with some original distribution, and the apply a Debye-Waller
@@ -43,10 +43,10 @@ void pure_specular(const double normal[3], const double init_dir[3],
  * + followed by all the params for the original distribution
  */
 void debye_waller_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 void debye_waller_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
  * Generate rays with broadened specular distribution and a diffuse background.
@@ -56,7 +56,7 @@ void debye_waller_diffraction(const double normal[3], const double init_dir[3],
  * broad_specular.
  */
 void diffuse_and_specular(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
  * Generate rays according to a 2D diffraction pattern but with cosine-distributed
@@ -67,7 +67,7 @@ void diffuse_and_specular(const double normal[3], const double init_dir[3],
  * diffraction_pattern.
  */
 void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
  * Generate rays according to a 2D diffraction pattern given by two
@@ -83,7 +83,7 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
  */
 void diffraction_pattern(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
  * Generate a random direction according to the Gaussian broadened specular:
@@ -102,7 +102,7 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
  *  my_rng   - random number generator object
  */
 void broad_specular_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
  * Generates a random normalized direction according to a cosine distribution
@@ -117,7 +117,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
  *            been created and set up with setupGSL()
  */
 void cosine_scatter(const double normal[3], const double init_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 
 /*
@@ -125,7 +125,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
  * about the specular direction.
  */
 void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 
 /*
@@ -141,6 +141,6 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
  *            been created and set up with setupGSL()
  */
 void uniform_scatter(const double normal[3], const double initial_dir[3],
-        double new_dir[3], const double * params, MTRand *myrng);
+        double new_dir[3], const double * params, MTRand * const myrng);
 
 #endif

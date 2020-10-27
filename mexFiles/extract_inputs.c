@@ -119,7 +119,7 @@ int get_materials_array(const mxArray * names, const mxArray * functions,
         mexErrMsgIdAndTxt("AtomRayTracing:get_materials_array:materials",
                           "Materials arrays must be cell arrays. In get_materials_array.");
 
-    int num = mxGetN(names);
+    unsigned int num = mxGetN(names);
     if(mxGetN(functions) != num || mxGetN(params) != num)
         mexErrMsgIdAndTxt("AtomRayTracing:get_materials_array:materials",
                           "Dimensions of materials arrays must be the same. In get_materials_array.");
@@ -131,7 +131,7 @@ int get_materials_array(const mxArray * names, const mxArray * functions,
     get_string_cell_arr(names, names_extr);
     get_string_cell_arr(functions, functions_extr);
 
-    for(int idx = 0; idx < num; idx++) {
+    for(unsigned int idx = 0; idx < num; idx++) {
         mxArray * params_cell = mxGetCell(params, idx);
         int num_params = mxGetN(params_cell);
 
@@ -213,14 +213,14 @@ NBackWall get_plate(const mxArray * plate_opts, int plate_index) {
     
     // Get the axes of the apertures
     field = mxGetField(plate_opts, 0, "aperture_axes");
-    if (!mxIsDouble(field) || mxGetN(field) != 2*plate.n_detect)
+    if (!mxIsDouble(field) || mxGetN(field) != (unsigned int)2*plate.n_detect)
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Aperture axes must be array of 2xnumber of detectors doubles. In get_plate.");
     plate.aperture_axes = mxGetDoubles(field);
     
     // Get the centres of the apertures
     field = mxGetField(plate_opts, 0, "aperture_c");
-    if (!mxIsDouble(field) || mxGetN(field) != 2*plate.n_detect)
+    if (!mxIsDouble(field) || mxGetN(field) !=  (unsigned int)2*plate.n_detect)
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Aperture centres must be array of 2xnumber of detectors doubles. In get_plate.");
     plate.aperture_c = mxGetDoubles(field);

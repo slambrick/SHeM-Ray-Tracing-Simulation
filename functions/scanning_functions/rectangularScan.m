@@ -74,7 +74,7 @@ function square_scan_info = rectangularScan(varargin)
     tic
 
     % Are we running in Matlab or Octave
-    isOctave = true;%exist('OCTAVE_VERSION', 'builtin') ~= 0;
+    isOctave = false;%exist('OCTAVE_VERSION', 'builtin') ~= 0;
 
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
@@ -112,7 +112,7 @@ function square_scan_info = rectangularScan(varargin)
     % TODO: Make each iteration loop over multiple pixels so that the parfor is
     % more optimal
     % NOTE: could use parfeval
-    for i_=1:N_pixels
+    parfor i_=1:N_pixels
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);
         this_surface.moveBy([xx(i_), 0, zz(i_)]);

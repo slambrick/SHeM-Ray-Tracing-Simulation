@@ -13,7 +13,7 @@
 
 #include <mex.h>
 
-#include "ray_tracing_structs3D.h"
+#include "ray_tracing_core3D.h"
 
 /*
  * Take the elements from a MATLAB cell array of strings

@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <mex.h>
 #include "mtwister.h"
 
 /*
@@ -22,7 +21,7 @@
  *  col - column index
  *  ind - pointer for the output index to be added to
  */
-void lin(int row, int col, int* ind) {
+void lin(int row, int col, int * const ind) {
     *ind = 3*row + col;
 }
 
@@ -33,13 +32,12 @@ void lin(int row, int col, int* ind) {
  *  vect - a double pointer to either a 2 or 3 element vector
  *  dim  - int, the dimension of the vector, 2 or 3
  */
-void print1D_double(double const * vect, int dim) {
-    if (dim == 2)
-        mexPrintf("[%f, %f]\n", vect[0], vect[1]);
-    else if (dim == 3)
-        mexPrintf("[%f, %f, %f]\n", vect[0], vect[1], vect[2]);
-    else
-        mexPrintf("dim into print1D must be 2 or 3.");
+void print1D_double(double const * const vect, int dim) {
+    printf("[");
+    for (int i = 0; i < dim - 1; i++) {
+        printf("%f,", vect[i]);
+    }
+    printf("%f]\n", vect[dim - 1]);
 }
 
 /*
@@ -49,31 +47,30 @@ void print1D_double(double const * vect, int dim) {
  *  vect - an int pointer to either a 2 or 3 element vector
  *  dim  - int, the dimension of the vector, 2 or 3
  */
-void print1D_int(int const * vect, int dim) {
-    if (dim == 2)
-        mexPrintf("[%i, %i]\n", vect[0], vect[1]);
-    else if (dim == 3)
-        mexPrintf("[%i, %i, %i]\n", vect[0], vect[1], vect[2]);
-    else
-        mexPrintf("dim into print1D must be 2 or 3.");
+void print1D_int(int const * const vect, int dim) {
+    printf("[");
+    for (int i = 0; i < dim - 1; i++) {
+        printf("%i,", vect[i]);
+    }
+    printf("%i]\n", vect[dim - 1]);
 }
 
 /* Prints out a 3 by 3 double array passed as an argument. */
-void print3x3(double matrix[3][3]) {
+void print3x3(double const matrix[3][3]) {
     int i;
-    mexPrintf("{\n");
+    printf("{\n");
     for (i = 0; i < 3; i++) {
-        mexPrintf("%f, ", matrix[i][0]);
-        mexPrintf("%f, ", matrix[i][1]);
-        mexPrintf("%f\n", matrix[i][2]);
+        printf("%f, ", matrix[i][0]);
+        printf("%f, ", matrix[i][1]);
+        printf("%f\n", matrix[i][2]);
     }
-    mexPrintf("}\n");
+    printf("}\n");
 }
 
 /* 
  * Generates two gaussian random numbers using the box-muller transform.
  */
-void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
+void gaussian_random(double mu, double sigma, double Z[2], MTRand * const myrng) {
     double U1, U2;
     
     genRand(myrng, &U1);
@@ -99,12 +96,11 @@ void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
  *  MTRand - random number generator object
  *  rand1  - pointer to where to store the result
  */
-void gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrng,
-		double* rand1) {
-    double Z[2];
-    int cnt;
-    
-    cnt = 0;
+void gaussian_random_tail(double mu, double sigma, double cutoff, MTRand * const myrng,
+		double * const rand1) {
+    double Z[2] = {0, 0};
+    int cnt = 0;
+
     do {
         if (!(cnt % 2)) {
             gaussian_random(mu, sigma, Z, myrng);
@@ -119,7 +115,7 @@ void gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrng,
 /*
  * Create a random int in the desired range, 0 to max-1
  */
-void gen_random_int(int max, MTRand *myrand, int* randint) {
+void gen_random_int(int max, MTRand * const myrand, int * const randint) {
     double uniform_rand;
     
     genRand(myrand, &uniform_rand);

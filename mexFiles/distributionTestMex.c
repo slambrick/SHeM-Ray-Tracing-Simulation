@@ -18,11 +18,8 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include "mtwister.h"
-#include "trace_ray.h"
 #include "extract_inputs.h"
-#include "common_helpers.h"
-#include "small_functions3D.h"
-#include "ray_tracing_structs3D.h"
+#include "atom_ray_tracing3D.h"
 
 /*
  * The gateway function.

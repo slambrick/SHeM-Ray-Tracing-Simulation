@@ -5,12 +5,10 @@
  * GNU/GPL-3.0-or-later.
  */
 
-#include <mex.h>
 #include "trace_ray.h"
 #include "tracing_functions.h"
-#include "ray_tracing_structs3D.h"
+#include "ray_tracing_core3D.h"
 #include "common_helpers.h"
-#include "small_functions3D.h"
 #include <math.h>
 #include <stdlib.h>
 #include "mtwister.h"
@@ -19,10 +17,13 @@
  * For a simple model of the pinhole plate as a circle with multiple detectors.
  *
  * Traces a single ray
+ *
+ * NOTE: This function run by itself does cause seg faults
+ * TODO: find the basterd pointer that causes this!
  */
-void trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t * cntr_detected,
+void trace_ray_simple_multi(Ray3D *the_ray, int * const killed, int32_t * const cntr_detected,
         int maxScatters, Surface3D const * sample, NBackWall const * plate,
-		AnalytSphere const * the_sphere, int *detector, MTRand *myrng, int * dead) {
+		AnalytSphere const * the_sphere, int * const detector, MTRand * const myrng, int * const dead) {
     /*
      * The total number of scattering events undergone (sample and pinhole
      * plate) 1000 events are allowed in total. A separate limit is placed
@@ -45,8 +46,6 @@ void trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t * cntr_detected
         /* The ray is dead unless we hit something */
         *dead = 1;
 
-        print_ray(the_ray);
-
         /******************************************************************/
         /*
         * Try to scatter of sample. This only tries to scatter off of the
@@ -61,7 +60,7 @@ void trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t * cntr_detected
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
-            scatterOffSurface(the_ray, sample, the_sphere, myrng, dead);
+            scatterOffSurface(the_ray, sample, the_sphere, myrng, dead); // <- we are erroring in here!
             if (*dead == 0) {
                 /* Hit the sample */
                 the_ray->nScatters += 1;
@@ -83,8 +82,6 @@ void trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t * cntr_detected
         /* Try to scatter of both surfaces. */
         scatterSimpleMulti(the_ray, sample, plate, the_sphere, detector, myrng, dead);
 
-        print_ray(the_ray);
-        mexPrintf("==============\n\n");
         /******************************************************************/
         /* Update counters */
 
@@ -117,9 +114,9 @@ void trace_ray_simple_multi(Ray3D *the_ray, int *killed, int32_t * cntr_detected
  *
  * Trace a single ray
  */
-void trace_ray_triag_plate(Ray3D * the_ray, int * killed, int * cntr_detected, int maxScatters,
+void trace_ray_triag_plate(Ray3D * the_ray, int * const killed, int * const cntr_detected, int maxScatters,
         Surface3D const * sample, const Surface3D * plate, AnalytSphere const * the_sphere,
-        double const backWall[], MTRand * myrng, int * dead) {
+        double const backWall[], MTRand * const myrng, int * const dead) {
     int n_allScatters;
 
     /*
@@ -216,8 +213,8 @@ void trace_ray_triag_plate(Ray3D * the_ray, int * killed, int * cntr_detected, i
  *
  * Trace a single ray
  */
-void trace_ray_just_sample(Ray3D * the_ray, int * killed, int maxScatters,
-        Surface3D const * sample, AnalytSphere const * the_sphere, MTRand * myrng) {
+void trace_ray_just_sample(Ray3D * the_ray, int * const killed, int maxScatters,
+        Surface3D const * sample, AnalytSphere const * the_sphere, MTRand * const myrng) {
     int dead;
 
     /*

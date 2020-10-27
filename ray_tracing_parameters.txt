@@ -21,7 +21,7 @@ Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 1000
+Number of Rays: 20000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
@@ -51,12 +51,12 @@ Manual alignment: no
 %% Set up your scan
 % For now this assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.1
+Pixel seperation (mm): 0.01
 Scan range x (mm): 1.1
 Scan range y (mm): 1.1
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
 Label for the output directory (no spaces please): annabelle_sample_squares
-Sould the C code be recompiled: true
+Sould the C code be recompiled: false
 

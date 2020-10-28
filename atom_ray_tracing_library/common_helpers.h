@@ -4,6 +4,15 @@
  * This file is part of the Sub-beam Ray Tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
  */
+ 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
+#ifndef M_PI_2
+    #define M_PI_2 1.57079632679489661923
+#endif
+
 
 #ifndef _common_helpers_h
 #define _common_helpers_h

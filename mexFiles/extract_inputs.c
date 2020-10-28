@@ -150,7 +150,7 @@ int get_materials_array(const mxArray * names, const mxArray * functions,
 /* Extract source properties from a MATLAB array and write them to the given pointers */
 void get_source(const mxArray * source, int source_model, SourceParam * Source) {
 
-    const int n_params = 7;
+    const unsigned int n_params = 7;
     if(!mxIsDouble(source))
         mexErrMsgIdAndTxt("AtomRayTracing:get_source:source",
                             "Source parameters must be double array. In get_source.");

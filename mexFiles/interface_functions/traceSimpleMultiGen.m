@@ -50,6 +50,7 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
 
     % MATLAB stores matrices by column then row C does row then column. Must
     % take the traspose of the 2D arrays
+    % NOTE: it is import these are the right way round
     V = sample_surface.vertices';
     F = int32(sample_surface.faces');
     N = sample_surface.normals';

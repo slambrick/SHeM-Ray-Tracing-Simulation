@@ -138,7 +138,6 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
     e = the_ray->position;
     d = the_ray->direction;
 
-    *meets =  0;
     /* Loop through all triangles in the surface */
     for (j = 0; j < sample.n_faces; j++) {
         double a[3];
@@ -150,8 +149,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
         double epsilon;
 
         /* Skip this triangle if the ray is already on it */
-        if ((the_ray->on_element == j) &&
-            (the_ray->on_surface == sample.surf_index)) {
+        if ((the_ray->on_element == j) && (the_ray->on_surface == sample.surf_index)) {
             continue;
         }
 
@@ -197,9 +195,9 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
          * e + td = a + beta(b - a) + gamma(c - a)
          */
         //propagate3D(a, e, -1, v); // <- simpler to write, heavier computation
-        //v[0] = a[0] - e[0];
-        //v[1] = a[1] - e[1];
-        //v[2] = a[2] - e[2];
+        v[0] = a[0] - e[0];
+        v[1] = a[1] - e[1];
+        v[2] = a[2] - e[2];
 
         /* This could be pre-calculated and stored, however it would involve an
          * array of matrices

@@ -6,8 +6,8 @@
 % Lines that start with '%' will be ignored, feel free to add your own comments.
 
 %% Set up your virtual microscope
-% stl models of the pinhole plate can also be used but must be specified
-% manually in the simulation script in the current version.
+% stl models of the pinhole plate can also be used, either 'cambridge' or
+% specify an stl file found .
 Design working distance (mm): 2.1
 Incidence angle (deg): 45
 Type of scan: rectangular
@@ -15,6 +15,7 @@ Number of detectors: 1
 Detector full axes (x,y): (1.4, 1)
 Detector centres (x,y): (2.1, 0)
 Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
+STL pinhole model: Cambridge
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a

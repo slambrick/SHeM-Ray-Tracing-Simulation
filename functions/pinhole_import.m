@@ -1,4 +1,5 @@
-function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole_plate_inputs)
+function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole_plate_inputs, sample_surface)
+    isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
     switch pinhole_plate_inputs.pinhole_model
         case 'stl'
             pinhole_surface = import_plate(pinhole_plate_inputs.plate_accuracy);

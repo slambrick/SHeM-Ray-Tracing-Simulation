@@ -15,7 +15,7 @@ clc
 loadpath
 
 %% Read parameters from text file
-% TODO: update the parameter file so that 
+% TODO: move parameter reading into a seperate file
 param_fname = 'ray_tracing_parameters.txt';
 param_list = read_parameters(param_fname);
 
@@ -27,39 +27,40 @@ n_detectors = str2double(param_list{4});
 aperture_axes = parse_list_input(param_list{5});
 aperture_c = parse_list_input(param_list{6});
 rot_angles = parse_list_input(param_list{7});
+pinhole_model = parse_pinhole(param_list{8});
 
 % Set up source
-n_rays = str2double(param_list{8});
-pinhole_r = str2double(param_list{9});
-source_model = strtrim(param_list{10});
-theta_max = str2double(param_list{11});
-sigma_source = str2double(param_list{12});
-if ~parse_yes_no(param_list{13})
+n_rays = str2double(param_list{9});
+pinhole_r = str2double(param_list{10});
+source_model = strtrim(param_list{11});
+theta_max = str2double(param_list{12});
+sigma_source = str2double(param_list{13});
+if ~parse_yes_no(param_list{14})
     effuse_size = 0;
 else
-    effuse_size = str2double(param_list{14});
+    effuse_size = str2double(param_list{15});
 end
 
 % Set up sample
-sample_type = strtrim(param_list{15});
-diffuse = parse_scattering(strtrim(param_list{16}), str2double(param_list{17}), ...
-    str2double(param_list{18}));
-sample_description = param_list{19};
-dist_to_sample = str2double(param_list{20});
-sphere_r = str2double(param_list{21});
-square_size = str2double(param_list{22});
-sample_fname = strtrim(param_list{23});
-dontMeddle = parse_yes_no(param_list{24});
+sample_type = strtrim(param_list{16});
+diffuse = parse_scattering(strtrim(param_list{17}), str2double(param_list{18}), ...
+    str2double(param_list{19}));
+sample_description = param_list{20};
+dist_to_sample = str2double(param_list{21});
+sphere_r = str2double(param_list{22});
+square_size = str2double(param_list{23});
+sample_fname = strtrim(param_list{24});
+dontMeddle = parse_yes_no(param_list{25});
 
 % Set up scan
-pixel_seperation = str2double(param_list{25});
-range_x = str2double(param_list{26});
-range_z = str2double(param_list{27});
-init_angle_pattern = ~parse_yes_no(param_list{28});
+pixel_seperation = str2double(param_list{26});
+range_x = str2double(param_list{27});
+range_z = str2double(param_list{28});
+init_angle_pattern = ~parse_yes_no(param_list{29});
 
 % Other parameters
-directory_label = strtrim(param_list{29});
-recompile = parse_yes_no(param_list{30});
+directory_label = strtrim(param_list{30});
+recompile = parse_yes_no(param_list{31});
 
 %% Generate parameters from the inputs 
 
@@ -85,22 +86,11 @@ scan_pattern = 'regular';
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
-ray_model = 'C';
+% In general stick to 'C' unless your own source model is being used
+ray_model = 'MATLAB';
 
 % Exponant of the cosine in the effuse beam model
 cosine_n = 1;
-
-% Specify how to model the pinhole plate:
-%  'stl'       - Use the predefined CAD model of the pinhole plate (plate as it
-%                is Feb 2018)
-%  'circle'    - Use the detector aperture and model the pinhole plate as a
-%                circle
-%  'N circle'  - There are N circles in a plane as detector apertures
-%  'new'       - CAD model of the pinhole plate in the new sample chamber (Apr
-%                2019)
-%  'new_micro' - TODO
-%  'abstract'  - TODO
-pinhole_model = 'N circle';
 
 % In the case of the predefined CAD model, specify the accuraccy of the
 % triangulation, 'low', 'medium', or 'high' (use 'low').
@@ -437,7 +427,7 @@ if feature('ShowFigureWindows')
 end
 
 %% Pinhole plate import and plotting
-[pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole_plate_inputs);
+[pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole_plate_inputs, sample_surface);
 
 %% Compile the mex files
 

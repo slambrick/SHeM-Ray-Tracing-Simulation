@@ -69,7 +69,6 @@ void trace_ray_simple_multi(Ray3D *the_ray,
 
 
         /* Try to scatter of both surfaces. */
-        // TODO: change of status inside escatterSimpleMulti
         scatterSimpleMulti(the_ray, sample, plate, the_sphere, &detector, myrng);
 
         if (the_ray->status == 2) {
@@ -107,7 +106,7 @@ void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
      * plate) 1000 events are allowed in total. A separate limit is placed
      * on the number of scattering events off of the sample.
      */
-    n_allScatters = 1000;
+    n_allScatters = 0;
 
     // Keep propagating the ray until it doesn't hit something
     while (!(the_ray->status)) {

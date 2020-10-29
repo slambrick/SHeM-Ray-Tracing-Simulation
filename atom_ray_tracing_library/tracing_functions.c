@@ -37,7 +37,7 @@
 void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_sphere,
         MTRand * const myrng) {
     double min_dist;
-    int meets = 0;// What is wrong with this variable!!!???
+    int meets = 0;
     int tri_hit = -1;
     double nearest_n[3];
     double nearest_inter[3];
@@ -267,7 +267,7 @@ void scatterSurfaces(Ray3D * the_ray, Surface3D sample, Surface3D plate,
          * We must consider if the ray has been detected if it hasn't hit
          * either surface
          */
-        /* First consider if the ray is propogating in the +ve y direction */
+        /* First consider if the ray is propagating in the +ve y direction */
         if (the_ray->direction[1] > 0) {
             double alpha;
             double wall_hit[3];

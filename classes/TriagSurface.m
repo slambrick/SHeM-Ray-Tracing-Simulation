@@ -259,7 +259,8 @@ classdef TriagSurface < handle
                 comp = unqiue_comps{idx};
                 indexes = strcmp(obj.compositions, comp);
                 F = obj.faces(indexes, :);
-                C = obj.materials(comp); C = C.color;
+                C = obj.materials(comp);
+                C = C.color;
 
                 patch('faces', F, 'vertices', obj.vertices, 'FaceColor', C, ...
                   'EdgeColor',       'black',        ...

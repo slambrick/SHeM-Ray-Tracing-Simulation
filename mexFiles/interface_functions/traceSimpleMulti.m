@@ -46,12 +46,13 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
     
     % MATLAB stores matrices by column then row C does row then column. Must
     % take the traspose of the 2D arrays
+    % NOTE: it is import these are the right way round
     ray_posT = ray_pos';
     ray_dirT = ray_dir';
     VT = sample_surface.vertices';
     FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
-    CT = sample_surface.composition;
+    CT = sample_surface.compositions';
     
     mat_names = sample_surface.materials.keys;
     mat_functions = cell(1, length(mat_names));
@@ -80,10 +81,10 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
     numScattersRayDetect = numScattersRay(detected);
     
     % Put the number of scattering events into a histogram for each detector
-    numScattersRay = zeros(plate.n_detectors, maxScatter);
+    numScattersRay = zeros(plate.n_detectors, max_scatter);
     for i_=1:plate.n_detectors
         ind = which_detector == i_;
-        numScattersRay(i_,:) = binMyWay(numScattersRayDetect(ind), maxScatter);
+        numScattersRay(i_,:) = binMyWay(numScattersRayDetect(ind), max_scatter);
     end
     numScattersRay = numScattersRay';   
 end

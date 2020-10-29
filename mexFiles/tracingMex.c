@@ -170,18 +170,18 @@ void mexFunction(int nlhs, mxArray *plhs[],
     set_up_sphere(make_sphere, sphere_c, sphere_r, sphere_diffuse, sphere_parameters,
     		sphere_index, &the_sphere);
 
+    plhs[2] = mxCreateDoubleMatrix(3, nrays, mxREAL);
+    plhs[3] = mxCreateDoubleMatrix(3, nrays, mxREAL);
+    plhs[4] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
+
     plhs[5] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
     detected = (int*)mxGetData(plhs[5]);
 
     /**************************************************************************/
 
     /* Main implementation of the ray tracing */
-
-    /* Loop through all the rays, tracing each one */
-    for (i = 0; i < all_rays.nrays; i++) {
-        trace_ray_triag_plate(&all_rays.rays[i], &killed, &cntr_detected,
-            maxScatters, &sample, &plate, &the_sphere, &backWall, &myrng, &detected[i]);
-    }
+    given_rays_cad_pinhole(&all_rays, &killed, &cntr_detected, sample, plate,
+            the_sphere, backWall, maxScatters, &myrng, numScattersRay);
 
     /**************************************************************************/
 
@@ -190,9 +190,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
      * They need to be created as the transpose of what we want because of the
      * difference in indexing between MATLAB and C.
      */
-    plhs[2] = mxCreateDoubleMatrix(3, nrays, mxREAL);
-    plhs[3] = mxCreateDoubleMatrix(3, nrays, mxREAL);
-    plhs[4] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
+
 
     /* Pointers to the output matrices so we may change them*/
     final_pos       = mxGetPr(plhs[2]);

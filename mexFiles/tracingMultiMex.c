@@ -88,16 +88,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
      *       MATLAB were of type int it is safe to cast from double to int here.
      */
     nrays = mxGetN(prhs[0]);
-    ray_pos = mxGetPr(prhs[0]);
-    ray_dir = mxGetPr(prhs[1]);
+    ray_pos = mxGetDoubles(prhs[0]);
+    ray_dir = mxGetDoubles(prhs[1]);
+
     nvert = mxGetN(prhs[2]);
-    V = mxGetPr(prhs[2]);
+    V = mxGetDoubles(prhs[2]);
     ntriag_sample = mxGetN(prhs[3]);
     F = mxGetInt32s(prhs[3]);
-    N = mxGetPr(prhs[4]);
+    N = mxGetDoubles(prhs[4]);
     
     // read in the material keys
-    C = mxCalloc(ntriag_sample, sizeof(char*));
+    C = calloc(ntriag_sample, sizeof(char*));
     get_string_cell_arr(prhs[5], C);
 
     // get the sphere from struct
@@ -108,12 +109,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // materials
     int num_materials = mxGetN(prhs[8]);
-    M = mxCalloc(num_materials, sizeof(Material));
+    M = calloc(num_materials, sizeof(Material));
     get_materials_array(prhs[8], prhs[9], prhs[10], M);
     
     // simulation parameters
     maxScatters = (int)mxGetScalar(prhs[11]); /* mxGetScalar gives a double */
-    nrays = (int)mxGetScalar(prhs[12]);
     
     /**************************************************************************/
 
@@ -131,7 +131,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Put the sample and pinhole plate surface into structs */
     set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
-    
+
     /* Output matrix for total number of counts */
     plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);
     cntr_detected = (int32_t*)mxGetData(plhs[0]);
@@ -155,15 +155,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Output the number of rays we forcefully stopped */
     plhs[1] = mxCreateDoubleScalar(killed);
     
-    /* Output matrix for the number of scattering events that each ray underwemt */
+    /* Output matrix for the number of scattering events that each ray underwent */
     plhs[2] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    numScattersRay  = (int*)mxGetData(plhs[2]);
+    numScattersRay  = (int32_t*)mxGetData(plhs[2]);
     get_scatters(&all_rays, numScattersRay);
     
     /* Free the allocated memory associated with the rays */
     clean_up_rays(all_rays);
-    mxFree(C);
-    mxFree(M);
+    free(C);
+    free(M);
     clean_up_surface(&sample);
     
     return;

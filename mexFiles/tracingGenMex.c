@@ -108,7 +108,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     N = mxGetPr(prhs[2]);
 
     // read in the material keys
-    C = mxCalloc(ntriag_sample, sizeof(char*));
+    C = calloc(ntriag_sample, sizeof(char*));
     get_string_cell_arr(prhs[3], C);
 
     nvert_plate = mxGetN(prhs[4]);
@@ -118,7 +118,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     NS = mxGetPr(prhs[6]);
 
     // read in the material keys
-    CS = mxCalloc(ntriag_sample, sizeof(char*));
+    CS = calloc(ntriag_plate, sizeof(char*));
     get_string_cell_arr(prhs[7], CS);
 
     // get the sphere from matlab struct array
@@ -128,7 +128,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // materials
     int num_materials = mxGetN(prhs[10]);
-    M = mxCalloc(num_materials, sizeof(Material));
+    M = calloc(num_materials, sizeof(Material));
     get_materials_array(prhs[10], prhs[11], prhs[12], M);
 
     maxScatters = (int)mxGetScalar(prhs[13]); /* mxGetScalar gives a double */
@@ -184,8 +184,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Free space */
     free(C);
+    free(CS);
     free(M);
     clean_up_surface(&sample);
+    clean_up_surface(&plate);
 
     return;
 }

@@ -111,7 +111,8 @@ function square_scan_info = rectangularScan(varargin)
     % TODO: make this parallel in Octave
     % TODO: Make each iteration loop over multiple pixels so that the parfor is
     % more optimal
-    % NOTE: could use parfeval
+    % NOTE: could use parfeval?
+    % TODO: consider moving this loop into C?
     parfor i_=1:N_pixels
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);

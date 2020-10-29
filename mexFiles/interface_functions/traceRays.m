@@ -59,12 +59,12 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     VT = sample_surface.vertices';
     FT = sample_surface.faces';
     NT = sample_surface.normals';
-    CT = sample_surface.composition;
+    CT = sample_surface.compositions';
     
     VTS = pinhole_surface.vertices';
     FTS = pinhole_surface.faces';
     NTS = pinhole_surface.normals';
-    CTS = pinhole_surface.composition;
+    CTS = pinhole_surface.compositions';
     
     % Need to know how deep the pinhole plate is, how wide it is and how high it
     % is, this is used in determining if rays are detected, this assumes that

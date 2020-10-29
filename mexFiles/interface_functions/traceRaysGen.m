@@ -52,12 +52,12 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
     VT = sample_surface.vertices';
     FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
-    CT = sample_surface.composition;
+    CT = sample_surface.compositions';
     
     VTS = pinhole_surface.vertices';
     FTS = int32(pinhole_surface.faces');
     NTS = pinhole_surface.normals';
-    CTS = pinhole_surface.composition;
+    CTS = pinhole_surface.compositions';
     
     mat_names = sample_surface.materials.keys;
     mat_functions = cell(1, length(mat_names));
@@ -105,7 +105,7 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
     % unles you know what you're doing
     [cntr, killed, numScattersRay]  = ...
         tracingGenMex(VT, FT, NT, CT, VTS, FTS, NTS, CTS, s, backWall, mat_names, ...
-                mat_functions, mat_params, maxScatter, beam.n, source_model, source_parameters);
+                mat_functions, mat_params, max_scatter, beam.n, source_model, source_parameters);
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.

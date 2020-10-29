@@ -53,6 +53,7 @@ distribution_func distribution_by_name(const char * name) {
 
 void pure_specular(const double normal[3], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
+    //printf("\nIt has reflected\n");
     reflect3D(normal, init_dir, new_dir);
 }
 
@@ -258,7 +259,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
 
     do {
         /* Generate a random theta and phi */
-        theta = theta_generate(sigma, myrng);
+        theta = theta_generate(sigma, myrng); // TODO: pointerize
         double uni_rand;
         genRand(myrng, &uni_rand);
         phi = 2*M_PI*uni_rand;

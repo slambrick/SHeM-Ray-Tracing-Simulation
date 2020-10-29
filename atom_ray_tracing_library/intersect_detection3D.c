@@ -36,7 +36,7 @@
  *  intersect - int, 1 or 0 depending on if the ray intersects the sphere.
  *
  */
-void scatterSphere(Ray3D * the_ray, AnalytSphere const * const the_sphere, double * const min_dist,
+void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], int * const tri_hit,
         int * const which_surface, int * const meets_sphere) {
     double a,b,c;
@@ -50,13 +50,13 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere const * const the_sphere, doubl
     d = the_ray->direction;
 
     /* Centre of the sphere */
-    a = the_sphere->sphere_c[0];
-    b = the_sphere->sphere_c[1];
-    c = the_sphere->sphere_c[2];
+    a = the_sphere.sphere_c[0];
+    b = the_sphere.sphere_c[1];
+    c = the_sphere.sphere_c[2];
 
     /* Coefficients of the quadratic equation */
     beta = 2*(d[0]*(e[0] - a) + d[1]*(e[1] - b) + d[2]*(e[2] - c));
-    gamma = -the_sphere->sphere_r*the_sphere->sphere_r - 2*e[0]*a - 2*e[1]*b -
+    gamma = -the_sphere.sphere_r*the_sphere.sphere_r - 2*e[0]*a - 2*e[1]*b -
         2*e[2]*c + e[0]*e[0] + e[1]*e[1] + e[2]*e[2] + a*a + b*b + c*c;
 
     /* Do we hit the sphere */
@@ -72,9 +72,9 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere const * const the_sphere, doubl
         /* Shortest intersection yet found */
 
         /* Normal to the sphere at that point */
-        nearest_n[0] = (e[0] + distance*d[0] - a)/the_sphere->sphere_r;
-        nearest_n[1] = (e[1] + distance*d[1] - b)/the_sphere->sphere_r;
-        nearest_n[2] = (e[2] + distance*d[2] - c)/the_sphere->sphere_r;
+        nearest_n[0] = (e[0] + distance*d[0] - a)/the_sphere.sphere_r;
+        nearest_n[1] = (e[1] + distance*d[1] - b)/the_sphere.sphere_r;
+        nearest_n[2] = (e[2] + distance*d[2] - c)/the_sphere.sphere_r;
 
         /* Intersection with the sphere */
         nearest_inter[0] = e[0] + d[0]*distance;
@@ -89,7 +89,7 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere const * const the_sphere, doubl
         *tri_hit = -1;
 
         /* We are now on the sphere */
-        *which_surface = the_sphere->surf_index;
+        *which_surface = the_sphere.surf_index;
 
         /* We do hit the sphere and it is the closest interesction*/
         *meets_sphere = 1;
@@ -127,7 +127,7 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere const * const the_sphere, doubl
  *       called the highest number of times, hence the rather low level looking
  *       code.
  */
-void scatterTriag(Ray3D * the_ray, Surface3D const * const Sample, double * const min_dist,
+void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], int * const meets, int * const tri_hit,
         int * const which_surface) {
     int j;
@@ -140,7 +140,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D const * const Sample, double * cons
 
     *meets =  0;
     /* Loop through all triangles in the surface */
-    for (j = 0; j < Sample->n_faces; j++) {
+    for (j = 0; j < sample.n_faces; j++) {
         double a[3];
         double b[3];
         double c[3];
@@ -151,14 +151,14 @@ void scatterTriag(Ray3D * the_ray, Surface3D const * const Sample, double * cons
 
         /* Skip this triangle if the ray is already on it */
         if ((the_ray->on_element == j) &&
-            (the_ray->on_surface == Sample->surf_index)) {
+            (the_ray->on_surface == sample.surf_index)) {
             continue;
         }
 
         /*
          * Specify which triangle and get its normal.
          */
-        get_element3D(Sample, j, a, b, c, normal);
+        get_element3D(&sample, j, a, b, c, normal);
 
         /* If the triangle is 'back-facing' then the ray cannot hit it */
         double test;
@@ -264,7 +264,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D const * const Sample, double * cons
                 nearest_inter[1] = new_loc[1];
                 nearest_inter[2] = new_loc[2];
 
-                *which_surface = Sample->surf_index;
+                *which_surface = sample.surf_index;
             }
         }
     }
@@ -274,9 +274,9 @@ void scatterTriag(Ray3D * the_ray, Surface3D const * const Sample, double * cons
  * Scatter off a back wall with n detectors. Returns 0 if the ray is not
  * detected or the index of the detector is has entered.
  */
-void multiBackWall(Ray3D * the_ray, NBackWall const * const wallPlate, double * const min_dist,
+void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], int * meets, int * const tri_hit,
-        int * const which_surface, int * const which_detector) {
+        int * const which_surface, int * const which_aperture) {
     double *d;
     d = the_ray->direction;
 
@@ -292,7 +292,7 @@ void multiBackWall(Ray3D * the_ray, NBackWall const * const wallPlate, double * 
         double test;
         double r, x_disp, y_disp;
         double *e;
-        int which_aperture;
+        *which_aperture = 0;
         int i;
 
         e = the_ray->position;
@@ -312,17 +312,17 @@ void multiBackWall(Ray3D * the_ray, NBackWall const * const wallPlate, double * 
          * intersection then the ray does not hit the back wall.
          */
         if (alpha*alpha > *min_dist) {
-        	*which_detector = 0;
-        	return;
+            *which_aperture = 0;
+            return;
         }
 
         /* propagate the ray to that position */
         propagate(e, d, alpha, wall_hit);
 
         test = 10; /* Number greater than 1 */
-        for (i = 0; i < wallPlate->n_detect; i++) {
+        for (i = 0; i < wallPlate.n_detect; i++) {
             BackWall plate;
-            get_nth_aperture(i, wallPlate, &plate);
+            get_nth_aperture(i, &wallPlate, &plate);
             /*
              * See if it goes into the aperture. The aperture is defined by a centre,
              * along with two axes. Uses the formula for an ellipse:
@@ -337,7 +337,7 @@ void multiBackWall(Ray3D * the_ray, NBackWall const * const wallPlate, double * 
                 (0.25*plate.aperture_axes[1]*plate.aperture_axes[1]);
 
             if (test < 1) {
-                which_aperture = i;
+                *which_aperture = i + 1;
                 break;
             }
         }
@@ -357,13 +357,12 @@ void multiBackWall(Ray3D * the_ray, NBackWall const * const wallPlate, double * 
                 nearest_inter[1] = wall_hit[1];
                 nearest_inter[2] = wall_hit[2];
 
-                *which_surface = wallPlate->surf_index;
+                *which_surface = wallPlate.surf_index;
 
                 /*
                  * If we have gone into the aperture then the ray is both dead and
                  * should be counted.
                  */
-                *which_detector = which_aperture + 1;
                 return;
             }
         }
@@ -371,8 +370,8 @@ void multiBackWall(Ray3D * the_ray, NBackWall const * const wallPlate, double * 
         /* If the position is not then we can scatter of the back wall if that is
          * what is wanted */
         x = wall_hit[0]*wall_hit[0] + wall_hit[2]*wall_hit[2];
-        r = wallPlate->circle_plate_r;
-        if ((x <=  r*r) && wallPlate->plate_represent) {
+        r = wallPlate.circle_plate_r;
+        if ((x <=  r*r) && wallPlate.plate_represent) {
             /* We have met a surface */
             *meets = 1;
 
@@ -388,13 +387,14 @@ void multiBackWall(Ray3D * the_ray, NBackWall const * const wallPlate, double * 
                 nearest_inter[1] = wall_hit[1];
                 nearest_inter[2] = wall_hit[2];
 
-                *which_surface = wallPlate->surf_index;
+                *which_surface = wallPlate.surf_index;
             }
         }
     }
 
     /* The ray has not been detected. */
-    *which_detector = 0;
+    *which_aperture = 0;
+    return;
 }
 
 /* Scatter off an abstract hemisphere */

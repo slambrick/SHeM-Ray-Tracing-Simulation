@@ -29,10 +29,8 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include "mtwister.h"
-#include "trace_ray.h"
 #include "extract_inputs.h"
-#include "common_helpers.h"
-#include "ray_tracing_structs3D.h"
+#include "atom_ray_tracing3D.h"
 
 /*
  * The gateway function.
@@ -43,7 +41,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
     
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 16;
+    const int NINPUTS = 17;
     const int NOUTPUTS = 3;
 
     /* Declare the input variables */
@@ -52,16 +50,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double *N;              /* sample triangle normals 3xM */
     char **C;               /* sample triangle diffuse level, length M */
     Material *M;            /* sample scattering parameters */
-    int nrays;              /* number of rays */
+    int n_rays;              /* number of rays */
     int nvert_sample;       /* number of vertices in the sample */
     int nvert_plate;        /* number of vertices in the plate */
     int ntriag_sample;      /* number of sample triangles */
     int maxScatters;        /* Maximum number of scattering events per ray */
     double *VS;             /* pinhole plate triangle vertices */
-    double *FS;             /* pinhole plate triangle faces */
+    int32_t *FS;            /* pinhole plate triangle faces */
     double *NS;             /* pinhole plate triangle normals */
     char **CS;              /* pinhole plate triangle diffuse level*/
-    double *PS;             /* pinhole plate scattering parameters */
     int ntriag_plate;       /* number of pinhole plate triangles */
     double *backWall;
 
@@ -71,16 +68,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int32_t * numScattersRay; /* The number of sample scatters that each
                               * ray has undergone */
 
-    /* Declare other variables */
-    int i;
     /* Indexing the surfaces, -1 refers to no surface */
     int sample_index = 0, plate_index = 1, sphere_index = 2;
-    int num_materials;
 
     /* Declare structs */
     Surface3D sample;
     Surface3D plate;
-    AnalytSphere the_sphere;
+    AnalytSphere sphere;
     SourceParam source;
 
     /* For random number generation */
@@ -109,8 +103,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
      */
     nvert_sample = mxGetN(prhs[0]);
     V = mxGetPr(prhs[0]);
-    F = mxGetInt32s(prhs[1]);
     ntriag_sample = mxGetN(prhs[1]);
+    F = mxGetInt32s(prhs[1]);
     N = mxGetPr(prhs[2]);
 
     // read in the material keys
@@ -120,7 +114,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     nvert_plate = mxGetN(prhs[4]);
     VS = mxGetPr(prhs[4]);
     ntriag_plate = mxGetN(prhs[5]);
-    FS = mxGetPr(prhs[5]);
+    FS = mxGetInt32s(prhs[5]);
     NS = mxGetPr(prhs[6]);
 
     // read in the material keys
@@ -128,7 +122,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     get_string_cell_arr(prhs[7], CS);
 
     // get the sphere from matlab struct array
-    the_sphere = get_sphere(prhs[8], sphere_index);
+    sphere = get_sphere(prhs[8], sphere_index);
 
     backWall = mxGetPr(prhs[9]);
 
@@ -138,7 +132,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     get_materials_array(prhs[10], prhs[11], prhs[12], M);
 
     maxScatters = (int)mxGetScalar(prhs[13]); /* mxGetScalar gives a double */
-    nrays = (int)mxGetScalar(prhs[14]);
+    n_rays = (int)mxGetScalar(prhs[14]);
 
     // TODO: pass through source as a struct?
     get_source(prhs[16], (int)mxGetScalar(prhs[15]), &source);
@@ -164,7 +158,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Put the sample and pinhole plate surface into structs */
     // TODO: can we make a sample struct that can be passed from Matlab to C?
     set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert_sample, sample_index, &sample);
-    set_up_surface(VS, NS, FS, CS, num_materials, ntriag_sample, nvert_plate, plate_index, &plate);
+    set_up_surface(VS, NS, FS, CS, M, num_materials, ntriag_plate, nvert_plate, plate_index, &plate);
 
     /*
      * Create the output matrices
@@ -173,35 +167,25 @@ void mexFunction(int nlhs, mxArray *plhs[],
      */
     plhs[2] = mxCreateNumericMatrix(1, maxScatters, mxINT32_CLASS, mxREAL);
 
+    //make_basic_sample(sample_index, 10, &sample);
     /* Pointers to the output matrices so we may change them*/
-    numScattersRay  = (int32_t*)mxGetData(plhs[2]);
+    numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
     /**************************************************************************/
 
     /* Main implementation of the ray tracing */
-
-    /* Loop through all the rays, tracing each one */
-    // TODO: move loop into experiments.c file
-    for (i = 0; i < nrays; i++) {
-        Ray3D the_ray;
-        int detected;
-
-        create_ray(&the_ray, &source, &myrng);
-
-        trace_ray_triag_plate(&the_ray, &killed, &cntr_detected, maxScatters, &sample,
-        		&plate, &the_sphere, backWall, &myrng, &detected);
-
-        if (detected)
-            numScattersRay[the_ray.nScatters - 1]++;
-    }
+    generating_rays_cad_pinhole(source, n_rays, &killed, &cntr_detected,
+            maxScatters, sample, plate, sphere, backWall, &myrng, numScattersRay);
 
     /**************************************************************************/
 
-    /* Output number of rays went into the detector */
     plhs[0] = mxCreateDoubleScalar(cntr_detected);
     plhs[1] = mxCreateDoubleScalar(killed);
 
-    /* Free the space used by the random number generator */
+    /* Free space */
+    free(C);
+    free(M);
+    clean_up_surface(&sample);
 
     return;
 }

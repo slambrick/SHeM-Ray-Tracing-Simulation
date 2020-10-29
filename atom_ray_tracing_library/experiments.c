@@ -15,7 +15,7 @@
  * TODO: const the objects passed around
  */
 void generating_rays_cad_pinhole(SourceParam source, int nrays, int *killed,
-		int * const cntr_detected, int maxScatters, Surface3D const * const sample, Surface3D const * const plate,
+		int * const cntr_detected, int maxScatters, Surface3D sample, Surface3D plate,
 		AnalytSphere the_sphere, double const backWall[], MTRand * const myrng, int32_t * const numScattersRay) {
 	int i;
 
@@ -23,50 +23,106 @@ void generating_rays_cad_pinhole(SourceParam source, int nrays, int *killed,
 
     for (i = 0; i < nrays; i++) {
         Ray3D the_ray;
-        int detected;
 
         create_ray(&the_ray, &source, myrng);
 
-        trace_ray_triag_plate(&the_ray, killed, cntr_detected, maxScatters,
-        		sample, plate, &the_sphere, backWall, myrng, &detected);
+        trace_ray_triag_plate(&the_ray, maxScatters, sample, plate, the_sphere, backWall, myrng);
 
         /*
          * Add the number of scattering events the ray has undergone to the
          * histogram. But only if it is detected.
          */
-        if (detected)
-            numScattersRay[the_ray.nScatters - 1]++;
+        switch (the_ray.status) {
+            case 2:
+                numScattersRay[the_ray.nScatters - 1]++;
+                *cntr_detected += 1;
+                break;
+            case 1:
+                // The ray died naturally...
+                break;
+            case -1:
+                *killed += 1;
+                break;
+            case 0:
+                // This should not happen...
+                printf("Warning, your ray didn't finish...\n");
+                break;
+        }
     }
 
     // TODO: this is where memory is extracted from the GPU
 }
 
 void generating_rays_simple_pinhole(SourceParam source, int n_rays, int * const killed,
-        int * const cntr_detected, int maxScatters, Surface3D const * const sample, NBackWall plate,
+        int * const cntr_detected, int maxScatters, Surface3D sample, NBackWall plate,
         AnalytSphere the_sphere, MTRand * const myrng, int32_t * const numScattersRay) {
 
     int i;
     // TODO: this will be where memory is moved to the GPU
 
     for (i = 0; i < n_rays; i++) {
-        int detected = 0;
-        int detector = 0;
         Ray3D the_ray;
+        int ind;
 
         create_ray(&the_ray, &source, myrng);
 
-        trace_ray_simple_multi(&the_ray, killed, cntr_detected, maxScatters,
-                 sample, &plate, &the_sphere, &detector, myrng, &detected);
-
+        trace_ray_simple_multi(&the_ray, maxScatters, sample, plate, the_sphere, myrng);
         /*
          * Add the number of scattering events the ray has undergone to the
          * histogram. But only if it is detected.
          */
-        if (detected) {
-            int ind = (detector - 1)*maxScatters + (the_ray.nScatters - 1);
-            numScattersRay[ind]++;
+        switch (the_ray.status) {
+            case 2:
+                ind = (the_ray.detector - 1)*maxScatters + (the_ray.nScatters - 1);
+                numScattersRay[ind]++;
+                cntr_detected[the_ray.detector - 1] += 1;
+                break;
+            case 1:
+                // The ray died naturally...
+                break;
+            case -1:
+                *killed += 1;
+                break;
+            case 0:
+                // This should not happen...
+                printf("Warning, your ray didn't finish...\n");
+                break;
         }
     }
 
     // TODO: this is where memory is extracted from the GPU
 }
+
+// TODO: Function that takes pre-given rays and traces them all for a simple pinhole model
+void given_rays_simple_pinhole(Rays3D * const all_rays, int * const killed,
+        int32_t * const cntr_detected, Surface3D sample, NBackWall plate, AnalytSphere sphere,
+        int maxScatters, int32_t * const detected, int32_t * const which_detector, MTRand * const myrng) {
+    int i;
+
+    // TODO: this will be where memory is moved to the GPU
+
+    for (i = 0; i < all_rays->nrays; i++) {
+        trace_ray_simple_multi(&all_rays->rays[i], maxScatters, sample, plate, sphere, myrng);
+        which_detector[i] = all_rays->rays[i].detector;
+        switch (all_rays->rays[i].status) {
+            case 2:
+                detected[i] = 1;
+                cntr_detected[all_rays->rays[i].detector - 1] += 1;
+                break;
+            case 1:
+                // The ray died naturally...
+                break;
+            case -1:
+                *killed += 1;
+                break;
+            case 0:
+                // This should not happen...
+                printf("Warning, your ray didn't finish...\n");
+                break;
+        }
+    }
+
+    // TODO: this is where memory is extracted from the GPU
+}
+
+// TODO: Function that takes pre-given rays and traces them all for a CAD pinhole model

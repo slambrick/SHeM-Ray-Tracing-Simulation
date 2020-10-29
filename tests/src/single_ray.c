@@ -62,13 +62,13 @@ void single_ray_test() {
     plate.circle_plate_r = 2;
     plate.plate_represent = 1;
     plate.material = standard_mat;
-    make_basic_sample(sample_index, 2, &sample);
+    make_basic_sample(sample_index, 10, &sample);
     generate_empty_sphere(sphere_index, &sphere);
     sphere.sphere_c[0] = 0;
     sphere.sphere_c[1] = 0.1;
     sphere.sphere_c[2] = 0;
     sphere.sphere_r = 0.1;
-    sphere.make_sphere = 1;
+    sphere.make_sphere = 0;
 
     // Seed the random number generator with the current time
     gettimeofday(&tv, 0);
@@ -87,17 +87,17 @@ void single_ray_test() {
     print_surface(&sample);
 
     if (1) {
-        int n = 1e7;
+        int n = 1000;
         for (int i = 0; i < n; i++) {
             Ray3D this_ray = the_ray;
             trace_ray_simple_multi(&this_ray, &killed, &cntr_detected, maxScatters,
-                    &sample, &plate, &sphere, &detector, &myrng, &detected);
+                    sample, plate, sphere, &detector, &myrng, &detected);
         }
     } else {
         int status;
-        scatterOffSurface(&the_ray, &sample, &sphere, &myrng, &status);
+        scatterOffSurface(&the_ray, sample, sphere, &myrng, &status);
         printf("\nstatus: %i\n", status);
-        scatterOffSurface(&the_ray, &sample, &sphere, &myrng, &status);
+        scatterOffSurface(&the_ray, sample, sphere, &myrng, &status);
         printf("\nstatus: %i\n", status);
     }
     // TODO: test results

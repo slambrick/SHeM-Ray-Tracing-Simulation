@@ -125,8 +125,8 @@ int get_materials_array(const mxArray * names, const mxArray * functions,
                           "Dimensions of materials arrays must be the same. In get_materials_array.");
 
     // use cell array extraction for names and functions
-    char ** names_extr = mxCalloc(num, sizeof(char*));
-    char ** functions_extr = mxCalloc(num, sizeof(char*));
+    char ** names_extr = calloc(num, sizeof(char*));
+    char ** functions_extr = calloc(num, sizeof(char*));
 
     get_string_cell_arr(names, names_extr);
     get_string_cell_arr(functions, functions_extr);
@@ -143,7 +143,8 @@ int get_materials_array(const mxArray * names, const mxArray * functions,
         		&materials[idx]);
     }
 
-    mxFree(names_extr); mxFree(functions_extr);
+    free(names_extr);
+    free(functions_extr);
     return num;
 }
 

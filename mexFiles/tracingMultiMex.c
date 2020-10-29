@@ -34,30 +34,28 @@ void mexFunction(int nlhs, mxArray *plhs[],
     const int NOUTPUTS = 5;
     
     /* Declare the input variables */
-    double *ray_pos;        /* inital ray positions 3xN */
-    double *ray_dir;        /* inital ray directions 3xN */
-    double *V;              /* sample triangle vertices 3xn */
-    int32_t *F;              /* sample triangle faces 3xM */
-    double *N;              /* sample triangle normals 3xM */
-    char **C;              /* sample triangle diffuse level, length M */
-    Material *M;              /* sample scattering parameters */
-    int nrays;              /* number of rays */
-    int nvert;              /* number of vertices in the sample */
-    int ntriag_sample;      /* number of sample triangles */
-    int maxScatters;        /* Maximum number of scattering events per ray */
+    double * ray_pos;        /* inital ray positions 3xN */
+    double * ray_dir;        /* inital ray directions 3xN */
+    double * V;              /* sample triangle vertices 3xn */
+    int32_t * F;             /* sample triangle faces 3xM */
+    double * N;              /* sample triangle normals 3xM */
+    char ** C;               /* sample material keys, length M */
+    Material * M;            /* materials of the sample */
+    int nrays;               /* number of rays */
+    int nvert;               /* number of vertices in the sample */
+    int ntriag_sample;       /* number of sample triangles */
+    int maxScatters;         /* Maximum number of scattering events per ray */
     
     /* Declare the output variables */
-    int *cntr_detected;     /* The number of detected rays */
-    int killed;             /* The number of killed rays */
-    int *numScattersRay;    /* The number of sample scatters that each
-                             * ray has undergone */
-    int *detected;          /* Logical array, detected? */
-    int *which_detector;    /* Which detector was the ray detected in */
+    int32_t * cntr_detected; /* The number of detected rays */
+    int killed;              /* The number of killed rays */
+    int32_t * numScattersRay;/* The number of sample scatters that each
+                              * ray has undergone */
+    int * detected;          /* Logical array, detected? */
+    int * which_detector;    /* Which detector was the ray detected in */
 
     /* Declare other variables */
-    int i;
     int sample_index = 0, plate_index = 1, sphere_index = 2;
-    int detector;
 
     /* Declare structs */
     Surface3D sample;
@@ -136,27 +134,21 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Output matrix for total number of counts */
     plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);
-    cntr_detected = (int*)mxGetData(plhs[0]);
+    cntr_detected = (int32_t*)mxGetData(plhs[0]);
     
     /* Output matrix for which rays were detected */
     plhs[3] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    detected = (int*)mxGetData(plhs[3]);
+    detected = (int32_t*)mxGetData(plhs[3]);
     
     /* Output matrix for which detector the rays went into */
     plhs[4] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    which_detector = (int*)mxGetData(plhs[4]);
+    which_detector = (int32_t*)mxGetData(plhs[4]);
     
     /**************************************************************************/
     
     /* Main implementation of the ray tracing */
-
-    /* Loop through all the rays, tracing each one */
-    // TODO: move loop into experiments.c file
-    for (i = 0; i < all_rays.nrays; i++) {
-        trace_ray_simple_multi(&all_rays.rays[i], &killed, cntr_detected, maxScatters,
-        		&sample, &plate, &sphere, &detector, &myrng, &detected[i]);
-        which_detector[i] = detector;
-    }
+    given_rays_simple_pinhole(&all_rays, &killed, cntr_detected, sample, plate, sphere,
+            maxScatters, detected, which_detector, &myrng);
     
     /**************************************************************************/
     

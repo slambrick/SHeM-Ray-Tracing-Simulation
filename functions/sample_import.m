@@ -24,8 +24,11 @@ function [sample_surface, sphere, sample_description] = sample_import(sample_inp
             sample_description = sample_inputs.sample_description;
         case 'photoStereo'
             sample_surface = photo_stereo_test(working_dist);
-            c = [-0.1, -sample_inputs.dist_to_sample - sphere.r*2/3, -0.1];
+            sphere.radius = 0.05;
+            c = [0.1, -sample_inputs.dist_to_sample - sphere.radius*2/3, 0.1];
+            sphere.make = 1;
             sphere = Sphere(1, sample_inputs.material, c, 0.05);
+            sample_description = 'Sample containing different features for testsing photometric stereo';
         case 'special'
             % NOTE: I can't remember what this does...
             sample_surface = inputSample('fname', sample_inputs.sample_fname, ...

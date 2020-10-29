@@ -9,45 +9,6 @@
  *
  * The calling syntax is:
  *
- *  [cntr, killed, final_pos, final_dir, numScattersRay] = ...
- *      tracingMex(init_pos, init_dir, V, F, N, C, maxScatter, VS, FS, ...
- *                 NS, CS, backWall, scan_pos_x, scan_pos_z, make_sphere, ...
- *                 dist_to_sample, sphere_r, diffuse, first_plate);
- *
- *  INPUTS:
- *   init_pos    - the initial positions of the rays
- *   init_dir    - the initial directions of the rays
- *   V           - a list of the locations of the vertices in the surface
- *   F           - lists which vertices make up the triangles in the surface
- *   N           - lists the normals to the triangles in the surface
- *   C           - indices of the scattering off of each triangle in the
- *                 sample surface
- *   maxScatter  - the maximum number of scatters off of the sample that rays
- *                 are allowed to undergo
- *   VS          - lists vertices that make up the pinhole plate
- *   FS          - lists faces that make up the pinhole plate
- *   NS          - lists normals thaat make up the pinhole plate
- *   CS          - indices of the scattering off of each triangle in the
- *                 pinhole plate
- *   backWall    - the size of the pinhole plate, (y,x,z), don't ask why...
- *   scan_pos_x  - the x scan position (only used when there is a sphere)
- *   scan_pos_z  - the z scan position (only used when there is a sphere)
- *   make_sphere - should an analytic sphere be moddelled
- *   dist_to_sample - the distance between the pinhole plate and the flat
- *                    surface that the spher sits on (for use when there is a
- *                    sphere)
- *   sphere_r    - the radius of the analytic sphere
- *   diffuse     - index of the scattering off of the analytic sphere
- *   first_plate - should the first scattering event consider the pinhole plate
- *
- *  OUTPUTS:
- *   cntr           - the number of rays that have gone into the detector
- *   killed         - the number of rays that were killed because they reached
- *                    the max number of scattering events allowed
- *   final_pos      - the final positions of the detected rays
- *   final_dir      - the final directions of the detected rays
- *   numScattersRay - the number of sample scattering events that each ray has
- *                    undergone
  *
  * This is a MEX file for MATLAB.
  */

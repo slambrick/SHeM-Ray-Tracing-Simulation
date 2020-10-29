@@ -114,7 +114,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     N = mxGetDoubles(prhs[2]);
 
     // read in the material keys
-    C = mxCalloc(ntriag_sample, sizeof(char*));
+    C = calloc(ntriag_sample, sizeof(char*));
     get_string_cell_arr(prhs[3], C);
 
     // get the sphere from struct
@@ -125,7 +125,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     // materials
     int num_materials = mxGetN(prhs[6]);
-    M = mxCalloc(num_materials, sizeof(Material));
+    M = calloc(num_materials, sizeof(Material));
     get_materials_array(prhs[6], prhs[7], prhs[8], M);
     
     // simulation parameters
@@ -167,16 +167,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     /* Main implementation of the ray tracing */
     generating_rays_simple_pinhole(source, n_rays, &killed, cntr_detected,
-            maxScatters, &sample, plate, sphere, &myrng, numScattersRay);
+            maxScatters, sample, plate, sphere, &myrng, numScattersRay);
 
     /**************************************************************************/
 
-    /* Output number of rays went into the detector */
     plhs[1] = mxCreateDoubleScalar(killed);
 
     /* Free space */
-    mxFree(C);
-    mxFree(M);
+    free(C);
+    free(M);
     clean_up_surface(&sample);
 
     return;

@@ -74,7 +74,7 @@ function square_scan_info = rectangularScan(varargin)
     tic
 
     % Are we running in Matlab or Octave
-    isOctave = false;%exist('OCTAVE_VERSION', 'builtin') ~= 0;
+    isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 
     % Starts the parallel pool if one does not already exist.
     if ~isOctave

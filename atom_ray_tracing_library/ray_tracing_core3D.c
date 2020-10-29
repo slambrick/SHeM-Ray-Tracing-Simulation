@@ -153,6 +153,8 @@ void compose_rays3D(double const ray_pos[], double const ray_dir[], int nrays, R
         rays[i].on_element = -1;
         rays[i].on_surface = -1;
         rays[i].nScatters = 0;
+        rays[i].status = 0;
+        rays[i].detector = 0;
     }
 
     /* Put the data into the struct */
@@ -444,6 +446,8 @@ void create_ray(Ray3D * const gen_ray, SourceParam const * const source, MTRand 
     gen_ray->on_surface = -1;
     gen_ray->on_element = -1;
     gen_ray->nScatters = 0;
+    gen_ray->status = 0;
+    gen_ray->detector = 0;
 }
 
 void new_Ray(Ray3D * const gen_Ray, double const pos[3], double const dir[3]) {
@@ -456,6 +460,8 @@ void new_Ray(Ray3D * const gen_Ray, double const pos[3], double const dir[3]) {
 	gen_Ray->on_element = -1;
 	gen_Ray->on_surface = -1;
 	gen_Ray->nScatters = 0;
+	gen_Ray->status = 0;
+	gen_Ray->detector = 0;
 }
 
 /*
@@ -473,11 +479,11 @@ void make_basic_sample(int sample_index, double size, Surface3D * const sample) 
     int num_materials = 1;
     int i;
     Material standard_mat;
-    standard_mat.name = "diffuse";
-    standard_mat.func_name = "cosine";
+    standard_mat.name = "shiny";
+    standard_mat.func_name = "pure_specular";
     standard_mat.params = 0;
     standard_mat.n_params = 0;
-    standard_mat.func = distribution_by_name("cosine");
+    standard_mat.func = distribution_by_name("pure_specular");
 
     int ntriag_sample = 3;
     int nvert = 5;
@@ -501,7 +507,7 @@ void make_basic_sample(int sample_index, double size, Surface3D * const sample) 
         N[i] = NN[i];
         F[i] = FF[i];
     }
-    char *C[3] = {"diffuse", "diffuse", "diffuse"};
+    char *C[3] = {"shiny", "shiny", "shiny"};
     Material * M;
     M = (Material *)malloc(sizeof(Material)*ntriag_sample);
     Material MM[3] = {standard_mat, standard_mat, standard_mat};

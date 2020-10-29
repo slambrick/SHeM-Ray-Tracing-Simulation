@@ -37,13 +37,13 @@ Effuse size (relative to the direct beam): 1
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: custom
+What type of sample are you useing: sphere
 Scattering: cosine
 Reflectivity: 0.1
 Standard deviation (deg): 90 
 Sample description: Test material sample
 Working distance to place the sample at: 2.1
-Sphere radius (mm): 0.1
+Sphere radius (mm): 0.15
 Length of side of flat sample: 1
 Custom sample stl file: samples/four_squares.obj
 Manual alignment: no
@@ -52,8 +52,8 @@ Manual alignment: no
 % For now this assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
 Pixel seperation (mm): 0.01
-Scan range x (mm): 1.1
-Scan range y (mm): 1.1
+Scan range x (mm): 0.8
+Scan range y (mm): 0.6
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters

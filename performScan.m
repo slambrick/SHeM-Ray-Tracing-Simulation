@@ -69,7 +69,7 @@ raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
 xrange = [-range_x/2, range_x/2];
 zrange = [-range_z/2, range_z/2];
-sphere_c = [0, -dist_to_sample, 0];
+sphere_c = [0, -dist_to_sample + sphere_r, 0];
 
 %% Define remaining parameters
 

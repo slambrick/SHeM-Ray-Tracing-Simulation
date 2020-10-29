@@ -90,6 +90,8 @@ typedef struct _ray3d {
     int nScatters;        /* The number of scattering events the ray has undergone */
     int on_element;       /* The index of the surface element that the ray is on */
     int on_surface;       /* The index of the surface that the ray is on */
+    int status;           /* Is the ray alive (0), dead (1), or detected (2) */
+    int detector;         /* If the ray is detected, which one? none (0) */
 } Ray3D;
 
 /* A structure to hold an array of Ray3D structs */

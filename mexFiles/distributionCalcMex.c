@@ -171,7 +171,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                 the_ray.direction[j] = start_dir[j];
             }
             
-            trace_ray_just_sample(&the_ray, &killed, maxScatters, &sample, &the_sphere,
+            trace_ray_just_sample(&the_ray, &killed, maxScatters, sample, the_sphere,
                               &myrng);
             /* Update final position an directions of ray */
             for (j = 0; j < 3; j++) {
@@ -182,7 +182,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
             }
             numScattersRay[i] = the_ray.nScatters;
         } else {
-            trace_ray_just_sample(&all_rays.rays[i], &killed, maxScatters, &sample, &the_sphere,
+            trace_ray_just_sample(&all_rays.rays[i], &killed, maxScatters, sample, the_sphere,
                               &myrng);
         }
     }

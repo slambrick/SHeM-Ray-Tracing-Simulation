@@ -20,10 +20,8 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include "mtwister.h"
-#include "trace_ray.h"
 #include "extract_inputs.h"
-#include "common_helpers.h"
-#include "ray_tracing_structs3D.h"
+#include "atom_ray_tracing3D.h"
 
 /*
  * The gateway function.
@@ -54,7 +52,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int32_t *FS;           /* pinhole plate triangle faces */
     double *NS;            /* pinhole plate triangle normals */
     char **CS;             /* pinhole plate triangle diffuse level*/
-    Material *MS;          /* pinhole plate scattering parameters */
     int ntriag_plate;      /* number of pinhole plate triangles */
     double *backWall;
 
@@ -67,11 +64,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
                               * ray has undergone */
     int *detected;       /* Logical array, detected? */
 
-    /* Declare other variables */
-    int i;
     /* Indexing the surfaces, -1 refers to no surface */
     int sample_index = 0, plate_index = 1, sphere_index = 2;
-    int num_materials;
 
     /* Declare structs */
     Surface3D sample;
@@ -87,11 +81,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /**************************************************************************/
 
     /* Check for the right number of inputs and outputs */
-    if (nrhs != 19) {
+    if (nrhs != NINPUTS) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
-                          "Nineteen inputs required for tracingMex.");
+                          "Sizteen inputs required for tracingMex.");
     }
-    if (nlhs != 6) {
+    if (nlhs != NOUTPUTS) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
                           "Six outpus required for tracingMex.");
     }
@@ -163,39 +157,26 @@ void mexFunction(int nlhs, mxArray *plhs[],
     compose_rays3D(ray_pos, ray_dir, nrays, &all_rays);
 
     /* Put the sample and pinhole plate surface into structs */
-    set_up_surface(V, N, F, C, M, ntriag_sample, nvert_sample, sample_index, &sample);
-    set_up_surface(VS, NS, FS, CS, MS, ntriag_plate, nvert_plate, plate_index, &plate);
-
-    /* Put information on the analytic sphere into a struct */
-    set_up_sphere(make_sphere, sphere_c, sphere_r, sphere_diffuse, sphere_parameters,
-    		sphere_index, &the_sphere);
+    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert_sample, sample_index, &sample);
+    set_up_surface(VS, NS, FS, CS, M, num_materials, ntriag_plate, nvert_plate, plate_index, &plate);
 
     plhs[2] = mxCreateDoubleMatrix(3, nrays, mxREAL);
+    final_pos = (double *)mxGetData(plhs[2]);
     plhs[3] = mxCreateDoubleMatrix(3, nrays, mxREAL);
+    final_dir = (double *)mxGetPr(plhs[3]);
     plhs[4] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
+    numScattersRay  = (int32_t *)mxGetData(plhs[4]);
 
     plhs[5] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    detected = (int*)mxGetData(plhs[5]);
+    detected = (int32_t *)mxGetData(plhs[5]);
 
     /**************************************************************************/
 
     /* Main implementation of the ray tracing */
     given_rays_cad_pinhole(&all_rays, &killed, &cntr_detected, sample, plate,
-            the_sphere, backWall, maxScatters, &myrng, numScattersRay);
+            the_sphere, backWall, maxScatters, detected, &myrng);
 
     /**************************************************************************/
-
-    /*
-     * Create the output matrices
-     * They need to be created as the transpose of what we want because of the
-     * difference in indexing between MATLAB and C.
-     */
-
-
-    /* Pointers to the output matrices so we may change them*/
-    final_pos       = mxGetPr(plhs[2]);
-    final_dir       = mxGetPr(plhs[3]);
-    numScattersRay  = (int*)mxGetData(plhs[4]);
 
     /* Put data into the output matrices */
     get_positions(&all_rays, final_pos);

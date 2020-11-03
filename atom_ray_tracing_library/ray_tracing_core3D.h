@@ -213,4 +213,18 @@ void perpendicular_plane(const double n[3], double v1[3], double v2[3]);
 /* Solves a 3D matrix equation Au=v. */
 void solve3x3(double A[3][3], double u[], double v[], double epsilon, int * const success);
 
+void get_normal(Surface3D const * const s, int ind, double n[3]);
+
+void set_normal(Surface3D const * const s, int ind, double new_n[3]);
+
+void get_face(Surface3D const * const s, int ind, int32_t f[3]);
+
+void set_face(Surface3D const * const s, int ind, int32_t new_f[3]);
+
+void get_vertex(Surface3D const * const s, int ind, double v[3]);
+
+void set_vertex(Surface3D const * const s, int ind, double new_v[3]);
+
+void moveSurface(Surface3D * const s, double displace[3]);
+
 #endif

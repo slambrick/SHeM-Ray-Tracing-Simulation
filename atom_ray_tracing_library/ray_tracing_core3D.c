@@ -19,6 +19,10 @@
 #include "mtwister.h"
 #include <stdbool.h>
 
+static void get_normal_ptr(Surface3D const * const s, int ind, double ** n);
+static void get_face_ptr(Surface3D const * const s, int ind, int32_t ** f);
+static void get_vertex_ptr(Surface3D const * const s, int ind, double ** v);
+
 /*
  * Set up a surface containing the information on a triangulated surface.
  * At the end of the program, MUST call clean_up_surface to free allocated memory.
@@ -282,23 +286,30 @@ void print_material(Material const * const mat) {
 void print_surface(Surface3D const * const s) {
     printf("Surface index = %i\n", s->surf_index);
     for (int ivert = 0; ivert < s->n_vertices; ivert++) {
-        int ind0, ind1, ind2;
-        lin(ivert, 0, &ind0);
-        lin(ivert, 1, &ind1);
-        lin(ivert, 2, &ind2);
-        printf("\n VERT % .2f % .2f % .2f", s->vertices[ind0],
-            s->vertices[ind1], s->vertices[ind2]);
+    	double v[3];
+    	get_vertex(s, ivert, v);
+        //int ind0, ind1, ind2;
+        //lin(ivert, 0, &ind0);
+        //lin(ivert, 1, &ind1);
+        //lin(ivert, 2, &ind2);
+        //printf("\n VERT % .2f % .2f % .2f", s->vertices[ind0],
+        //    s->vertices[ind1], s->vertices[ind2]);
+    	printf("\n VERT % .2f % .2f % .2f", v[0], v[1], v[2]);
     }
     for (int iface = 0; iface < s->n_faces; iface++) {
-        printf("\n FACE %2d", iface);
-        int ind0, ind1, ind2;
-        lin(iface, 0, &ind0);
-        lin(iface, 1, &ind1);
-        lin(iface, 2, &ind2);
-        printf("\tV %3d %3d %3d", s->faces[ind0],
-                s->faces[ind1], s->faces[ind2]);
-        printf("\tN % .2f % .2f % .2f", s->normals[ind0],
-                s->normals[ind1], s->normals[ind2]);
+        int32_t f[3];
+        double n[3];
+    	printf("\n FACE %2d", iface);
+        get_face(s, iface, f);
+        get_normal(s, iface, n);
+        //int ind0, ind1, ind2;
+        //lin(iface, 0, &ind0);
+        //lin(iface, 1, &ind1);
+        //lin(iface, 2, &ind2);
+        printf("\tV %3d %3d %3d", f[0], f[1], f[2]);
+        //s->faces[ind0], s->faces[ind1], s->faces[ind2]);
+        printf("\tN % .2f % .2f % .2f", n[0], n[1], n[2]);
+        //s->normals[ind0],s->normals[ind1], s->normals[ind2]);
         print_material(s->compositions[iface]);
     }
     printf("\n");
@@ -726,5 +737,107 @@ void solve3x3(double A[3][3], double u[3], double v[3], double epsilon, int * co
     u[2] = Dz/M;
 
     *success = 1;
+}
+
+static void get_normal_ptr(Surface3D const * const s, int ind, double ** n){
+	int ind0;
+    lin(ind, 0, &ind0);
+
+    *n = &s->normals[ind0];
+}
+
+void get_normal(Surface3D const * const s, int ind, double n[3]) {
+	double * n_ptr;
+	int j;
+
+	get_normal_ptr(s, ind, &n_ptr);
+
+	for (j = 0; j < 3; j++)
+		n[j] = n_ptr[j];
+}
+
+void set_normal(Surface3D const * const s, int ind, double new_n[3]) {
+	double * n_ptr;
+	int j;
+
+	get_normal_ptr(s, ind, &n_ptr);
+
+	for (j = 0; j < 3; j++)
+		n_ptr[j] = new_n[j];
+}
+
+static void get_face_ptr(Surface3D const * const s, int ind, int32_t ** f){
+	int ind0;
+    lin(ind, 0, &ind0);
+
+    *f = &s->faces[ind0];
+}
+
+void get_face(Surface3D const * const s, int ind, int32_t f[3]) {
+	int32_t * f_ptr;
+	int j;
+
+	get_face_ptr(s, ind, &f_ptr);
+
+	for (j = 0; j < 3; j++)
+		f[j] = f_ptr[j];
+}
+
+void set_face(Surface3D const * const s, int ind, int32_t new_f[3]) {
+	int32_t * f_ptr;
+	int j;
+
+	get_face_ptr(s, ind, &f_ptr);
+
+	for (j = 0; j < 3; j++)
+		f_ptr[j] = new_f[j];
+}
+
+/*
+ * Gets a pointer to the desired vertex of a triangulated surface.This will allow editing of
+ * the vertex.
+ */
+static void get_vertex_ptr(Surface3D const * const s, int ind, double ** v){
+	int ind0;
+    lin(ind, 0, &ind0);
+
+    *v = &s->vertices[ind0];
+}
+
+/*
+ * Gets the values of a vertex in a new variable.
+ */
+void get_vertex(Surface3D const * const s, int ind, double v[3]) {
+	double * v_ptr;
+	int j;
+
+	get_vertex_ptr(s, ind, &v_ptr);
+
+	for (j = 0; j < 3; j++)
+		v[j] = v_ptr[j];
+}
+
+void set_vertex(Surface3D const * const s, int ind, double new_v[3]) {
+	double * v_ptr;
+	int j;
+
+	get_vertex_ptr(s, ind, &v_ptr);
+
+	for (j = 0; j < 3; j++)
+		v_ptr[j] = new_v[j];
+}
+
+void moveSurface(Surface3D * const s, double displace[3]) {
+	int ivert;
+
+	for (ivert = 0; ivert < s->n_vertices; ivert++) {
+		double * v;
+		int j;
+		get_vertex_ptr(s, ivert, &v);
+
+		for (j = 0; j < 3; j++) {
+			v[j] += displace[j];
+		}
+	}
 }
 

@@ -57,12 +57,12 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     ray_posT = ray_pos';
     ray_dirT = ray_dir';
     VT = sample_surface.vertices';
-    FT = sample_surface.faces';
+    FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
     CT = sample_surface.compositions';
     
     VTS = pinhole_surface.vertices';
-    FTS = pinhole_surface.faces';
+    FTS = int32(pinhole_surface.faces');
     NTS = pinhole_surface.normals';
     CTS = pinhole_surface.compositions';
     
@@ -103,6 +103,6 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     final_dir = final_dir(detected,:);
     numScattersRayDetect = numScattersRay(detected);
     
-    numScattersRay = binMyWay(numScattersRayDetect, maxScatter);
+    numScattersRayDetect = binMyWay(numScattersRayDetect, max_scatter);
 end
 

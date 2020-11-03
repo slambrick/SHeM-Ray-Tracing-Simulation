@@ -15,7 +15,7 @@ Number of detectors: 1
 Detector full axes (x,y): (1.4, 1)
 Detector centres (x,y): (2.1, 0)
 Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
-STL pinhole model: Cambridge
+STL pinhole model: cambridge
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a

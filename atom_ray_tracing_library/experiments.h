@@ -21,7 +21,7 @@ void given_rays_simple_pinhole(Rays3D * const all_rays, int * killed,
         AnalytSphere the_sphere, int maxScatters, int32_t * const detected,
         int32_t * const which_detector, MTRand * const myrng);
 
-void given_rays_cad_pinhole(Rays3D * const all_rays, int * const killed, int32_t * const cntr_detected,
+void given_rays_cad_pinhole(Rays3D * const all_rays, int * const killed, int * const cntr_detected,
         Surface3D sample, Surface3D plate, AnalytSphere the_sphere, double const backWall[],
         int maxScatters, int32_t * const detected, MTRand * const myrng);
 

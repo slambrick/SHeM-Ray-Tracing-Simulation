@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-19, Sam Lambrick.
+ * Copyright (c) 2018-20, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -33,7 +33,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Expected number of inputs and outputs */
     const int NINPUTS = 16;
-    const int NOUTPUTS = 5;
+    const int NOUTPUTS = 6;
 
     /* Declare the input variables */
     double *ray_pos;       /* inital ray positions 3xN */
@@ -106,17 +106,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
     N = mxGetPr(prhs[4]);
 
     // read in the material keys
-    C = mxCalloc(ntriag_sample, sizeof(char*));
+    C = calloc(ntriag_sample, sizeof(char*));
     get_string_cell_arr(prhs[5], C);
 
     nvert_plate = mxGetN(prhs[6]);
     VS = mxGetPr(prhs[6]);
-    ntriag_plate = mxGetN(prhs[6]);
+    ntriag_plate = mxGetN(prhs[7]);
     FS = mxGetInt32s(prhs[7]);
     NS = mxGetPr(prhs[8]);
 
     // read in the material keys
-    CS = mxCalloc(ntriag_sample, sizeof(char*));
+    CS = calloc(ntriag_plate, sizeof(char*));
     get_string_cell_arr(prhs[9], CS);
 
     // get the sphere from matlab struct array
@@ -126,7 +126,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // materials
     int num_materials = mxGetN(prhs[12]);
-    M = mxCalloc(num_materials, sizeof(Material));
+    M = calloc(num_materials, sizeof(Material));
     get_materials_array(prhs[12], prhs[13], prhs[14], M);
 
     maxScatters = (int)mxGetScalar(prhs[15]); /* mxGetScalar gives a double */
@@ -147,11 +147,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
     /* Set up the MTwister random number generator */
     seedRand(t, &myrng);
-
-    /* Indexing the surfaces, -1 referes to no surface */
-    sample_index = 0;
-    plate_index = 1;
-    sphere_index = 2;
 
     /* Put the rays into a struct */
     compose_rays3D(ray_pos, ray_dir, nrays, &all_rays);
@@ -183,7 +178,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     get_directions(&all_rays, final_dir);
     get_scatters(&all_rays, numScattersRay);
 
-    /* Free the allocated memory associated with the rays */
+    /* Free space */
+    free(C);
+    free(CS);
+    free(M);
+    clean_up_surface(&sample);
+    clean_up_surface(&plate);
     clean_up_rays(all_rays);
 
     /* Output number of rays went into the detector */

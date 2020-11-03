@@ -151,7 +151,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Seed the random number generator with the current time */
     gettimeofday(&tv, 0);
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
-
     /* Set up the MTwister random number generator */
     seedRand(t, &myrng);
 

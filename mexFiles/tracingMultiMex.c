@@ -90,7 +90,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
     nrays = mxGetN(prhs[0]);
     ray_pos = mxGetDoubles(prhs[0]);
     ray_dir = mxGetDoubles(prhs[1]);
-
     nvert = mxGetN(prhs[2]);
     V = mxGetDoubles(prhs[2]);
     ntriag_sample = mxGetN(prhs[3]);

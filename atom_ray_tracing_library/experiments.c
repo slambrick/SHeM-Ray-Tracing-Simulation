@@ -127,7 +127,7 @@ void given_rays_simple_pinhole(Rays3D * const all_rays, int * killed,
     // TODO: this is where memory is extracted from the GPU
 }
 
-void given_rays_cad_pinhole(Rays3D * const all_rays, int * const killed, int32_t * const cntr_detected,
+void given_rays_cad_pinhole(Rays3D * const all_rays, int * const killed, int * const cntr_detected,
         Surface3D sample, Surface3D plate, AnalytSphere the_sphere, double const backWall[],
         int maxScatters, int32_t * const detected, MTRand * const myrng) {
     int i;

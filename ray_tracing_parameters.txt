@@ -58,6 +58,6 @@ Scan range y (mm): 0.6
 Ignore incidence angle in scan pattern: no
 
 %% Other parameters
-Label for the output directory (no spaces please): annabelle_sample_squares
+Label for the output directory (no spaces please): test_square_sample
 Sould the C code be recompiled: false
 

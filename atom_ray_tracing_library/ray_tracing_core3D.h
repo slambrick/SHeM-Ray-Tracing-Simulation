@@ -12,7 +12,7 @@
 #define _ray_tracing_structures3D_h
 
 #include "mtwister.h"
-#include <stdint-gcc.h>
+#include <stdint.h>
 #include "distributions3D.h"
 
 /******************************************************************************/

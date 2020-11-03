@@ -18,6 +18,7 @@ function mexCompile(recompile, library)
         mkdir('bin')
     end
     
+<<<<<<< HEAD
     %% Compile the main 3D ray tracing library
     if ispc
         atom_obj = 'atom_ray_tracing_library/atom_ray_tracing3D.obj';

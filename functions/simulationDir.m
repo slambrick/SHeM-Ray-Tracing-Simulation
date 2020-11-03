@@ -18,7 +18,7 @@ function thePath = simulationDir(name)
         mkdir('simulations');
     end
     
-    d = dir('../simulations');
+    d = dir('simulations');
     isub = [d(:).isdir]; % returns logical vector
     nameFolds = {d(isub).name}';
     nameFolds(ismember(nameFolds,{'.','..'})) = [];
@@ -38,7 +38,7 @@ end
 
 % Get the maximum index of the cell array of folders.
 function n = max_n(nameFolds)
-    if length(nameFolds) == 0
+    if isempty(nameFolds)
         n = 1;
     else
         n = 0;

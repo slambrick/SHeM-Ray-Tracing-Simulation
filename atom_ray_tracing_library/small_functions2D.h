@@ -13,7 +13,7 @@
 double dot2(double a[2], double b[2]);
 
 /* The square of the norm of a 2 element vector. */
-double norm2(double vect[2]);
+void norm2(double vect[2], double* result);
 
 /* Normalises a 2 element vector. */
 void normalise2(double vect[2]);

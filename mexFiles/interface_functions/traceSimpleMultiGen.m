@@ -1,7 +1,6 @@
-
-% traceSimpleGen.m
+% traceSimpleMultiGen.m
 %
-% Copyright (c) 2019, Sam Lambrick.
+% Copyright (c) 2019-20, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
@@ -51,6 +50,7 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
 
     % MATLAB stores matrices by column then row C does row then column. Must
     % take the traspose of the 2D arrays
+    % NOTE: it is import these are the right way round
     V = sample_surface.vertices';
     F = int32(sample_surface.faces');
     N = sample_surface.normals';
@@ -87,12 +87,16 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     source_parameters = [beam.pinhole_r, ...
         beam.pinhole_c(1), beam.pinhole_c(2), beam.pinhole_c(3), ...
         theta_max, init_angle, sigma_source];
-
+    
+    % Variables passed as structs not objects
+    s = sphere.to_struct();
+    p = plate.to_struct();
+    
     % The calling of the mex function, ... here be dragons ... don't meddle
-    [counted, killed, numScattersRay]  = tracingMultiGenMex(...
-        V, F, N, C, sphere, plate,...
-        mat_names, mat_functions, mat_params,...
-        max_scatter, beam.n, source_model, source_parameters);
+    % unles you know what you're doing
+    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, C, s, p,...
+        mat_names, mat_functions, mat_params, max_scatter, beam.n, ...
+        source_model, source_parameters);
 
     numScattersRay = reshape(numScattersRay, max_scatter, plate.n_detectors);
 

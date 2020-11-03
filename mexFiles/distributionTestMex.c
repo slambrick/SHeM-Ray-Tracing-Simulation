@@ -18,11 +18,8 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include "mtwister.h"
-#include "trace_ray.h"
 #include "extract_inputs.h"
-#include "common_helpers.h"
-#include "small_functions3D.h"
-#include "ray_tracing_structs3D.h"
+#include "atom_ray_tracing3D.h"
 
 /*
  * The gateway function.
@@ -102,7 +99,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
     
     /* Set up the MTwister random number generator */
-    myrng = seedRand(t);
+    seedRand(t, &myrng);
 
     // allocate output array and get pointer
     plhs[0] = mxCreateDoubleMatrix(n_rays, 1, mxREAL);
@@ -112,7 +109,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* project the initial direction onto the surface plane to find azimuth angle phi
      * this looks like d' = d - (n.d)n */
-    propagate(direction, normal, -dot(direction, normal), dir_projection);
+    double tmp;
+    dot(direction, normal, &tmp);
+    propagate(direction, normal, -tmp, dir_projection);
     normalise(dir_projection);
 
     /* also calculate perpendicular -- needed to find sign of phi
@@ -134,13 +133,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
         material.func(normal, direction, new_dir, material.params, &myrng);
         normalise(new_dir);
-        propagate(new_dir, normal, -dot(new_dir, normal), new_dir_proj);
+        double tmp;
+        dot(new_dir, normal, &tmp);
+        propagate(new_dir, normal, -tmp, new_dir_proj);
         normalise(new_dir_proj);
 
-        thetas[i] = acos(dot(new_dir, normal));
+        dot(new_dir, normal, &tmp);
+        thetas[i] = acos(tmp);
 
-        sin_phi = dot(new_dir_proj, perpendicular);
-        cos_phi = dot(new_dir_proj, dir_projection);
+        dot(new_dir_proj, perpendicular, &sin_phi);
+        dot(new_dir_proj, dir_projection, &cos_phi);
         phis[i] = atan2(sin_phi, cos_phi);
     }
 

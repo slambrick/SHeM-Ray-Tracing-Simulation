@@ -93,6 +93,7 @@ function square_scan_info = rectangularScan(varargin)
         ppm = ParforProgressbar(N_pixels, 'showWorkerProgress', true);
         h = 0;
     elseif isOctave
+        ppm = 0;
         h = waitbar(0, 'Simulation progress: ');
     else
         % If the variable ppm is undefined then the parfor loop will
@@ -110,14 +111,15 @@ function square_scan_info = rectangularScan(varargin)
     % TODO: make this parallel in Octave
     % TODO: Make each iteration loop over multiple pixels so that the parfor is
     % more optimal
-    % NOTE: could use parfeval
+    % NOTE: could use parfeval?
+    % TODO: consider moving this loop into C?
     parfor i_=1:N_pixels
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);
         this_surface.moveBy([xx(i_), 0, zz(i_)]);
         this_sphere = sphere;
-        this_sphere.c(1) = this_sphere.c(1) + xx(i_);
-        this_sphere.c(3) = this_sphere.c(3) + zz(i_);
+        this_sphere.centre(1) = this_sphere.centre(1) + xx(i_);
+        this_sphere.centre(3) = this_sphere.centre(3) + zz(i_);
 
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
@@ -151,10 +153,10 @@ function square_scan_info = rectangularScan(varargin)
     end
 
     % Close the parallel pool
-    % if ~isOctave
-    %     current_pool = gcp('nocreate');
-    %     delete(current_pool);
-    % end
+    if ~isOctave
+         current_pool = gcp('nocreate');
+         delete(current_pool);
+    end
 
     if progressBar && ~isOctave
         delete(ppm);

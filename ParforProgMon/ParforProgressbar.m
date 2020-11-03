@@ -181,6 +181,7 @@ classdef ParforProgressbar < handle
                o.stepSize = progressStepSize;
                pct = pctconfig;
                o.ServerName = pct.hostname;
+               o.ServerName = char(getHostName(java.net.InetAddress.getLocalHost)); 
                % Create server connection to receive the updates from each
                % worker via udp. receiver is called each time a data
                % package is received with this class object handle to keep

@@ -33,8 +33,8 @@ function sample_surface = flatSample(size, dist, material)
          0,1,0; ...
          0,1,0];
 
-    M = {'material'; 'material'; 'material'};
-    mat_lib = containers.Map({'material'}, {material});
+    M = {'default'; 'default'; 'default'};
+    mat_lib = containers.Map({'default'}, {material});
 
     sample_surface = TriagSurface(V, F, N, M, mat_lib);
 end

@@ -19,10 +19,8 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include "mtwister.h"
-#include "trace_ray.h"
 #include "extract_inputs.h"
-#include "common_helpers.h"
-#include "ray_tracing_structs3D.h"
+#include "atom_ray_tracing3D.h"
 
 /* 
  * The gateway function.
@@ -32,34 +30,32 @@
 void mexFunction(int nlhs, mxArray *plhs[], 
                  int nrhs, const mxArray *prhs[]) {
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 13;
-    const int NOUTPUTS = 3;
+    const int NINPUTS = 12;
+    const int NOUTPUTS = 5;
     
     /* Declare the input variables */
-    double *ray_pos;        /* inital ray positions 3xN */
-    double *ray_dir;        /* inital ray directions 3xN */
-    double *V;              /* sample triangle vertices 3xn */
-    int32_t *F;              /* sample triangle faces 3xM */
-    double *N;              /* sample triangle normals 3xM */
-    char **C;              /* sample triangle diffuse level, length M */
-    Material *M;              /* sample scattering parameters */
-    int nrays;              /* number of rays */
-    int nvert;              /* number of vertices in the sample */
-    int ntriag_sample;      /* number of sample triangles */
-    int maxScatters;        /* Maximum number of scattering events per ray */
+    double * ray_pos;        /* inital ray positions 3xN */
+    double * ray_dir;        /* inital ray directions 3xN */
+    double * V;              /* sample triangle vertices 3xn */
+    int32_t * F;             /* sample triangle faces 3xM */
+    double * N;              /* sample triangle normals 3xM */
+    char ** C;               /* sample material keys, length M */
+    Material * M;            /* materials of the sample */
+    int nrays;               /* number of rays */
+    int nvert;               /* number of vertices in the sample */
+    int ntriag_sample;       /* number of sample triangles */
+    int maxScatters;         /* Maximum number of scattering events per ray */
     
     /* Declare the output variables */
-    int *cntr_detected;     /* The number of detected rays */
-    int killed;             /* The number of killed rays */
-    int *numScattersRay;    /* The number of sample scatters that each
-                             * ray has undergone */
-    int *detected;          /* Logical array, detected? */
-    int *which_detector;    /* Which detector was the ray detected in */
+    int32_t * cntr_detected; /* The number of detected rays */
+    int killed;              /* The number of killed rays */
+    int32_t * numScattersRay;/* The number of sample scatters that each
+                              * ray has undergone */
+    int * detected;          /* Logical array, detected? */
+    int * which_detector;    /* Which detector was the ray detected in */
 
     /* Declare other variables */
-    int i;
     int sample_index = 0, plate_index = 1, sphere_index = 2;
-    int detector;
 
     /* Declare structs */
     Surface3D sample;
@@ -74,14 +70,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /*******************************************************************************/
     
+    // TODO: improve the input checking
     /* Check for the right number of inputs and outputs */
     if (nrhs != NINPUTS) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
-                          "Nineteen inputs required for tracingMex.");
+        mexErrMsgIdAndTxt("AtomRayTracing:tracingMultiMex:nrhs",
+        		"%d inputs required for tracingMultiMex.", NINPUTS);
     }
     if (nlhs != NOUTPUTS) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", 
-                          "Five outpus required for tracingMex.");
+        mexErrMsgIdAndTxt("AtomRayTracing:tracingMultiMex:nrhs",
+        		"%d outputs required for tracingMultiMex.", NOUTPUTS);
     }
     
     /**************************************************************************/
@@ -90,17 +87,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
      * NOTE: mxGetScalar always returns type double. In cases that the input in
      *       MATLAB were of type int it is safe to cast from double to int here.
      */
-    ray_pos = mxGetPr(prhs[0]);
     nrays = mxGetN(prhs[0]);
-    ray_dir = mxGetPr(prhs[1]);
-    V = mxGetPr(prhs[2]);
+    ray_pos = mxGetDoubles(prhs[0]);
+    ray_dir = mxGetDoubles(prhs[1]);
     nvert = mxGetN(prhs[2]);
-    F = mxGetInt32s(prhs[3]);
+    V = mxGetDoubles(prhs[2]);
     ntriag_sample = mxGetN(prhs[3]);
-    N = mxGetPr(prhs[4]);
+    F = mxGetInt32s(prhs[3]);
+    N = mxGetDoubles(prhs[4]);
     
     // read in the material keys
-    C = mxCalloc(ntriag_sample, sizeof(char*));
+    C = calloc(ntriag_sample, sizeof(char*));
     get_string_cell_arr(prhs[5], C);
 
     // get the sphere from struct
@@ -111,11 +108,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // materials
     int num_materials = mxGetN(prhs[8]);
-    M = mxCalloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[9], prhs[10], prhs[11], M);
+    M = calloc(num_materials, sizeof(Material));
+    get_materials_array(prhs[8], prhs[9], prhs[10], M);
     
     // simulation parameters
-    maxScatters = (int)mxGetScalar(prhs[12]); /* mxGetScalar gives a double */
+    maxScatters = (int)mxGetScalar(prhs[11]); /* mxGetScalar gives a double */
     
     /**************************************************************************/
 
@@ -125,59 +122,47 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Seed the random number generator with the current time */
     gettimeofday(&tv, 0);
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
-    srand(t);
     /* Set up the MTwister random number generator */
-    myrng = seedRand(t);
-    
-    /* Indexing the surfaces, -1 referes to no surface */
-    sample_index = 0;
-    plate_index = 1;
-    sphere_index = 2;
-    
+    seedRand(t, &myrng);
+
     /* Put the rays into a struct */
-    all_rays = compose_rays3D(ray_pos, ray_dir, nrays);
+    compose_rays3D(ray_pos, ray_dir, nrays, &all_rays);
     
     /* Put the sample and pinhole plate surface into structs */
-    sample = set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert,
-                            sample_index);
-    
+    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
+
     /* Output matrix for total number of counts */
     plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);
-    cntr_detected = (int*)mxGetData(plhs[0]);
+    cntr_detected = (int32_t*)mxGetData(plhs[0]);
     
     /* Output matrix for which rays were detected */
     plhs[3] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    detected = (int*)mxGetData(plhs[3]);
+    detected = (int32_t*)mxGetData(plhs[3]);
     
     /* Output matrix for which detector the rays went into */
     plhs[4] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    which_detector = (int*)mxGetData(plhs[4]);
+    which_detector = (int32_t*)mxGetData(plhs[4]);
     
     /**************************************************************************/
     
     /* Main implementation of the ray tracing */
-
-    /* Loop through all the rays, tracing each one */
-    for (i = 0; i < all_rays.nrays; i++) {
-        detected[i] = trace_ray_simple_multi(&all_rays.rays[i], &killed, cntr_detected,
-            maxScatters, sample, plate, sphere, &detector, &myrng);
-        which_detector[i] = detector;
-    }
+    given_rays_simple_pinhole(&all_rays, &killed, cntr_detected, sample, plate, sphere,
+            maxScatters, detected, which_detector, &myrng);
     
     /**************************************************************************/
     
     /* Output the number of rays we forcefully stopped */
     plhs[1] = mxCreateDoubleScalar(killed);
     
-    /* Output matrix for the number of scattering events that each ray underwemt */
+    /* Output matrix for the number of scattering events that each ray underwent */
     plhs[2] = mxCreateNumericMatrix(1, nrays, mxINT32_CLASS, mxREAL);
-    numScattersRay  = (int*)mxGetData(plhs[2]);
+    numScattersRay  = (int32_t*)mxGetData(plhs[2]);
     get_scatters(&all_rays, numScattersRay);
     
     /* Free the allocated memory associated with the rays */
     clean_up_rays(all_rays);
-    mxFree(C);
-    mxFree(M);
+    free(C);
+    free(M);
     clean_up_surface(&sample);
     
     return;

@@ -15,9 +15,14 @@
 /*
  * Linearise [row][column] coordinates in an array of coordinates
  * such as a 3-column n-row matrix of vertices of a Surface3D
+ *
+ * INPUTS:
+ *  row - row indez
+ *  col - column index
+ *  ind - pointer for the output index to be added to
  */
-int lin(int row, int col) {
-    return 3*row + col;
+void lin(int row, int col, int * const ind) {
+    *ind = 3*row + col;
 }
 
 /*
@@ -27,13 +32,12 @@ int lin(int row, int col) {
  *  vect - a double pointer to either a 2 or 3 element vector
  *  dim  - int, the dimension of the vector, 2 or 3
  */
-void print1D_double(double *vect, int dim) {
-    if (dim == 2)
-        printf("[%f, %f]\n", vect[0], vect[1]);
-    else if (dim == 3)
-        printf("[%f, %f, %f]\n", vect[0], vect[1], vect[2]);
-    else
-        printf("dim into print1D must be 2 or 3.");
+void print1D_double(double const * const vect, int dim) {
+    printf("[");
+    for (int i = 0; i < dim - 1; i++) {
+        printf("%f,", vect[i]);
+    }
+    printf("%f]\n", vect[dim - 1]);
 }
 
 /*
@@ -43,17 +47,16 @@ void print1D_double(double *vect, int dim) {
  *  vect - an int pointer to either a 2 or 3 element vector
  *  dim  - int, the dimension of the vector, 2 or 3
  */
-void print1D_int(int *vect, int dim) {
-    if (dim == 2)
-        printf("[%i, %i]\n", vect[0], vect[1]);
-    else if (dim == 3)
-        printf("[%i, %i, %i]\n", vect[0], vect[1], vect[2]);
-    else
-        printf("dim into print1D must be 2 or 3.");
+void print1D_int(int const * const vect, int dim) {
+    printf("[");
+    for (int i = 0; i < dim - 1; i++) {
+        printf("%i,", vect[i]);
+    }
+    printf("%i]\n", vect[dim - 1]);
 }
 
 /* Prints out a 3 by 3 double array passed as an argument. */
-void print3x3(double matrix[3][3]) {
+void print3x3(double const matrix[3][3]) {
     int i;
     printf("{\n");
     for (i = 0; i < 3; i++) {
@@ -67,11 +70,11 @@ void print3x3(double matrix[3][3]) {
 /* 
  * Generates two gaussian random numbers using the box-muller transform.
  */
-void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
+void gaussian_random(double mu, double sigma, double Z[2], MTRand * const myrng) {
     double U1, U2;
     
-    U1 = genRand(myrng);
-    U2 = genRand(myrng);
+    genRand(myrng, &U1);
+    genRand(myrng, &U2);
     
     Z[0] = sqrt(-2*log(U1))*cos(2*M_PI*U2);
     Z[1] = sqrt(-2*log(U1))*sin(2*M_PI*U2);
@@ -85,36 +88,37 @@ void gaussian_random(double mu, double sigma, double Z[2], MTRand *myrng) {
 /* 
  * Samples from the top tail of a Gaussian distribution. Samples from the
  * distribution and then checks to see if the value is below the cutoff.
+ *
+ * INPUTS:
+ *  mu     - mean of the Gaussian function
+ *  sigma  - standard deviation of the Gaussian distribution
+ *  cutoff - the cutoff that the random number must be larger than
+ *  MTRand - random number generator object
+ *  rand1  - pointer to where to store the result
  */
-double gaussian_random_tail(double mu, double sigma, double cutoff, MTRand *myrng) {
-    double Z[2];
-    double rand1;
-    int cnt;
-    
-    cnt = 0;
+void gaussian_random_tail(double mu, double sigma, double cutoff, MTRand * const myrng,
+		double * const rand1) {
+    double Z[2] = {0, 0};
+    int cnt = 0;
+
     do {
         if (!(cnt % 2)) {
             gaussian_random(mu, sigma, Z, myrng);
-            rand1 = Z[0];
+            *rand1 = Z[0];
         } else {
-            rand1 = Z[1];
+            *rand1 = Z[1];
         }
         cnt++;
-    } while (rand1 < cutoff);
-    
-    return rand1;
+    } while (*rand1 < cutoff);
 }
 
 /*
  * Create a random int in the desired range, 0 to max-1
  */
-int gen_random_int(int max, MTRand *myrand) {
+void gen_random_int(int max, MTRand * const myrand, int * const randint) {
     double uniform_rand;
-    int random_int;
     
-    uniform_rand = genRand(myrand);
+    genRand(myrand, &uniform_rand);
     uniform_rand = uniform_rand*(double)max;
-    random_int = (int)floor(uniform_rand);
-    
-    return random_int;
+    *randint = (int)floor(uniform_rand);
 }

@@ -33,8 +33,8 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
                 ray_dir = varargin{i_+1}{2};
             case 'sample'
                 sample_surface = varargin{i_+1};
-            case 'maxScatter'
-                maxScatter = varargin{i_+1};
+            case 'max_scatter'
+                max_scatter = varargin{i_+1};
             case 'plate'
                 plate = varargin{i_+1};
             case 'sphere'
@@ -46,21 +46,29 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
     
     % MATLAB stores matrices by column then row C does row then column. Must
     % take the traspose of the 2D arrays
+    % NOTE: it is import these are the right way round
     ray_posT = ray_pos';
     ray_dirT = ray_dir';
     VT = sample_surface.vertices';
-    FT = sample_surface.faces';
+    FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
-    CT = sample_surface.composition;
-    PT = sample_surface.parameters;
+    CT = sample_surface.compositions';
     
-    % The calling of the mex function, ... here be dragons ... don't meddle
+    mat_names = sample_surface.materials.keys;
+    mat_functions = cell(1, length(mat_names));
+    mat_params = cell(1, length(mat_names));
+    for idx = 1:length(mat_names)
+        mat_functions{idx} = sample_surface.materials(mat_names{idx}).function;
+        mat_params{idx} = sample_surface.materials(mat_names{idx}).params;
+    end
+    
+    s = sphere.to_struct();
+    p = plate.to_struct();
+    
+    % The calling of the mex function, ...
     [cntr, killed, numScattersRay, detected, which_detector]  = ...
-        tracingMultiMex(ray_posT, ray_dirT, VT, FT, NT, CT, PT, maxScatter, ...
-                   sphere.make, sphere.c, sphere.r, ...
-                   sphere.scattering, sphere.scattering_parameter, plate.plate_represent, ...
-                   plate.n_detectors, plate.circle_plate_r, ...
-                   plate.aperture_axes, plate.aperture_c);
+        tracingMultiMex(ray_posT, ray_dirT, VT, FT, NT, CT, s, p, mat_names, ...
+            mat_functions, mat_params, max_scatter);
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.
@@ -73,10 +81,10 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
     numScattersRayDetect = numScattersRay(detected);
     
     % Put the number of scattering events into a histogram for each detector
-    numScattersRay = zeros(plate.n_detectors, maxScatter);
+    numScattersRay = zeros(plate.n_detectors, max_scatter);
     for i_=1:plate.n_detectors
         ind = which_detector == i_;
-        numScattersRay(i_,:) = binMyWay(numScattersRayDetect(ind), maxScatter);
+        numScattersRay(i_,:) = binMyWay(numScattersRayDetect(ind), max_scatter);
     end
     numScattersRay = numScattersRay';   
 end

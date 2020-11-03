@@ -48,7 +48,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int i;
     struct timeval tv;
     unsigned long t;
-    MTRand my_rng;
+    MTRand myrng;
     
     /**************************************************************************/
     /* Checks on inputs */
@@ -97,10 +97,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Seed the random number generator with the current time */
     gettimeofday(&tv, 0);
     t = (unsigned long)tv.tv_sec + (unsigned long)tv.tv_usec;
-    srand(t);
+
     /* Set up the MTwister random number generator */
-    my_rng = seedRand(t);
-    Sample.my_rng = &my_rng;
+    seedRand(t, &myrng);
+    Sample.my_rng = &myrng;
     
     /* Allocate appropriate memory to the array of Ray structs */
     rays = malloc(nrays * sizeof(*rays));

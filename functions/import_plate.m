@@ -27,6 +27,10 @@ function pinhole_surface = import_plate(accuracy)
         accuracy = 'low';
     end
     
+    data = load('objects/defMaterial.mat');
+    defMaterial = data.defMaterial;
+    materials = containers.Map({'default'}, {defMaterial});
+    
     switch accuracy
         case 'low'
             plate_fname = 'pinholePlates/pinholePlate_simple1.stl';
@@ -40,16 +44,14 @@ function pinhole_surface = import_plate(accuracy)
     
     % Import data from file.
     [F, V, N] = stlread(plate_fname);
+    fmat = cell(length(F), 1);
+    fmat(:) = {'default'};
     
     % The simulation runs in mm and the object file is in cm
     V = V*10;
     
-    % Completely diffuse scattering as the 
-    C = 1 + zeros(size(F,1), 1);
-    P = zeros(size(F,1), 1);
-    
     % Put inot a TiagSurface object
-    pinhole_surface = TriagSurface(V, N, F, C, P);
+    pinhole_surface = TriagSurface(V, F, N, fmat, materials);
     
     % Manipulate into the right position
     pinhole_surface.plate_align;

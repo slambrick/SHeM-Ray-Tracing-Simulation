@@ -1,4 +1,4 @@
-% Copyright (c) 2018-19, Sam Lambrick.
+% Copyright (c) 2018-20, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
@@ -32,12 +32,10 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
         switch varargin{i_}
             case 'sample'
                 sample_surface = varargin{i_+1};
-            case 'maxScatter'
-                maxScatter = varargin{i_+1};
+            case 'max_scatter'
+                max_scatter = varargin{i_+1};
             case 'plate'
                 pinhole_surface = varargin{i_+1};
-            case 'dist'
-                dist_to_sample = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
             case 'source'
@@ -52,17 +50,22 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
     % MATLAB stores matrices by column then row C does row then column. Must
     % take the traspose of the 2D arrays
     VT = sample_surface.vertices';
-    FT = sample_surface.faces';
+    FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
-    CT = sample_surface.composition;
-    PT = sample_surface.parameters;
+    CT = sample_surface.compositions';
     
     VTS = pinhole_surface.vertices';
-    FTS = pinhole_surface.faces';
+    FTS = int32(pinhole_surface.faces');
     NTS = pinhole_surface.normals';
-    CTS = pinhole_surface.composition;
-    PTS = pinhole_surface.parameters;
+    CTS = pinhole_surface.compositions';
     
+    mat_names = sample_surface.materials.keys;
+    mat_functions = cell(1, length(mat_names));
+    mat_params = cell(1, length(mat_names));
+    for idx = 1:length(mat_names)
+        mat_functions{idx} = sample_surface.materials(mat_names{idx}).function;
+        mat_params{idx} = sample_surface.materials(mat_names{idx}).params;
+    end
     
     % Need to know how deep the pinhole plate is, how wide it is and how high it
     % is, this is used in determining if rays are detected, this assumes that
@@ -72,9 +75,6 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
         range(pinhole_surface.vertices(:,3))];
     
     % Get the nessacery source information
-    n_rays = beam.n;
-    pinhole_c = beam.pinhole_c;
-    pinhole_r = beam.pinhole_r;
     switch which_beam
         case 'Uniform'
             source_model = 0;
@@ -94,18 +94,21 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
     end
     
     % Pass the source parameters to C
-    source_parameters = [pinhole_r, pinhole_c(1), pinhole_c(2), pinhole_c(3), theta_max, ...
-        init_angle, sigma_source];
+    source_parameters = [beam.pinhole_r, ...
+        beam.pinhole_c(1), beam.pinhole_c(2), beam.pinhole_c(3), ...
+        theta_max, init_angle, sigma_source];
+    
+    % Variables passed as struct arrays not objects
+    s = sphere.to_struct();
     
     % The calling of the mex function, ... here be dragons ... don't meddle
+    % unles you know what you're doing
     [cntr, killed, numScattersRay]  = ...
-        tracingGenMex(VT, FT, NT, CT, PT, maxScatter, VTS, FTS, NTS, CTS, ...
-                PTS, sphere.make, sphere.c, sphere.r, sphere.scattering, ...
-                sphere.scattering_parameter, backWall, n_rays, source_model, ...
-                source_parameters);
+        tracingGenMex(VT, FT, NT, CT, VTS, FTS, NTS, CTS, s, backWall, mat_names, ...
+                mat_functions, mat_params, max_scatter, beam.n, source_model, source_parameters);
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.
-    diedNaturally = n_rays - cntr - killed;
+    diedNaturally = beam.n - cntr - killed;
 end
 

@@ -41,10 +41,10 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
                 ray_dir = varargin{i_+1}{2};
             case 'sample'
                 sample_surface = varargin{i_+1};
-            case 'maxScatter'
-                maxScatter = varargin{i_+1};
+            case 'max_scatter'
+                max_scatter = varargin{i_+1};
             case 'plate'
-                plate = varargin{i_+1};
+                pinhole_surface = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
             otherwise
@@ -57,16 +57,14 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     ray_posT = ray_pos';
     ray_dirT = ray_dir';
     VT = sample_surface.vertices';
-    FT = sample_surface.faces';
+    FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
-    CT = sample_surface.composition;
-    PT = sample_surface.parameters;
+    CT = sample_surface.compositions';
     
     VTS = pinhole_surface.vertices';
-    FTS = pinhole_surface.faces';
+    FTS = int32(pinhole_surface.faces');
     NTS = pinhole_surface.normals';
-    CTS = pinhole_surface.composition;
-    PTS = pinhole_surface.parameters;
+    CTS = pinhole_surface.compositions';
     
     % Need to know how deep the pinhole plate is, how wide it is and how high it
     % is, this is used in determining if rays are detected, this assumes that
@@ -75,12 +73,20 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
         range(pinhole_surface.vertices(:,1)), ...
         range(pinhole_surface.vertices(:,3))];
     
-    % The calling of the mex function, ... here be dragons ... don't fiddle
+    mat_names = sample_surface.materials.keys;
+    mat_functions = cell(1, length(mat_names));
+    mat_params = cell(1, length(mat_names));
+    for idx = 1:length(mat_names)
+        mat_functions{idx} = sample_surface.materials(mat_names{idx}).function;
+        mat_params{idx} = sample_surface.materials(mat_names{idx}).params;
+    end
+    
+    s = sphere.to_struct();
+    
+    % The calling of the mex function, ...
     [cntr, killed, final_pos, final_dir, numScattersRay, detected]  = ...
-        tracingMex(ray_posT, ray_dirT, VT, FT, NT, CT, PT, maxScatter, VTS, FTS, ...
-                   NTS, CTS, PTS, backWall, sphere.make, ...
-                   sphere.c, sphere.r, sphere.scattering, ...
-                   sphere.scattering_parameters);
+        tracingMex(ray_posT, ray_dirT, VT, FT, NT, CT, VTS, FTS, ...
+                   NTS, CTS, s, backWall, mat_names, mat_functions, mat_params, max_scatter);
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.
@@ -97,6 +103,6 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     final_dir = final_dir(detected,:);
     numScattersRayDetect = numScattersRay(detected);
     
-    numScattersRay = binMyWay(numScattersRayDetect, maxScatter);
+    numScattersRayDetect = binMyWay(numScattersRayDetect, max_scatter);
 end
 

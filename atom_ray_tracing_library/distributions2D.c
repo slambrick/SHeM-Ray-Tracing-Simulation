@@ -13,7 +13,6 @@
  *  scatter(normal, init_dir, new_dir, distribution parameters..., random number
  *      generator)
  */
-#include "mex.h"
 #include "small_functions2D.h"
 #include "distributions2D.h"
 #include <stdlib.h>
@@ -117,7 +116,9 @@ void scatterCosine2D(double normal[2], double new_dir[2], MTRand *my_rng) {
     normalise2(t);
     
     /* Generate random angle. */
-    s_theta = 2*genRand(my_rng) - 1;
+    double tmp;
+    genRand(my_rng, &tmp);
+    s_theta = 2*tmp - 1;
     c_theta = sqrt(1 - s_theta*s_theta);
     
     /* Create the new direction */
@@ -154,7 +155,9 @@ void scatterUniform2D(double normal[2], double new_dir[2], MTRand *my_rng) {
     normalise2(t);
     
     /* Generate random angle. */
-    theta = (2*genRand(my_rng) - 1)*M_PI/2;
+    double tmp;
+    genRand(my_rng, &tmp);
+    theta = (2*tmp - 1)*M_PI/2;
     s_theta = sin(theta);
     c_theta = cos(theta);
     

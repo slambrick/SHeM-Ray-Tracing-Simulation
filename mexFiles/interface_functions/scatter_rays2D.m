@@ -29,7 +29,7 @@
 %  final_pos    - array do 2 element column vectors of the final positions of
 %                 the arrays after they no longer intersect with the surface.
 %  num_scatters - the number of scattering events that each ray undergoes.
-function [final_dir, final_pos, num_scatters] = scatter_rays(surface, rays, ...
+function [final_dir, final_pos, num_scatters] = scatter_rays2D(surface, rays, ...
         scattering)
     % Perform some checks on the inputs
     if size(surface{1}, 1) ~= 2 || size(surface{2}, 1) ~= 2

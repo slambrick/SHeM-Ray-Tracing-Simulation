@@ -13,14 +13,14 @@
 #include <sys/time.h>
 #include <stdint-gcc.h>
 
-void single_ray_test();
+int main(int argc, char * argv []) {
+	int n;
+	if (argc == 1)
+		printf("Defaulting to 1000 rays.\n");
+	else if (argc != 2)
+		printf("Unexpected number of arguments, ignoring after the first\n");
 
-int main() {
-    single_ray_test();
-}
-
-
-void single_ray_test() {
+	n = argc > 1 ? atoi(argv[1]) : 1000;
     unsigned long t;
     struct timeval tv;
     MTRand myrng;
@@ -32,9 +32,17 @@ void single_ray_test() {
     Surface3D sample;
     NBackWall plate;
     AnalytSphere sphere;
-    int detector = 0;
-    int detected = 0;
     int sample_index = 0, plate_index = 1, sphere_index = 2;
+    double c[3] = {0, 1, 0};
+    SourceParam source;
+    source.pinhole_r = 1e-3;
+    for (int i = 0; i < 3; i++) {
+    	source.pinhole_c[i] = c[i];
+    }
+    source.theta_max = 1/100;
+    source.init_angle = 0;
+    source.source_model = 1;
+    source.sigma = 1/100;
 
     // A material to use
     Material standard_mat;
@@ -46,12 +54,7 @@ void single_ray_test() {
 
     // Counter for the number of detected
     cntr_detected = 0;
-
-    double init_pos[3] = {0, 1, 0};
-    double init_dir[3] = {0, -1, 0};
-
-    // Lets create a ray
-    new_Ray(&the_ray, init_pos, init_dir);
+    int32_t * numScattersRay;
 
     double aperture_c[3] = {0, 0};
     double aperture_axes[2] = {0.1, 0.1};
@@ -86,24 +89,14 @@ void single_ray_test() {
     printf("The sample:\n");
     print_surface(&sample);
 
-    if (1) {
-        int n = 1000;
-        for (int i = 0; i < n; i++) {
-            Ray3D this_ray = the_ray;
-            trace_ray_simple_multi(&this_ray, &killed, &cntr_detected, maxScatters,
-                    sample, plate, sphere, &detector, &myrng, &detected);
-        }
-    } else {
-        int status;
-        scatterOffSurface(&the_ray, sample, sphere, &myrng, &status);
-        printf("\nstatus: %i\n", status);
-        scatterOffSurface(&the_ray, sample, sphere, &myrng, &status);
-        printf("\nstatus: %i\n", status);
-    }
-    // TODO: test results
+    numScattersRay = (int32_t *)calloc(n, sizeof(int32_t));
+    generating_rays_simple_pinhole(source, n, &killed, &cntr_detected, maxScatters, sample,
+    		plate, sphere, &myrng, numScattersRay);
 
     printf("Number of detected rays is: %i\n", cntr_detected);
+    printf("Sample is set-up to be specular, all of them should be detected.\n");
 
+    free(numScattersRay);
     clean_up_surface_all_arrays(&sample);
 }
 

@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "mtwister.h"
-#include <mex.h>
 
 /*
  * Linearise [row][column] coordinates in an array of coordinates
@@ -34,11 +33,11 @@ void lin(int row, int col, int * const ind) {
  *  dim  - int, the dimension of the vector, 2 or 3
  */
 void print1D_double(double const * const vect, int dim) {
-    mexPrintf("[");
+    printf("[");
     for (int i = 0; i < dim - 1; i++) {
-        mexPrintf("%f,", vect[i]);
+        printf("%f,", vect[i]);
     }
-    mexPrintf("%f]\n", vect[dim - 1]);
+    printf("%f]\n", vect[dim - 1]);
 }
 
 /*
@@ -49,23 +48,23 @@ void print1D_double(double const * const vect, int dim) {
  *  dim  - int, the dimension of the vector, 2 or 3
  */
 void print1D_int(int const * const vect, int dim) {
-    mexPrintf("[");
+    printf("[");
     for (int i = 0; i < dim - 1; i++) {
-        mexPrintf("%i,", vect[i]);
+        printf("%i,", vect[i]);
     }
-    mexPrintf("%i]\n", vect[dim - 1]);
+    printf("%i]\n", vect[dim - 1]);
 }
 
 /* Prints out a 3 by 3 double array passed as an argument. */
 void print3x3(double const matrix[3][3]) {
     int i;
-    mexPrintf("{\n");
+    printf("{\n");
     for (i = 0; i < 3; i++) {
-        mexPrintf("%f, ", matrix[i][0]);
-        mexPrintf("%f, ", matrix[i][1]);
-        mexPrintf("%f\n", matrix[i][2]);
+        printf("%f, ", matrix[i][0]);
+        printf("%f, ", matrix[i][1]);
+        printf("%f\n", matrix[i][2]);
     }
-    mexPrintf("}\n");
+    printf("}\n");
 }
 
 /* 

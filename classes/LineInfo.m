@@ -35,15 +35,13 @@
 %  time                - the time in seconds the simulation took
 %  time_estimate       - the initial estimate of how long the simulation
 %                        would take, in seconds
-classdef LineInfo
+classdef LineInfo < SimulationInfo
 
     properties (SetAccess = private)
         Direction;
         sample_positions;
-        specular;
         range;
         N_pixels;
-        counters;
         single_scattering;
         multiple_scattering;
         num_killed;
@@ -51,29 +49,24 @@ classdef LineInfo
         counters_effuse_multiple;
         killed_effuse;
         raster_movment;
-        rays_per_pixel;
-        time;
-        time_estimate;
     end % End properties
 
     methods
         function obj = LineInfo(Direction, range, working_distance, counters, ...
-                                num_killed, raster_movment, n_rays, time, ...
-                                time_estimate, counters_effuse_single, ...
-                                counters_effuse_multiple, killed_effuse)
+                num_killed, raster_movment, n_rays, time, ...
+                time_estimate, counters_effuse_single, ...
+                counters_effuse_multiple, killed_effuse, direct_beam)
+            obj = obj@SimulationInfo(time, time_estimate, direct_beam.init_angle, direct_beam, ...
+                working_distance, n_rays);
             obj.Direction = Direction;
             obj.sample_positions = range(1):raster_movment:range(2);
             obj.range = range;
-            obj.specular = working_distance;
             obj.N_pixels = length(obj.sample_positions);
             obj.counters = counters;
             obj.single_scattering = counters(1,:);
             obj.multiple_scattering = sum(counters(2:end,:));
             obj.num_killed = num_killed;
             obj.raster_movment = raster_movment;
-            obj.rays_per_pixel = n_rays;
-            obj.time = time;
-            obj.time_estimate = time_estimate;
             obj.counters_effuse_single = counters_effuse_single;
             obj.counters_effuse_multiple = counters_effuse_multiple;
             obj.killed_effuse = killed_effuse;
@@ -104,69 +97,60 @@ classdef LineInfo
         function tot = totalLine(obj)
         % Gives the total contribution to the line scan.
             tot = obj.single_scattering + obj.multiple_scattering + ...
-                obj.counters_effuse_multiple' + obj.counters_effuse_single';
+                obj.counters_effuse_multiple + obj.counters_effuse_single;
         end % End total function
 
-        function producePlots(obj, thePath)
-        % Produces a few plots of the line scan.
+        function [fig, ax] = linePlotParts(obj)
+            % Produces a few plots of the line scan.
             single = obj.single_scattering;
             multiple = obj.multiple_scattering;
-            effuse_single = obj.counters_effuse_single';
-            effuse_multiple = obj.counters_effuse_multiple';
-            total = obj.totalLine;
+            effuse_single = obj.counters_effuse_single;
+            effuse_multiple = obj.counters_effuse_multiple;
             xs = obj.sample_positions;
 
-            figure
-            plot(xs, single, 'LineWidth', 3)
-            hold on
-            plot(xs, multiple, 'LineWidth', 3)
-            plot(xs, total, 'LineWidth', 3)
-            % mark the specular distance condition
-            plot([obj.specular, obj.specular], ylim, '--k', 'LineWidth', 3);
-
+            [fig, ax] = obj.linePlot();
+            hold(ax, 'on')
+            plot(ax, xs, single, 'LineWidth', 3)
+            plot(ax, xs, multiple, 'LineWidth', 3)
+            hold(ax, 'off')
+            
             % legend depending on whether effuse exists
             if sum(effuse_single + effuse_multiple) > 0
-                plot(xs, effuse_single + effuse_multiple)
-                legend('Single', 'Multiple', 'Total', 'Specular', 'Effuse');
+                plot(ax, xs, effuse_single + effuse_multiple)
+                legend(ax, 'Total', 'Single', 'Multiple', 'Effuse');
             else
-                legend('Single', 'Multiple', 'Total', 'Specular')
+                legend(ax, 'Total', 'Single', 'Multiple')
             end
+        end
+        
+        function [fig, ax] = linePlot(obj)
+            total = obj.totalLine();
+            xs = obj.sample_positions;
+
+            fig = figure;
+            ax = axes(fig);
+            plot(ax, xs, total, 'LineWidth', 3)
 
             if obj.Direction == 'y'
-                xlabel('Distance from pinhole plate/mm')
+                xlabel(ax, 'Distance from pinhole plate/mm')
             else
-                xlabel([obj.Direction '/mm']);
+                xlabel(ax, [obj.Direction '/mm']);
             end
-            ylabel('Counts');
+            ylabel(ax, 'Counts');
 
             % size and font for report
-            xlim([obj.sample_positions(1), obj.sample_positions(end)])
-            set(gca, 'FontSize', 30)
-            set(gcf, 'Position', [100 100 900 800])
-            % grid on
+            xlim(ax, [obj.sample_positions(1), obj.sample_positions(end)])
+            set(ax, 'FontSize', 30)
+            set(fig, 'Position', [100 100 900 800])
+        end
+        
+        function producePlots(obj, thePath)
+            [f1, ~] = obj.linePlotParts();
+    
             if nargin == 2
-                saveas(gcf, [thePath '/line_comparison_plot.eps'], 'epsc');
+                saveas(f1, [thePath '/line_comparison_plot.eps'], 'epsc');
             end
 
-            figure
-            plot(xs, total, 'LineWidth', 3)
-
-            % mark the specular distance condition
-            hold on
-            plot([obj.specular, obj.specular], ylim, '--k', 'LineWidth', 3);
-
-            if obj.Direction == 'y'
-                xlabel('Distance from pinhole plate/mm')
-            else
-                xlabel([obj.Direction '/mm']);
-            end
-            ylabel('Counts');
-
-            % size and font for report
-            xlim([obj.sample_positions(1), obj.sample_positions(end)])
-            set(gca, 'FontSize', 30)
-            set(gcf, 'Position', [100 100 900 800])
-            % grid on
             if nargin == 2
                 saveas(gcf, [thePath '/line_plot.eps'], 'epsc');
             end

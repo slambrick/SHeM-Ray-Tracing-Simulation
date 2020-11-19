@@ -27,10 +27,9 @@
 %
 % METHODS:
 %  TODO
-classdef RectangleInfo < handle
+classdef RectangleInfo < SimulationInfo
 
     properties %(SetAccess = immutable)
-        counters;
         n_detector;
         cntrSum;
         counter_effusive;
@@ -38,20 +37,12 @@ classdef RectangleInfo < handle
         nx_pixels;
         nz_pixels;
         N_pixels;
-        rays_per_pixel;
         n_effuse;
         sample_surface;
         xrange;
         zrange;
         raster_movment_x;
         raster_movment_z;
-        time;
-        time_estimate;
-        init_angle;
-        beam_param;
-        aperture_axes;
-        aperture_c;
-        dist_to_sample;
         raster_pattern;
     end % End properties
     
@@ -62,50 +53,43 @@ classdef RectangleInfo < handle
                 n_detector, maxScatter, dist_to_sample, direct_beam, raster_pattern)
             if nargin ~= 17
                 error('Wrong numer of input arguments');
-            else
-                obj.n_detector = n_detector;
-                obj.num_killed = num_killed;
-                obj.nx_pixels = raster_pattern.nx;
-                obj.nz_pixels = raster_pattern.nz;
-                obj.N_pixels = obj.nx_pixels*obj.nz_pixels;
-                obj.sample_surface = sample_surface;
-                obj.xrange = xrange;
-                obj.zrange = zrange;
-                for i_=1:obj.n_detector
-                    obj.counters{i_} = reshape(counters(:,i_,:,:), maxScatter, ...
-                        obj.nz_pixels, obj.nx_pixels);
-                end
-                obj.raster_movment_x = raster_movment_x;
-                obj.raster_movment_z = raster_movment_z;
-                cntrSum = sum(counters,1);
-                cntrSum2 = zeros(obj.n_detector, obj.nz_pixels, obj.nx_pixels);
-                for k=1:obj.n_detector
-                    for i_=1:obj.nx_pixels
-                        for j_=1:obj.nz_pixels
-                            cntrSum2(k, j_, i_) = cntrSum(1, k, j_, i_);
-                        end
+            end
+            obj = obj@SimulationInfo(time, t_estimate, direct_beam.init_angle, direct_beam, ...
+                dist_to_sample, rays_per_pixel);
+            obj.n_detector = n_detector;
+            obj.num_killed = num_killed;
+            obj.nx_pixels = raster_pattern.nx;
+            obj.nz_pixels = raster_pattern.nz;
+            obj.N_pixels = obj.nx_pixels*obj.nz_pixels;
+            obj.sample_surface = sample_surface;
+            obj.xrange = xrange;
+            obj.zrange = zrange;
+            for i_=1:obj.n_detector
+                obj.counters{i_} = reshape(counters(:,i_,:,:), maxScatter, ...
+                    obj.nz_pixels, obj.nx_pixels);
+            end
+            obj.raster_movment_x = raster_movment_x;
+            obj.raster_movment_z = raster_movment_z;
+            cntrSum = sum(counters,1);
+            cntrSum2 = zeros(obj.n_detector, obj.nz_pixels, obj.nx_pixels);
+            for k=1:obj.n_detector
+                for i_=1:obj.nx_pixels
+                    for j_=1:obj.nz_pixels
+                        cntrSum2(k, j_, i_) = cntrSum(1, k, j_, i_);
                     end
                 end
-                cntrSum = cntrSum2 + cntr_effuse;
-                for i_=1:obj.n_detector
-                    obj.cntrSum{i_} = reshape(cntrSum(i_,:,:), obj.nz_pixels, ...
-                        obj.nx_pixels);
-                end
-                for i_=1:obj.n_detector
-                    obj.counter_effusive{i_} = reshape(cntr_effuse(i_,:,:), obj.nz_pixels, ...
-                        obj.nx_pixels);
-                end
-                obj.rays_per_pixel = rays_per_pixel;
-                obj.n_effuse = n_effuse;
-                obj.time = time;
-                obj.time_estimate = t_estimate;
-                obj.dist_to_sample = dist_to_sample;
-                obj.init_angle = direct_beam.init_angle;
-                obj.beam_param = direct_beam;
-                obj.aperture_c = NaN;
-                obj.aperture_axes = NaN;
-                obj.raster_pattern = raster_pattern;
             end
+            cntrSum = cntrSum2 + cntr_effuse;
+            for i_=1:obj.n_detector
+                obj.cntrSum{i_} = reshape(cntrSum(i_,:,:), obj.nz_pixels, ...
+                    obj.nx_pixels);
+            end
+            for i_=1:obj.n_detector
+                obj.counter_effusive{i_} = reshape(cntr_effuse(i_,:,:), obj.nz_pixels, ...
+                    obj.nx_pixels);
+            end
+            obj.n_effuse = n_effuse;
+            obj.raster_pattern = raster_pattern;
         end % End constructor
         
         function cntrSum2 = getSingle(obj, detector)

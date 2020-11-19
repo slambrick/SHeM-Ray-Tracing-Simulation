@@ -1,4 +1,4 @@
-function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole_plate_inputs, sample_surface)
+function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(pinhole_plate_inputs, sample_surface)
     isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
     switch pinhole_plate_inputs.pinhole_model
         case 'stl'
@@ -20,9 +20,15 @@ function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole
             % To pass to the functions
             thePlate = PinholeModel();
             aperture_abstract = 0;
-        case 'new'
-            pinhole_surface = import_newPlate(pinhole_plate_inputs.plate_accuracy);
-
+            pinhole_model = 'stl';
+        case {'new', 'angular'}
+            switch pinhole_plate_inputs.pinhole_model
+                case 'angular'
+                    pinhole_surface = import_angular();
+                case 'new'
+                    pinhole_surface = import_newPlate(pinhole_plate_inputs.plate_accuracy);
+            end
+            
             % Plot if using a graphical window
             if ~isOctave
                 if feature('ShowFigureWindows')
@@ -39,6 +45,7 @@ function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole
             % To pass to the functions
             thePlate = PinholeModel();
             aperture_abstract = 0;
+            pinhole_model = 'stl';
         case 'new_micro'
             % TODO
             error('Not written this bit of code yet...');
@@ -56,5 +63,6 @@ function [pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole
                                     pinhole_plate_inputs.aperture_c);
             aperture_abstract = {pinhole_plate_inputs.aperture_theta, ...
                 pinhole_plate_inputs.aperture_phi, pinhole_plate_inputs.aperture_half_cone};
+            pinhole_model = 'N circle';
     end
 end

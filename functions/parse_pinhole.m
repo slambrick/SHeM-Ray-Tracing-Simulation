@@ -1,7 +1,10 @@
 function pinhole_model = parse_pinhole(s)
     if strcmpi(strtrim(s), 'cambridge')
-        % Using the default cambridge pinhole plate
+        % Using the default cambridge pinhole plate (old chamber)
         pinhole_model = 'stl';
+    elseif strcmpi(strtrim(s), 'angular resolution')
+        % Using the angular resolution pinhole plate
+        pinhole_model = 'angular';
     elseif strcmp(s(end-3:end), '.stl')
         % Using some ohter pinhole plate model
         pinhole_model = 'stl';

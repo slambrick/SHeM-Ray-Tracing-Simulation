@@ -1,4 +1,4 @@
-% Copyright (c) 2018, Sam Lambrick.
+% Copyright (c) 2018-20, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
@@ -27,7 +27,7 @@
 %                       forcibly stopped
 %  effuse_left        - the number of rays from the effuse beam that left the
 %                       simulation volume
-classdef SinglePixelInfo
+classdef SinglePixelInfo < SimulationInfo
 
     properties (SetAccess = immutable)
         number_of_scatters_per_ray;
@@ -46,14 +46,15 @@ classdef SinglePixelInfo
         function obj = SinglePixelInfo(cntr, killed, left, numScattersRay, ...
                 final_pos, final_dir, time, effuse_det, effuse_killed, ...
                 effuse_left)
-        % Constructor, arguments are the properties of the object.
+            % Constructor, arguments are the properties of the object.
+            obj = obj@SimulationInfo(time, time_estimate, init_angle, beam_param, ...
+                aperture_axes, aperture_c, dist_to_sample);
             obj.number_of_scatters_per_ray = numScattersRay;
             obj.final_positions = final_pos;
             obj.final_directions = final_dir;
             obj.number_killed = killed;
             obj.number_detected = cntr;
             obj.number_left = left;
-            obj.time = time;
             obj.effuse_detected = effuse_det;
             obj.effuse_killed = effuse_killed;
             obj.effuse_left = effuse_left;

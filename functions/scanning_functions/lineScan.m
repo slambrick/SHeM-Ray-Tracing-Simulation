@@ -16,33 +16,68 @@
 % OUTPUTS:
 %  line_scan_info - A LineInfo object containing the information about the
 %                   simulation
-function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
-        raster_movement, maxScatter, Direction, pinhole_surface, effuse_beam, ...
-        dist_to_sample, sphere, thePath, pinhole_model, thePlate, ...
-        apertureAbstract, ray_model)
-
+function line_scan_info = lineScan(varargin)
+        %sample_surface, scan_range, direct_beam, ...
+        %raster_movement, maxScatter, Direction, pinhole_surface, effuse_beam, ...
+        %dist_to_sample, sphere, thePath, pinhole_model, thePlate, ...
+        %apertureAbstract, ray_model)
+    for i_=1:2:length(varargin)
+        switch varargin{i_}
+            case 'sample_surface'
+                sample_surface = varargin{i_+1};
+            case 'scan_inputs'
+                scan_inputs = varargin{i_+1};
+            case 'direct_beam'
+                direct_beam = varargin{i_+1};
+            case 'max_scatter'
+                maxScatter = varargin{i_+1};
+            case 'pinhole_surface'
+                pinhole_surface = varargin{i_+1};
+            case 'effuse_beam'
+                effuse_beam = varargin{i_+1};
+            case 'dist_to_sample'
+                dist_to_sample = varargin{i_+1};
+            case 'sphere'
+                sphere = varargin{i_+1};
+            case 'thePath'
+                thePath = varargin{i_+1};
+            case 'pinhole_model'
+                pinhole_model = varargin{i_+1};
+            case 'thePlate'
+                thePlate = varargin{i_+1};
+            case 'aperture_abstract'
+                aperture_abstract = varargin{i_+1};
+            case 'ray_model'
+                ray_model = varargin{i_+1};
+            case 'n_detector'
+                n_detector = varargin{i_+1};
+            otherwise
+                error(['input ' num2str(i_) ' not recognised:']);
+        end
+    end
+    
     % Sample positions
-    sample_xs = scan_range(1):raster_movement:scan_range(2);
+    sample_xs = scan_inputs.range1D(1):scan_inputs.raster_movment1D:scan_inputs.range1D(2);
     n_pixels = length(sample_xs);
 
     % Create variables for output data
-    counters = zeros(maxScatter, n_pixels);
+    counters = zeros(maxScatter, n_detector, n_pixels);
     num_killed = zeros(n_pixels, 1);
-    cntr_effuse_single = zeros(n_pixels, 1);
-    counter_effuse_multiple = zeros(n_pixels, 1);
-    killed_effuse = zeros(n_pixels, 1);
+    cntr_effuse_single = zeros(n_detector, n_pixels);
+    counter_effuse_multiple = zeros(n_detector, n_pixels);
+    killed_effuse = zeros(n_detector, n_pixels);
 
     % Estimate of the time for the simulation
     % TODO: change to estimate the time for the simple models
-    t_estimate = time_estimate('n_rays', direct_beam.n, 'n_effuse', ...
-        effuse_beam.n, 'sample_surface', sample_surface, 'n_pixels', n_pixels, ...
-        'pinhole_model', pinhole_model);
-
+    %t_estimate = time_estimate('n_rays', direct_beam.n, 'n_effuse', ...
+    %    effuse_beam.n, 'sample_surface', sample_surface, 'n_pixels', n_pixels, ...
+    %    'pinhole_model', pinhole_model);
+    t_estimate = 0;
+    
     tic
 
     % Are we running in Matlab or Octave
     isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
-    % isOctave = true;
 
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
@@ -50,7 +85,6 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
             parpool
         end
     end
-
 
     % Generates a graphical progress bar if we are using the MATLAB GUI.
     if ~isOctave
@@ -62,7 +96,7 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
     ppm = 0;
     if progressBar
         if ~isOctave
-            ppm = ParforProgMon('Simulation progress: ', n_pixels);
+            ppm = ParforProgressbar(n_pixels, 'showWorkerProgress', true);
             h = '';
         else
             h = waitbar(0, 'Simulation progress: ');
@@ -75,24 +109,16 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
     % TODO: make this parallel in Octave
     parfor i_=1:n_pixels
         scan_pos = sample_xs(i_);
+        this_surface = copy(sample_surface);
 
         % Put the sample into the right place for this iteration
-        switch Direction
+        switch scan_inputs.direction_1D
             case 'x'
-                this_surface = copy(sample_surface);
                 this_surface.moveBy([scan_pos 0 0]);
-                scan_pos_x = scan_pos;
-                scan_pos_z = 0;
             case 'y'
-                this_surface = copy(sample_surface);
                 this_surface.moveBy([scan_pos -scan_pos 0]);
-                scan_pos_x = scan_pos;
-                scan_pos_z = 0;
             case 'z'
-                this_surface = copy(sample_surface);
                 this_surface.moveBy([0 0 scan_pos]);
-                scan_pos_x = 0;
-                scan_pos_z = scan_pos;
             otherwise
                 error('Specify a correct direction for the line scan')
         end
@@ -100,32 +126,30 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
 
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
-            plate_represent, 'sample', this_surface, 'maxScatter', maxScatter, ...
+            plate_represent, 'sample', this_surface, 'max_scatter', maxScatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'dist', dist_to_sample, 'sphere', sphere, 'ray_model', ...
+            'sphere', sphere, 'ray_model', ...
             ray_model, 'which_beam', direct_beam.source_model, 'beam', direct_beam);
 
         % Effuse beam
         [~, effuseKilled, numScattersEffuse] = switch_plate('plate_represent', ...
-            plate_represent, 'sample', this_surface, 'maxScatter', maxScatter, ...
+            plate_represent, 'sample', this_surface, 'max_scatter', maxScatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'dist', dist_to_sample, 'sphere', sphere, 'ray_model', ...
+            'sphere', sphere, 'ray_model', ...
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
 
         % Update the progress bar if we are working in the MATLAB GUI.
-        if progressBar
-            if ~isOctave
-                ppm.increment();
-            else
-                waitbar(i_/n_pixels, h);
-            end
+        if progressBar && ~isOctave
+            ppm.increment();
+        elseif isOctave
+            waitbar(i_/n_pixels, h);
         end
 
         % Save the data for this iteration
-        cntr_effuse_single(i_) = numScattersEffuse(1);
-        counter_effuse_multiple(i_) = sum(numScattersEffuse(2:end));
+        cntr_effuse_single(:,i_) = numScattersEffuse(1);
+        counter_effuse_multiple(:,i_) = sum(numScattersEffuse(2:end));
         killed_effuse(i_) = effuseKilled;
-        counters(:,i_) = numScattersRay;
+        counters(:,:,i_) = numScattersRay;
         num_killed(i_) = killed;
 
         % Delete the surface object for this iteration
@@ -151,12 +175,12 @@ function line_scan_info = lineScan(sample_surface, scan_range, direct_beam, ...
     fprintf('Which is: %i hr %2i mins\n\n', hr, min);
 
     % Generate an object to store the information
-    if strcmp(Direction, 'y')
-        scan_range = scan_range + dist_to_sample;
+    if strcmp(scan_inputs.direction_1D, 'y')
+        scan_range = scan_inputs.range1D + dist_to_sample;
     end
-    line_scan_info = LineInfo(Direction, scan_range, dist_to_sample, counters, num_killed, ...
-        raster_movement, direct_beam.n, t, t_estimate, cntr_effuse_single, ...
-        counter_effuse_multiple, killed_effuse);
+    line_scan_info = LineInfo(scan_inputs.direction_1D, scan_range, dist_to_sample, counters, num_killed, ...
+        scan_inputs.raster_movment1D, direct_beam.n, t, t_estimate, cntr_effuse_single, ...
+        counter_effuse_multiple, killed_effuse, direct_beam);
 
     if progressBar
         line_scan_info.producePlots(thePath);

@@ -58,9 +58,14 @@ range_x = str2double(param_list{27});
 range_z = str2double(param_list{28});
 init_angle_pattern = ~parse_yes_no(param_list{29});
 
+% 1D scan parameters
+scan_direction = strtrim(param_list{30});
+range_1D = [str2double(param_list{31}), str2double(param_list{32})];
+res_1D = str2double(param_list{33});
+
 % Other parameters
-directory_label = strtrim(param_list{30});
-recompile = parse_yes_no(param_list{31});
+directory_label = strtrim(param_list{34});
+recompile = parse_yes_no(param_list{35});
 
 %% Generate parameters from the inputs 
 
@@ -87,7 +92,7 @@ scan_pattern = 'regular';
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
 % In general stick to 'C' unless your own source model is being used
-ray_model = 'MATLAB';
+ray_model = 'C';
 
 % Exponant of the cosine in the effuse beam model
 cosine_n = 1;
@@ -213,9 +218,9 @@ switch typeScan
         scan_inputs.raster_movment2D_z = NaN;
         scan_inputs.xrange = NaN;
         scan_inputs.zrange = NaN;
-        scan_inputs.raster_movment1D = raster_movment1D;
-        scan_inputs.range1D = range1D;
-        scan_inputs.direction_1D = Direction;
+        scan_inputs.raster_movment1D = res_1D;
+        scan_inputs.range1D = range_1D;
+        scan_inputs.direction_1D = scan_direction;
     case 'single pixel'
         scan_inputs.rotationAngles = 0;
         scan_inputs.raster_movment2D_x = NaN;
@@ -247,7 +252,7 @@ sample_inputs.scale = scale;
 pinhole_plate_inputs.pinhole_model = pinhole_model;
 pinhole_plate_inputs.working_dist = working_dist;
 switch pinhole_model
-    case {'stl', 'new'}
+    case {'stl', 'new', 'angular'}
         pinhole_plate_inputs.plate_accuracy = plate_accuracy;
         pinhole_plate_inputs.n_detectors = 1;
         pinhole_plate_inputs.plate_represent = 1;
@@ -427,7 +432,7 @@ if feature('ShowFigureWindows')
 end
 
 %% Pinhole plate import and plotting
-[pinhole_surface, thePlate, aperture_abstract] = pinhole_import(pinhole_plate_inputs, sample_surface);
+[pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(pinhole_plate_inputs, sample_surface);
 
 %% Compile the mex files
 
@@ -511,10 +516,13 @@ switch typeScan
     case 'line'
         % For a line scan
         % TODO: update with the new lower level functions
-        simulationData = lineScan(sample_surface, range1D, direct_beam, ...
-            raster_movment1D, max_scatter, Direction, pinhole_surface, effuse_beam, ...
-            dist_to_sample, sphere, thePath, save_to_text, pinhole_model, ...
-            thePlate, aperture_abstract, ray_model);
+        simulationData = lineScan('sample_surface', sample_surface, ...
+            'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
+            'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...
+            'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
+            'sphere', sphere,               'thePath', thePath, ...
+            'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
+            'ray_model', ray_model,         'n_detector', n_detectors);
     case 'single pixel'
         % For a single pixel
         % TODO: update with the new lower level functions
@@ -603,10 +611,12 @@ end
 
 % Save formatted data to a .mat file, does not include all the parameters
 % but does include the core outputs.
-if output_data && strcmp(typeScan, 'rotations')
-    formatOutputRotation(simulationData, thePath, rot_angles);
-elseif output_data
-    simulationData.formatOutput(thePath);
+if strcmp(typeScan, 'rotations') || strcmp(typeScan, 'rectangular')
+    if output_data && strcmp(typeScan, 'rotations')
+        formatOutputRotation(simulationData, thePath, rot_angles);
+    elseif output_data
+        simulationData.formatOutput(thePath);
+    end
 end
 
 % Save main data to a text file

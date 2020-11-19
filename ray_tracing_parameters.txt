@@ -8,21 +8,21 @@
 %% Set up your virtual microscope
 % stl models of the pinhole plate can also be used, either 'cambridge' or
 % specify an stl file found .
-Design working distance (mm): 2.1
+Design working distance (mm): 2
 Incidence angle (deg): 45
-Type of scan: rectangular
+Type of scan: line
 Number of detectors: 1
 Detector full axes (x,y): (1.4, 1)
 Detector centres (x,y): (2.1, 0)
 Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
-STL pinhole model: cambridge
+STL pinhole model: angular resolution
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 20000
+Number of Rays: 2000000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
@@ -38,24 +38,30 @@ Effuse size (relative to the direct beam): 1
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: sphere
-Scattering: cosine
+What type of sample are you useing: flat
+Scattering: uniform
 Reflectivity: 0.1
 Standard deviation (deg): 90 
 Sample description: Test material sample
-Working distance to place the sample at: 2.1
+Working distance to place the sample at: 2
 Sphere radius (mm): 0.15
 Length of side of flat sample: 1
 Custom sample stl file: samples/four_squares.obj
 Manual alignment: no
 
 %% Set up your scan
-% For now this assumes you are doing a 2D rectangular scan centering on the
+% This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
 Pixel seperation (mm): 0.01
 Scan range x (mm): 0.8
 Scan range y (mm): 0.6
 Ignore incidence angle in scan pattern: no
+
+% This assumes you are doing a 1D scan
+Scan direction: y
+Scan min (mm): -1.5
+Scan max (mm): 6
+Pixel seperation (mm): 0.05
 
 %% Other parameters
 Label for the output directory (no spaces please): test_square_sample

@@ -1,13 +1,21 @@
-function diffuse = parse_scattering(model, reflectivity, sigma)
+function material = parse_scattering(model, reflectivity, sigma)
     switch model
         case 'cosine'
-            diffuse = [1, 0];
+            material.function = 'cosine';
+            material.params = 0;
+            material.color = [0.8 0.8 1.0];
         case 'uniform'
-            diffuse = [2, 0];
+            material.function = 'uniform';
+            material.params = 0;
+            material.color = [0.8 1.0 0.8];
         case 'specular'
-            diffuse = [1 - reflectivity, 0];
+            material.function = 'pure_specular';
+            material.params = 0;
+            material.color = [1.0 0.8 0.8];
         case 'broad_specular'
-            diffuse = [3, sigma*pi/180];
+            material.function = 'broad_specular';
+            material.params = [reflectivity, sigma];
+            material.color = [1.0 0.4 1.0];
         otherwise
             error('Input not reconised for the scattering');
     end

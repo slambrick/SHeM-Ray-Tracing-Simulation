@@ -64,6 +64,7 @@ classdef RectangleInfo < SimulationInfo
             obj.sample_surface = sample_surface;
             obj.xrange = xrange;
             obj.zrange = zrange;
+            obj.counters = {};
             for i_=1:obj.n_detector
                 obj.counters{i_} = reshape(counters(:,i_,:,:), maxScatter, ...
                     obj.nz_pixels, obj.nx_pixels);

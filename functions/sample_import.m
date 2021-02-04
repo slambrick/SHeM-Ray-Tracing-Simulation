@@ -1,4 +1,5 @@
-function [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, working_dist, dontMeddle, square_size)
+function [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, working_dist, dontMeddle, ...
+        square_size)
     switch sample_inputs.sample_type
         case 'flat'
             sample_surface = flatSample(square_size, sample_inputs.dist_to_sample, ...

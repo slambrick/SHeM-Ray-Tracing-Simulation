@@ -19,7 +19,7 @@
 %  pinhole_surface - TriagSurface object containing the triangulation of the
 %                     pinhole plate.
 function pinhole_surface = import_angular
-    plate_fname = 'pinholePlates/Pinhole_45_PinholePlate_2.0WD_angularResolution_forSimulation.stl';
+    plate_fname = 'pinholePlates/Pinhole_45_PinholePlate_2.0WD_angularResolution_forSimulation_simpler.stl';
     
     data = load('objects/defMaterial.mat');
     defMaterial = data.defMaterial;

@@ -43,7 +43,7 @@ end
 
 % Set up sample
 sample_type = strtrim(param_list{16});
-diffuse = parse_scattering(strtrim(param_list{17}), str2double(param_list{18}), ...
+material = parse_scattering(strtrim(param_list{17}), str2double(param_list{18}), ...
     str2double(param_list{19}));
 sample_description = param_list{20};
 dist_to_sample = str2double(param_list{21});
@@ -233,7 +233,7 @@ switch typeScan
 end
 
 sample_inputs.sample_type = sample_type;
-sample_inputs.material = defMaterial;
+sample_inputs.material = material; % Only use this for stl or homebuilt surfaces
 sample_inputs.dist_to_sample = dist_to_sample;
 sample_inputs.sphere = sphere;
 sample_inputs.sample_description = sample_description;
@@ -263,6 +263,7 @@ switch pinhole_model
         pinhole_plate_inputs.aperture_phi = NaN;
         pinhole_plate_inputs.aperture_half_cone = NaN;
     case 'circle'
+        % NOTE: this is depreciated, probably remove
         pinhole_plate_inputs.plate_accuracy = NaN;
         pinhole_plate_inputs.n_detectors = 1;
         pinhole_plate_inputs.plate_represent = plate_represent;

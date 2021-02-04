@@ -93,6 +93,16 @@ void set_up_sphere(int make_sphere, double * const sphere_c, double sphere_r,
     sph->material = M;
 }
 
+void set_up_circle(int make_circle, double * const circle_c, double circle_r,
+		double * const circle_n, Material M, int surf_index, Circle * const circ) {
+	circ->surf_index = surf_index;
+	circ->centre = circle_c;
+	circ->r = circle_r;
+	circ->normal = circle_n;
+	circ->make_circle = make_circle;
+	circ->material = M;
+}
+
 void generate_empty_sphere(int surf_index, AnalytSphere * const sph) {
     double c[3] = {0, 0, 0};
     Material standard_mat;
@@ -192,34 +202,33 @@ void update_ray_direction(Ray3D * const the_ray, const double new_dir[3]) {
  *  normal      - three element array for putting the unit normal in
  *  composition - pointer to a variable for puttin the element composition in
  */
-void get_element3D(Surface3D const * const sample, int idx, double v1[3], double v2[3],
-        double v3[3], double normal[3]) {
+void get_element3D(Surface3D const * const sample, int idx, Triangle * element) {
     int j;
     int vertices[3];
 
     /* Get the indices to the three vertices and get the surface normal */
+    element->tri_index = idx;
     j = idx*3 + 0;
     vertices[0] = (sample->faces[j] - 1)*3;
-    normal[0] = sample->normals[j];
+    element->normal[0] = sample->normals[j];
     j += 1;
     vertices[1] = (sample->faces[j] - 1)*3;
-    normal[1] = sample->normals[j];
+    element->normal[1] = sample->normals[j];
     j += 1;
     vertices[2] = (sample->faces[j] - 1)*3;
-    normal[2] = sample->normals[j];
+    element->normal[2] = sample->normals[j];
 
     /* Vertices of the triangle */
-    v1[0] = sample->vertices[vertices[0]];
-    v1[1] = sample->vertices[vertices[0] + 1];
-    v1[2] = sample->vertices[vertices[0] + 2];
-    v2[0] = sample->vertices[vertices[1]];
-    v2[1] = sample->vertices[vertices[1] + 1];
-    v2[2] = sample->vertices[vertices[1] + 2];
-    v3[0] = sample->vertices[vertices[2]];
-    v3[1] = sample->vertices[vertices[2] + 1];
-    v3[2] = sample->vertices[vertices[2] + 2];
+    element->v1[0] = sample->vertices[vertices[0]];
+    element->v1[1] = sample->vertices[vertices[0] + 1];
+    element->v1[2] = sample->vertices[vertices[0] + 2];
+    element->v2[0] = sample->vertices[vertices[1]];
+    element->v2[1] = sample->vertices[vertices[1] + 1];
+    element->v2[2] = sample->vertices[vertices[1] + 2];
+    element->v3[0] = sample->vertices[vertices[2]];
+    element->v3[1] = sample->vertices[vertices[2] + 1];
+    element->v3[2] = sample->vertices[vertices[2] + 2];
 }
-
 
 /* Cleanup a struct of rays */
 void clean_up_rays(Rays3D all_rays) {
@@ -244,6 +253,28 @@ void get_positions(Rays3D const * const all_rays, double * const final_pos) {
     }
 }
 
+void get_positions_indexed(Rays3D const * const all_rays, bool const * const index,
+		double * const final_pos) {
+    int i;
+    int j = 0;
+
+    /* Loop through all the rays */
+    for (i = 0; i < all_rays->nrays; i++) {
+        int k;
+        Ray3D *current_ray;
+
+        if (index[i]) {
+        	current_ray = &all_rays->rays[i];
+        	for (k = 0; k < 3; k++) {
+        		int n;
+        		n = k + 3*j;
+        		final_pos[n] = current_ray->position[k];
+        	}
+        	j++;
+        }
+    }
+}
+
 /* Get the ray directions and put them in an output array */
 void get_directions(Rays3D const * const all_rays, double * const final_dir) {
     int i;
@@ -262,11 +293,30 @@ void get_directions(Rays3D const * const all_rays, double * const final_dir) {
     }
 }
 
+void get_directions_indexed(Rays3D const * const all_rays, bool * const index,
+		double * const final_dir) {
+    int i;
+    int j = 0;
+
+    /* Loop through all the rays */
+    for (i = 0; i < all_rays->nrays; i++) {
+        int k;
+        Ray3D *current_ray;
+
+        current_ray = &all_rays->rays[i];
+        for (k = 0; k < 3; k++) {
+            int n;
+            n = k + 3*j;
+            final_dir[n] = current_ray->direction[k];
+        }
+        j++;
+    }
+}
+
 /* Get the number of scattering events per ray */
 void get_scatters(Rays3D const * const all_rays, int * const nScatters) {
     int i;
 
-    /* Loop through all the rays */
     for (i = 0; i < all_rays->nrays; i++) {
         Ray3D *current_ray;
 
@@ -360,6 +410,20 @@ void print_sphere(AnalytSphere const * const sphere){
               sphere->sphere_r, sphere->sphere_c[0],
               sphere->sphere_c[1], sphere->sphere_c[2]);
     print_material(&(sphere->material));
+}
+
+void print_circle(Circle const * const circle) {
+	printf("\n\t Circle make %d \n R %3.3f\n C %3.3f %3.3f %3.3f\n N %3.3f %3.3f %3.3f\n",
+			circle->make_circle, circle->r, circle->centre[0], circle->centre[1],
+			circle->centre[2], circle->normal[0], circle->normal[1], circle->normal[2]);
+}
+
+void print_triangle(Triangle const * const tri) {
+	printf("Triangle element:");
+	printf("\n VERT1 % .2f % .2f % .2f", tri->v1[0], tri->v1[1], tri->v1[2]);
+	printf("\n VERT2 % .2f % .2f % .2f", tri->v2[0], tri->v2[1], tri->v2[2]);
+	printf("\n VERT3 % .2f % .2f % .2f", tri->v3[0], tri->v3[1], tri->v3[2]);
+	printf("\n NORM  % .2f % .2f % .2f\n", tri->normal[0], tri->normal[1], tri->normal[2]);
 }
 
 /*
@@ -659,6 +723,50 @@ void perpendicular_plane(const double n[3], double v1[3], double v2[3]) {
     v2[2] = n[0]*v1[1] - n[1]*v1[0];
 }
 
+/*
+ * Performs a matrix mutiplication:
+ *  result = M*vec
+ */
+void matrix_mult(const double vec[3], double M[3][3], double result[3]) {
+	result[0] = M[0][0]*vec[0] + M[0][1]*vec[1] + M[0][2]*vec[2];
+	result[1] = M[1][0]*vec[0] + M[1][1]*vec[1] + M[1][2]*vec[2];
+	result[2] = M[2][0]*vec[0] + M[2][1]*vec[1] + M[2][2]*vec[2];
+}
+
+/*
+ * Performs a general roation of the provided vector about a specified axis
+ * through the origin. Note that it takes the cosine of the angle as an argument
+ */
+void general_rotation(const double vec[3], const double axis[3],
+		double result[3], double c_theta) {
+	double R[3][3];
+	double s_theta, c_th_1;
+	double xy, xz, yz;
+
+	s_theta = sqrt(1 - c_theta*c_theta);
+	c_th_1 = 1 - c_theta;
+	xy = axis[0]*axis[1];
+	xz = axis[0]*axis[2];
+	yz = axis[1]*axis[2];
+
+	// First row
+	R[0][0] = c_theta + axis[0]*axis[0]*c_th_1;
+	R[0][1] = xy*c_th_1 - axis[3]*s_theta;
+	R[0][2] = xz*c_th_1 + axis[1]*s_theta;
+
+	// Second row
+	R[1][0] = xy*c_th_1 + axis[2]*s_theta;
+	R[1][1] = c_theta + axis[1]*axis[1]*c_th_1;
+	R[1][2] = yz*c_th_1 - axis[0]*s_theta;
+
+	// Third row
+	R[2][0] = xz*c_th_1 - axis[1]*s_theta;
+	R[2][1] = yz*c_th_1 + axis[0]*s_theta;
+	R[2][2] = c_theta + axis[2]*axis[2]*c_th_1;
+
+	matrix_mult(vec, R, result);
+}
+
 
 /*
  * Solves a 3D matrix equation Au=v for u, we write
@@ -737,6 +845,44 @@ void solve3x3(double A[3][3], double u[3], double v[3], double epsilon, int * co
     u[2] = Dz/M;
 
     *success = 1;
+}
+
+void get_elementPlane(Plane const * const plane, Triangle * const element) {
+	int i;
+
+	element->tri_index = -1;
+	for (i = 0; i < 3; i++) {
+		element->v1[i] = plane->example_point1[i];
+		element->v2[i] = plane->example_point2[i];
+		element->v3[i] = plane->example_point3[i];
+		element->normal[i] = plane->normal[i];
+	}
+}
+
+void get_elementCircle(Circle the_circle, Triangle * const element) {
+    int i;
+    double v1[3], v2[3];
+
+    element->tri_index = -1;
+	perpendicular_plane(the_circle.normal, v1, v2);
+	for (i = 0; i < 3; i++) {
+    	element->normal[i] = the_circle.normal[i];
+    	element->v1[i] = the_circle.centre[i];
+    	element->v2[i] = the_circle.centre[i] + v1[i];
+    	element->v3[i] = the_circle.centre[i] + v2[i];
+    }
+}
+
+void constructPlate(double * point, double * normal, Plane * plane, int index, Material material) {
+	double point2[3], point3[3];
+
+
+	plane->surf_index = index;
+	plane->example_point1 = point;
+	plane->example_point2 = point2;
+	plane->example_point3 = point3;
+	plane->normal = normal;
+	plane->material = material;
 }
 
 static void get_normal_ptr(Surface3D const * const s, int ind, double ** n){

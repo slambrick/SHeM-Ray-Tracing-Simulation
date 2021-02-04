@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-19, Sam Lambrick.
+ * Copyright (c) 2018-21, Sam Lambrick.
  * All rights reserved.
  * This file is part of the Sub-beam Ray Tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -121,4 +121,18 @@ void gen_random_int(int max, MTRand * const myrand, int * const randint) {
     genRand(myrand, &uniform_rand);
     uniform_rand = uniform_rand*(double)max;
     *randint = (int)floor(uniform_rand);
+}
+
+void sum_array_double(double const * const arr, int n, int * const sum) {
+	int i;
+	*sum = 0;
+	for (i = 0; i < n; i++)
+		*sum += arr[i];
+}
+
+void sum_array_int(int const * const arr, int n, int * const sum) {
+	int i;
+	*sum = 0;
+	for (i = 0; i < n; i++)
+		*sum += arr[i];
 }

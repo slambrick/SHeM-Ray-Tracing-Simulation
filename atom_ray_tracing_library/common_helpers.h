@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Sam Lambrick.
+ * Copyright (c) 2018-21, Sam Lambrick.
  * All rights reserved.
  * This file is part of the Sub-beam Ray Tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -41,5 +41,9 @@ void gaussian_random_tail(double mu, double sigma, double cutoff, MTRand * const
 		double * const rand1);
 
 void gen_random_int(int max, MTRand * const myrand, int * const randint);
+
+void sum_array_double(double const * const arr, int n, int * const sum);
+
+void sum_array_int(int const * const arr, int n, int * const sum);
 
 #endif

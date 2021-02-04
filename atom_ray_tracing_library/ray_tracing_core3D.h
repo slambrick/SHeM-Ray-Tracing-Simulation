@@ -13,6 +13,7 @@
 
 #include "mtwister.h"
 #include <stdint.h>
+#include <stdbool.h>
 #include "distributions3D.h"
 
 /******************************************************************************/
@@ -29,6 +30,11 @@ typedef struct _material {
     distribution_func func; // the actual scattering probability distribution
 } Material;
 
+/* General surface type for the others to inherit from? */
+typedef struct _generalSurface {
+	int surf_index;
+	Material material;
+} GeneralSurf;
 
 /*
  * A structure for holding information on a 3D sample surface constructed of
@@ -43,6 +49,15 @@ typedef struct _surface3d {
     double * normals;      /* Normals to the elements of the surface */
     Material ** compositions; /* The type of scattering off the elements of this surface */
 } Surface3D;
+
+/* Contains information on a single triangle */
+typedef struct _triangle {
+	double v1[3];
+	double v2[3];
+	double v3[3];
+	double normal[3];
+	int tri_index;
+} Triangle;
 
 /* Information on the flat plate model of detection */
 typedef struct _backWall {
@@ -82,6 +97,26 @@ typedef struct _sphere {
     double  *sphere_c;             /* x y z of the centre of the sphere */
     Material material;           /* The material composition of the sphere */
 } AnalytSphere;
+
+/* Information on a circular surface */
+typedef struct _circle {
+	int make_circle;
+	int surf_index;
+	double r;
+	double *centre;
+	double *normal;
+	Material material;
+} Circle;
+
+/* Information on a plane */
+typedef struct _plane {
+	int surf_index;
+	double *normal;
+	double *example_point1;
+	double *example_point2;
+	double *example_point3;
+	Material material;
+} Plane;
 
 /* A structure for holding a single ray */
 typedef struct _ray3d {
@@ -126,6 +161,9 @@ void clean_up_surface_all_arrays(Surface3D * const surface);
 void set_up_sphere(int make_sphere, double * const sphere_c, double sphere_r,
         Material M, int surf_index, AnalytSphere * const sph);
 
+void set_up_circle(int make_circle, double * const circle_c, double circle_r,
+		double * const circle_n, Material M, int surf_index, Circle * const circ);
+
 void generate_empty_sphere(int surf_index, AnalytSphere * const sph);
 
 /* Initialise a Material with given properties */
@@ -144,8 +182,7 @@ void update_ray_direction(Ray3D * const the_ray, double const new_dir[3]);
 /* Gets an element of a triangulated surface. Vertices are written to
  * v1, v2, v3, and the normal to `normal`.
  */
-void get_element3D(Surface3D const * const sample, int index, double v1[3], double v2[3],
-        double v3[3], double normal[3]);
+void get_element3D(Surface3D const * const sample, int index, Triangle * const element);
 
 /* Cleans up the allocated memory inside the ray struct */
 void clean_up_rays(Rays3D all_rays);
@@ -153,8 +190,14 @@ void clean_up_rays(Rays3D all_rays);
 /* Get the final possitions */
 void get_positions(Rays3D const * const all_rays, double * const final_pos);
 
+void get_positions_indexed(Rays3D const * const all_rays, bool const * const index,
+		double * const final_pos);
+
 /* Get the final directions */
 void get_directions(Rays3D const * const all_rays, double * const final_dir);
+
+void get_directions_indexed(Rays3D const * const all_rays, bool * const index,
+		double * const final_dir);
 
 /* Get the number of scattering events for the rays */
 void get_scatters(Rays3D const * const all_rays, int * const nScatters);
@@ -175,6 +218,10 @@ void print_nBackWall(NBackWall const * const all_apertures);
 
 /* Print the position, radius, material etc of a sphere */
 void print_sphere(AnalytSphere const * const sphere);
+
+void print_circle(Circle const * const circle);
+
+void print_triangle(Triangle const * const tri);
 
 /* Gets information on one aperure out of a series of apertures */
 void get_nth_aperture(int n, NBackWall const * const allApertures, BackWall * const this_wall);
@@ -210,8 +257,19 @@ void reflect3D(const double normal[3], const double init_dir[3], double new_dir[
  * and write them to v1 and v2. */
 void perpendicular_plane(const double n[3], double v1[3], double v2[3]);
 
+void matrix_mult(const double vec[3], double M[3][3], double result[3]);
+
+void general_rotation(const double vec[3], const double axis[3],
+		double result[3], double c_theta);
+
 /* Solves a 3D matrix equation Au=v. */
 void solve3x3(double A[3][3], double u[], double v[], double epsilon, int * const success);
+
+void get_elementPlane(Plane const * const plane, Triangle * const element);
+
+void get_elementCircle(Circle the_circle, Triangle * const element);
+
+void constructPlate(double * point, double * normal, Plane * plane, int index, Material material);
 
 void get_normal(Surface3D const * const s, int ind, double n[3]);
 

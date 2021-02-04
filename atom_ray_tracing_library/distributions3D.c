@@ -417,7 +417,7 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
  *  normal  - double array, the normal to the surface at the point of scattering
  *  initial_dir - can be NULL
  *  new_dir - double array, an array to store the new direction of the ray
- *  params  - no parameters expected, can be NULL
+ *  params  - Single number, the maximum allowed polar angle.
  *  myrng   - 
  */
 void uniform_scatter(const double normal[3], const double initial_dir[3],
@@ -427,13 +427,14 @@ void uniform_scatter(const double normal[3], const double initial_dir[3],
     double t2[3];
 
     perpendicular_plane(normal, t1, t2);
+    double c_theta_min = cos(params[0]);
 
     /* Generate random numbers for phi and cos(theta) */
     double uni_rand;
     genRand(myrng, &uni_rand);
     phi = 2*M_PI*uni_rand;
     genRand(myrng, &uni_rand);
-    c_theta = fabs(0.9999*uni_rand - 1);
+    c_theta = fabs(c_theta_min*uni_rand - 1);
     s_theta = sqrt(1 - c_theta*c_theta);
 
     /* Create the new random direction from the two random angles */

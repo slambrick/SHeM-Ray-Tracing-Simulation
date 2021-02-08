@@ -9,26 +9,26 @@
 % stl models of the pinhole plate can also be used, either 'cambridge' or
 % 'angular resolution' or specify an stl file found. Type of scan can be
 % either 'rectangular' or 'line'
-Design working distance (mm): 2
+Design working distance (mm): 2.121
 Incidence angle (deg): 45
-Type of scan: rectangular
+Type of scan: line
 Number of detectors: 1
 Detector full axes (x,y): (1.4, 1)
 Detector centres (x,y): (2, 0)
 Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
-STL pinhole model: N circle
+STL pinhole model: cambridge
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 10,000
+Number of Rays: 600,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
 Source standard deviation (rad): 0.1
-Effuse beam: Off
+Effuse beam: On
 Effuse size (relative to the direct beam): 1
 
 %% Set up your sample
@@ -39,7 +39,7 @@ Effuse size (relative to the direct beam): 1
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: sphere
+What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.1
 Standard deviation (deg): 90 
@@ -47,7 +47,7 @@ Sample description: Test material sample
 Working distance to place the sample at: 2
 Sphere radius (mm): 0.15
 Length of side of flat sample: 1
-Custom sample stl file: samples/four_squares.obj
+Custom sample stl file: samples/stub_for_simulation_small_base.stl
 Manual alignment: no
 
 %% Set up your scan
@@ -61,10 +61,10 @@ Ignore incidence angle in scan pattern: no
 % This assumes you are doing a 1D scan
 Scan direction: y
 Scan min (mm): -1.75
-Scan max (mm): 6
+Scan max (mm): 4
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): test_zscan
+Label for the output directory (no spaces please): Smaller_Base_Stub
 Sould the C code be recompiled: false
 

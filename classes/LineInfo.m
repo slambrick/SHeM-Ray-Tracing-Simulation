@@ -112,15 +112,15 @@ classdef LineInfo < SimulationInfo
             hold(ax, 'on')
             plot(ax, xs, single, 'LineWidth', 3)
             plot(ax, xs, multiple, 'LineWidth', 3)
-            hold(ax, 'off')
             
             % legend depending on whether effuse exists
             if sum(effuse_single + effuse_multiple) > 0
-                plot(ax, xs, effuse_single + effuse_multiple)
+                plot(ax, xs, effuse_single + effuse_multiple, 'LineWidth', 3)
                 legend(ax, 'Total', 'Single', 'Multiple', 'Effuse');
             else
                 legend(ax, 'Total', 'Single', 'Multiple')
             end
+            hold(ax, 'off')
         end
         
         function [fig, ax] = linePlot(obj)

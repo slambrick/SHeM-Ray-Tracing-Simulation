@@ -533,7 +533,8 @@ switch typeScan
             'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
             'sphere', sphere,               'thePath', thePath, ...
             'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
-            'ray_model', ray_model,         'n_detector', n_detectors);
+            'ray_model', ray_model,         'n_detector', n_detectors, ...
+            'make_plots', true);
     case 'single pixel'
         % For a single pixel
         % TODO: update with the new lower level functions
@@ -616,7 +617,7 @@ switch typeScan
 
         % Loop through the rotations
         for i_=1:N
-            close all % <- there are more elegant ways of doing this...
+            %close all % <- there are more elegant ways of doing this...
             s_surface = copy(sample_surface);
             s_surface.rotateGeneral('y', rot_angles(i_));
 
@@ -626,7 +627,7 @@ switch typeScan
             c = cos(theta);
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
             sphere.centre = (R*sphere_centre')';
-            s_surface.patchPlot(true);
+            %s_surface.patchPlot(true);
 
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
@@ -643,7 +644,8 @@ switch typeScan
                 'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
                 'sphere', sphere,               'thePath', subPath, ...
                 'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
-                'ray_model', ray_model,         'n_detector', n_detectors); %#ok<SAGROW>
+                'ray_model', ray_model,         'n_detector', n_detectors, ...
+                'make_plots', false); %#ok<SAGROW>
             
             waitbar(i_/N, h);
         end

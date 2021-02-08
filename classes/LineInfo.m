@@ -162,6 +162,8 @@ classdef LineInfo < SimulationInfo
             im.multiple = obj.multiple_scattering;
             im.effuse = obj.counters_effuse_multiple + obj.counters_effuse_single;
             im.raster_movement = obj.raster_movment;
+            param.sample_positions = obj.sample_positions;
+            param.axis = obj.Direction;
             
             % Main simulation parameters
             % Do not have the detector parameteres if an stl model of the

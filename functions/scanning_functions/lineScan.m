@@ -51,6 +51,8 @@ function line_scan_info = lineScan(varargin)
                 ray_model = varargin{i_+1};
             case 'n_detector'
                 n_detector = varargin{i_+1};
+            case 'make_plots'
+                make_plots = varargin{i_+1};
             otherwise
                 error(['input ' num2str(i_) ' not recognised:']);
         end
@@ -182,7 +184,7 @@ function line_scan_info = lineScan(varargin)
         scan_inputs.raster_movment1D, direct_beam.n, t, t_estimate, cntr_effuse_single, ...
         counter_effuse_multiple, killed_effuse, direct_beam);
 
-    if progressBar
+    if progressBar && make_plots
         line_scan_info.producePlots(thePath);
     end
 end

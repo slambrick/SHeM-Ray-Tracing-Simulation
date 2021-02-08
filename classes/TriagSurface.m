@@ -81,8 +81,11 @@ classdef TriagSurface < handle
 
         function newobj = copy(obj)
         % Copys the object and returns the copy.
+            mat = containers.Map(...
+                keys(obj.materials), ...
+                values(obj.materials))
             newobj = TriagSurface(obj.vertices, obj.faces, obj.normals, ...
-                                  obj.compositions, obj.materials);
+                                  obj.compositions, mat);
         end % End copy method
 
         function moveBy(obj, x)
@@ -168,25 +171,23 @@ classdef TriagSurface < handle
            obj.vertices = (R*obj.vertices')';
            obj.normals = (R*obj.normals')';
            
-           % ONLY TRUE FOR SURFACES POINTING IN THE Y DIRECTION111
+           % ONLY TRUE FOR SURFACES POINTING IN THE +VE Y DIRECTION111
            %
            % NEED TO MAKE THIS WORK FOR ARBITRARY SURFACES
            % use the surface normal to get the effective rotation axis.
            if strcmp(axis, 'y')
                % Need to rotate the reciprocal lattice vectors if this is a
                % diffractive sample
-               for i_=1:obj.nTriag
-                   if strcmp(obj.compositions{i_}, 'diffractive')
-                       R2 = [c, s; -s, c];
-                       mat = obj.materials('diffractive');
-                       b1 = mat.params(5:6);
-                       b2 = mat.params(7:8);
-                       b1 = (R2*b1')';
-                       b2 = (R2*b2')';
-                       mat.params(5:6) = b1;
-                       mat.params(7:8) = b2;
-                       obj.materials('diffractive') = mat;
-                   end
+               if contains('diffractive', keys(obj.materials))
+                   R2 = [c, -s; s, c];
+                   mat = obj.materials('diffractive');
+                   b1 = mat.params(5:6);
+                   b2 = mat.params(7:8);
+                   b1 = (R2*b1')';
+                   b2 = (R2*b2')';
+                   mat.params(5:6) = b1;
+                   mat.params(7:8) = b2;
+                   obj.materials('diffractive') = mat;
                end
            end
         end

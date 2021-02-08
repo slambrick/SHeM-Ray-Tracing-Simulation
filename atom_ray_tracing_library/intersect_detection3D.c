@@ -329,6 +329,8 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
             continue;
         }
 
+        //printf("j = %i\n", j);
+
         /*
          * Specify which triangle and get its normal.
          */

@@ -1,9 +1,9 @@
-% Copyright (c) 2018-20, Sam Lambrick.
+% Copyright (c) 2018-21, Sam Lambrick, Aleksander Radic.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
 
-close all
+%close all
 clear
 clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,7 +26,7 @@ typeScan = strtrim(param_list{3});
 n_detectors = str2double(param_list{4});
 aperture_axes = parse_list_input(param_list{5});
 aperture_c = parse_list_input(param_list{6});
-rot_angles = parse_list_input(param_list{7});
+rot_angles = parse_rotations(param_list{7});
 pinhole_model = parse_pinhole(param_list{8});
 
 % Set up source
@@ -221,6 +221,15 @@ switch typeScan
         scan_inputs.raster_movment1D = res_1D;
         scan_inputs.range1D = range_1D;
         scan_inputs.direction_1D = scan_direction;
+    case 'line_rotations'
+        scan_inputs.rotationAngles = rot_angles;
+        scan_inputs.raster_movment2D_x = NaN;
+        scan_inputs.raster_movment2D_z = NaN;
+        scan_inputs.xrange = NaN;
+        scan_inputs.zrange = NaN;
+        scan_inputs.raster_movment1D = res_1D;
+        scan_inputs.range1D = range_1D;
+        scan_inputs.direction_1D = scan_direction;
     case 'single pixel'
         scan_inputs.rotationAngles = 0;
         scan_inputs.raster_movment2D_x = NaN;
@@ -399,8 +408,9 @@ if strcmp(typeScan, 'line')
 end
 
 % Do any extra manipulation of the sample here
-if true
-    sample_surface.reflect_axis('x');
+if false
+    %sample_surface.reflect_axis('x');
+    sample_surface.rotateGeneral('x', 20);
 end
 
 % Plot the sample surface in 3D space, if we are using a graphical window
@@ -480,7 +490,7 @@ switch typeScan
             % Move the sample in y by given amount
             surface_copy = copy(sample_surface);
             surface_copy.moveBy([y_displacement, -y_displacement, 0]);
-            sphere.c = sphere.c + [y_displacement, -y_displacement, 0];
+            sphere.centre = sphere.centre + [y_displacement, -y_displacement, 0];
             y_distance = dist_to_sample + y_displacement;
             
             % Create the raster pattern at this z
@@ -536,7 +546,7 @@ switch typeScan
         simulationData = {};
         h = waitbar(0, 'Proportion of simulations performed', 'Name', 'Ray tracing progress');
         N = length(rot_angles);
-        sphere_centre = sphere.c;
+        sphere_centre = sphere.centre;
         
         % Loop through the rotations
         for i_=1:N
@@ -548,7 +558,7 @@ switch typeScan
             s = sin(theta);
             c = cos(theta);
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
-            sphere.c = (R*sphere_centre')';
+            sphere.centre = (R*sphere_centre')';
             
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
@@ -597,6 +607,48 @@ switch typeScan
         end
         close(h);
         delete(h);
+    case 'line_rotations'
+        % Perform multiple scans while rotating the sample in between.
+        simulationData = {};
+        h = waitbar(0, 'Proportion of simulations performed');
+        N = length(rot_angles);
+        sphere_centre = sphere.centre;
+
+        % Loop through the rotations
+        for i_=1:N
+            close all % <- there are more elegant ways of doing this...
+            s_surface = copy(sample_surface);
+            s_surface.rotateGeneral('y', rot_angles(i_));
+
+            % Rotate the centre of the sphere
+            theta = rot_angles(i_)*pi/180;
+            s = sin(theta);
+            c = cos(theta);
+            R = [c, 0, s; 0, 1, 0; -s, 0, c];
+            sphere.centre = (R*sphere_centre')';
+            s_surface.patchPlot(true);
+
+            subPath = [thePath '/rotation' num2str(rot_angles(i_))];
+            if ~exist(subPath, 'dir')
+                mkdir(subPath)
+            end
+            %simulationData = lineScan(sample_surface, range1D, direct_beam, ...
+            %    raster_movment1D, maxScatter, Direction, pinhole_surface, effuse_beam, ...
+            %    dist_to_sample, sphere, results_path, pinhole_model, ...
+            %    thePlate, apertureAbstract, ray_model);
+            %    waitbar(i_/N, h);
+            simulationData{i_} = lineScan('sample_surface', s_surface, ...
+                'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
+                'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...
+                'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
+                'sphere', sphere,               'thePath', subPath, ...
+                'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
+                'ray_model', ray_model,         'n_detector', n_detectors); %#ok<SAGROW>
+            
+            waitbar(i_/N, h);
+        end
+        close(h);
+        delete(h);
     otherwise
         error(['Need to specify a valid type of scan: "line", ', ...
                '"rectangular", "single pixel"']);
@@ -612,8 +664,8 @@ end
 
 % Save formatted data to a .mat file, does not include all the parameters
 % but does include the core outputs.
-if strcmp(typeScan, 'rotations') || strcmp(typeScan, 'rectangular')
-    if output_data && strcmp(typeScan, 'rotations')
+if contains(typeScan, {'rotations', 'rectangular', 'line', 'line_rotations'})
+    if output_data && (strcmp(typeScan, 'rotations') || strcmp(typeScan, 'line_rotations'))
         formatOutputRotation(simulationData, thePath, rot_angles);
     elseif output_data
         simulationData.formatOutput(thePath);
@@ -628,7 +680,8 @@ if save_to_text && strcmp(typeScan, 'rotations')
         currentFname = [textFname(1:end-4) num2str(rot_angles(i_)) '.csv'];
         simulationData.saveText([thePath '/' currentFname]);
     end
-elseif save_to_text
+elseif save_to_text && ~(strcmp(typeScan, 'line_rotations') || ...
+        strcmp(typeScan, 'rotations') || strcmp(typeScan, 'multiple_rectangular'))
     simulationData.saveText([thePath '/' textFname]);
 end
 

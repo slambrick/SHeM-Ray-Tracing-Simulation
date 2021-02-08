@@ -8,22 +8,22 @@
 %% Set up your virtual microscope
 % stl models of the pinhole plate can also be used, either 'cambridge' or
 % 'angular resolution' or specify an stl file found. Type of scan can be
-% either 'rectangular' or 'line'
-Design working distance (mm): 2.121
+% either 'rectangular', 'rotations', 'line', 'line_rotations', 
+Design working distance (mm): 2
 Incidence angle (deg): 45
-Type of scan: line
+Type of scan: line_rotations
 Number of detectors: 1
-Detector full axes (x,y): (1.4, 1)
+Detector full axes (x,y): (0.7, 0.5)
 Detector centres (x,y): (2, 0)
-Rotation angles (only needed if 'rotations' scan used): (0, 72, 144, 216, 288)
-STL pinhole model: cambridge
+Rotation angles (only needed if 'rotations' scan used): (0, -, 5, -, 355)
+STL pinhole model: none
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 600,000
+Number of Rays: 400,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
@@ -40,14 +40,14 @@ Effuse size (relative to the direct beam): 1
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
 What type of sample are you useing: custom
-Scattering: cosine
-Reflectivity: 0.1
-Standard deviation (deg): 90 
+Scattering: broad_specular
+Reflectivity: 0.5
+Standard deviation (deg): 10 
 Sample description: Test material sample
 Working distance to place the sample at: 2
 Sphere radius (mm): 0.15
-Length of side of flat sample: 1
-Custom sample stl file: samples/stub_for_simulation_small_base.stl
+Length of side of flat sample: 2
+Custom sample stl file: samples/lif_flat.obj
 Manual alignment: no
 
 %% Set up your scan
@@ -65,6 +65,6 @@ Scan max (mm): 4
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): Smaller_Base_Stub
+Label for the output directory (no spaces please): LiF_z_rotations
 Sould the C code be recompiled: false
 

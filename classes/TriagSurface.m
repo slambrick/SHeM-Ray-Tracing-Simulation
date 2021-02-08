@@ -159,7 +159,7 @@ classdef TriagSurface < handle
            c = cos(theta);
            switch axis
                case 'x'
-                   R = [1, 0, 0; 0, c, -s, 0, s, c];
+                   R = [1, 0, 0; 0, c, -s; 0, s, c];
                case 'y'
                    R = [c, 0, s; 0, 1, 0; -s, 0, c];
                case 'z'
@@ -167,6 +167,28 @@ classdef TriagSurface < handle
            end
            obj.vertices = (R*obj.vertices')';
            obj.normals = (R*obj.normals')';
+           
+           % ONLY TRUE FOR SURFACES POINTING IN THE Y DIRECTION111
+           %
+           % NEED TO MAKE THIS WORK FOR ARBITRARY SURFACES
+           % use the surface normal to get the effective rotation axis.
+           if strcmp(axis, 'y')
+               % Need to rotate the reciprocal lattice vectors if this is a
+               % diffractive sample
+               for i_=1:obj.nTriag
+                   if strcmp(obj.compositions{i_}, 'diffractive')
+                       R2 = [c, s; -s, c];
+                       mat = obj.materials('diffractive');
+                       b1 = mat.params(5:6);
+                       b2 = mat.params(7:8);
+                       b1 = (R2*b1')';
+                       b2 = (R2*b2')';
+                       mat.params(5:6) = b1;
+                       mat.params(7:8) = b2;
+                       obj.materials('diffractive') = mat;
+                   end
+               end
+           end
         end
 
         function rotate(obj, rot_axis, angle)

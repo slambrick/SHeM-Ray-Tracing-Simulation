@@ -257,9 +257,12 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
     /* t1 and t2 are the tangential directions */
     perpendicular_plane(t0, t1, t2);
 
+    int count = 0;
+
     do {
+    	count++;
         /* Generate a random theta and phi */
-        theta = theta_generate(sigma, myrng); // TODO: pointerize
+        theta = theta_generate(sigma*M_PI_2/180, myrng); // TODO: pointerize
         double uni_rand;
         genRand(myrng, &uni_rand);
         phi = 2*M_PI*uni_rand;
@@ -312,24 +315,25 @@ static double theta_generate(double sigma, MTRand * const myrng) {
          * (2nd, 4th, etc.)
          */
         if (cnt % 2) {
+            rand1 = Z[1];
+        } else {
             gaussian_random(0, sigma, Z, myrng);
             rand1 = Z[0];
-        } else {
-            rand1 = Z[1];
         }
-        theta = fabs(rand1);
-        
-        /* If theta exceeds pi then try again */
-        if (theta > M_PI)
-            continue;
 
+        cnt++;
+
+        theta = fabs(rand1);
+
+        /* If theta exceeds pi then try again */
+        if (theta > M_PI) {
+            continue;
+        }
         /* Calculate the sine of the angle */
         s_theta = 0.5*sin(theta);
 
         /* Generate a tester variable */
         genRand(myrng, &tester);
-        
-        cnt++;
     } while (s_theta < tester);
 
     return(theta);

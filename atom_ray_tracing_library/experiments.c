@@ -69,6 +69,7 @@ void generating_rays_simple_pinhole(SourceParam source, int n_rays, int * const 
         create_ray(&the_ray, &source, myrng);
 
         trace_ray_simple_multi(&the_ray, maxScatters, sample, plate, the_sphere, myrng);
+
         /*
          * Add the number of scattering events the ray has undergone to the
          * histogram. But only if it is detected.

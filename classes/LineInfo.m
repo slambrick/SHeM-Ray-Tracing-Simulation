@@ -155,6 +155,55 @@ classdef LineInfo < SimulationInfo
                 saveas(gcf, [thePath '/line_plot.eps'], 'epsc');
             end
         end % End plotting function
+        
+        function [im, param, beam_param] = formatOutput(obj, dataPath)
+            % Core information on the image produced
+            im.single = obj.single_scattering;
+            im.multiple = obj.multiple_scattering;
+            im.effuse = obj.counters_effuse_multiple + obj.counters_effuse_single;
+            im.raster_movement = obj.raster_movment;
+            
+            % Main simulation parameters
+            % Do not have the detector parameteres if an stl model of the
+            % pinhole plate was used.
+            if ~isnan(obj.aperture_c)
+                if obj.n_detector == 1
+                    param.detector_position{1} = obj.aperture_c;
+                    param.detector_axes{1} = obj.aperture_axes;
+                    x = -obj.aperture_c(1);
+                    y = obj.aperture_c(2);
+                    z = obj.dist_to_sample;
+                    param.detector_vector{1} = [x, y, z]/norm([x, y, z]);
+                else
+                    for i_=1:obj.n_detector
+                        inds = (2*i_:(2*i_+1)) - 1;
+                        param.detector_position{i_} = obj.aperture_c(inds);
+                        param.detector_axes{i_} = obj.aperture_axes(inds);
+                        x = -obj.aperture_c(inds(1));
+                        y = obj.aperture_c(inds(2));
+                        z = obj.dist_to_sample;
+                        param.detector_vector{i_} = [x, y, z]/norm([x, y, z]);
+                    end
+                end
+            end
+            param.z_sample_to_detector = obj.dist_to_sample;
+            param.rays_per_pixel = obj.rays_per_pixel;
+
+            % Parameters of the incidence beam
+            beam_param.init_angle = obj.init_angle;
+            beam_param.source_size = obj.beam_param.theta_max;
+            beam_param.source_model = obj.beam_param.source_model;
+            beam_param.pinhole_r = obj.beam_param.pinhole_r;
+            beam_param.pinhole_c = obj.beam_param.pinhole_c;
+
+            % Save the formatted data to a subdirectory 
+            if ~exist([dataPath '/formatted'], 'dir')
+                mkdir([dataPath '/formatted'])
+            end
+            dfile = [dataPath '/formatted/reconstructionSimulation.mat'];
+            disp(['Saving to ' dfile]);
+            save(dfile, 'im', 'param', 'beam_param')
+        end
     end
 
 end

@@ -9,13 +9,13 @@
 % stl models of the pinhole plate can also be used, either 'cambridge' or
 % 'angular resolution' or specify an stl file found. Type of scan can be
 % either 'rectangular', 'rotations', 'line', 'line_rotations', 
-Design working distance (mm): 2
+Design working distance (mm): 3.5
 Incidence angle (deg): 45
 Type of scan: line_rotations
 Number of detectors: 1
 Detector full axes (x,y): (0.7, 0.5)
-Detector centres (x,y): (2, 0)
-Rotation angles (only needed if 'rotations' scan used): (0, -, 5, -, 180)
+Detector centres (x,y): (3.5, 0)
+Rotation angles (only needed if 'rotations' scan used): (0, -, 5, -, 90)
 STL pinhole model: none
 
 %% Set up your source
@@ -23,12 +23,12 @@ STL pinhole model: none
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 100,000
+Number of Rays: 500,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
 Source standard deviation (rad): 0.1
-Effuse beam: On
+Effuse beam: Off
 Effuse size (relative to the direct beam): 1
 
 %% Set up your sample

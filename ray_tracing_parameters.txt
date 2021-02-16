@@ -15,7 +15,7 @@ Type of scan: line_rotations
 Number of detectors: 1
 Detector full axes (x,y): (0.7, 0.5)
 Detector centres (x,y): (3.5, 0)
-Rotation angles (only needed if 'rotations' scan used): (0, -, 5, -, 90)
+Rotation angles (only needed if 'rotations' scan used): (0, -, 5, -, 360)
 STL pinhole model: none
 
 %% Set up your source
@@ -23,12 +23,12 @@ STL pinhole model: none
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 500,000
+Number of Rays: 100,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
 Source standard deviation (rad): 0.1
-Effuse beam: Off
+Effuse beam: On
 Effuse size (relative to the direct beam): 1
 
 %% Set up your sample
@@ -40,14 +40,14 @@ Effuse size (relative to the direct beam): 1
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
 What type of sample are you useing: custom
-Scattering: broad_specular
+Scattering: cosine
 Reflectivity: 0.5
-Standard deviation (deg): 10 
+Standard deviation (deg): 10
 Sample description: Test material sample
-Working distance to place the sample at: 2
+Working distance to place the sample at: 3.5
 Sphere radius (mm): 0.15
 Length of side of flat sample: 2
-Custom sample stl file: samples/lif_flat.obj
+Custom sample stl file: samples/lif_flat2.obj
 Manual alignment: no
 
 %% Set up your scan
@@ -60,9 +60,9 @@ Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -1
-Scan max (mm): 3
-Pixel seperation (mm): 0.1
+Scan min (mm): -1.5
+Scan max (mm): 3.5
+Pixel seperation (mm): 0.05
 
 %% Other parameters
 Label for the output directory (no spaces please): LiF_z_rotations

@@ -48,10 +48,12 @@ distribution_func distribution_by_name(const char * name) {
         return(debye_waller_diffraction);
     if(strcmp(name, "pure_specular") == 0)
         return(pure_specular);
+    if(strcmp(name, "diffraction2") == 0)
+        return(diffuse_and_diffraction2);
     return NULL;
-} 
+}
 
-void pure_specular(const double normal[3], const double init_dir[3],
+void pure_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
     //printf("\nIt has reflected\n");
     reflect3D(normal, init_dir, new_dir);
@@ -64,16 +66,16 @@ void pure_specular(const double normal[3], const double init_dir[3],
  *  first the level (0 - 1) of the diffuse background, then sigma of
  * broad_specular.
  */
-void diffuse_and_specular(const double normal[3], const double init_dir[3],
+void diffuse_and_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double diffuse_lvl = params[0];
     double tester;
     genRand(myrng, &tester);
     if(tester < diffuse_lvl)
-        cosine_scatter(normal, init_dir, new_dir, params+1, myrng);
+        cosine_scatter(normal, lattice, init_dir, new_dir, params+1, myrng);
     else
-        broad_specular_scatter(normal, init_dir, new_dir, params+1, myrng);
+        broad_specular_scatter(normal, lattice, init_dir, new_dir, params+1, myrng);
 }
 
 /*
@@ -84,18 +86,29 @@ void diffuse_and_specular(const double normal[3], const double init_dir[3],
  *  first the level (0 - 1) of the diffuse background, then as for
  * diffraction_pattern.
  */
-void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
+void diffuse_and_diffraction(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double diffuse_lvl = params[0];
     double tester;
     genRand(myrng, &tester);
     if(tester < diffuse_lvl)
-        cosine_scatter(normal, init_dir, new_dir, params+1, myrng);
+        cosine_scatter(normal, lattice, init_dir, new_dir, params+1, myrng);
     else
-        diffraction_pattern(normal, init_dir, new_dir, params+1, myrng);
+        diffraction_pattern(normal, lattice, init_dir, new_dir, params+1, myrng);
 }
 
+void diffuse_and_diffraction2(const double normal[3], const double lattice[6], const double init_dir[3], 
+        double new_dir[3], const double * const params, MTRand * const myrng) {
+    
+    double diffuse_lvl = params[0];
+    double tester;
+    genRand(myrng, &tester);
+    if(tester < diffuse_lvl)
+        cosine_scatter(normal, lattice, init_dir, new_dir, params+1, myrng);
+    else
+        diffraction_pattern3D(normal, lattice, init_dir, new_dir, params+1, myrng);
+}
 
 /*
  * Generate rays with some original distribution, and the apply a Debye-Waller
@@ -111,7 +124,7 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  * + followed by all the params for the original distribution
  */
 void debye_waller_filter_diffuse(distribution_func original_distr,
-        const double normal[3], const double init_dir[3],
+        const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
 
     // this prefactor appears in the DW exponent if the following
@@ -128,7 +141,7 @@ void debye_waller_filter_diffuse(distribution_func original_distr,
     gaussian_random_tail(1, energy_sigma, -1, myrng, &energy_ratio);
 
     // generate a new direction with the original distribution
-    original_distr(normal, init_dir, new_dir, params+5, myrng);
+    original_distr(normal, lattice, init_dir, new_dir, params+5, myrng);
 
     // with probability proportional to debye-waller factor turn it into diffuse scattering
     double tmp;
@@ -137,19 +150,19 @@ void debye_waller_filter_diffuse(distribution_func original_distr,
     genRand(myrng, &tester);
 
     if(tester > dwf)
-        cosine_scatter(normal, init_dir, new_dir, NULL, myrng);
+        cosine_scatter(normal, lattice, init_dir, new_dir, NULL, myrng);
 }
 
-void debye_waller_specular(const double normal[3], const double init_dir[3],
+void debye_waller_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
-    debye_waller_filter_diffuse(broad_specular_scatter, normal, init_dir,
+    debye_waller_filter_diffuse(broad_specular_scatter, normal, lattice, init_dir,
         new_dir, params, myrng);
 }
 
 
-void debye_waller_diffraction(const double normal[3], const double init_dir[3],
+void debye_waller_diffraction(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
-    debye_waller_filter_diffuse(diffraction_pattern, normal, init_dir,
+    debye_waller_filter_diffuse(diffraction_pattern, normal, lattice, init_dir,
         new_dir, params, myrng);
 }
 
@@ -166,7 +179,7 @@ void debye_waller_diffraction(const double normal[3], const double init_dir[3],
  *  4 floats for 2 x 2D basis vectors
  *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
  */
-void diffraction_pattern(const double normal[3], const double init_dir[3],
+void diffraction_pattern(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double e1[3], e2[3];    // unit vectors spanning the surface
@@ -190,6 +203,7 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
     double envelope_sig = params[8]; // width of overall envelope
 
     // switch to surface-specific coordinates: (x, y) in the plane, z orthogonal:
+    // NOTE: what is going on here? how does this work in general in 3D?
     perpendicular_plane(normal, e1, e2);
     dot(init_dir, e1, &ni[0]);
     dot(init_dir, e2, &ni[1]);
@@ -205,6 +219,7 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
             q = q - maxq;
             
             // reject to give a Gaussian probability of peaks
+            // TODO: implement an alternative to this
             gaussian_value = exp(-(p*p + q*q) / 2 / (envelope_sig*envelope_sig));
             genRand(myrng, &tester);
         } while(tester > gaussian_value);
@@ -227,6 +242,101 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
         new_dir[i] = nf[0] * e1[i] + nf[1] * e2[i] + nf[2] * normal[i];
 }
 
+/* Diffraction pattern useing the 3D reciprocal lattice vectors stored
+ * in the Surface3D structure.
+ */
+void diffraction_pattern3D(const double normal[3], const double lattice[6], const double init_dir[3],
+        double new_dir[3], const double * const params, MTRand * const myrng) {
+    double B1[3], B2[3];
+    double e1[3], e2[3];
+    double ni[3], nf[3];
+    int i;
+    double delta[2];
+    double tester;
+    int p, q;
+    double gaussian_value;
+    double specular[3];
+    double plane_component2;
+    reflect3D(normal, init_dir, specular);
+    
+    //printf("Do we even make it into this function\n");
+    
+    // unpack the arguments
+    const int maxp = (int)params[0], maxq = (int)params[1];
+    const double ratio = params[2]; // the lambda/a ratio that scales the reciprocal vector
+    
+    double peak_sig = params[3];    // width of individual peaks
+    double envelope_sig = params[4]; // width of overall envelope
+    
+    //printf("Sucessfully read parameters\n");
+    for (i = 0; i < 3; i++) {
+        B1[i] = lattice[i];
+        B2[i] = lattice[i + 3];
+    }
+    
+    // TODO: project into the plane, use the two lattice vectors as the coordinates?
+    // Or create a new set of coordinates? I'm going to create new ones
+    double b1[2], b2[2];
+    perpendicular_plane(normal, e1, e2);
+    dot(init_dir, e1, &ni[0]);
+    dot(init_dir, e2, &ni[1]);
+    dot(init_dir, normal, &ni[2]);
+    dot(B1, e1, &b1[0]);
+    dot(B1, e2, &b1[1]);
+    dot(B2, e1, &b2[0]);
+    dot(B2, e2, &b2[1]);
+    
+    do {
+        do {
+            double x;
+            // generate a random reciprocal vector
+            // p is between [-maxp, +maxp], and same for q and maxq
+            gen_random_int(2*maxp+1, myrng, &p);
+            p = p - maxp;
+            gen_random_int(2*maxq+1, myrng, &q);
+            q = q - maxq;
+            
+            // reject to give a Gaussian probability of peaks
+            // TODO: implement an alternative to this
+            x = p*p + q*q;
+            gaussian_value = 0.05*exp(-x / 2 / (envelope_sig*envelope_sig)) + 
+                x*exp(-x / 2 / (envelope_sig*envelope_sig));
+            genRand(myrng, &tester);
+        } while(tester > gaussian_value);
+
+        /*printf("p = %i, q = %i\n", p, q);
+        printf("3D reciprocal lattice vectors:\n");
+        print1D_double(B1, 3);
+        print1D_double(B2, 3);
+        printf("Coordinate system:\n");
+        print1D_double(B1, 3);
+        print1D_double(B2, 3);
+        printf("2D reciprocal lattice vectors:\n");
+        print1D_double(b1, 2);
+        print1D_double(b2, 2);
+        printf("\n");*/
+        // generate gaussian-distributed random perturbation to smudge the peaks
+        if (p == 0 && q == 0) {
+            delta[0] = 0;
+            delta[1] = 0;
+        } else {
+            gaussian_random(0, peak_sig, delta, myrng);
+        }
+
+        // add it to the in-plane components of incident direction
+        nf[0] = ni[0] + ratio * (p*b1[0] + q*b2[0]) + delta[0];
+        nf[1] = ni[1] + ratio * (p*b1[1] + q*b2[1]) + delta[1];
+        plane_component2 = nf[0]*nf[0] + nf[1]*nf[1];
+    } while(plane_component2 > 1);
+
+    // find the normal component to normalise nf
+    nf[2] = sqrt(1 - plane_component2);
+    
+    // transform back to lab frame
+    for(int i = 0; i < 3; i++)
+        new_dir[i] = nf[0] * e1[i] + nf[1] * e2[i] + nf[2] * normal[i];
+}
+
 /*
  * Generate a random direction according to the Gaussian broadened specular:
  *
@@ -243,7 +353,7 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
  *  params   - first element must be standard deviation of gaussian distribution
  *  myrng    - 
  */
-void broad_specular_scatter(const double normal[3], const double init_dir[3],
+void broad_specular_scatter(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
 
     double theta, phi;
@@ -351,7 +461,7 @@ static double theta_generate(double sigma, MTRand * const myrng) {
  *  params  - no parameters expected, can be NULL
  *  myrng   - 
  */
-void cosine_scatter(const double normal[3], const double init_dir[3],
+void cosine_scatter(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
     double s_theta, c_theta, phi;
     double t1[3];
@@ -376,7 +486,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
  * Generated a random normalized direction according to a cosine distribution
  * about the specular direction.
  */
-void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
+void cosine_specular_scatter(const double normal[3], const double lattice[6], const double initial_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
     double s_theta, c_theta, phi;
     double dot_normal;
@@ -424,7 +534,7 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
  *  params  - Single number, the maximum allowed polar angle.
  *  myrng   - 
  */
-void uniform_scatter(const double normal[3], const double initial_dir[3],
+void uniform_scatter(const double normal[3], const double lattice[6], const double initial_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
     double s_theta, c_theta, phi;
     double t1[3];

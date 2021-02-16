@@ -83,7 +83,7 @@ function sample_surface = inputSample(varargin)
             [fdef, vertices, fnorm] = stlread(fname);
             fmat = cell(length(fdef), 1); fmat(:) = {'default'};
         case 'obj'
-            [vertices, fdef, fnorm, fmat, materials] = objread(fname);
+            [vertices, fdef, fnorm, flattice, fmat, materials] = objread(fname);
         otherwise
             error(['File with extension ' extension ' unrecognised.'...
             ' Only stl and obj are supported.'])
@@ -98,7 +98,7 @@ function sample_surface = inputSample(varargin)
     end
 
     % finally, construct the surface object
-    sample_surface = TriagSurface(vertices, fdef, fnorm, fmat, materials);
+    sample_surface = TriagSurface(vertices, fdef, fnorm, flattice, fmat, materials);
     
     if ~dontMeddle
         % Move the sample into the right starting position

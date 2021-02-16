@@ -21,13 +21,13 @@
  * - a pointer to a double array of parameters
  * - a GSL random number generator
  */
-typedef void (*distribution_func)(const double normal[3], const double init_dir[3],
+typedef void (*distribution_func)(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 distribution_func distribution_by_name(const char * name);
 
 /* Perfect specular scattering */
-void pure_specular(const double normal[3], const double init_dir[3],
+void pure_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
@@ -42,10 +42,10 @@ void pure_specular(const double normal[3], const double init_dir[3],
  *  std dev of final/initial energy ratio
  * + followed by all the params for the original distribution
  */
-void debye_waller_specular(const double normal[3], const double init_dir[3],
+void debye_waller_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
-void debye_waller_diffraction(const double normal[3], const double init_dir[3],
+void debye_waller_diffraction(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
@@ -55,7 +55,7 @@ void debye_waller_diffraction(const double normal[3], const double init_dir[3],
  *  first the level (0 - 1) of the diffuse background, then sigma of
  * broad_specular.
  */
-void diffuse_and_specular(const double normal[3], const double init_dir[3],
+void diffuse_and_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
@@ -66,8 +66,11 @@ void diffuse_and_specular(const double normal[3], const double init_dir[3],
  *  first the level (0 - 1) of the diffuse background, then as for
  * diffraction_pattern.
  */
-void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
+void diffuse_and_diffraction(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
+
+void diffuse_and_diffraction2(const double normal[3], const double lattice[6], const double init_dir[3], 
+        double new_dir[3], const double * const params, MTRand * const myrng);
 
 /*
  * Generate rays according to a 2D diffraction pattern given by two
@@ -82,8 +85,11 @@ void diffuse_and_diffraction(const double normal[3], const double init_dir[3],
  *  4 floats for 2 x 2D basis vectors
  *  the sigma to broaden the peaks by, and the sigma of the overall gaussian envelope
  */
-void diffraction_pattern(const double normal[3], const double init_dir[3],
+void diffraction_pattern(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
+
+void diffraction_pattern3D(const double normal[3], const double lattice[6], const double init_dir[3],
+        double new_dir[3], const double * const params, MTRand * const myrng);
 
 /*
  * Generate a random direction according to the Gaussian broadened specular:
@@ -101,7 +107,7 @@ void diffraction_pattern(const double normal[3], const double init_dir[3],
  *  params   - first element must be standard deviation of gaussian distribution
  *  my_rng   - random number generator object
  */
-void broad_specular_scatter(const double normal[3], const double init_dir[3],
+void broad_specular_scatter(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 /*
@@ -116,7 +122,7 @@ void broad_specular_scatter(const double normal[3], const double init_dir[3],
  *  my_rng   - gsl_rng pointer, pointer to a GSL random number generator that has
  *            been created and set up with setupGSL()
  */
-void cosine_scatter(const double normal[3], const double init_dir[3],
+void cosine_scatter(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 
@@ -124,7 +130,7 @@ void cosine_scatter(const double normal[3], const double init_dir[3],
  * Generated a random normalized direction according to a cosine distribution
  * about the specular direction.
  */
-void cosine_specular_scatter(const double normal[3], const double initial_dir[3],
+void cosine_specular_scatter(const double normal[3], const double lattice[6], const double initial_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 
@@ -140,7 +146,7 @@ void cosine_specular_scatter(const double normal[3], const double initial_dir[3]
  *  my_rng  - gsl_rng pointer, pointer to a GSL random number generator that has
  *            been created and set up with setupGSL()
  */
-void uniform_scatter(const double normal[3], const double initial_dir[3],
+void uniform_scatter(const double normal[3], const double lattice[6], const double initial_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
 
 #endif

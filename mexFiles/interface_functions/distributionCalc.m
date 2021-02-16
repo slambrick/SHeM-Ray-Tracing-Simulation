@@ -43,6 +43,7 @@ function [killed, numScattersRay, final_pos, final_dir] = distributionCalc(varar
     VT = sample_surface.vertices';
     FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
+    BT = sample_surface.lattice';
     CT = sample_surface.compositions';
     
     mat_names = sample_surface.materials.keys;
@@ -55,7 +56,7 @@ function [killed, numScattersRay, final_pos, final_dir] = distributionCalc(varar
     
     
     [killed, numScattersRay, final_pos, final_dir] = ...
-        distributionCalcMex(VT, FT, NT, CT, mat_names, mat_functions, mat_params, ...
+        distributionCalcMex(VT, FT, NT, BT, CT, mat_names, mat_functions, mat_params, ...
                             maxScatters, nrays, start_pos, start_dir);
     
     % Remove the positions and directions of the killed rays

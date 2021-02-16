@@ -42,6 +42,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double *V;             /* sample triangle vertices 3xn */
     int32_t *F;            /* sample triangle faces 3xM */
     double *N;             /* sample triangle normals 3xM */
+    double * B;
     char **C;              /* sample composition */
     Material *M;           /* materials of the sample */
     int nrays;             /* number of rays */
@@ -95,21 +96,22 @@ void mexFunction(int nlhs, mxArray *plhs[],
     V = mxGetPr(prhs[0]);
     F = mxGetInt32s(prhs[1]);
     N = mxGetPr(prhs[2]);
-    maxScatters = (int)mxGetScalar(prhs[7]); /* mxGetScalar gives a double */
-    nrays = (int)mxGetScalar(prhs[8]);
-    start_pos = mxGetPr(prhs[9]);
-    start_dir = mxGetPr(prhs[10]);
+    B = mxGetDoubles(prhs[3]);
+    maxScatters = (int)mxGetScalar(prhs[8]); /* mxGetScalar gives a double */
+    nrays = (int)mxGetScalar(prhs[9]);
+    start_pos = mxGetPr(prhs[10]);
+    start_dir = mxGetPr(prhs[11]);
     nvert = mxGetN(prhs[0]);
     ntriag_sample = mxGetN(prhs[1]);
     
     // Get the material keys
     C = mxCalloc(ntriag_sample, sizeof(char*));
-    get_string_cell_arr(prhs[3], C);
+    get_string_cell_arr(prhs[4], C);
     
     // Get the materials
     int num_materials = mxGetN(prhs[4]);
     M = mxCalloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[4], prhs[5], prhs[6], M);
+    get_materials_array(prhs[5], prhs[6], prhs[7], M);
     
     /**************************************************************************/
     
@@ -134,7 +136,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     seedRand(t, &myrng);
     
     /* Put the sample into a struct */
-    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
+    set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
 
     /* Define sphere not to exist */
     // TODO: sphere to be passed in as a struct

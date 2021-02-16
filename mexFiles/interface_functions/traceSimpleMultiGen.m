@@ -54,6 +54,7 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     V = sample_surface.vertices';
     F = int32(sample_surface.faces');
     N = sample_surface.normals';
+    B = sample_surface.lattice';
     C = sample_surface.compositions';
 
     mat_names = sample_surface.materials.keys;
@@ -94,7 +95,7 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     
     % The calling of the mex function, ... here be dragons ... don't meddle
     % unles you know what you're doing
-    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, C, s, p,...
+    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, B, C, s, p,...
         mat_names, mat_functions, mat_params, max_scatter, beam.n, ...
         source_model, source_parameters);
 

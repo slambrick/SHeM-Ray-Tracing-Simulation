@@ -29,13 +29,14 @@
 void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
 
-    const int N_INPUTS = 4;
+    const int N_INPUTS = 5;
     const int N_OUTPUTS = 2;
     
     /* Input variables */
     int n_rays;
     double *direction;
     double *normal;
+    double * lattice;
     Material material;
     
     /* Output variables */
@@ -77,6 +78,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     n_rays = (int)mxGetScalar(prhs[0]);
     direction = mxGetDoubles(prhs[1]);
     normal = mxGetDoubles(prhs[3]);
+    lattice = mxGetDoubles(prhs[4]);
     
     // check and extract material properties
     char *name[] = {"default"};
@@ -131,7 +133,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
         double new_dir_proj[3];
         double new_dir[3] = {0, 1, 0};
 
-        material.func(normal, direction, new_dir, material.params, &myrng);
+        material.func(normal, lattice, direction, new_dir, material.params, &myrng);
         normalise(new_dir);
         double tmp;
         dot(new_dir, normal, &tmp);

@@ -62,6 +62,10 @@ function [theta, phi] = distribution_test(varargin)
             material.function = 'cosine_Specular';
             material.params = [];
             material.color = [0.8, 1, 0.8];
+        case 'diffraction2'
+            material.function = 'diffraction2';
+            material.params = [6, 6, 0.1996, 0.0316, 2];
+            material.colour = [0.5, 0.5, 1.0];
         otherwise
             error('Specified type of scattering not recognised');
     end

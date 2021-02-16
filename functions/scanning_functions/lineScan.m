@@ -109,7 +109,7 @@ function line_scan_info = lineScan(varargin)
     plate_represent = pinhole_model;
 
     % TODO: make this parallel in Octave
-    for i_=1:n_pixels
+    parfor i_=1:n_pixels
         scan_pos = sample_xs(i_);
         this_surface = copy(sample_surface);
 
@@ -184,6 +184,10 @@ function line_scan_info = lineScan(varargin)
         scan_inputs.raster_movment1D, direct_beam.n, t, t_estimate, cntr_effuse_single, ...
         counter_effuse_multiple, killed_effuse, direct_beam);
 
+    if progressBar && ~isOctave
+        delete(ppm);
+    end
+    
     if progressBar && make_plots
         line_scan_info.producePlots(thePath);
     end

@@ -408,9 +408,9 @@ if strcmp(typeScan, 'line')
 end
 
 % Do any extra manipulation of the sample here
-if false
-    %sample_surface.reflect_axis('x');
-    sample_surface.rotateGeneral('x', 20);
+if true
+    sample_surface.rotateGeneral('x', 1);
+    sample_surface.rotateGeneral('z', 2);
 end
 
 % Plot the sample surface in 3D space, if we are using a graphical window
@@ -442,9 +442,11 @@ if feature('ShowFigureWindows')
     end
 end
 
+%sample_surface.normalise_lattice();
+
 %% Pinhole plate import and plotting
 [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(pinhole_plate_inputs, sample_surface);
-
+%thePlate.backwall_represent = 1;
 %% Compile the mex files
 
 mexCompile(recompile);
@@ -633,11 +635,7 @@ switch typeScan
             if ~exist(subPath, 'dir')
                 mkdir(subPath)
             end
-            %simulationData = lineScan(sample_surface, range1D, direct_beam, ...
-            %    raster_movment1D, maxScatter, Direction, pinhole_surface, effuse_beam, ...
-            %    dist_to_sample, sphere, results_path, pinhole_model, ...
-            %    thePlate, apertureAbstract, ray_model);
-            %    waitbar(i_/N, h);
+            disp(s_surface.lattice);
             simulationData{i_} = lineScan('sample_surface', s_surface, ...
                 'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
                 'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...

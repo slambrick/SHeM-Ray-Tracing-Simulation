@@ -32,7 +32,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
 
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 16;
+    const int NINPUTS = 18;
     const int NOUTPUTS = 6;
 
     /* Declare the input variables */
@@ -41,6 +41,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double *V;             /* sample triangle vertices 3xn */
     int32_t *F;            /* sample triangle faces 3xM */
     double *N;             /* sample triangle normals 3xM */
+    double *B;
     char **C;              /* sample triangle diffuse level, length M */
     Material *M;           /* sample scattering parameters */
     int nrays;             /* number of rays */
@@ -51,6 +52,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double *VS;            /* pinhole plate triangle vertices */
     int32_t *FS;           /* pinhole plate triangle faces */
     double *NS;            /* pinhole plate triangle normals */
+    double *BS;
     char **CS;             /* pinhole plate triangle diffuse level*/
     int ntriag_plate;      /* number of pinhole plate triangles */
     double *backWall;
@@ -104,32 +106,34 @@ void mexFunction(int nlhs, mxArray *plhs[],
     ntriag_sample = mxGetN(prhs[3]);
     F = mxGetInt32s(prhs[3]); /* Reading in as double not int - cast later in code */
     N = mxGetPr(prhs[4]);
+    B = mxGetPr(prhs[5]);
 
     // read in the material keys
     C = calloc(ntriag_sample, sizeof(char*));
-    get_string_cell_arr(prhs[5], C);
+    get_string_cell_arr(prhs[6], C);
 
-    nvert_plate = mxGetN(prhs[6]);
-    VS = mxGetPr(prhs[6]);
-    ntriag_plate = mxGetN(prhs[7]);
-    FS = mxGetInt32s(prhs[7]);
-    NS = mxGetPr(prhs[8]);
+    nvert_plate = mxGetN(prhs[7]);
+    VS = mxGetPr(prhs[7]);
+    ntriag_plate = mxGetN(prhs[8]);
+    FS = mxGetInt32s(prhs[8]);
+    NS = mxGetPr(prhs[9]);
+    BS = mxGetPr(prhs[10]);
 
     // read in the material keys
     CS = calloc(ntriag_plate, sizeof(char*));
-    get_string_cell_arr(prhs[9], CS);
+    get_string_cell_arr(prhs[11], CS);
 
     // get the sphere from matlab struct array
-    the_sphere = get_sphere(prhs[10], sphere_index);
+    the_sphere = get_sphere(prhs[12], sphere_index);
 
-    backWall = mxGetPr(prhs[11]);
+    backWall = mxGetPr(prhs[13]);
 
     // materials
-    int num_materials = mxGetN(prhs[12]);
+    int num_materials = mxGetN(prhs[14]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[12], prhs[13], prhs[14], M);
+    get_materials_array(prhs[14], prhs[15], prhs[16], M);
 
-    maxScatters = (int)mxGetScalar(prhs[15]); /* mxGetScalar gives a double */
+    maxScatters = (int)mxGetScalar(prhs[17]); /* mxGetScalar gives a double */
 
     /**************************************************************************/
 
@@ -152,8 +156,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     compose_rays3D(ray_pos, ray_dir, nrays, &all_rays);
 
     /* Put the sample and pinhole plate surface into structs */
-    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert_sample, sample_index, &sample);
-    set_up_surface(VS, NS, FS, CS, M, num_materials, ntriag_plate, nvert_plate, plate_index, &plate);
+    set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert_sample, sample_index, &sample);
+    set_up_surface(VS, NS, BS, FS, CS, M, num_materials, ntriag_plate, nvert_plate, plate_index, &plate);
 
     plhs[2] = mxCreateDoubleMatrix(3, nrays, mxREAL);
     final_pos = (double *)mxGetData(plhs[2]);

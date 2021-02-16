@@ -23,11 +23,12 @@
 %  nVertices   - The number of veritces in the surface mesh.
 classdef TriagSurface < handle
 
-    properties (SetAccess = private)
+    properties %(SetAccess = private)
         vertices    % Vertices in the triangulation
         faces       % Contains the reference the vertices that make up the
                     % triangles
         normals     % Normals to the triangles
+        lattice     % Reciprocal lattice vectors
         compositions% The material name for each triangle
         materials   % the material library holding descriptions of the materials
         nTriag      % The number of triangles in the surface
@@ -35,7 +36,7 @@ classdef TriagSurface < handle
     end % End properties
 
     methods
-        function obj = TriagSurface(vertices, fdef, fnorm, fmat, materials)
+        function obj = TriagSurface(vertices, fdef, fnorm, lattice, fmat, materials)
         % Constructor for TriagSurface class. Can be called with 0 or 4
         % arguments. 0 arguments creats an empty object.
         %
@@ -51,12 +52,15 @@ classdef TriagSurface < handle
         %  obj - A TriagSurface object that contains the surface.
             if (nargin == 0)
                 % Default, creates an empty object
-            elseif (nargin == 5)
+            elseif (nargin == 6)
                 if size(size(vertices), 2) ~= 2
                     error('Input arguments must all be 2D arrays')
                 end
                 if (size(vertices,2) ~= 3 || size(fnorm,2) ~= 3 || size(fdef,2) ~= 3)
                     error('vertices, fnorm, fdef inputs must all have three columns')
+                end
+                if (size(lattice,2) ~= 6)
+                    error('lattice input must have 6 columns');
                 end
                 if size(vertices,1) < 3
                     error('There must be at least three vertices in the surface')
@@ -70,6 +74,7 @@ classdef TriagSurface < handle
                 obj.vertices = vertices;
                 obj.faces = fdef;
                 obj.normals = fnorm;
+                obj.lattice = lattice;
                 obj.compositions = fmat;
                 obj.materials = materials;
                 obj.nTriag = size(fdef, 1);
@@ -84,7 +89,7 @@ classdef TriagSurface < handle
             mat = containers.Map(...
                 keys(obj.materials), ...
                 values(obj.materials));
-            newobj = TriagSurface(obj.vertices, obj.faces, obj.normals, ...
+            newobj = TriagSurface(obj.vertices, obj.faces, obj.normals, obj.lattice, ...
                                   obj.compositions, mat);
         end % End copy method
 
@@ -121,35 +126,17 @@ classdef TriagSurface < handle
 
         function rotateY(obj)
         % Rotates the object by 90deg clockwise about the y axis.
-            V = obj.vertices;
-            N = obj.normals;
-
-            obj.vertices(:,3) = V(:,1);
-            obj.vertices(:,1) = -V(:,3);
-            obj.normals(:,3) = N(:,1);
-            obj.normals(:,1) = -N(:,3);
+            rotateGeneral(obj, 'y', 90);
         end % End rotation function
 
         function rotateX(obj)
         % Rotates the object by 90deg clockwise about the x axis.
-            V = obj.vertices;
-            N = obj.normals;
-
-            obj.vertices(:,2) = V(:,3);
-            obj.vertices(:,3) = -V(:,2);
-            obj.normals(:,2) = N(:,3);
-            obj.normals(:,3) = -N(:,2);
+            rotateGeneral(obj, 'x', 90);
         end % End rotation function
 
         function rotateZ(obj)
-        % Rotates the object by 90deg clockwise about the x axis.
-            V = obj.vertices;
-            N = obj.normals;
-
-            obj.vertices(:,1) = V(:,2);
-            obj.vertices(:,2) = -V(:,1);
-            obj.normals(:,1) = N(:,2);
-            obj.normals(:,2) = -N(:,1);
+        % Rotates the object by 90deg clockwise about the z axis.
+            rotateGeneral(obj, 'z', 90);
         end % End rotation function
 
         function rotateGeneral(obj, axis, theta)
@@ -170,71 +157,38 @@ classdef TriagSurface < handle
            end
            obj.vertices = (R*obj.vertices')';
            obj.normals = (R*obj.normals')';
+           obj.lattice(:,1:3) = (R*obj.lattice(:,1:3)')';
+           obj.lattice(:,4:6) = (R*obj.lattice(:,4:6)')';
            
            % ONLY TRUE FOR SURFACES POINTING IN THE +VE Y DIRECTION111
            %
            % NEED TO MAKE THIS WORK FOR ARBITRARY SURFACES
            % use the surface normal to get the effective rotation axis.
-           if strcmp(axis, 'y')
-               % Need to rotate the reciprocal lattice vectors if this is a
-               % diffractive sample
-               if contains('diffractive', keys(obj.materials))
-                   R2 = [c, -s; s, c];
-                   mat = obj.materials('diffractive');
-                   b1 = mat.params(5:6);
-                   b2 = mat.params(7:8);
-                   b1 = (R2*b1')';
-                   b2 = (R2*b2')';
-                   mat.params(5:6) = b1;
-                   mat.params(7:8) = b2;
-                   obj.materials('diffractive') = mat;
-               end
-           end
-        end
-
-        function rotate(obj, rot_axis, angle)
-        % Rotates the object counterclockwise by the given angle.
-        % Doesn't work!!!!! (issue with the normals)
-        %
-        % INPUTS:
-        %  rot_axis - string 'x', 'y', 'z', the axis that is to be rotated
-        %             around
-        %  angle    - angle, in degrees, that the object is to be rotated by
-            V = obj.vertices;
-            N = obj.vertices;
-            V2 = zeros(size(V));
-            N2 = zeros(size(N));
-            rotMat = [cosd(angle), -sind(angle);
-                      sind(angle),  cosd(angle)];
-
-            switch rot_axis
-                case 'x'
-                    V2(:,1) = V(:,1);
-                    V2(:,2:3) = (rotMat*V(:,2:3)')';
-                    N2(:,1) = N(:,1);
-                    N2(:,2:3) = (rotMat*N(:,2:3)')';
-                case 'y'
-                    V2(:,2) = V(:,2);
-                    V2(:,[1,3]) = (rotMat*V(:,[1,3])')';
-                    N2(:,2) = N(:,2);
-                    N2(:,[1,3]) = (rotMat*N(:,[1,3])')';
-                case 'z'
-                    V2(:,3) = V(:,3);
-                    V2(:,1:2) = (rotMat*V(:,1:2)')';
-                    N2(:,3) = N(:,3);
-                    N2(:,1:2) = (rotMat*N(:,1:2)')';
-                otherwise
-                    error('Please specify a correct axis for rotation, x,y,z');
-            end
-
-            obj.vertices = V2;
-            obj.normals = N2;
+%            if strcmp(axis, 'y')
+%                % Need to rotate the reciprocal lattice vectors if this is a
+%                % diffractive sample
+%                if contains('diffractive', keys(obj.materials))
+%                    R2 = [c, -s; s, c];
+%                    mat = obj.materials('diffractive');
+%                    b1 = mat.params(5:6);
+%                    b2 = mat.params(7:8);
+%                    b1 = (R2*b1')';
+%                    b2 = (R2*b2')';
+%                    mat.params(5:6) = b1;
+%                    mat.params(7:8) = b2;
+%                    obj.materials('diffractive') = mat;
+%                end
+%            end
         end
 
         function reflectNormals(obj)
         % Reflects the normals in the object:
         % obj.n <- -obj.n
             obj.normals = -obj.normals;
+        end
+        
+        function reflectLattice(obj)
+            % TODO
         end
 
         function reflect_axis(obj, axis_name)
@@ -308,6 +262,15 @@ classdef TriagSurface < handle
                 saveas(gcf, fname, 'epsc');
             end
         end % End plotting function.
+        
+        function normalise_lattice(obj) 
+            for i_=1:obj.nTriag
+                b1 = obj.lattice(i_,1:3);
+                b2 = obj.lattice(i_,4:6);
+                obj.lattice(i_,1:3) = b1/sqrt(sum(b1.^2));
+                obj.lattice(i_,4:6) = b1/sqrt(sum(b2.^2));
+            end
+        end
 
         function delete(obj)
             delete(obj);

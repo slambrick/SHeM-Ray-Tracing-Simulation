@@ -1,4 +1,4 @@
-function [vertices, fdef, fnorm, fmat, materials] = objread(fname)
+function [vertices, fdef, fnorm, flattice, fmat, materials] = objread(fname)
     % This function parses wavefront object data
     % It reads the mesh vertices, texture coordinates, normal coordinates
     % and face definitions in a .obj file
@@ -16,9 +16,12 @@ function [vertices, fdef, fnorm, fmat, materials] = objread(fname)
     % 11/8/07
     % Modified Dan Seremet, University of Cambridge
     % 21/01/2020
+    % Modified Sam Lambrick, University of Cambridge
+    % 02/2021
 
     % set up field types
     vertices = []; textures = []; normals = []; faces = [];
+    lattice = [];
     fmat = {}; material = 'default';
 
     fid = fopen(fname);
@@ -65,6 +68,8 @@ function [vertices, fdef, fnorm, fmat, materials] = objread(fname)
                 face.vn = cellfun(@str2num, data(3, :));
             end
             faces = [faces; face];
+        case 'b' % Surface lattice vector definition
+            lattice = [lattice; sscanf(tline(3:end), '%f')'];
         end
     end
     fclose(fid);
@@ -78,7 +83,8 @@ function [vertices, fdef, fnorm, fmat, materials] = objread(fname)
         fdef(idx, :) = face.v;
         fnorm(idx, :) = getNormal(face, normals, vertices);
     end
-
+    flattice = lattice;
+    
     % read materials library
     % First must prepend path to filename
     obj_folder = strsplit(fname, '/'); obj_folder = obj_folder(1:end-1);

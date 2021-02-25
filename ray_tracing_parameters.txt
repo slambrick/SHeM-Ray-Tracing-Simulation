@@ -15,7 +15,7 @@ Type of scan: line_rotations
 Number of detectors: 1
 Detector full axes (x,y): (0.7, 0.5)
 Detector centres (x,y): (3.5, 0)
-Rotation angles (only needed if 'rotations' scan used): (0, -, 5, -, 360)
+Rotation angles (only needed if 'rotations' scan used): (0, -, 2.5, -, 360)
 STL pinhole model: none
 
 %% Set up your source
@@ -28,7 +28,7 @@ Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 1e-4
 Source standard deviation (rad): 0.1
-Effuse beam: On
+Effuse beam: Off
 Effuse size (relative to the direct beam): 1
 
 %% Set up your sample
@@ -47,7 +47,7 @@ Sample description: Test material sample
 Working distance to place the sample at: 3.5
 Sphere radius (mm): 0.15
 Length of side of flat sample: 2
-Custom sample stl file: samples/lif_flat2.obj
+Custom sample stl file: samples/lif_flat3.obj
 Manual alignment: no
 
 %% Set up your scan
@@ -65,6 +65,6 @@ Scan max (mm): 3.5
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): LiF_z_rotations
+Label for the output directory (no spaces please): LiF_zRotate_read_probabilities
 Sould the C code be recompiled: false
 

@@ -72,6 +72,9 @@ void diffuse_and_diffraction(const double normal[3], const double lattice[6], co
 void diffuse_and_diffraction2(const double normal[3], const double lattice[6], const double init_dir[3], 
         double new_dir[3], const double * const params, MTRand * const myrng);
 
+void diffuse_and_diffraction3(const double normal[3], const double lattice[6], const double init_dir[3], 
+        double new_dir[3], const double * const params, MTRand * const myrng);
+
 /*
  * Generate rays according to a 2D diffraction pattern given by two
  * reciprocal lattice basis vectors. The general principle is that the
@@ -90,6 +93,9 @@ void diffraction_pattern(const double normal[3], const double lattice[6], const 
 
 void diffraction_pattern3D(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng);
+
+void diffraction_pattern_specified(const double normal[3], const double lattice[6],
+        const double init_dir[3], double new_dir[3], const double * const params, MTRand * const myrng);
 
 /*
  * Generate a random direction according to the Gaussian broadened specular:

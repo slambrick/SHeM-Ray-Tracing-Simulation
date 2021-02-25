@@ -48,6 +48,7 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_spher
 
     /* Much further than any of the triangles */
     min_dist = 10.0e10;
+    
 
     /* Try to scatter of the sample */
     scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, nearest_b, &meets,
@@ -72,13 +73,12 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_spher
         } else {
             composition = sample.compositions[tri_hit];
         }
-
+        
         /* Find the new direction and update position*/
-        //printf("\nGoing to generate a direction\n");
+        //print_material(composition);
         // Problem lies in our new diffraction function
         composition->func(nearest_n, nearest_b, the_ray->direction,
             new_direction, composition->params, myrng);
-        //printf("Looks like we've managed it\n");
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
 

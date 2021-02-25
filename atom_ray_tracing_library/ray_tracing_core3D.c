@@ -363,10 +363,10 @@ void print_surface(Surface3D const * const s) {
         //lin(iface, 0, &ind0);
         //lin(iface, 1, &ind1);
         //lin(iface, 2, &ind2);
-        printf("\tV %3d %3d %3d", f[0], f[1], f[2]);
+        printf("\tV %3d %3d %3d\n", f[0], f[1], f[2]);
         //s->faces[ind0], s->faces[ind1], s->faces[ind2]);
-        printf("\tN % .2f % .2f % .2f", n[0], n[1], n[2]);
-        printf("\tB % .2f % .2f % .2f % .2f % .2f % .2f", b[0], b[1], b[2],
+        printf("\tN % .2f % .2f % .2f\n", n[0], n[1], n[2]);
+        printf("\tB % .2f % .2f % .2f % .2f % .2f % .2f\n", b[0], b[1], b[2],
                b[3], b[4], b[5]);
         //s->normals[ind0],s->normals[ind1], s->normals[ind2]);
         print_material(s->compositions[iface]);

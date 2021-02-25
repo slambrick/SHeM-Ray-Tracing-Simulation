@@ -409,8 +409,8 @@ end
 
 % Do any extra manipulation of the sample here
 if true
-    sample_surface.rotateGeneral('x', 1);
-    sample_surface.rotateGeneral('z', 2);
+    sample_surface.rotateGeneral('x', 4);
+    sample_surface.rotateGeneral('z', 4);
 end
 
 % Plot the sample surface in 3D space, if we are using a graphical window

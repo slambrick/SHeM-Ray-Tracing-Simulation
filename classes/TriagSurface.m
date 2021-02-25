@@ -139,56 +139,43 @@ classdef TriagSurface < handle
             rotateGeneral(obj, 'z', 90);
         end % End rotation function
 
-        function rotateGeneral(obj, axis, theta)
+        function rotateGeneral(obj, axis, theta, how)
         % Arbitray rotation about any axis.
         %
         % axis  - string, 'x', 'y', 'z'
         % theta - double, rotation angle in degrees
-           theta = theta*pi/180;
-           s = sin(theta);
-           c = cos(theta);
-           switch axis
-               case 'x'
-                   R = [1, 0, 0; 0, c, -s; 0, s, c];
-               case 'y'
-                   R = [c, 0, s; 0, 1, 0; -s, 0, c];
-               case 'z'
-                   R = [c, -s, 0; s, c, 0; 0, 0, 1];
-           end
-           obj.vertices = (R*obj.vertices')';
-           obj.normals = (R*obj.normals')';
-           obj.lattice(:,1:3) = (R*obj.lattice(:,1:3)')';
-           obj.lattice(:,4:6) = (R*obj.lattice(:,4:6)')';
-           
-           % ONLY TRUE FOR SURFACES POINTING IN THE +VE Y DIRECTION111
-           %
-           % NEED TO MAKE THIS WORK FOR ARBITRARY SURFACES
-           % use the surface normal to get the effective rotation axis.
-%            if strcmp(axis, 'y')
-%                % Need to rotate the reciprocal lattice vectors if this is a
-%                % diffractive sample
-%                if contains('diffractive', keys(obj.materials))
-%                    R2 = [c, -s; s, c];
-%                    mat = obj.materials('diffractive');
-%                    b1 = mat.params(5:6);
-%                    b2 = mat.params(7:8);
-%                    b1 = (R2*b1')';
-%                    b2 = (R2*b2')';
-%                    mat.params(5:6) = b1;
-%                    mat.params(7:8) = b2;
-%                    obj.materials('diffractive') = mat;
-%                end
-%            end
+            if nargin == 3
+                how = 'both';
+            end
+            theta = theta*pi/180;
+            s = sin(theta);
+            c = cos(theta);
+            switch axis
+                case 'x'
+                    R = [1, 0, 0; 0, c, -s; 0, s, c];
+                case 'y'
+                    R = [c, 0, s; 0, 1, 0; -s, 0, c];
+                case 'z'
+                    R = [c, -s, 0; s, c, 0; 0, 0, 1];
+            end
+            if strcmp(how, 'both') || strcmp(how, 'geometry')
+                obj.vertices = (R*obj.vertices')';
+                obj.normals = (R*obj.normals')';
+            end
+            if strcmp(how, 'both') || strcmp(how, 'lattice')
+                obj.lattice(:,1:3) = (R*obj.lattice(:,1:3)')';
+                obj.lattice(:,4:6) = (R*obj.lattice(:,4:6)')';
+            end
+        end
+        
+        function rotateLattice(obj, axis, theta)
+            rotateGeneral(obj, axis, theta, 'lattice');
         end
 
         function reflectNormals(obj)
         % Reflects the normals in the object:
         % obj.n <- -obj.n
             obj.normals = -obj.normals;
-        end
-        
-        function reflectLattice(obj)
-            % TODO
         end
 
         function reflect_axis(obj, axis_name)

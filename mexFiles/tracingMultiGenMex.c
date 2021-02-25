@@ -165,6 +165,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     cntr_detected = (int32_t*)mxGetData(plhs[0]);
     numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
+    //print_surface(&sample);
     /**************************************************************************/
 
     /* Main implementation of the ray tracing */

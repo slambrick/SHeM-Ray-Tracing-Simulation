@@ -408,9 +408,18 @@ if strcmp(typeScan, 'line')
 end
 
 % Do any extra manipulation of the sample here
-if true
+if false
     sample_surface.rotateGeneral('x', 1);
     sample_surface.rotateGeneral('z', 2);
+end
+
+% Specifically for the simulation of the LiF diffrtaction with multiscat
+% peak intensities
+if true
+    % Flip the z coordinates of the lattice vectors because of a difference
+    % in the axes used in multiscat
+    sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
+    sample_surface.lattice(:,6) = -sample_surface.lattice(:,6);
 end
 
 % Plot the sample surface in 3D space, if we are using a graphical window
@@ -621,7 +630,28 @@ switch typeScan
         for i_=1:N
             %close all % <- there are more elegant ways of doing this...
             s_surface = copy(sample_surface);
-            s_surface.rotateGeneral('y', rot_angles(i_));
+            s_surface.rotateGeneral('y', -rot_angles(i_));
+            
+            % TODO: change the material of the sample to have the correct
+            % parameters for the scattering distribution
+            if true
+                th = 0;
+                if rot_angles(i_) > 90 && rot_angles(i_) <= 180
+                    s_surface.rotateLattice('y', 90);
+                    th = rot_angles(i_) - 90;
+                elseif rot_angles(i_) > 180 && rot_angles(i_) <= 270
+                    s_surface.rotateLattice('y', 180);
+                    th = rot_angles(i_) - 180;
+                elseif rot_angles(i_) > 270 && rot_angles(i_) <= 360
+                    s_surface.rotateLattice('y', 270);
+                    th = rot_angles(i_) - 270;
+                end
+                if rot_angles(i_) > 90
+                    for j_=1:length(s_surface.nTriag)
+                        s_surface.compositions{j_} = ['diffractive_' num2str(th) 'deg'];
+                    end
+                end
+            end
 
             % Rotate the centre of the sphere
             theta = rot_angles(i_)*pi/180;
@@ -635,7 +665,7 @@ switch typeScan
             if ~exist(subPath, 'dir')
                 mkdir(subPath)
             end
-            disp(s_surface.lattice);
+            %disp(s_surface.lattice);
             simulationData{i_} = lineScan('sample_surface', s_surface, ...
                 'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
                 'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...

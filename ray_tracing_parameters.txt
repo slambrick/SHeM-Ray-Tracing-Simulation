@@ -9,24 +9,24 @@
 % stl models of the pinhole plate can also be used, either 'cambridge' or
 % 'angular resolution' or specify an stl file found. Type of scan can be
 % either 'rectangular', 'rotations', 'line', 'line_rotations', 
-Design working distance (mm): 3.5
+Design working distance (mm): 2
 Incidence angle (deg): 45
 Type of scan: line_rotations
 Number of detectors: 1
 Detector full axes (x,y): (0.7, 0.5)
 Detector centres (x,y): (3.5, 0)
 Rotation angles (only needed if 'rotations' scan used): (0, -, 2.5, -, 360)
-STL pinhole model: none
+STL pinhole model: angular resolution
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 100,000
+Number of Rays: 50,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
-Angular source size (rad): 1e-4
+Angular source size (rad): 0.0005
 Source standard deviation (rad): 0.1
 Effuse beam: Off
 Effuse size (relative to the direct beam): 1
@@ -44,7 +44,7 @@ Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 10
 Sample description: Test material sample
-Working distance to place the sample at: 3.5
+Working distance to place the sample at: 2
 Sphere radius (mm): 0.15
 Length of side of flat sample: 2
 Custom sample stl file: samples/lif_flat3.obj
@@ -53,18 +53,18 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.005
-Scan range x (mm): 0.8
-Scan range y (mm): 0.6
+Pixel seperation (mm): 0.001
+Scan range x (mm): 0.07
+Scan range y (mm): 0.02
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
 Scan min (mm): -1.5
-Scan max (mm): 3.5
-Pixel seperation (mm): 0.05
+Scan max (mm): 4
+Pixel seperation (mm): 0.075
 
 %% Other parameters
-Label for the output directory (no spaces please): LiF_zRotate_read_probabilities
+Label for the output directory (no spaces please): LiF_realistic_plate
 Sould the C code be recompiled: false
 

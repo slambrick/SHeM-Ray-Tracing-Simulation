@@ -37,6 +37,7 @@ function mexCompile(recompile, library)
         atom_obj2 = 'atom_ray_tracing_library/atom_ray_tracing2D.o';
     end
     if (~exist(atom_obj2, 'file') || recompile || strcmp(library, 'atom2D')) && false
+        % TODO: serious errors here
         mex -c -R2018a CFLAGS='$CFLAGS -std=c99 -Imtwister -Iatom_ray_tracing_library -Wall -pedantic -Wextra -O3   ' ...
             -outdir atom_ray_tracing_library ...
             atom_ray_tracing_library/atom_ray_tracing2D.c

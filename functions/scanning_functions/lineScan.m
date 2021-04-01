@@ -103,6 +103,8 @@ function line_scan_info = lineScan(varargin)
         else
             h = waitbar(0, 'Simulation progress: ');
         end
+    else
+        h = '';
     end
 
     % Makes the parfor loop stop complaining.
@@ -141,12 +143,14 @@ function line_scan_info = lineScan(varargin)
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
 
         % Update the progress bar if we are working in the MATLAB GUI.
-        if progressBar && ~isOctave
-            ppm.increment();
-        elseif isOctave
-            waitbar(i_/n_pixels, h);
+        if progressBar
+            if ~isOctave
+                ppm.increment();
+            elseif isOctave
+                waitbar(i_/n_pixels, h);
+            end
         end
-
+        
         % Save the data for this iteration
         cntr_effuse_single(:,i_) = numScattersEffuse(1);
         counter_effuse_multiple(:,i_) = sum(numScattersEffuse(2:end));

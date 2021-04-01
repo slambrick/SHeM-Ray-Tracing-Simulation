@@ -400,7 +400,6 @@ void diffraction_pattern_specified(const double normal[3], const double lattice[
             if (tester > R)
                 break;
         }
-        //printf("j = %i\n", j);
         q = qs[j];
         p = ps[j];
 

@@ -23,26 +23,29 @@ function pinhole_surface = import_newPlate(accuracy)
         accuracy = 'low';
     end
     
+    data = load('objects/defMaterial.mat');
+    defMaterial = data.defMaterial;
+    materials = containers.Map({'default'}, {defMaterial});
+    
     switch accuracy
         case 'low'
-            plate_fname = 'pinholePlates/newChamberPlate_low.stl';
+            plate_fname = 'pinholePlates/Pinhole_45_PinholePlate_3.0WD_new_forSimulation.stl';
         case 'medium'
-            plate_fname = 'pinholePlates/newChamberPlate_medium.stl';
+            error('not in repository');
         case 'high'
-            plate_fname = 'pinholePlates/newChamberPlate_high.stl';
+            error('not in repository');
         otherwise
             error('Enter a correct pinhole plate accuracy');
     end
     
     % Import data from file.
     [F, V, N] = stlread(plate_fname);
-    
-    % Completely diffuse scattering as the 
-    C = 1 + zeros(size(F,1), 1);
-    P = zeros(size(F,1), 1);
+    fmat = cell(length(F), 1);
+    fmat(:) = {'default'};
 
     % Put inot a TiagSurface object
-    pinhole_surface = TriagSurface(V, N, F, C, P);
+    flattice = zeros(size(V, 1), 6);
+    pinhole_surface = TriagSurface(V, F, N, flattice, fmat, materials);
     
     % Align the plate to match the simulation
     pinhole_surface.plate_align;

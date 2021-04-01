@@ -73,7 +73,7 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2];
+xrange = [-range_x/2, range_x/2] + dist_to_sample - working_dist;
 zrange = [-range_z/2, range_z/2];
 sphere_c = [0, -dist_to_sample + sphere_r, 0];
 
@@ -83,7 +83,7 @@ sphere_c = [0, -dist_to_sample + sphere_r, 0];
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
 % this uneccaserily large will increase the memory requirments of the
 % simulation.
-max_scatter = 20;
+max_scatter = 100;
 
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
@@ -133,7 +133,7 @@ Direction = 'y';                % 'x', 'y' or 'z' - along which direction to mov
 scale = 2;
 %  'strips' - Two parallel series of strips with varying parameters
 % make the model 10 times larger (Inventor exports in cm by default...).
-scale = 1;
+scale = 0.5;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
@@ -408,14 +408,17 @@ if strcmp(typeScan, 'line')
 end
 
 % Do any extra manipulation of the sample here
-if false
-    sample_surface.rotateGeneral('x', 4);
-    sample_surface.rotateGeneral('z', 4);
+
+if true
+    % Tilt required to explain the problem with displacement of the diffraction
+    % p[attern
+    sample_surface.rotateGeneral('x', -2.1);
+    sample_surface.rotateGeneral('z', -3.8);
 end
 
 % Specifically for the simulation of the LiF diffrtaction with multiscat
 % peak intensities
-if true
+if false
     % Flip the z coordinates of the lattice vectors because of a difference
     % in the axes used in multiscat
     sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
@@ -432,7 +435,7 @@ if feature('ShowFigureWindows')
 
     if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations') ||...
             strcmp(typeScan, 'multiple_rectangular')
-        xlim([-xrange(2) -xrange(1)]);
+        xlim(xrange);
         zlim(zrange);
         ylim(zrange - dist_to_sample);
     elseif strcmp(typeScan, 'line') && ~strcmp(Direction, 'y')

@@ -82,6 +82,7 @@ function sample_surface = inputSample(varargin)
         case 'stl'
             [fdef, vertices, fnorm] = stlread(fname);
             fmat = cell(length(fdef), 1); fmat(:) = {'default'};
+            flattice = zeros(size(vertices, 1), 6);
         case 'obj'
             [vertices, fdef, fnorm, flattice, fmat, materials] = objread(fname);
         otherwise
@@ -100,6 +101,10 @@ function sample_surface = inputSample(varargin)
     % finally, construct the surface object
     sample_surface = TriagSurface(vertices, fdef, fnorm, flattice, fmat, materials);
     
+    if true
+        sample_surface.rotateGeneral('y', 90);
+    end
+    
     if ~dontMeddle
         % Move the sample into the right starting position
         moveY = - sample_dist - max(sample_surface.vertices(:,2));
@@ -115,7 +120,7 @@ function sample_surface = inputSample(varargin)
         interestingV = V(~ind,:);
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
-        moveX = (plate_dist - sample_dist) - middleX;
+        moveX = -(plate_dist - sample_dist) - middleX;
         sample_surface.moveBy([moveX, 0, -middleZ]);
     end
 end

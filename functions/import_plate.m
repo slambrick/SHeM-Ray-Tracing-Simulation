@@ -49,9 +49,9 @@ function pinhole_surface = import_plate(accuracy)
     
     % The simulation runs in mm and the object file is in cm
     V = V*10;
-    
+    flattice = zeros(size(V, 1), 6);
     % Put inot a TiagSurface object
-    pinhole_surface = TriagSurface(V, F, N, fmat, materials);
+    pinhole_surface = TriagSurface(V, F, N, flattice, fmat, materials);
     
     % Manipulate into the right position
     pinhole_surface.plate_align;

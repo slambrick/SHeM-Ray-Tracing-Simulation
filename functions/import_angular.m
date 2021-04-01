@@ -31,7 +31,8 @@ function pinhole_surface = import_angular
     fmat(:) = {'default'};
     
     % Put inot a TiagSurface object
-    pinhole_surface = TriagSurface(V, F, N, fmat, materials);
+    flattice = zeros(size(V, 1), 6);
+    pinhole_surface = TriagSurface(V, F, N, flattice, fmat, materials);
     
     % Align the plate to match the simulation
     pinhole_surface.plate_align;

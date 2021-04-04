@@ -14,6 +14,8 @@
 #include <math.h>
 #include <stdbool.h>
 
+static void intersectPlane(Ray3D * const the_ray, Triangle element, double new_loc[3],
+		bool * const hit, bool * const within);
 
 /*
  * Finds the distance to, the normal to, and the position of a rays intersection
@@ -38,7 +40,7 @@
  */
 void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], int * const tri_hit,
-        int * const which_surface, int * const meets_sphere) {
+        int * const which_surface, bool * const meets_sphere) {
     double a,b,c;
     double beta, gamma;
     double distance;
@@ -61,7 +63,7 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_
 
     /* Do we hit the sphere */
     if (beta*beta - 4*gamma < 0) {
-        *meets_sphere = 0;
+        *meets_sphere = false;
         return;
     }
 
@@ -92,13 +94,193 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_
         *which_surface = the_sphere.surf_index;
 
         /* We do hit the sphere and it is the closest interesction*/
-        *meets_sphere = 1;
+        *meets_sphere = true;
         return;
     }
 
     /* The sphere is not the closest intersection */
-    *meets_sphere = 0;
+    *meets_sphere = false;
     return;
+}
+
+void scatterCircle(Ray3D * the_ray, Circle the_circle, double * const min_dist,
+        double nearest_inter[3], double nearest_n[3], int * const tri_hit,
+        int * const which_surface, bool * const meets_circle) {
+    int i;
+	double new_loc[3];
+    double distance = 0;
+    double * e;
+    double * d;
+    bool hit, within;
+    Triangle element;
+
+    /* Get the present position and direction of the ray */
+    e = the_ray->position;
+    d = the_ray->direction;
+
+    get_elementCircle(the_circle, &element);
+	intersectPlane(the_ray, element, new_loc, &hit, &within);
+
+	if (!hit) {
+		*meets_circle = false;
+		return;
+	}
+
+	//
+	for (i = 0; i < 3; i++)
+		distance += (new_loc[i] - e[i])*(new_loc[i] - e[i]);
+
+    if ((distance*distance < *min_dist) && (distance > 0)) {
+        /* Shortest intersection yet found */
+
+        nearest_n[0] = the_circle.normal[0];
+        nearest_n[1] = the_circle.normal[1];
+        nearest_n[2] = the_circle.normal[2];
+
+        nearest_inter[0] = e[0] + d[0]*distance;
+        nearest_inter[1] = e[1] + d[1]*distance;
+        nearest_inter[2] = e[2] + d[2]*distance;
+
+        *min_dist = distance*distance;
+
+        /* We are not on a triangle */
+        *tri_hit = -1;
+
+        /* We are now on the sphere */
+        *which_surface = the_circle.surf_index;
+
+        /* We do hit the sphere and it is the closest interesction*/
+        *meets_circle = true;
+        return;
+    }
+
+    /* The sphere is not the closest intersection */
+    *meets_circle = false;
+    return;
+}
+
+/*
+ * Find the point of intersection between a ray and a plane defined by three
+ * points and a normal vector. Also determines if the intersection point is within
+ * the triangle bounded by the three points.
+ *
+ * INPUTS:
+ *  the_ray - Information on the current position of the ray
+ *  a       - first of the 3 points
+ *  b       - second of the 3 points
+ *  c       - third of the 3 points
+ *  normal  - normal vector
+ *  new_loc - variable to store intersection point (if one exists)
+ *  hit     - is the plane intersected
+ *  within  - is the intersection within the triangle bounded by the 3 points
+ */
+static void intersectPlane(Ray3D * const the_ray, Triangle element, double new_loc[3],
+		bool * const hit, bool * const within) {
+	double AA[3][3];
+	double v[3], u[3];
+	double epsilon;
+	double * e, * d;
+
+	e = the_ray->position;
+	d = the_ray->direction;
+
+	/* If the triangle is 'back-facing' then the ray cannot hit it */
+	double test;
+	dot(element.normal, the_ray->direction, &test);
+	if (test > 0) {
+		*hit = false;
+		return;
+	}
+
+    /*
+     * Construct the linear equation
+     * AA u = v, where u contains (alpha, beta, t) for the propagation
+     * equation:
+     * e + td = a + beta(b - a) + gamma(c - a)
+     */
+    //propagate3D(a, e, -1, v); // <- simpler to write, heavier computation
+    v[0] = element.v1[0] - e[0];
+    v[1] = element.v1[1] - e[1];
+    v[2] = element.v1[2] - e[2];
+
+    /* This could be pre-calculated and stored, however it would involve an
+     * array of matrices
+     */
+    AA[0][0] = element.v1[0] - element.v2[0];
+    AA[0][1] = element.v1[0] - element.v3[0];
+    AA[0][2] = d[0];
+    AA[1][0] = element.v1[1] - element.v2[1];
+    AA[1][1] = element.v1[1] - element.v3[1];
+    AA[1][2] = d[1];
+    AA[2][0] = element.v1[2] - element.v2[2];
+    AA[2][1] = element.v1[2] - element.v3[2];
+    AA[2][2] = d[2];
+
+    /*
+     * Tests to see if this triangle is parallel to the ray, if it is the
+     * determinant of the matrix AA will be zero, we must set a tolerance for
+     * size of determinant we will allow.
+     */
+    epsilon = 0.0000000001;
+    int success = 0; // Default to no success, this was causing problems some how...
+    solve3x3(AA, u, v, epsilon, &success); // <- NOTE: this is the biggest computation
+    if (!success) {
+    	*hit = false;
+    	return;
+    }
+
+    new_loc[0] = e[0] + (u[2]*d[0]);
+    new_loc[1] = e[1] + (u[2]*d[1]);
+    new_loc[2] = e[2] + (u[2]*d[2]);
+    *hit = true;
+
+    // Is the intersection point within the triangle defined by the 3 points
+    *within = (u[0] >= 0) && (u[1] >= 0) && ((u[0] + u[1]) <= 1) && (u[2] > 0);
+
+}
+
+void scatterPlane(Ray3D * the_ray, Plane plane, double * const min_dist,
+		double nearest_inter[3], double nearest_n[3], int * const meets,
+		int * const which_surface) {
+	double *e;
+	bool hit, within;
+	double new_loc[3];
+	Triangle element;
+
+	e = the_ray->position;
+	*meets = 0;
+
+	get_elementPlane(&plane, &element);
+	intersectPlane(the_ray, element, new_loc, &hit, &within);
+
+	if (hit) {
+		int dist;
+		double movment[3];
+
+		/* Movement is the vector from the current location to the possible
+		 * new location */
+		movment[0] = new_loc[0] - e[0];
+		movment[1] = new_loc[1] - e[1];
+		movment[2] = new_loc[2] - e[2];
+
+		/* NOTE: we are comparing the square of the distance */
+		dist = movment[0]*movment[0] + movment[1]*movment[1] +
+				movment[2]*movment[2];
+        if (dist < *min_dist) {
+        	*meets = 1;
+            /* This is the smallest intersection found so far */
+            *min_dist = dist;
+
+            nearest_n[0] = element.normal[0];
+            nearest_n[1] = element.normal[1];
+            nearest_n[2] = element.normal[2];
+            nearest_inter[0] = new_loc[0];
+            nearest_inter[1] = new_loc[1];
+            nearest_inter[2] = new_loc[2];
+
+            *which_surface = plane.surf_index;
+        }
+	}
 }
 
 /*
@@ -131,22 +313,16 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], int * const meets, int * const tri_hit,
         int * const which_surface) {
     int j;
-    double normal[3];
-    double *e, *d;
+    double *e;
 
     /* Position and direction of the ray */
     e = the_ray->position;
-    d = the_ray->direction;
 
     /* Loop through all triangles in the surface */
     for (j = 0; j < sample.n_faces; j++) {
-        double a[3];
-        double b[3];
-        double c[3];
-        double AA[3][3];
-        double v[3];
-        double u[3] = {0, 0, 0};
-        double epsilon;
+    	double new_loc[3];
+        bool hit, within;
+        Triangle element;
 
         /* Skip this triangle if the ray is already on it */
         if ((the_ray->on_element == j) && (the_ray->on_surface == sample.surf_index)) {
@@ -156,88 +332,21 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
         /*
          * Specify which triangle and get its normal.
          */
-        get_element3D(&sample, j, a, b, c, normal);
+        get_element3D(&sample, j, &element);
 
-        /* If the triangle is 'back-facing' then the ray cannot hit it */
-        double test;
-        dot(normal, d, &test);
-        if (test > 0) {
-            continue;
-        }
+        intersectPlane(the_ray, element, new_loc, &hit, &within);
 
-        /*
-         * If the triangle is behind the current ray position then the ray
-         * cannot hit it. To do this we have to test each of the three vertices
-         * to find if they are `behind' the ray. If any one of the vertices is
-         * in-fornt of the ray we have to consider it. Re-use variable v.
-         */
-        v[0] = a[0] - e[0];
-        v[1] = a[1] - e[1];
-        v[2] = a[2] - e[2];
-        if (v[0]*d[0] + v[1]*d[1] + v[2]*d[2] < 0) {
-            v[0] = b[0] - e[0];
-            v[1] = b[1] - e[1];
-            v[2] = b[2] - e[2];
-            if (v[0]*d[0] + v[1]*d[1] + v[2]*d[2] < 0) {
-                v[0] = c[0] - e[0];
-                v[1] = c[1] - e[1];
-                v[2] = c[2] - e[2];
-                if (v[0]*d[0] + v[1]*d[1] + v[2]*d[2] < 0) {
-                    continue;
-                }
-            }
-        }
-
-        /*
-         * Construct the linear equation
-         * AA u = v, where u contains (alpha, beta, t) for the propagation
-         * equation:
-         * e + td = a + beta(b - a) + gamma(c - a)
-         */
-        //propagate3D(a, e, -1, v); // <- simpler to write, heavier computation
-        v[0] = a[0] - e[0];
-        v[1] = a[1] - e[1];
-        v[2] = a[2] - e[2];
-
-        /* This could be pre-calculated and stored, however it would involve an
-         * array of matrices
-         */
-        AA[0][0] = a[0] - b[0];
-        AA[0][1] = a[0] - c[0];
-        AA[0][2] = d[0];
-        AA[1][0] = a[1] - b[1];
-        AA[1][1] = a[1] - c[1];
-        AA[1][2] = d[1];
-        AA[2][0] = a[2] - b[2];
-        AA[2][1] = a[2] - c[2];
-        AA[2][2] = d[2];
-
-        /*
-         * Tests to see if this triangle is parallel to the ray, if it is the
-         * determinant of the matrix AA will be zero, we must set a tolerance for
-         * size of determinant we will allow.
-         */
-        epsilon = 0.0000000001;
-        int success = 0; // Default to no success, this was causing problems some how...
-        solve3x3(AA, u, v, epsilon, &success); // <- NOTE: this is the biggest computation
-        if (!success) {
-            continue;
-        }
+        if (!hit)
+        	continue;
 
         /* Find if the point of intersection is inside the triangle */
         /* Must also find if the ray is propagating forwards */
-        if ((u[0] >= 0) && (u[1] >= 0) && ((u[0] + u[1]) <= 1) && (u[2] > 0)) {
-            double new_loc[3];
+        if (within) {
             double movment[3];
             double dist;
 
             /* We have hit a triangle */
             *meets = 1; // <- I think I've found the problem....
-
-            /* Store the location and normal of the nearest intersection */
-            new_loc[0] = e[0] + (u[2]*d[0]);
-            new_loc[1] = e[1] + (u[2]*d[1]);
-            new_loc[2] = e[2] + (u[2]*d[2]);
 
             /* Movement is the vector from the current location to the possible
              * new location */
@@ -255,9 +364,9 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
                 *min_dist = dist;
 
                 *tri_hit = j;
-                nearest_n[0] = normal[0];
-                nearest_n[1] = normal[1];
-                nearest_n[2] = normal[2];
+                nearest_n[0] = element.normal[0];
+                nearest_n[1] = element.normal[1];
+                nearest_n[2] = element.normal[2];
                 nearest_inter[0] = new_loc[0];
                 nearest_inter[1] = new_loc[1];
                 nearest_inter[2] = new_loc[2];

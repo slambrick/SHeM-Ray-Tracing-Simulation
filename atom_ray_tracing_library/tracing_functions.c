@@ -42,7 +42,7 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_spher
     double nearest_n[3];
     double nearest_inter[3];
     double new_direction[3];
-    int meets_sphere = 0;
+    bool meets_sphere = 0;
     int which_surface = -1;
 
     /* Much further than any of the triangles */
@@ -205,7 +205,7 @@ void scatterSurfaces(Ray3D * the_ray, Surface3D sample, Surface3D plate,
     double nearest_n[3];
     double nearest_inter[3];
     double new_direction[3];
-    int meets_sphere;
+    bool meets_sphere;
     int which_surface;
 
     /* tri_hit stores which triangle has been hit */
@@ -330,7 +330,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D sample, NBackWall plate,
     int which_surface = -1;
 
     /* By default don't hit the sphere */
-    int meets_sphere = 0;
+    bool meets_sphere = false;
 
     /* meets is false/true have we met a triangle */
     int meets = 0;

@@ -110,17 +110,17 @@ classdef LineInfo < SimulationInfo
 
             [fig, ax] = obj.linePlot();
             hold(ax, 'on')
-            plot(ax, xs, single, 'LineWidth', 3)
-            plot(ax, xs, multiple, 'LineWidth', 3)
-            hold(ax, 'off')
+            plot(ax, xs, single, 'LineWidth', 2)
+            plot(ax, xs, multiple, 'LineWidth', 2)
             
             % legend depending on whether effuse exists
             if sum(effuse_single + effuse_multiple) > 0
-                plot(ax, xs, effuse_single + effuse_multiple)
+                plot(ax, xs, effuse_single + effuse_multiple, 'LineWidth', 2)
                 legend(ax, 'Total', 'Single', 'Multiple', 'Effuse');
             else
                 legend(ax, 'Total', 'Single', 'Multiple')
             end
+            hold(ax, 'off');
         end
         
         function [fig, ax] = linePlot(obj)
@@ -129,7 +129,7 @@ classdef LineInfo < SimulationInfo
 
             fig = figure;
             ax = axes(fig);
-            plot(ax, xs, total, 'LineWidth', 3)
+            plot(ax, xs, total, 'LineWidth', 2)
 
             if obj.Direction == 'y'
                 xlabel(ax, 'Distance from pinhole plate/mm')

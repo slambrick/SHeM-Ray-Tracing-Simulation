@@ -1,9 +1,9 @@
-% Copyright (c) 2018-20, Sam Lambrick.
+% Copyright (c) 2018-21, Sam Lambrick, Aleksander Radic.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
 
-close all
+%close all
 clear
 clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,7 +26,7 @@ typeScan = strtrim(param_list{3});
 n_detectors = str2double(param_list{4});
 aperture_axes = parse_list_input(param_list{5});
 aperture_c = parse_list_input(param_list{6});
-rot_angles = parse_list_input(param_list{7});
+rot_angles = parse_rotations(param_list{7});
 pinhole_model = parse_pinhole(param_list{8});
 
 % Set up source
@@ -73,7 +73,7 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2];
+xrange = [-range_x/2, range_x/2] + dist_to_sample - working_dist;
 zrange = [-range_z/2, range_z/2];
 sphere_c = [0, -dist_to_sample + sphere_r, 0];
 
@@ -83,7 +83,7 @@ sphere_c = [0, -dist_to_sample + sphere_r, 0];
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
 % this uneccaserily large will increase the memory requirments of the
 % simulation.
-max_scatter = 20;
+max_scatter = 100;
 
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
@@ -133,7 +133,7 @@ Direction = 'y';                % 'x', 'y' or 'z' - along which direction to mov
 scale = 2;
 %  'strips' - Two parallel series of strips with varying parameters
 % make the model 10 times larger (Inventor exports in cm by default...).
-scale = 1;
+scale = 0.5;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
@@ -214,6 +214,15 @@ switch typeScan
         scan_inputs.direction_1D = NaN;
     case 'line'
         scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = NaN;
+        scan_inputs.raster_movment2D_z = NaN;
+        scan_inputs.xrange = NaN;
+        scan_inputs.zrange = NaN;
+        scan_inputs.raster_movment1D = res_1D;
+        scan_inputs.range1D = range_1D;
+        scan_inputs.direction_1D = scan_direction;
+    case 'line_rotations'
+        scan_inputs.rotationAngles = rot_angles;
         scan_inputs.raster_movment2D_x = NaN;
         scan_inputs.raster_movment2D_z = NaN;
         scan_inputs.xrange = NaN;
@@ -387,7 +396,7 @@ addpath(thePath);
 %% Sample import and plotting
 
 % A struct to represent the sphere
-sphere = Sphere(1, defMaterial, sphere_c, sphere_r);
+sphere = Sphere(1, material, sphere_c, sphere_r);
 
 % Importing the sample as a TriagSurface object.
 [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, ...
@@ -399,9 +408,23 @@ if strcmp(typeScan, 'line')
 end
 
 % Do any extra manipulation of the sample here
-if true
-    sample_surface.reflect_axis('x');
+
+if false
+    % Tilt required to explain the problem with displacement of the diffraction
+    % p[attern
+    sample_surface.rotateGeneral('x', -2.1);
+    sample_surface.rotateGeneral('z', -3.8);
 end
+
+% Specifically for the simulation of the LiF diffrtaction with multiscat
+% peak intensities
+if false
+    % Flip the z coordinates of the lattice vectors because of a difference
+    % in the axes used in multiscat
+    sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
+    sample_surface.lattice(:,6) = -sample_surface.lattice(:,6);
+end
+%sample_surface.rotateGeneral('y', 45);
 
 % Plot the sample surface in 3D space, if we are using a graphical window
 % TODO: put in a seperate
@@ -413,7 +436,7 @@ if feature('ShowFigureWindows')
 
     if strcmp(typeScan, 'rectangular') || strcmp(typeScan, 'rotations') ||...
             strcmp(typeScan, 'multiple_rectangular')
-        xlim([-xrange(2) -xrange(1)]);
+        xlim(xrange);
         zlim(zrange);
         ylim(zrange - dist_to_sample);
     elseif strcmp(typeScan, 'line') && ~strcmp(Direction, 'y')
@@ -432,9 +455,11 @@ if feature('ShowFigureWindows')
     end
 end
 
+%sample_surface.normalise_lattice();
+
 %% Pinhole plate import and plotting
 [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(pinhole_plate_inputs, sample_surface);
-
+%thePlate.backwall_represent = 1;
 %% Compile the mex files
 
 mexCompile(recompile);
@@ -480,7 +505,7 @@ switch typeScan
             % Move the sample in y by given amount
             surface_copy = copy(sample_surface);
             surface_copy.moveBy([y_displacement, -y_displacement, 0]);
-            sphere.c = sphere.c + [y_displacement, -y_displacement, 0];
+            sphere.centre = sphere.centre + [y_displacement, -y_displacement, 0];
             y_distance = dist_to_sample + y_displacement;
             
             % Create the raster pattern at this z
@@ -523,7 +548,8 @@ switch typeScan
             'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
             'sphere', sphere,               'thePath', thePath, ...
             'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
-            'ray_model', ray_model,         'n_detector', n_detectors);
+            'ray_model', ray_model,         'n_detector', n_detectors, ...
+            'make_plots', true);
     case 'single pixel'
         % For a single pixel
         % TODO: update with the new lower level functions
@@ -536,7 +562,7 @@ switch typeScan
         simulationData = {};
         h = waitbar(0, 'Proportion of simulations performed', 'Name', 'Ray tracing progress');
         N = length(rot_angles);
-        sphere_centre = sphere.c;
+        sphere_centre = sphere.centre;
         
         % Loop through the rotations
         for i_=1:N
@@ -548,7 +574,7 @@ switch typeScan
             s = sin(theta);
             c = cos(theta);
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
-            sphere.c = (R*sphere_centre')';
+            sphere.centre = (R*sphere_centre')';
             
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
@@ -597,6 +623,66 @@ switch typeScan
         end
         close(h);
         delete(h);
+    case 'line_rotations'
+        % Perform multiple scans while rotating the sample in between.
+        simulationData = {};
+        h = waitbar(0, 'Proportion of simulations performed');
+        N = length(rot_angles);
+        sphere_centre = sphere.centre;
+
+        % Loop through the rotations
+        for i_=1:N
+            %close all % <- there are more elegant ways of doing this...
+            s_surface = copy(sample_surface);
+            s_surface.rotateGeneral('y', -rot_angles(i_));
+            
+            % TODO: change the material of the sample to have the correct
+            % parameters for the scattering distribution
+            if true
+                th = 0;
+                if rot_angles(i_) > 90 && rot_angles(i_) <= 180
+                    s_surface.rotateLattice('y', 90);
+                    th = rot_angles(i_) - 90;
+                elseif rot_angles(i_) > 180 && rot_angles(i_) <= 270
+                    s_surface.rotateLattice('y', 180);
+                    th = rot_angles(i_) - 180;
+                elseif rot_angles(i_) > 270 && rot_angles(i_) <= 360
+                    s_surface.rotateLattice('y', 270);
+                    th = rot_angles(i_) - 270;
+                end
+                if rot_angles(i_) > 90
+                    for j_=1:length(s_surface.nTriag)
+                        s_surface.compositions{j_} = ['diffractive_' num2str(th) 'deg'];
+                    end
+                end
+            end
+
+            % Rotate the centre of the sphere
+            theta = rot_angles(i_)*pi/180;
+            s = sin(theta);
+            c = cos(theta);
+            R = [c, 0, s; 0, 1, 0; -s, 0, c];
+            sphere.centre = (R*sphere_centre')';
+            %s_surface.patchPlot(true);
+
+            subPath = [thePath '/rotation' num2str(rot_angles(i_))];
+            if ~exist(subPath, 'dir')
+                mkdir(subPath)
+            end
+            %disp(s_surface.lattice);
+            simulationData{i_} = lineScan('sample_surface', s_surface, ...
+                'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
+                'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...
+                'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
+                'sphere', sphere,               'thePath', subPath, ...
+                'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
+                'ray_model', ray_model,         'n_detector', n_detectors, ...
+                'make_plots', false); %#ok<SAGROW>
+            
+            waitbar(i_/N, h);
+        end
+        close(h);
+        delete(h);
     otherwise
         error(['Need to specify a valid type of scan: "line", ', ...
                '"rectangular", "single pixel"']);
@@ -612,8 +698,8 @@ end
 
 % Save formatted data to a .mat file, does not include all the parameters
 % but does include the core outputs.
-if strcmp(typeScan, 'rotations') || strcmp(typeScan, 'rectangular')
-    if output_data && strcmp(typeScan, 'rotations')
+if contains(typeScan, {'rotations', 'rectangular', 'line', 'line_rotations'})
+    if output_data && (strcmp(typeScan, 'rotations') || strcmp(typeScan, 'line_rotations'))
         formatOutputRotation(simulationData, thePath, rot_angles);
     elseif output_data
         simulationData.formatOutput(thePath);
@@ -628,7 +714,8 @@ if save_to_text && strcmp(typeScan, 'rotations')
         currentFname = [textFname(1:end-4) num2str(rot_angles(i_)) '.csv'];
         simulationData.saveText([thePath '/' currentFname]);
     end
-elseif save_to_text
+elseif save_to_text && ~(strcmp(typeScan, 'line_rotations') || ...
+        strcmp(typeScan, 'rotations') || strcmp(typeScan, 'multiple_rectangular'))
     simulationData.saveText([thePath '/' textFname]);
 end
 

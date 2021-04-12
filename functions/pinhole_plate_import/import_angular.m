@@ -18,31 +18,21 @@
 % OUPUT:
 %  pinhole_surface - TriagSurface object containing the triangulation of the
 %                     pinhole plate.
-function pinhole_surface = import_newPlate(accuracy)
-    if nargin == 0
-        accuracy = 'low';
-    end
+function pinhole_surface = import_angular
+    plate_fname = 'pinholePlates/Pinhole_45_PinholePlate_2.0WD_angularResolution_forSimulation_simpler.stl';
     
-    switch accuracy
-        case 'low'
-            plate_fname = 'pinholePlates/newChamberPlate_low.stl';
-        case 'medium'
-            plate_fname = 'pinholePlates/newChamberPlate_medium.stl';
-        case 'high'
-            plate_fname = 'pinholePlates/newChamberPlate_high.stl';
-        otherwise
-            error('Enter a correct pinhole plate accuracy');
-    end
+    data = load('objects/defMaterial.mat');
+    defMaterial = data.defMaterial;
+    materials = containers.Map({'default'}, {defMaterial});
     
     % Import data from file.
     [F, V, N] = stlread(plate_fname);
+    fmat = cell(length(F), 1);
+    fmat(:) = {'default'};
     
-    % Completely diffuse scattering as the 
-    C = 1 + zeros(size(F,1), 1);
-    P = zeros(size(F,1), 1);
-
     % Put inot a TiagSurface object
-    pinhole_surface = TriagSurface(V, N, F, C, P);
+    flattice = zeros(size(V, 1), 6);
+    pinhole_surface = TriagSurface(V, F, N, flattice, fmat, materials);
     
     % Align the plate to match the simulation
     pinhole_surface.plate_align;

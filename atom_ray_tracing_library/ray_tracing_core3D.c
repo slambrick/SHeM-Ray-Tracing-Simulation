@@ -20,6 +20,7 @@
 #include <stdbool.h>
 
 static void get_normal_ptr(Surface3D const * const s, int ind, double ** n);
+static void get_lattice_ptr(Surface3D const * const s, int ind, double ** b);
 static void get_face_ptr(Surface3D const * const s, int ind, int32_t ** f);
 static void get_vertex_ptr(Surface3D const * const s, int ind, double ** v);
 
@@ -40,7 +41,7 @@ static void get_vertex_ptr(Surface3D const * const s, int ind, double ** v);
  * OUTPUT:
  *  surf - a Surface struct that contains information of the surface.
  */
-void set_up_surface(double V[], double N[], int32_t F[], char * C[], Material M[],
+void set_up_surface(double V[], double N[], double B[], int32_t F[], char * C[], Material M[],
         int nmaterials, int ntriag, int nvert, int surf_index, Surface3D * const surf) {
 
     /* Allocate the components of the surface. */
@@ -49,6 +50,7 @@ void set_up_surface(double V[], double N[], int32_t F[], char * C[], Material M[
     surf->n_vertices = nvert;
     surf->vertices = V;
     surf->normals = N;
+    surf->lattice = B;
     surf->faces = F;
 
     // assign references to the correct material
@@ -217,7 +219,10 @@ void get_element3D(Surface3D const * const sample, int idx, Triangle * element) 
     j += 1;
     vertices[2] = (sample->faces[j] - 1)*3;
     element->normal[2] = sample->normals[j];
-
+    j = idx*6 + 0;
+    for (int i = 0; i < 6; i++)
+        element->lattice[i] = sample->lattice[j + i];
+    
     /* Vertices of the triangle */
     element->v1[0] = sample->vertices[vertices[0]];
     element->v1[1] = sample->vertices[vertices[0] + 1];
@@ -349,16 +354,20 @@ void print_surface(Surface3D const * const s) {
     for (int iface = 0; iface < s->n_faces; iface++) {
         int32_t f[3];
         double n[3];
+        double b[6];
     	printf("\n FACE %2d", iface);
         get_face(s, iface, f);
         get_normal(s, iface, n);
+        get_lattice(s, iface, b);
         //int ind0, ind1, ind2;
         //lin(iface, 0, &ind0);
         //lin(iface, 1, &ind1);
         //lin(iface, 2, &ind2);
-        printf("\tV %3d %3d %3d", f[0], f[1], f[2]);
+        printf("\tV %3d %3d %3d\n", f[0], f[1], f[2]);
         //s->faces[ind0], s->faces[ind1], s->faces[ind2]);
-        printf("\tN % .2f % .2f % .2f", n[0], n[1], n[2]);
+        printf("\tN % .2f % .2f % .2f\n", n[0], n[1], n[2]);
+        printf("\tB % .2f % .2f % .2f % .2f % .2f % .2f\n", b[0], b[1], b[2],
+               b[3], b[4], b[5]);
         //s->normals[ind0],s->normals[ind1], s->normals[ind2]);
         print_material(s->compositions[iface]);
     }
@@ -497,7 +506,7 @@ void create_ray(Ray3D * const gen_ray, SourceParam const * const source, MTRand 
             normal[0] = 0;
             normal[1] = -1;
             normal[2] = 0;
-            cosine_scatter(normal, NULL, gen_ray->direction, NULL, myrng);
+            cosine_scatter(normal, NULL, NULL, gen_ray->direction, NULL, myrng);
             break;
     }
 
@@ -564,6 +573,7 @@ void make_basic_sample(int sample_index, double size, Surface3D * const sample) 
     int nvert = 5;
     double * V;
     double * N;
+    double * B;
     int32_t * F;
     V = (double *)malloc(sizeof(double)*nvert*3);
     double VV[15] = {-size/2, -1, -size/2,
@@ -575,12 +585,17 @@ void make_basic_sample(int sample_index, double size, Surface3D * const sample) 
         V[i] = VV[i];
     }
     double NN[9] = {0,1,0, 0,1,0, 0,1,0};
+    double BB[18] = {1,0,0, 0,0,1,
+                     1,0,0, 0,0,1,
+                     1,0,0, 0,0,1};
     int32_t FF[9] = {1,2,3, 1,3,4, 3,5,4};
     N = (double *)malloc(sizeof(double)*ntriag_sample*3);
+    B = (double *)malloc(sizeof(double)*ntriag_sample*6);
     F = (int32_t *)malloc(sizeof(int32_t)*ntriag_sample*3);
     for (i = 0; i < ntriag_sample*3; i++) {
         N[i] = NN[i];
         F[i] = FF[i];
+        B[i] = BB[i];
     }
     char *C[3] = {"shiny", "shiny", "shiny"};
     Material * M;
@@ -589,7 +604,7 @@ void make_basic_sample(int sample_index, double size, Surface3D * const sample) 
     for (i = 0; i < ntriag_sample; i++) {
         M[i] = MM[i];
     }
-    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample,
+    set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample,
             nvert, sample_index, sample);
 }
 
@@ -890,6 +905,23 @@ static void get_normal_ptr(Surface3D const * const s, int ind, double ** n){
     lin(ind, 0, &ind0);
 
     *n = &s->normals[ind0];
+}
+
+static void get_lattice_ptr(Surface3D const * const s, int ind, double ** b) {
+    int ind0;
+    ind0 = 6*ind;
+    
+    *b = &s->lattice[ind0];
+}
+
+void get_lattice(Surface3D const * const s, int ind, double b[6]) {
+    double * b_ptr;
+    int j;
+    
+    get_lattice_ptr(s, ind, &b_ptr);
+    
+    for (j = 0; j < 6; j++)
+        b[j] = b_ptr[j];
 }
 
 void get_normal(Surface3D const * const s, int ind, double n[3]) {

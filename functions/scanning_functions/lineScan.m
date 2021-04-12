@@ -51,6 +51,8 @@ function line_scan_info = lineScan(varargin)
                 ray_model = varargin{i_+1};
             case 'n_detector'
                 n_detector = varargin{i_+1};
+            case 'make_plots'
+                make_plots = varargin{i_+1};
             otherwise
                 error(['input ' num2str(i_) ' not recognised:']);
         end
@@ -101,6 +103,8 @@ function line_scan_info = lineScan(varargin)
         else
             h = waitbar(0, 'Simulation progress: ');
         end
+    else
+        h = '';
     end
 
     % Makes the parfor loop stop complaining.
@@ -139,12 +143,14 @@ function line_scan_info = lineScan(varargin)
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
 
         % Update the progress bar if we are working in the MATLAB GUI.
-        if progressBar && ~isOctave
-            ppm.increment();
-        elseif isOctave
-            waitbar(i_/n_pixels, h);
+        if progressBar
+            if ~isOctave
+                ppm.increment();
+            elseif isOctave
+                waitbar(i_/n_pixels, h);
+            end
         end
-
+        
         % Save the data for this iteration
         cntr_effuse_single(:,i_) = numScattersEffuse(1);
         counter_effuse_multiple(:,i_) = sum(numScattersEffuse(2:end));
@@ -182,7 +188,11 @@ function line_scan_info = lineScan(varargin)
         scan_inputs.raster_movment1D, direct_beam.n, t, t_estimate, cntr_effuse_single, ...
         counter_effuse_multiple, killed_effuse, direct_beam);
 
-    if progressBar
+    if progressBar && ~isOctave
+        delete(ppm);
+    end
+    
+    if progressBar && make_plots
         line_scan_info.producePlots(thePath);
     end
 end

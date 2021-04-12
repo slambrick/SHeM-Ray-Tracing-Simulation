@@ -30,7 +30,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], 
                  int nrhs, const mxArray *prhs[]) {
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 12;
+    const int NINPUTS = 13;
     const int NOUTPUTS = 5;
     
     /* Declare the input variables */
@@ -39,6 +39,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double * V;              /* sample triangle vertices 3xn */
     int32_t * F;             /* sample triangle faces 3xM */
     double * N;              /* sample triangle normals 3xM */
+    double * B;
     char ** C;               /* sample material keys, length M */
     Material * M;            /* materials of the sample */
     int nrays;               /* number of rays */
@@ -95,24 +96,25 @@ void mexFunction(int nlhs, mxArray *plhs[],
     ntriag_sample = mxGetN(prhs[3]);
     F = mxGetInt32s(prhs[3]);
     N = mxGetDoubles(prhs[4]);
+    B = mxGetDoubles(prhs[5]);
     
     // read in the material keys
     C = calloc(ntriag_sample, sizeof(char*));
-    get_string_cell_arr(prhs[5], C);
+    get_string_cell_arr(prhs[6], C);
 
     // get the sphere from struct
-    sphere = get_sphere(prhs[6], sphere_index);
+    sphere = get_sphere(prhs[7], sphere_index);
 
     // extract plate properties from theplate cell array containing plate options
-    plate = get_plate(prhs[7], plate_index);
+    plate = get_plate(prhs[8], plate_index);
 
     // materials
-    int num_materials = mxGetN(prhs[8]);
+    int num_materials = mxGetN(prhs[9]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[8], prhs[9], prhs[10], M);
+    get_materials_array(prhs[9], prhs[10], prhs[11], M);
     
     // simulation parameters
-    maxScatters = (int)mxGetScalar(prhs[11]); /* mxGetScalar gives a double */
+    maxScatters = (int)mxGetScalar(prhs[12]); /* mxGetScalar gives a double */
     
     /**************************************************************************/
 
@@ -129,7 +131,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     compose_rays3D(ray_pos, ray_dir, nrays, &all_rays);
     
     /* Put the sample and pinhole plate surface into structs */
-    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
+    set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
 
     /* Output matrix for total number of counts */
     plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);

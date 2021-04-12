@@ -52,6 +52,7 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
     VT = sample_surface.vertices';
     FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
+    BT = sample_surface.lattice';
     CT = sample_surface.compositions';
     
     mat_names = sample_surface.materials.keys;
@@ -67,7 +68,7 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
     
     % The calling of the mex function, ...
     [cntr, killed, numScattersRay, detected, which_detector]  = ...
-        tracingMultiMex(ray_posT, ray_dirT, VT, FT, NT, CT, s, p, mat_names, ...
+        tracingMultiMex(ray_posT, ray_dirT, VT, FT, NT, BT, CT, s, p, mat_names, ...
             mat_functions, mat_params, max_scatter);
     
     % The number of rays that died naturally, rather than being 'killed'

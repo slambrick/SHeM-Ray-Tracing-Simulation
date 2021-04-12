@@ -44,9 +44,10 @@ typedef struct _surface3d {
     int surf_index;       /* Index of the surface */
     int n_faces;          /* Number of faces in the surface */
     int n_vertices;       /* Number of vertices defined */
-    double * vertices;     /* Vertices of the surface */
-    int * faces;           /* Faces of the surface. */
-    double * normals;      /* Normals to the elements of the surface */
+    double * vertices;    /* Vertices of the surface */
+    int * faces;          /* Faces of the surface. */
+    double * normals;     /* Normals to the elements of the surface */
+    double * lattice;     /* Reciprocal lattice parameters of the surface elements */
     Material ** compositions; /* The type of scattering off the elements of this surface */
 } Surface3D;
 
@@ -56,6 +57,7 @@ typedef struct _triangle {
 	double v2[3];
 	double v3[3];
 	double normal[3];
+    double lattice[6];
 	int tri_index;
 } Triangle;
 
@@ -150,7 +152,7 @@ typedef struct _sourceParam {
 /******************************************************************************/
 
 /*  Set up a surface containing the information on a triangulated surface. */
-void set_up_surface(double V[], double N[], int32_t F[], char * C[], Material M[],
+void set_up_surface(double V[], double N[], double B[], int32_t F[], char * C[], Material M[],
 		int nmaterials, int ntriag, int nvert, int surf_index, Surface3D * const surf);
 
 void clean_up_surface(Surface3D * const surface);
@@ -272,6 +274,8 @@ void get_elementCircle(Circle the_circle, Triangle * const element);
 void constructPlate(double * point, double * normal, Plane * plane, int index, Material material);
 
 void get_normal(Surface3D const * const s, int ind, double n[3]);
+
+void get_lattice(Surface3D const * const s, int ind, double b[6]);
 
 void set_normal(Surface3D const * const s, int ind, double new_n[3]);
 

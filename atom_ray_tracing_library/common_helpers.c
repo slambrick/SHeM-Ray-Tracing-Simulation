@@ -78,7 +78,7 @@ void gaussian_random(double mu, double sigma, double Z[2], MTRand * const myrng)
     
     Z[0] = sqrt(-2*log(U1))*cos(2*M_PI*U2);
     Z[1] = sqrt(-2*log(U1))*sin(2*M_PI*U2);
-    
+
     Z[0] = Z[0]*sigma + mu;
     Z[1] = Z[1]*sigma + mu;
     

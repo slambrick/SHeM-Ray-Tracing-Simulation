@@ -59,11 +59,13 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     VT = sample_surface.vertices';
     FT = int32(sample_surface.faces');
     NT = sample_surface.normals';
+    BT = sample_surface.lattice';
     CT = sample_surface.compositions';
     
     VTS = pinhole_surface.vertices';
     FTS = int32(pinhole_surface.faces');
     NTS = pinhole_surface.normals';
+    BTS = pinhole_surface.lattice';
     CTS = pinhole_surface.compositions';
     
     % Need to know how deep the pinhole plate is, how wide it is and how high it
@@ -85,8 +87,8 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
     
     % The calling of the mex function, ...
     [cntr, killed, final_pos, final_dir, numScattersRay, detected]  = ...
-        tracingMex(ray_posT, ray_dirT, VT, FT, NT, CT, VTS, FTS, ...
-                   NTS, CTS, s, backWall, mat_names, mat_functions, mat_params, max_scatter);
+        tracingMex(ray_posT, ray_dirT, VT, FT, NT, BT, CT, VTS, FTS, ...
+                   NTS, BTS, CTS, s, backWall, mat_names, mat_functions, mat_params, max_scatter);
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.

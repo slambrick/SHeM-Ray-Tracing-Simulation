@@ -39,7 +39,7 @@ static void intersectPlane(Ray3D * const the_ray, Triangle element, double new_l
  *
  */
 void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_dist,
-        double nearest_inter[3], double nearest_n[3], int * const tri_hit,
+        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const tri_hit,
         int * const which_surface, bool * const meets_sphere) {
     double a,b,c;
     double beta, gamma;
@@ -104,7 +104,7 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_
 }
 
 void scatterCircle(Ray3D * the_ray, Circle the_circle, double * const min_dist,
-        double nearest_inter[3], double nearest_n[3], int * const tri_hit,
+        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const tri_hit,
         int * const which_surface, bool * const meets_circle) {
     int i;
 	double new_loc[3];
@@ -240,7 +240,7 @@ static void intersectPlane(Ray3D * const the_ray, Triangle element, double new_l
 }
 
 void scatterPlane(Ray3D * the_ray, Plane plane, double * const min_dist,
-		double nearest_inter[3], double nearest_n[3], int * const meets,
+		double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const meets,
 		int * const which_surface) {
 	double *e;
 	bool hit, within;
@@ -310,7 +310,7 @@ void scatterPlane(Ray3D * the_ray, Plane plane, double * const min_dist,
  *       code.
  */
 void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
-        double nearest_inter[3], double nearest_n[3], int * const meets, int * const tri_hit,
+        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const meets, int * const tri_hit,
         int * const which_surface) {
     int j;
     double *e;
@@ -333,9 +333,8 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
          * Specify which triangle and get its normal.
          */
         get_element3D(&sample, j, &element);
-
         intersectPlane(the_ray, element, new_loc, &hit, &within);
-
+        
         if (!hit)
         	continue;
 
@@ -347,7 +346,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
 
             /* We have hit a triangle */
             *meets = 1; // <- I think I've found the problem....
-
+            
             /* Movement is the vector from the current location to the possible
              * new location */
             movment[0] = new_loc[0] - e[0];
@@ -357,20 +356,21 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
             /* NOTE: we are comparing the square of the distance */
             dist = movment[0]*movment[0] + movment[1]*movment[1] +
                 movment[2]*movment[2];
-            // Not good here!! :'(
 
             if (dist < *min_dist) {
+                int k;
                 /* This is the smallest intersection found so far */
                 *min_dist = dist;
 
                 *tri_hit = j;
-                nearest_n[0] = element.normal[0];
-                nearest_n[1] = element.normal[1];
-                nearest_n[2] = element.normal[2];
-                nearest_inter[0] = new_loc[0];
-                nearest_inter[1] = new_loc[1];
-                nearest_inter[2] = new_loc[2];
-
+                for (k = 0; k < 3; k++) {
+                    nearest_n[k] = element.normal[k];
+                    nearest_b[k] = element.lattice[k];
+                    nearest_inter[k] = new_loc[k];
+                }
+                for (k = 3; k < 6; k++)
+                    nearest_b[k] = element.lattice[k];
+                    
                 *which_surface = sample.surf_index;
             }
         }
@@ -382,7 +382,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
  * detected or the index of the detector is has entered.
  */
 void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist,
-        double nearest_inter[3], double nearest_n[3], int * meets, int * const tri_hit,
+        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * meets, int * const tri_hit,
         int * const which_surface, int * const which_aperture) {
     double *d;
     d = the_ray->direction;

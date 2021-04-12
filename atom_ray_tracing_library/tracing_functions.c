@@ -40,6 +40,7 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_spher
     int meets = 0;
     int tri_hit = -1;
     double nearest_n[3];
+    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
     double nearest_inter[3];
     double new_direction[3];
     bool meets_sphere = 0;
@@ -47,9 +48,10 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_spher
 
     /* Much further than any of the triangles */
     min_dist = 10.0e10;
+    
 
     /* Try to scatter of the sample */
-    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, &meets,
+    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, nearest_b, &meets,
         &tri_hit, &which_surface);
 
     /* Should the sphere be represented */
@@ -57,7 +59,7 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_spher
         /* Check the sphere if we are not on it */
         if (the_ray->on_surface != the_sphere.surf_index) {
             scatterSphere(the_ray, the_sphere, &min_dist, nearest_inter,
-            	nearest_n, &tri_hit, &which_surface, &meets_sphere);
+            	nearest_n, nearest_b, &tri_hit, &which_surface, &meets_sphere);
         }
     }
 
@@ -71,9 +73,11 @@ void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_spher
         } else {
             composition = sample.compositions[tri_hit];
         }
-
+        
         /* Find the new direction and update position*/
-        composition->func(nearest_n, the_ray->direction,
+        //print_material(composition);
+        // Problem lies in our new diffraction function
+        composition->func(nearest_n, nearest_b, the_ray->direction,
             new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
@@ -104,6 +108,7 @@ void scatterPinholeSurface(Ray3D * the_ray, Surface3D plate, double const backWa
     int meets;
     int tri_hit;
     double nearest_n[3];
+    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
     double nearest_inter[3];
     double new_direction[3];
     int which_surface;
@@ -121,7 +126,7 @@ void scatterPinholeSurface(Ray3D * the_ray, Surface3D plate, double const backWa
     min_dist = 10.0e10;
 
     /* Try to scatter off the pinhole plate */
-    scatterTriag(the_ray, plate, &min_dist, nearest_inter, nearest_n, &meets,
+    scatterTriag(the_ray, plate, &min_dist, nearest_inter, nearest_n, nearest_b, &meets,
         &tri_hit, &which_surface);
 
     /* Update position/direction etc. */
@@ -132,7 +137,7 @@ void scatterPinholeSurface(Ray3D * the_ray, Surface3D plate, double const backWa
         composition = plate.compositions[tri_hit];
 
         /* Update the direction and position of the ray */
-        composition->func(nearest_n, the_ray->direction,
+        composition->func(nearest_n, nearest_b, the_ray->direction,
             new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
@@ -203,6 +208,7 @@ void scatterSurfaces(Ray3D * the_ray, Surface3D sample, Surface3D plate,
     int meets;
     int tri_hit;
     double nearest_n[3];
+    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
     double nearest_inter[3];
     double new_direction[3];
     bool meets_sphere;
@@ -222,11 +228,11 @@ void scatterSurfaces(Ray3D * the_ray, Surface3D sample, Surface3D plate,
     min_dist = 10.0e10;
 
     /* Try to scatter off the sample */
-    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, &meets,
+    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, nearest_b, &meets,
         &tri_hit, &which_surface);
 
     /* Try to scatter off the pinhole plate */
-    scatterTriag(the_ray, plate, &min_dist, nearest_inter, nearest_n, &meets,
+    scatterTriag(the_ray, plate, &min_dist, nearest_inter, nearest_n, nearest_b, &meets,
         &tri_hit, &which_surface);
 
     /* Should the sphere be represented */
@@ -234,7 +240,7 @@ void scatterSurfaces(Ray3D * the_ray, Surface3D sample, Surface3D plate,
         /* Check the sphere if we are not on it */
         if (the_ray->on_surface != the_sphere.surf_index) {
             scatterSphere(the_ray, the_sphere, &min_dist, nearest_inter,
-            	nearest_n, &tri_hit, &which_surface, &meets_sphere);
+            	nearest_n, nearest_b, &tri_hit, &which_surface, &meets_sphere);
         }
     }
 
@@ -254,7 +260,7 @@ void scatterSurfaces(Ray3D * the_ray, Surface3D sample, Surface3D plate,
         }
 
         /* Find the new direction and update position*/
-        composition->func(nearest_n, the_ray->direction,
+        composition->func(nearest_n, nearest_b, the_ray->direction,
             new_direction, composition->params, myrng);
         update_ray_direction(the_ray, new_direction);
         update_ray_position(the_ray, nearest_inter);
@@ -317,6 +323,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D sample, NBackWall plate,
 		AnalytSphere the_sphere, int * detector, MTRand * const myrng) {
 
     double nearest_n[3];
+    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
     double nearest_inter[3];
     double new_direction[3];
 
@@ -340,7 +347,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D sample, NBackWall plate,
 
     /* Try to scatter off the sample */
     int meets_sample = 0;
-    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, &meets_sample,
+    scatterTriag(the_ray, sample, &min_dist, nearest_inter, nearest_n, nearest_b, &meets_sample,
         &tri_hit, &which_surface);
     meets = meets_sample;
 
@@ -349,14 +356,14 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D sample, NBackWall plate,
         /* Check the sphere if we are not on it */
         if (the_ray->on_surface != the_sphere.surf_index) {
             scatterSphere(the_ray, the_sphere, &min_dist, nearest_inter,
-            	nearest_n, &tri_hit, &which_surface, &meets_sphere);
+            	nearest_n, nearest_b, &tri_hit, &which_surface, &meets_sphere);
         }
     }
 
     /* Try to scatter off the simple pinhole plate */
     if (the_ray->on_surface != plate.surf_index) {
         int meets_wall = 0;
-        multiBackWall(the_ray, plate, &min_dist, nearest_inter, nearest_n,
+        multiBackWall(the_ray, plate, &min_dist, nearest_inter, nearest_n, nearest_b,
         	&meets_wall, &tri_hit, &which_surface, &detected);
         meets = meets || meets_wall;
     }
@@ -387,7 +394,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Surface3D sample, NBackWall plate,
         }
 
         /* Find the new direction and update position*/
-        composition->func(nearest_n, the_ray->direction,
+        composition->func(nearest_n, nearest_b, the_ray->direction,
             new_direction, composition->params, myrng);
         /* Updates the current triangle and surface the ray is on */
         the_ray->on_element = tri_hit;

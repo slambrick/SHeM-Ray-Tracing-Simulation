@@ -54,7 +54,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     
     /* Expected number of inputs and outputs */
-    int const NINPUTS = 13;
+    int const NINPUTS = 14;
     int const NOUTPUTS = 3;
 
     /* Declare the input variables */
@@ -62,6 +62,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     double *V;             /* sample triangle vertices 3xn */
     int32_t *F;            /* sample triangle faces 3xM */
     double *N;             /* sample triangle normals 3xM */
+    double *B;             /* surface reciprocal lattice vectors */
     char **C;              /* sample material keys, length M */
     Material *M;           /* materials of the sample */
     int n_rays;            /* number of rays */
@@ -112,28 +113,29 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ntriag_sample = mxGetN(prhs[1]);
     F = mxGetInt32s(prhs[1]);
     N = mxGetDoubles(prhs[2]);
+    B = mxGetDoubles(prhs[3]);
 
     // read in the material keys
     C = calloc(ntriag_sample, sizeof(char*));
-    get_string_cell_arr(prhs[3], C);
+    get_string_cell_arr(prhs[4], C);
 
     // get the sphere from struct
-    sphere = get_sphere(prhs[4], sphere_index);
+    sphere = get_sphere(prhs[5], sphere_index);
 
     // extract plate properties from thePlate cell array containing plate options
-    plate = get_plate(prhs[5], plate_index);
+    plate = get_plate(prhs[6], plate_index);
 
     // materials
-    int num_materials = mxGetN(prhs[6]);
+    int num_materials = mxGetN(prhs[7]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[6], prhs[7], prhs[8], M);
+    get_materials_array(prhs[7], prhs[8], prhs[9], M);
     
     // simulation parameters
-    maxScatters = (int)mxGetScalar(prhs[9]);
-    n_rays = (int)mxGetScalar(prhs[10]);
+    maxScatters = (int)mxGetScalar(prhs[10]);
+    n_rays = (int)mxGetScalar(prhs[11]);
     
     // TODO: pass through source as a struct?
-    get_source(prhs[12], (int)mxGetScalar(prhs[11]), &source);
+    get_source(prhs[13], (int)mxGetScalar(prhs[12]), &source);
 
     /**************************************************************************/
         
@@ -146,7 +148,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     // Put the sample and pinhole plate surface into structs
     // TODO: can we make a sample struct that can be passed from Matlab to C?
-    set_up_surface(V, N, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
+    set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
 
     /**************************************************************************/
     
@@ -163,6 +165,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     cntr_detected = (int32_t*)mxGetData(plhs[0]);
     numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
+    //print_surface(&sample);
     /**************************************************************************/
 
     /* Main implementation of the ray tracing */

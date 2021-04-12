@@ -396,7 +396,7 @@ addpath(thePath);
 %% Sample import and plotting
 
 % A struct to represent the sphere
-sphere = Sphere(1, defMaterial, sphere_c, sphere_r);
+sphere = Sphere(1, material, sphere_c, sphere_r);
 
 % Importing the sample as a TriagSurface object.
 [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, ...
@@ -409,7 +409,7 @@ end
 
 % Do any extra manipulation of the sample here
 
-if true
+if false
     % Tilt required to explain the problem with displacement of the diffraction
     % p[attern
     sample_surface.rotateGeneral('x', -2.1);
@@ -424,6 +424,7 @@ if false
     sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
     sample_surface.lattice(:,6) = -sample_surface.lattice(:,6);
 end
+%sample_surface.rotateGeneral('y', 45);
 
 % Plot the sample surface in 3D space, if we are using a graphical window
 % TODO: put in a seperate

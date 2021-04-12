@@ -1,22 +1,37 @@
 %% Parameter file for SHeM ray tracing
 % Most of the basic parameters can be specified here, although there is some 
 % greater functionality available through directly editing the main script.
-% refer to the seperate file for in depth descritions of parameters.
 %
 % Lines that start with '%' will be ignored, feel free to add your own comments.
 
 %% Set up your virtual microscope
-% stl models of the pinhole plate can also be used, either 'cambridge' or
-% 'angular resolution' or specify an stl file found. Type of scan can be
-% either 'rectangular', 'rotations', 'line', 'line_rotations', 
-Design working distance (mm): 2
-Incidence angle (deg): 45
-Type of scan: line_rotations
+% Models of the pinhole plate that can be used, for any of the CAD models
+% make sure to set the correct design working distance:
+% - 'cambridge', WD=2.12
+% - 'angular resolution', WD=2
+% - 'cambridge new', WD=2.12
+% - 'crude annular', WD=3
+% - 'N circle'
+% New models of plate can be added by creating an appropriate CAD file and
+% then writing a function in 'functions/pinhole_plate_import/', and adding
+% it as an option in 'functions/pinhole_import.m' and 
+% 'functions/parsing_functions/parse_pinhole.m' which parses this file. For
+%
+% Type of scan can be:
+%  - 'rectangular', A single image centred on the centre of the sample
+%  - 'rectangular_z', multiple images at a series of z positions
+%  - 'rotations',  A series of images rotating the sample
+%  - 'line', A single line scan (specify which axis)
+%  - 'line_rotations', A series of z scans while rotating the sample
+Design working distance (mm): 3
+Incidence angle (deg): 30
+Type of scan: rectangular
 Number of detectors: 1
-Detector full axes (x,y): (0.7, 0.5)
-Detector centres (x,y): (3.5, 0)
-Rotation angles (only needed if 'rotations' scan used): (0, -, 2.5, -, 360)
-STL pinhole model: angular resolution
+Detector full axes (x,y): (1.4, 1)
+Detector centres (x,y): (2.35, 0)
+%Rotation angles (only needed for 'rotations'/'line_rotations'): (0, -, 2.5, -, 360) <- TODO
+Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2)
+STL pinhole model: crude annular
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
@@ -42,20 +57,20 @@ Effuse size (relative to the direct beam): 1
 What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.5
-Standard deviation (deg): 10
-Sample description: Test material sample
-Working distance to place the sample at: 2
-Sphere radius (mm): 0.15
+Standard deviation (deg): 30
+Sample description: A sphere
+Working distance to place the sample at: 3
+Sphere radius (mm): 0.2
 Length of side of flat sample: 2
-Custom sample stl file: samples/lif_flat3.obj
+Custom sample stl file: samples/photoStereoSample.stl
 Manual alignment: no
 
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.001
-Scan range x (mm): 0.07
-Scan range y (mm): 0.02
+Pixel seperation (mm): 0.01
+Scan range x (mm): 0.7
+Scan range y (mm): 0.7
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
@@ -65,6 +80,6 @@ Scan max (mm): 4
 Pixel seperation (mm): 0.075
 
 %% Other parameters
-Label for the output directory (no spaces please): LiF_realistic_plate
+Label for the output directory (no spaces please): first_annular_test
 Sould the C code be recompiled: false
 

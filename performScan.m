@@ -48,24 +48,25 @@ material = parse_scattering(strtrim(param_list{17}), str2double(param_list{18}),
 sample_description = param_list{20};
 dist_to_sample = str2double(param_list{21});
 sphere_r = str2double(param_list{22});
-square_size = str2double(param_list{23});
-sample_fname = strtrim(param_list{24});
-dontMeddle = parse_yes_no(param_list{25});
+circle_r = str2double(param_list{23});
+square_size = str2double(param_list{24});
+sample_fname = strtrim(param_list{25});
+dontMeddle = parse_yes_no(param_list{26});
 
 % Set up scan
-pixel_seperation = str2double(param_list{26});
-range_x = str2double(param_list{27});
-range_z = str2double(param_list{28});
-init_angle_pattern = ~parse_yes_no(param_list{29});
+pixel_seperation = str2double(param_list{27});
+range_x = str2double(param_list{28});
+range_z = str2double(param_list{29});
+init_angle_pattern = ~parse_yes_no(param_list{30});
 
 % 1D scan parameters
-scan_direction = strtrim(param_list{30});
-range_1D = [str2double(param_list{31}), str2double(param_list{32})];
-res_1D = str2double(param_list{33});
+scan_direction = strtrim(param_list{31});
+range_1D = [str2double(param_list{32}), str2double(param_list{33})];
+res_1D = str2double(param_list{34});
 
 % Other parameters
-directory_label = strtrim(param_list{34});
-recompile = parse_yes_no(param_list{35});
+directory_label = strtrim(param_list{35});
+recompile = parse_yes_no(param_list{36});
 
 %% Generate parameters from the inputs 
 
@@ -73,11 +74,14 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2] + dist_to_sample - working_dist;
+xrange = [-range_x/2, range_x/2] + dist_to_sample - working_dist + 0.1;
 zrange = [-range_z/2, range_z/2];
 sphere_c = [0, -dist_to_sample + sphere_r, 0];
 
 %% Define remaining parameters
+
+circle_c = [0, -working_dist, 0];
+circle_n = [0, 1, 0];
 
 % The maximum number of sample scatters per ray. There is a hard-coded total
 % maximum number of scattering events of 1000 (sample and pinhole plate). Making
@@ -395,12 +399,13 @@ addpath(thePath);
 
 %% Sample import and plotting
 
-% A struct to represent the sphere
-sphere = Sphere(1, defMaterial, sphere_c, sphere_r);
+% A struct to represent the sphere and circle parts of the sample
+sphere = Sphere(1, material, sphere_c, sphere_r);
+circle = Circle(1, material, circle_c, circle_r, circle_n);
 
 % Importing the sample as a TriagSurface object.
-[sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, ...
-    pinhole_plate_inputs.working_dist, dontMeddle, square_size);
+[sample_surface, sphere, circle, sample_description] = sample_import(sample_inputs, sphere, ...
+    circle, pinhole_plate_inputs.working_dist, dontMeddle, square_size, init_angle);
 sample_inputs.sample_descrition = sample_description;
 
 if strcmp(typeScan, 'line')
@@ -409,7 +414,7 @@ end
 
 % Do any extra manipulation of the sample here
 
-if true
+if false
     % Tilt required to explain the problem with displacement of the diffraction
     % p[attern
     sample_surface.rotateGeneral('x', -2.1);
@@ -424,6 +429,7 @@ if false
     sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
     sample_surface.lattice(:,6) = -sample_surface.lattice(:,6);
 end
+%sample_surface.rotateGeneral('y', 45);
 
 % Plot the sample surface in 3D space, if we are using a graphical window
 % TODO: put in a seperate
@@ -483,6 +489,7 @@ switch typeScan
             'raster_pattern', raster_pattern,'direct_beam', direct_beam, ...
             'max_scatter', max_scatter,      'pinhole_surface', pinhole_surface, ...
             'effuse_beam', effuse_beam,      'dist_to_sample', dist_to_sample, ...
+            'circle', circle, ...
             'sphere', sphere,                'thePath', thePath, ...
             'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
             'ray_model', ray_model,          'n_detector', n_detectors);
@@ -531,6 +538,7 @@ switch typeScan
                 'max_scatter', max_scatter,      'pinhole_surface', pinhole_surface, ...
                 'effuse_beam', effuse_beam,      'dist_to_sample', y_distance, ...
                 'sphere', sphere,                'thePath', subPath, ...
+                'circle', circle, ...
                 'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
                 'ray_model', ray_model,          'n_detector', n_detectors); %#ok<SAGROW>
             waitbar(i_/ny, h);
@@ -546,9 +554,10 @@ switch typeScan
             'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...
             'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
             'sphere', sphere,               'thePath', thePath, ...
+            'circle', circle, ...
             'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
             'ray_model', ray_model,         'n_detector', n_detectors, ...
-            'make_plots', true);
+            'make_plots', true,             'init_angle', init_angle);
     case 'single pixel'
         % For a single pixel
         % TODO: update with the new lower level functions
@@ -604,6 +613,7 @@ switch typeScan
                 'max_scatter', max_scatter,      'pinhole_surface', pinhole_surface, ...
                 'effuse_beam', effuse_beam,      'dist_to_sample', dist_to_sample, ...
                 'sphere', sphere,                'thePath', subPath, ...
+                'circle', circle, ...
                 'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
                 'ray_model', ray_model,          'n_detector', n_detectors); %#ok<SAGROW>
             
@@ -674,9 +684,10 @@ switch typeScan
                 'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...
                 'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
                 'sphere', sphere,               'thePath', subPath, ...
+                'circle', circle, ...
                 'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
                 'ray_model', ray_model,         'n_detector', n_detectors, ...
-                'make_plots', false); %#ok<SAGROW>
+                'make_plots', false,            'init_angle', init_angle); %#ok<SAGROW>
             
             waitbar(i_/N, h);
         end

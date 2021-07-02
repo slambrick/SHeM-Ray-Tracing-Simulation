@@ -63,6 +63,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // Declare structs
     Surface3D sample;
     AnalytSphere the_sphere;
+    Circle the_circle;
+    Sample overall_sample;
 
     // surface indexing: -1 is no surface, 0 is the sample, etc
     int sample_index = 0;   
@@ -142,6 +144,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // TODO: sphere to be passed in as a struct
     set_up_sphere(0, start_pos, 1, M[0], sphere_index, &the_sphere);
 
+    /* Put all the sample structs together in one struct */
+    overall_sample.the_sphere = &the_sphere;
+    overall_sample.the_circle = &the_circle;
+    overall_sample.triag_sample = &sample;
+    
     /*
      * Create the output matrices
      * They need to be created as the transpose of what we want because of the
@@ -173,8 +180,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                 the_ray.direction[j] = start_dir[j];
             }
             
-            trace_ray_just_sample(&the_ray, &killed, maxScatters, sample, the_sphere,
-                              &myrng);
+            trace_ray_just_sample(&the_ray, &killed, maxScatters, overall_sample, &myrng);
             /* Update final position an directions of ray */
             for (j = 0; j < 3; j++) {
                 int n;
@@ -184,7 +190,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
             }
             numScattersRay[i] = the_ray.nScatters;
         } else {
-            trace_ray_just_sample(&all_rays.rays[i], &killed, maxScatters, sample, the_sphere,
+            trace_ray_just_sample(&all_rays.rays[i], &killed, maxScatters, overall_sample,
                               &myrng);
         }
     }

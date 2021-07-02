@@ -7,8 +7,6 @@
 %
 % Generates a 1d simulation of the sample.
 %
-% TODO: name value pair inputs
-%
 % Calling syntax:
 %
 % INPUTS:
@@ -17,10 +15,6 @@
 %  line_scan_info - A LineInfo object containing the information about the
 %                   simulation
 function line_scan_info = lineScan(varargin)
-        %sample_surface, scan_range, direct_beam, ...
-        %raster_movement, maxScatter, Direction, pinhole_surface, effuse_beam, ...
-        %dist_to_sample, sphere, thePath, pinhole_model, thePlate, ...
-        %apertureAbstract, ray_model)
     for i_=1:2:length(varargin)
         switch varargin{i_}
             case 'sample_surface'
@@ -39,6 +33,8 @@ function line_scan_info = lineScan(varargin)
                 dist_to_sample = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
+            case 'circle'
+                circle = varargin{i_+1};
             case 'thePath'
                 thePath = varargin{i_+1};
             case 'pinhole_model'
@@ -53,6 +49,8 @@ function line_scan_info = lineScan(varargin)
                 n_detector = varargin{i_+1};
             case 'make_plots'
                 make_plots = varargin{i_+1};
+            case 'init_angle'
+                init_angle = varargin{i_+1};
             otherwise
                 error(['input ' num2str(i_) ' not recognised:']);
         end
@@ -120,26 +118,26 @@ function line_scan_info = lineScan(varargin)
             case 'x'
                 this_surface.moveBy([scan_pos 0 0]);
             case 'y'
-                this_surface.moveBy([scan_pos -scan_pos 0]);
+                this_surface.moveBy([scan_pos*tand(init_angle) -scan_pos 0]);
             case 'z'
                 this_surface.moveBy([0 0 scan_pos]);
             otherwise
                 error('Specify a correct direction for the line scan')
         end
-        % scan_pos2 = [scan_pos_x, scan_pos_z];
-
+        % scan_pos2 = [scan_pos_x, scan_pos_z];his_surface.patchPlot(false);
+        
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
             plate_represent, 'sample', this_surface, 'max_scatter', maxScatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'sphere', sphere, 'ray_model', ...
+            'sphere', sphere, 'circle', circle, 'ray_model', ...
             ray_model, 'which_beam', direct_beam.source_model, 'beam', direct_beam);
 
         % Effuse beam
         [~, effuseKilled, numScattersEffuse] = switch_plate('plate_represent', ...
             plate_represent, 'sample', this_surface, 'max_scatter', maxScatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'sphere', sphere, 'ray_model', ...
+            'sphere', sphere, 'circle', circle, 'ray_model', ...
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
 
         % Update the progress bar if we are working in the MATLAB GUI.

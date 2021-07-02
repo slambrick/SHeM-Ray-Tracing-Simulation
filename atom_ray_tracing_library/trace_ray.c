@@ -21,9 +21,8 @@
  * NOTE: This function run by itself does cause seg faults
  * TODO: find the basterd pointer that causes this!
  */
-void trace_ray_simple_multi(Ray3D *the_ray,
-        int maxScatters, Surface3D sample, NBackWall plate,
-		AnalytSphere the_sphere, MTRand * const myrng) {
+void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_sample, 
+                            NBackWall plate, MTRand * const myrng) {
     /*
      * The total number of scattering events undergone (sample and pinhole
      * plate) 1000 events are allowed in total. A separate limit is placed
@@ -47,7 +46,7 @@ void trace_ray_simple_multi(Ray3D *the_ray,
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
-            scatterOffSurface(the_ray, sample, the_sphere, myrng);
+            scatterOffSurface(the_ray, overall_sample, myrng);
             if (!the_ray->status) {
                 /* Hit the sample */
                 the_ray->nScatters += 1;
@@ -69,7 +68,7 @@ void trace_ray_simple_multi(Ray3D *the_ray,
 
 
         /* Try to scatter of both surfaces. */
-        scatterSimpleMulti(the_ray, sample, plate, the_sphere, &detector, myrng);
+        scatterSimpleMulti(the_ray, overall_sample, plate, &detector, myrng);
 
         if (the_ray->status == 2) {
             the_ray->detector = detector;
@@ -83,8 +82,8 @@ void trace_ray_simple_multi(Ray3D *the_ray,
             n_allScatters++;
 
             /* Hit the sample */
-            if ((the_ray->on_surface == sample.surf_index) ||
-                    (the_ray->on_surface == the_sphere.surf_index)) {
+            if ((the_ray->on_surface == overall_sample.triag_sample->surf_index) ||
+                    (the_ray->on_surface == overall_sample.the_sphere->surf_index)) {
                 the_ray->nScatters += 1;
             }
         }
@@ -97,7 +96,7 @@ void trace_ray_simple_multi(Ray3D *the_ray,
  * Trace a single ray
  */
 void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
-        Surface3D sample, Surface3D plate, AnalytSphere the_sphere,
+        Sample overall_sample, Surface3D plate,
         double const backWall[], MTRand * const myrng) {
     int n_allScatters;
 
@@ -120,7 +119,7 @@ void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
-            scatterOffSurface(the_ray, sample, the_sphere, myrng);
+            scatterOffSurface(the_ray, overall_sample, myrng);
 
             if (!(the_ray->status)) {
                 /* Hit the sample */
@@ -142,7 +141,7 @@ void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
         }
 
         /* Try to scatter of both surfaces. */
-        scatterSurfaces(the_ray, sample, plate, the_sphere, backWall, myrng);
+        scatterSurfaces(the_ray, overall_sample, plate, backWall, myrng);
 
         /******************************************************************/
         /* Update counters */
@@ -152,8 +151,8 @@ void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
             n_allScatters++;
 
             /* Hit the sample */
-            if ((the_ray->on_surface == sample.surf_index) ||
-                    (the_ray->on_surface == the_sphere.surf_index)) {
+            if ((the_ray->on_surface == overall_sample.triag_sample->surf_index) ||
+                    (the_ray->on_surface == overall_sample.the_sphere->surf_index)) {
                 the_ray->nScatters++;
             }
         }
@@ -164,19 +163,19 @@ void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
  * For scattering a ray off a surface only. So that the distribution may be
  * acquired from the scattering.
  *
- * Trace a single ray off only ths ample
+ * Trace a single ray off only ths sample
  *
  * TODO: change to use the new ray status inside the struct
  */
 void trace_ray_just_sample(Ray3D * the_ray, int * const killed, int maxScatters,
-        Surface3D sample, AnalytSphere the_sphere, MTRand * const myrng) {
+        Sample overall_sample, MTRand * const myrng) {
 
     while (!(the_ray->status)) {
         /* The ray is dead unless we hit something */
         the_ray->status = 1;
 
         /* Try to scatter off the sample */
-        scatterOffSurface(the_ray, sample, the_sphere, myrng);
+        scatterOffSurface(the_ray, overall_sample, myrng);
         if (the_ray->status == 0) {
             /* Hit the sample */
             the_ray->nScatters += 1;

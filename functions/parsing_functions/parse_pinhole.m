@@ -8,6 +8,12 @@ function pinhole_model = parse_pinhole(s)
     elseif strcmpi(strtrim(s), 'angular resolution')
         % Using the angular resolution pinhole plate
         pinhole_model = 'angular';
+    elseif strcmp(strtrim(s), 'crude annular')
+        % Using the crude annular pinhole plate
+        pinhole_model = 'annular';
+    elseif strcmp(strtrim(s), 'normal incidence 3mm')
+        % Using the normal incidence plate with 3mm disc aperture
+        pinhole_model = 'normal';
     elseif strcmp(s(end-3:end), '.stl')
         % Using some ohter pinhole plate model
         pinhole_model = 'stl';

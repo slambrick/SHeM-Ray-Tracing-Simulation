@@ -1,29 +1,45 @@
 %% Parameter file for SHeM ray tracing
 % Most of the basic parameters can be specified here, although there is some 
 % greater functionality available through directly editing the main script.
-% refer to the seperate file for in depth descritions of parameters.
 %
 % Lines that start with '%' will be ignored, feel free to add your own comments.
 
 %% Set up your virtual microscope
-% stl models of the pinhole plate can also be used, either 'cambridge' or
-% 'angular resolution' or specify an stl file found. Type of scan can be
-% either 'rectangular', 'rotations', 'line', 'line_rotations', 
-Design working distance (mm): 2
-Incidence angle (deg): 45
-Type of scan: line_rotations
+% Models of the pinhole plate that can be used, for any of the CAD models
+% make sure to set the correct design working distance:
+% - 'cambridge', WD=2.12
+% - 'angular resolution', WD=2
+% - 'cambridge new', WD=2.12
+% - 'crude annular', WD=3
+% - 'normal incidence 3mm', WD=3?
+% - 'N circle'
+% New models of plate can be added by creating an appropriate CAD file and
+% then writing a function in 'functions/pinhole_plate_import/', and adding
+% it as an option in 'functions/pinhole_import.m' and 
+% 'functions/parsing_functions/parse_pinhole.m' which parses this file. For
+%
+% Type of scan can be:
+%  - 'rectangular', A single image centred on the centre of the sample
+%  - 'rectangular_z', multiple images at a series of z positions
+%  - 'rotations',  A series of images rotating the sample
+%  - 'line', A single line scan (specify which axis)
+%  - 'line_rotations', A series of z scans while rotating the sample
+Design working distance (mm): 2.121
+Incidence angle (deg): 0
+Type of scan: rectangular
 Number of detectors: 1
-Detector full axes (x,y): (0.7, 0.5)
-Detector centres (x,y): (3.5, 0)
-Rotation angles (only needed if 'rotations' scan used): (0, -, 2.5, -, 360)
-STL pinhole model: angular resolution
+Detector full axes (x,y): (1.4, 1)
+Detector centres (x,y): (2.35, 0)
+Rotation angles (only needed for 'rotations'/'line_rotations'): (0, -, 2.5, -, 360)
+%Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
+STL pinhole model: cambridge
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 50,000
+Number of Rays: 10,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -33,38 +49,39 @@ Effuse size (relative to the direct beam): 1
 
 %% Set up your sample
 % There are a few inbuilt samples or you can provide your own stl/obj file of a
-% sample, options are: 'flat', 'sphere', 'custom', 'photoStereo'
+% sample, options are: 'flat', 'sphere', 'custom', 'photoStereo', 'circle'
 %  - If you are using the 'sphere' option specify the radius of sphere.
 %  - If using the 'flat' option specify the size of the flat square sample.
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: custom
+What type of sample are you useing: circle
 Scattering: cosine
 Reflectivity: 0.5
-Standard deviation (deg): 10
-Sample description: Test material sample
-Working distance to place the sample at: 2
-Sphere radius (mm): 0.15
+Standard deviation (deg): 30
+Sample description: A sphere
+Working distance to place the sample at: 2.1
+Sphere radius (mm): 0.2
+Circle radius (mm): 1
 Length of side of flat sample: 2
-Custom sample stl file: samples/lif_flat3.obj
+Custom sample stl file: samples/photoStereoSample.stl
 Manual alignment: no
 
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.001
-Scan range x (mm): 0.07
-Scan range y (mm): 0.02
-Ignore incidence angle in scan pattern: no
+Pixel seperation (mm): 0.1
+Scan range x (mm): 3
+Scan range y (mm): 3
+Ignore incidence angle in scan pattern: yes
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -1.5
-Scan max (mm): 4
-Pixel seperation (mm): 0.075
+Scan min (mm): -2.5
+Scan max (mm): 8
+Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): LiF_realistic_plate
+Label for the output directory (no spaces please): normal_incidence_test
 Sould the C code be recompiled: false
 

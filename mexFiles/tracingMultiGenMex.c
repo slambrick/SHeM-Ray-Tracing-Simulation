@@ -54,7 +54,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     
     /* Expected number of inputs and outputs */
-    int const NINPUTS = 14;
+    int const NINPUTS = 15;
     int const NOUTPUTS = 3;
 
     /* Declare the input variables */
@@ -79,10 +79,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     Surface3D sample;
     NBackWall plate;
     AnalytSphere sphere;
+    Circle the_circle;
     SourceParam source;
+    Sample overall_sample;
 
     /* Indexing the surfaces, -1 refers to no surface */
-    int sample_index = 0, plate_index = 1, sphere_index = 2;
+    int sample_index = 0, plate_index = 1, sphere_index = 2, circle_index = 3;
     
     /* For random number generation */
     struct timeval tv;
@@ -121,21 +123,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     // get the sphere from struct
     sphere = get_sphere(prhs[5], sphere_index);
+    the_circle = get_circle(prhs[6], circle_index);
 
     // extract plate properties from thePlate cell array containing plate options
-    plate = get_plate(prhs[6], plate_index);
+    plate = get_plate(prhs[7], plate_index);
 
     // materials
-    int num_materials = mxGetN(prhs[7]);
+    int num_materials = mxGetN(prhs[8]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[7], prhs[8], prhs[9], M);
+    get_materials_array(prhs[8], prhs[9], prhs[10], M);
     
     // simulation parameters
-    maxScatters = (int)mxGetScalar(prhs[10]);
-    n_rays = (int)mxGetScalar(prhs[11]);
+    maxScatters = (int)mxGetScalar(prhs[11]);
+    n_rays = (int)mxGetScalar(prhs[12]);
     
     // TODO: pass through source as a struct?
-    get_source(prhs[13], (int)mxGetScalar(prhs[12]), &source);
+    get_source(prhs[14], (int)mxGetScalar(prhs[13]), &source);
 
     /**************************************************************************/
         
@@ -161,16 +164,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     plhs[2] = mxCreateNumericMatrix(1, plate.n_detect*maxScatters, mxINT32_CLASS,
                                     mxREAL);
 
+    /* Put all the sample structs together in one struct */
+    overall_sample.the_sphere = &sphere;
+    overall_sample.the_circle = &the_circle;
+    overall_sample.triag_sample = &sample;
+    
     /* Pointers to the output matrices so we may change them*/
     cntr_detected = (int32_t*)mxGetData(plhs[0]);
     numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
-    //print_surface(&sample);
+    print_circle(&the_circle);
     /**************************************************************************/
 
     /* Main implementation of the ray tracing */
     generating_rays_simple_pinhole(source, n_rays, &killed, cntr_detected,
-            maxScatters, sample, plate, sphere, &myrng, numScattersRay);
+            maxScatters, overall_sample, plate, &myrng, numScattersRay);
 
     /**************************************************************************/
 

@@ -49,6 +49,46 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
         case 'new_micro'
             % TODO
             error('Not written this bit of code yet...');
+        case 'annular'
+            pinhole_surface = import_annular();
+            
+            % Plot if using a graphical window
+            if ~isOctave
+                if feature('ShowFigureWindows')
+                    sample_surface.patchPlot(true);
+                    pinhole_surface.patchPlot(false);
+                    view([-5 -5 5])
+                end
+            else
+                sample_surface.patchPlot(true);
+                pinhole_surface.patchPlot(false);
+                view([-5 -5 5])
+            end
+
+            % To pass to the functions
+            thePlate = PinholeModel();
+            aperture_abstract = 0;
+            pinhole_model = 'stl';
+        case 'normal'
+            pinhole_surface = import_normalv1();
+            
+            % Plot if using a graphical window
+            if ~isOctave
+                if feature('ShowFigureWindows')
+                    sample_surface.patchPlot(true);
+                    pinhole_surface.patchPlot(false);
+                    view([-5 -5 5])
+                end
+            else
+                sample_surface.patchPlot(true);
+                pinhole_surface.patchPlot(false);
+                view([-5 -5 5])
+            end
+
+            % To pass to the functions
+            thePlate = PinholeModel();
+            aperture_abstract = 0;
+            pinhole_model = 'stl';
         otherwise
             % Do not have a CAD repreentation of the pinhole plate
 

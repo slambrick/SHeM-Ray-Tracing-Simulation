@@ -41,7 +41,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
     
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 19;
+    const int NINPUTS = 20;
     const int NOUTPUTS = 3;
 
     /* Declare the input variables */
@@ -51,7 +51,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     double * B;             /* lattice vectors */
     char **C;               /* sample triangle diffuse level, length M */
     Material *M;            /* sample scattering parameters */
-    int n_rays;              /* number of rays */
+    int n_rays;             /* number of rays */
     int nvert_sample;       /* number of vertices in the sample */
     int nvert_plate;        /* number of vertices in the plate */
     int ntriag_sample;      /* number of sample triangles */
@@ -71,13 +71,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
                               * ray has undergone */
 
     /* Indexing the surfaces, -1 refers to no surface */
-    int sample_index = 0, plate_index = 1, sphere_index = 2;
+    int sample_index = 0, plate_index = 1, sphere_index = 2, circle_index = 3;
 
     /* Declare structs */
     Surface3D sample;
     Surface3D plate;
     AnalytSphere sphere;
+    Circle the_circle;
     SourceParam source;
+    Sample overall_sample;
 
     /* For random number generation */
     struct timeval tv;
@@ -127,19 +129,19 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     // get the sphere from matlab struct array
     sphere = get_sphere(prhs[10], sphere_index);
-
-    backWall = mxGetPr(prhs[11]);
+    the_circle = get_circle(prhs[11], circle_index);
+    backWall = mxGetPr(prhs[12]);
 
     // materials
-    int num_materials = mxGetN(prhs[12]);
+    int num_materials = mxGetN(prhs[13]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[12], prhs[13], prhs[14], M);
+    get_materials_array(prhs[13], prhs[14], prhs[15], M);
 
-    maxScatters = (int)mxGetScalar(prhs[15]); /* mxGetScalar gives a double */
-    n_rays = (int)mxGetScalar(prhs[16]);
+    maxScatters = (int)mxGetScalar(prhs[16]); /* mxGetScalar gives a double */
+    n_rays = (int)mxGetScalar(prhs[17]);
 
     // TODO: pass through source as a struct?
-    get_source(prhs[18], (int)mxGetScalar(prhs[17]), &source);
+    get_source(prhs[19], (int)mxGetScalar(prhs[18]), &source);
     
     /**************************************************************************/
 
@@ -163,6 +165,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert_sample, sample_index, &sample);
     set_up_surface(VS, NS, BS, FS, CS, M, num_materials, ntriag_plate, nvert_plate, plate_index, &plate);
 
+    /* Put all the sample structs together in one struct */
+    overall_sample.the_sphere = &sphere;
+    overall_sample.the_circle = &the_circle;
+    overall_sample.triag_sample = &sample;
+    
     /*
      * Create the output matrices
      * They need to be created as the transpose of what we want because of the
@@ -170,7 +177,6 @@ void mexFunction(int nlhs, mxArray *plhs[],
      */
     plhs[2] = mxCreateNumericMatrix(1, maxScatters, mxINT32_CLASS, mxREAL);
 
-    //make_basic_sample(sample_index, 10, &sample);
     /* Pointers to the output matrices so we may change them*/
     numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
@@ -178,7 +184,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Main implementation of the ray tracing */
     generating_rays_cad_pinhole(source, n_rays, &killed, &cntr_detected,
-            maxScatters, sample, plate, sphere, backWall, &myrng, numScattersRay);
+            maxScatters, overall_sample, plate, backWall, &myrng, numScattersRay);
 
     /**************************************************************************/
 

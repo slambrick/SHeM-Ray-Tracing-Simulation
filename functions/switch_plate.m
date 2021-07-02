@@ -48,6 +48,8 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
                 thePlate = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
+            case 'circle'
+                circle = varargin{i_+1};
             case 'ray_model'
                 ray_model = varargin{i_+1};
             case 'which_beam'
@@ -98,11 +100,11 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
                 [cnt, killed, ~, ~, ~, numScattersRay, ~] = ...
                     traceRays('rays', rays, 'sample', sample, 'max_scatter', ...
                     max_scatter, 'plate', pinhole_surface, ...
-                    'sphere', sphere);
+                    'sphere', sphere, 'circle', circle');
             case 'N circle'
                 [cnt, killed, ~, numScattersRay] = traceSimpleMulti('rays', rays, ...
                     'sample', sample', 'max_scatter', max_scatter, ...
-                    'sphere', sphere, 'plate', thePlate);
+                    'sphere', sphere, 'circle', circle', 'plate', thePlate);
             case 'abstract'
                 % TODO
         end
@@ -113,13 +115,13 @@ function [cnt, killed, numScattersRay] = switch_plate(varargin)
             case 'stl'
                 [cnt, killed, ~, numScattersRay] = traceRaysGen('sample', ...
                     sample, 'max_scatter', max_scatter, 'plate', pinhole_surface, ...
-                    'sphere', sphere, 'source', which_beam, 'beam', beam);
+                    'sphere', sphere, 'circle', circle', 'source', which_beam, 'beam', beam);
             case 'abstract'
                 % TODO
             case 'N circle'
                 [cnt, killed, ~, numScattersRay] = traceSimpleMultiGen('sample', ...
                     sample, 'max_scatter', max_scatter, 'plate', thePlate, ...
-                    'sphere', sphere, 'source', which_beam, 'beam', beam);
+                    'sphere', sphere, 'circle', circle', 'source', which_beam, 'beam', beam);
         end
     end
 end

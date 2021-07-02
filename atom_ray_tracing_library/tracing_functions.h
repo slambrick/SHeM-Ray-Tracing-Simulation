@@ -20,8 +20,7 @@
  *  the intersection between the ray and an analytic sphere. returns 0 if the
  *  ray does not intersect the sphere.
  */
-void scatterOffSurface(Ray3D * the_ray, Surface3D sample, AnalytSphere the_sphere,
-        MTRand * const myrng);
+void scatterOffSurface(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng);
 
 /*
  *  Finds the intersection, normal at the point of intersection and distance to
@@ -34,15 +33,15 @@ void scatterPinholeSurface(Ray3D * the_ray, Surface3D plate, const double backWa
  *  Scatters a ray off two triangulared surfaces, and an analytic sphere if
  *  desired.
  */
-void scatterSurfaces(Ray3D * the_ray, Surface3D sample, Surface3D plate,
-		AnalytSphere the_sphere, const double backWall[], MTRand * const myrng);
+void scatterSurfaces(Ray3D * the_ray, Sample overall_sample, Surface3D plate,
+		const double backWall[], MTRand * const myrng);
 
 /*
  *  Scatters a ray off a triangulated surface, and a simple model of the pinhole plate
  *  with multiple detector apertures.
  */
-void scatterSimpleMulti(Ray3D * the_ray, Surface3D sample, NBackWall plate,
-		AnalytSphere the_sphere, int * detector, MTRand * const myrng);
+void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
+		int * detector, MTRand * const myrng);
 
 /*
  *  Scatters the ray off a sample and a attempts dtection on a hemisphere with abstract

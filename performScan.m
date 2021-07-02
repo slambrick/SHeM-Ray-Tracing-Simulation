@@ -73,7 +73,7 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2] + dist_to_sample - working_dist;
+xrange = [-range_x/2, range_x/2] + dist_to_sample - working_dist + 0.1;
 zrange = [-range_z/2, range_z/2];
 sphere_c = [0, -dist_to_sample + sphere_r, 0];
 
@@ -400,7 +400,7 @@ sphere = Sphere(1, material, sphere_c, sphere_r);
 
 % Importing the sample as a TriagSurface object.
 [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, ...
-    pinhole_plate_inputs.working_dist, dontMeddle, square_size);
+    pinhole_plate_inputs.working_dist, dontMeddle, square_size, init_angle);
 sample_inputs.sample_descrition = sample_description;
 
 if strcmp(typeScan, 'line')
@@ -549,7 +549,7 @@ switch typeScan
             'sphere', sphere,               'thePath', thePath, ...
             'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
             'ray_model', ray_model,         'n_detector', n_detectors, ...
-            'make_plots', true);
+            'make_plots', true,             'init_angle', init_angle);
     case 'single pixel'
         % For a single pixel
         % TODO: update with the new lower level functions
@@ -677,7 +677,7 @@ switch typeScan
                 'sphere', sphere,               'thePath', subPath, ...
                 'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
                 'ray_model', ray_model,         'n_detector', n_detectors, ...
-                'make_plots', false); %#ok<SAGROW>
+                'make_plots', false,            'init_angle', init_angle); %#ok<SAGROW>
             
             waitbar(i_/N, h);
         end

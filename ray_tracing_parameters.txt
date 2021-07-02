@@ -11,6 +11,7 @@
 % - 'angular resolution', WD=2
 % - 'cambridge new', WD=2.12
 % - 'crude annular', WD=3
+% - 'normal incidence 3mm', WD=3?
 % - 'N circle'
 % New models of plate can be added by creating an appropriate CAD file and
 % then writing a function in 'functions/pinhole_plate_import/', and adding
@@ -24,14 +25,14 @@
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
 Design working distance (mm): 3
-Incidence angle (deg): 30
+Incidence angle (deg): 0
 Type of scan: rectangular
 Number of detectors: 1
 Detector full axes (x,y): (1.4, 1)
 Detector centres (x,y): (2.35, 0)
-%Rotation angles (only needed for 'rotations'/'line_rotations'): (0, -, 2.5, -, 360) <- TODO
-Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2)
-STL pinhole model: crude annular
+Rotation angles (only needed for 'rotations'/'line_rotations'): (0, -, 2.5, -, 360)
+%Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
+STL pinhole model: normal incidence 3mm
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
@@ -54,12 +55,12 @@ Effuse size (relative to the direct beam): 1
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: custom
+What type of sample are you useing: sphere
 Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 30
 Sample description: A sphere
-Working distance to place the sample at: 3
+Working distance to place the sample at: 5.2
 Sphere radius (mm): 0.2
 Length of side of flat sample: 2
 Custom sample stl file: samples/photoStereoSample.stl
@@ -68,18 +69,18 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.01
-Scan range x (mm): 0.7
-Scan range y (mm): 0.7
+Pixel seperation (mm): 0.003
+Scan range x (mm): 0.6
+Scan range y (mm): 0.5
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -1.5
-Scan max (mm): 4
-Pixel seperation (mm): 0.075
+Scan min (mm): -2.5
+Scan max (mm): 8
+Pixel seperation (mm): 0.1
 
 %% Other parameters
-Label for the output directory (no spaces please): first_annular_test
+Label for the output directory (no spaces please): normal_incidence_test
 Sould the C code be recompiled: false
 

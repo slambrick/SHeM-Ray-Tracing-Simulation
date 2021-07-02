@@ -1,5 +1,5 @@
 function [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, working_dist, dontMeddle, ...
-        square_size)
+        square_size, init_angle)
     switch sample_inputs.sample_type
         case 'flat'
             sample_surface = flatSample(square_size, sample_inputs.dist_to_sample, ...
@@ -17,7 +17,7 @@ function [sample_surface, sphere, sample_description] = sample_import(sample_inp
             sphere.make = 1;
             sample_description = ['A single analytic sphere, radius ' ...
                 num2str(sphere.radius) 'mm on a flat square of ' num2str(square_size) 'mm.'];
-            shift = working_dist - sample_inputs.dist_to_sample;
+            shift = (working_dist - sample_inputs.dist_to_sample)*tand(init_angle);
             sample_surface.moveBy([-shift, 0, 0]);
             sphere.centre = sphere.centre + [-shift, 0, 0];
         case 'custom'

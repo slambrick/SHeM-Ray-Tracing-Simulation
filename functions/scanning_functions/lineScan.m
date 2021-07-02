@@ -53,6 +53,8 @@ function line_scan_info = lineScan(varargin)
                 n_detector = varargin{i_+1};
             case 'make_plots'
                 make_plots = varargin{i_+1};
+            case 'init_angle'
+                init_angle = varargin{i_+1};
             otherwise
                 error(['input ' num2str(i_) ' not recognised:']);
         end
@@ -120,14 +122,14 @@ function line_scan_info = lineScan(varargin)
             case 'x'
                 this_surface.moveBy([scan_pos 0 0]);
             case 'y'
-                this_surface.moveBy([scan_pos -scan_pos 0]);
+                this_surface.moveBy([scan_pos*tand(init_angle) -scan_pos 0]);
             case 'z'
                 this_surface.moveBy([0 0 scan_pos]);
             otherwise
                 error('Specify a correct direction for the line scan')
         end
-        % scan_pos2 = [scan_pos_x, scan_pos_z];
-
+        % scan_pos2 = [scan_pos_x, scan_pos_z];his_surface.patchPlot(false);
+        
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
             plate_represent, 'sample', this_surface, 'max_scatter', maxScatter, ...

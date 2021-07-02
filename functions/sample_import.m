@@ -1,4 +1,4 @@
-function [sample_surface, sphere, sample_description] = sample_import(sample_inputs, sphere, working_dist, dontMeddle, ...
+function [sample_surface, sphere, circle, sample_description] = sample_import(sample_inputs, sphere, circle, working_dist, dontMeddle, ...
         square_size, init_angle)
     switch sample_inputs.sample_type
         case 'flat'
@@ -20,6 +20,13 @@ function [sample_surface, sphere, sample_description] = sample_import(sample_inp
             shift = (working_dist - sample_inputs.dist_to_sample)*tand(init_angle);
             sample_surface.moveBy([-shift, 0, 0]);
             sphere.centre = sphere.centre + [-shift, 0, 0];
+        case 'circle'
+            sample_surface = flatSample(1, -1000, sample_inputs.material);
+            circle.make = 1;
+            sphere = Sphere(0, sample_inputs.material);
+            sample_description = 'A flat circular sample';
+            shift = (working_dist - sample_inputs.dist_to_sample)*tand(init_angle);
+            circle.centre = circle.centre + [-shift, 0, 0];
         case 'custom'
             sample_surface = inputSample('fname', sample_inputs.sample_fname, 'sample_dist', sample_inputs.dist_to_sample, ...
                                          'working_dist', working_dist, 'scale', sample_inputs.scale, ...

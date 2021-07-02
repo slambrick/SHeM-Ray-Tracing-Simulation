@@ -79,6 +79,52 @@ AnalytSphere get_sphere(const mxArray * theSphere, int index) {
     return sph;
 }
 
+Circle get_circle(const mxArray * theCircle, int index) {
+    // check if sphere is one struct
+    if(!mxIsStruct(theCircle))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
+                          "Must be struct array. In get_circle.");
+    if(mxGetN(theCircle) != 1 || mxGetM(theCircle) != 1)
+        mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
+                          "Must be one struct. In get_circle.");
+    // get the centre
+    mxArray * field = mxGetField(theCircle, 0, "c");
+    if (!mxIsDouble(field) || mxGetN(field) != 3)
+        mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
+                          "Centre must be array of 3 doubles. In get_circle.");
+    double * circle_c = mxGetDoubles(field);
+    
+    // get the radius - one double
+    field = mxGetField(theCircle, 0, "r");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
+                          "Sphere radius must be scalar. In get_circle.");
+    double circle_r = mxGetScalar(field);
+    
+    // get the normal
+    field = mxGetField(theCircle, 0, "n");
+    if (!mxIsDouble(field) || mxGetN(field) != 3)
+        mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
+                          "Normal must be array of 3 doubles. In get_circle.");
+    double * circle_n = mxGetDoubles(field);
+
+    // get the 'make' - one integer
+    field = mxGetField(theCircle, 0, "make");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
+                          "Sphere make must be scalar. In get_circle.");
+    int make_circle = (int)mxGetScalar(field);
+
+    // now extract the material -- a nested struct
+    mxArray * circ_material = mxGetField(theCircle, 0, "material");
+    Material mat;
+    char *names[] = {"circle"};
+    get_materials(circ_material, names, &mat);
+    
+    Circle circ;
+    set_up_circle(make_circle, circle_c, circle_r, circle_n, mat, index, &circ);
+    return circ;
+}
 
 /* Extract array of material structs. Return how many were extracted. */
 int get_materials(const mxArray * mat, char ** names, Material * target) {

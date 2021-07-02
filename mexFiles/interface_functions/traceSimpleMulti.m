@@ -39,6 +39,8 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
                 plate = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
+            case 'circle'
+                circle = varargin{i_+1};
             otherwise
                 warning([' Input ' num2str(i_) ' not recognised.'])
         end
@@ -64,11 +66,12 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceSimpleMulti(vararg
     end
     
     s = sphere.to_struct();
+    c = circle.to_struct();
     p = plate.to_struct();
     
     % The calling of the mex function, ...
     [cntr, killed, numScattersRay, detected, which_detector]  = ...
-        tracingMultiMex(ray_posT, ray_dirT, VT, FT, NT, BT, CT, s, p, mat_names, ...
+        tracingMultiMex(ray_posT, ray_dirT, VT, FT, NT, BT, CT, s, c, p, mat_names, ...
             mat_functions, mat_params, max_scatter);
     
     % The number of rays that died naturally, rather than being 'killed'

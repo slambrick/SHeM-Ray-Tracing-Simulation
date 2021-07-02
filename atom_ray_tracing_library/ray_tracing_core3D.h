@@ -110,6 +110,13 @@ typedef struct _circle {
 	Material material;
 } Circle;
 
+/* The total information on a potential sample */
+typedef struct _sample {
+    Circle *the_circle;
+    AnalytSphere *the_sphere;
+    Surface3D *triag_sample;
+} Sample;
+
 /* Information on a plane */
 typedef struct _plane {
 	int surf_index;
@@ -146,6 +153,16 @@ typedef struct _sourceParam {
 	int source_model;
 	double sigma;
 } SourceParam;
+
+// Basic information on a scattering position
+typedef struct _scatterInfo {
+    double nearest_inter[3]; // Position of the nearest intersection
+    double nearest_n[3];     // Normal to the surface at the intersection
+    double nearest_b[6];     // Lattice parameters at the intersection
+    int meets;               // Has a surface been met?
+    int tri_hit;             // Index of the triangle that has been hit
+    int which_surface;       // Index of the surface that has been hit
+} ScatterInfo;
 
 /******************************************************************************/
 /*                           Function declarations                            */
@@ -269,7 +286,7 @@ void solve3x3(double A[3][3], double u[], double v[], double epsilon, int * cons
 
 void get_elementPlane(Plane const * const plane, Triangle * const element);
 
-void get_elementCircle(Circle the_circle, Triangle * const element);
+void get_elementCircle(Circle * the_circle, Triangle * const element);
 
 void constructPlate(double * point, double * normal, Plane * plane, int index, Material material);
 

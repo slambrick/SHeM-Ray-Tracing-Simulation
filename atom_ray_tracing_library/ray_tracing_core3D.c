@@ -874,17 +874,17 @@ void get_elementPlane(Plane const * const plane, Triangle * const element) {
 	}
 }
 
-void get_elementCircle(Circle the_circle, Triangle * const element) {
+void get_elementCircle(Circle * the_circle, Triangle * const element) {
     int i;
     double v1[3], v2[3];
 
     element->tri_index = -1;
-	perpendicular_plane(the_circle.normal, v1, v2);
+	perpendicular_plane(the_circle->normal, v1, v2);
 	for (i = 0; i < 3; i++) {
-    	element->normal[i] = the_circle.normal[i];
-    	element->v1[i] = the_circle.centre[i];
-    	element->v2[i] = the_circle.centre[i] + v1[i];
-    	element->v3[i] = the_circle.centre[i] + v2[i];
+    	element->normal[i] = the_circle->normal[i];
+    	element->v1[i] = the_circle->centre[i];
+    	element->v2[i] = the_circle->centre[i] + v1[i];
+    	element->v3[i] = the_circle->centre[i] + v2[i];
     }
 }
 

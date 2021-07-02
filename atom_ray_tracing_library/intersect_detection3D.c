@@ -38,7 +38,7 @@ static void intersectPlane(Ray3D * const the_ray, Triangle element, double new_l
  *  intersect - int, 1 or 0 depending on if the ray intersects the sphere.
  *
  */
-void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_dist,
+void scatterSphere(Ray3D * the_ray, AnalytSphere * the_sphere, double * const min_dist, 
         double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const tri_hit,
         int * const which_surface, bool * const meets_sphere) {
     double a,b,c;
@@ -52,13 +52,13 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_
     d = the_ray->direction;
 
     /* Centre of the sphere */
-    a = the_sphere.sphere_c[0];
-    b = the_sphere.sphere_c[1];
-    c = the_sphere.sphere_c[2];
+    a = the_sphere->sphere_c[0];
+    b = the_sphere->sphere_c[1];
+    c = the_sphere->sphere_c[2];
 
     /* Coefficients of the quadratic equation */
     beta = 2*(d[0]*(e[0] - a) + d[1]*(e[1] - b) + d[2]*(e[2] - c));
-    gamma = -the_sphere.sphere_r*the_sphere.sphere_r - 2*e[0]*a - 2*e[1]*b -
+    gamma = -the_sphere->sphere_r*the_sphere->sphere_r - 2*e[0]*a - 2*e[1]*b -
         2*e[2]*c + e[0]*e[0] + e[1]*e[1] + e[2]*e[2] + a*a + b*b + c*c;
 
     /* Do we hit the sphere */
@@ -74,9 +74,9 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_
         /* Shortest intersection yet found */
 
         /* Normal to the sphere at that point */
-        nearest_n[0] = (e[0] + distance*d[0] - a)/the_sphere.sphere_r;
-        nearest_n[1] = (e[1] + distance*d[1] - b)/the_sphere.sphere_r;
-        nearest_n[2] = (e[2] + distance*d[2] - c)/the_sphere.sphere_r;
+        nearest_n[0] = (e[0] + distance*d[0] - a)/the_sphere->sphere_r;
+        nearest_n[1] = (e[1] + distance*d[1] - b)/the_sphere->sphere_r;
+        nearest_n[2] = (e[2] + distance*d[2] - c)/the_sphere->sphere_r;
 
         /* Intersection with the sphere */
         nearest_inter[0] = e[0] + d[0]*distance;
@@ -91,7 +91,7 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_
         *tri_hit = -1;
 
         /* We are now on the sphere */
-        *which_surface = the_sphere.surf_index;
+        *which_surface = the_sphere->surf_index;
 
         /* We do hit the sphere and it is the closest interesction*/
         *meets_sphere = true;
@@ -103,7 +103,7 @@ void scatterSphere(Ray3D * the_ray, AnalytSphere the_sphere, double * const min_
     return;
 }
 
-void scatterCircle(Ray3D * the_ray, Circle the_circle, double * const min_dist,
+void scatterCircle(Ray3D * the_ray, Circle * the_circle, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const tri_hit,
         int * const which_surface, bool * const meets_circle) {
     int i;
@@ -125,7 +125,15 @@ void scatterCircle(Ray3D * the_ray, Circle the_circle, double * const min_dist,
 		*meets_circle = false;
 		return;
 	}
-
+    
+    // TODO: generalise for a circle not in the xz plane
+    double dist_x = fabs(the_circle->centre[0] - new_loc[0]);
+    double dist_z = fabs(the_circle->centre[2] - new_loc[2]);
+    if (dist_x*dist_x + dist_z*dist_z > the_circle->r*the_circle->r) {
+        *meets_circle = false;
+        return;
+    }
+    
 	//
 	for (i = 0; i < 3; i++)
 		distance += (new_loc[i] - e[i])*(new_loc[i] - e[i]);
@@ -133,9 +141,9 @@ void scatterCircle(Ray3D * the_ray, Circle the_circle, double * const min_dist,
     if ((distance*distance < *min_dist) && (distance > 0)) {
         /* Shortest intersection yet found */
 
-        nearest_n[0] = the_circle.normal[0];
-        nearest_n[1] = the_circle.normal[1];
-        nearest_n[2] = the_circle.normal[2];
+        nearest_n[0] = the_circle->normal[0];
+        nearest_n[1] = the_circle->normal[1];
+        nearest_n[2] = the_circle->normal[2];
 
         nearest_inter[0] = e[0] + d[0]*distance;
         nearest_inter[1] = e[1] + d[1]*distance;
@@ -147,14 +155,14 @@ void scatterCircle(Ray3D * the_ray, Circle the_circle, double * const min_dist,
         *tri_hit = -1;
 
         /* We are now on the sphere */
-        *which_surface = the_circle.surf_index;
+        *which_surface = the_circle->surf_index;
 
-        /* We do hit the sphere and it is the closest interesction*/
+        /* We do hit the circle and it is the closest interesction*/
         *meets_circle = true;
         return;
     }
 
-    /* The sphere is not the closest intersection */
+    /* The circle is not the closest intersection */
     *meets_circle = false;
     return;
 }
@@ -309,7 +317,7 @@ void scatterPlane(Ray3D * the_ray, Plane plane, double * const min_dist,
  *       called the highest number of times, hence the rather low level looking
  *       code.
  */
-void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
+void scatterTriag(Ray3D * the_ray, Surface3D * sample, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const meets, int * const tri_hit,
         int * const which_surface) {
     int j;
@@ -319,20 +327,20 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
     e = the_ray->position;
 
     /* Loop through all triangles in the surface */
-    for (j = 0; j < sample.n_faces; j++) {
+    for (j = 0; j < sample->n_faces; j++) {
     	double new_loc[3];
         bool hit, within;
         Triangle element;
 
         /* Skip this triangle if the ray is already on it */
-        if ((the_ray->on_element == j) && (the_ray->on_surface == sample.surf_index)) {
+        if ((the_ray->on_element == j) && (the_ray->on_surface == sample->surf_index)) {
             continue;
         }
 
         /*
          * Specify which triangle and get its normal.
          */
-        get_element3D(&sample, j, &element);
+        get_element3D(sample, j, &element);
         intersectPlane(the_ray, element, new_loc, &hit, &within);
         
         if (!hit)
@@ -371,10 +379,39 @@ void scatterTriag(Ray3D * the_ray, Surface3D sample, double * const min_dist,
                 for (k = 3; k < 6; k++)
                     nearest_b[k] = element.lattice[k];
                     
-                *which_surface = sample.surf_index;
+                *which_surface = sample->surf_index;
             }
         }
     }
+}
+
+/*
+ * Attempt to scatter off the total sample specification, that is a triangulated surface
+ * an analytical sphere, and a circular surface.
+ */
+void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, double * nearest_inter, 
+                   double * nearest_n, double * nearest_b, int * meets, int * tri_hit, int * which_surface) {
+    bool meets_sphere = 0;
+    bool meets_circle = 0;
+    
+    scatterTriag(the_ray, overall_sample.triag_sample, min_dist, nearest_inter, nearest_n, 
+        nearest_b, meets, tri_hit, which_surface);
+
+    if (overall_sample.the_sphere->make_sphere) {
+        if (the_ray->on_surface != overall_sample.the_sphere->surf_index) {
+            scatterSphere(the_ray, overall_sample.the_sphere, min_dist, nearest_inter,
+            	nearest_n, nearest_b, tri_hit, which_surface, &meets_sphere);
+        }
+    }
+    
+    if (overall_sample.the_circle->make_circle) {
+        if (the_ray->on_surface != overall_sample.the_circle->surf_index) {
+            scatterCircle(the_ray, overall_sample.the_circle, min_dist, nearest_inter,
+            	nearest_n, nearest_b, tri_hit, which_surface, &meets_circle);
+        }
+    }
+    
+    *meets = *meets || meets_circle || meets_sphere;
 }
 
 /*

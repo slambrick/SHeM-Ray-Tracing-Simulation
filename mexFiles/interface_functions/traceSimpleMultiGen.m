@@ -39,6 +39,8 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
                 plate = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
+            case 'circle'
+                circle = varargin{i_+1};
             case 'source'
                 which_beam = varargin{i_+1};
             case 'beam'
@@ -91,11 +93,14 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     
     % Variables passed as structs not objects
     s = sphere.to_struct();
+    c = circle.to_struct();
     p = plate.to_struct();
+    
+    disp(c);
     
     % The calling of the mex function, ... here be dragons ... don't meddle
     % unles you know what you're doing
-    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, B, C, s, p,...
+    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, B, C, s, c, p,...
         mat_names, mat_functions, mat_params, max_scatter, beam.n, ...
         source_model, source_parameters);
 

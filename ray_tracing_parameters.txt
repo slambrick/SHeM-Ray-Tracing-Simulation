@@ -24,7 +24,7 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
-Design working distance (mm): 3
+Design working distance (mm): 2.1
 Incidence angle (deg): 0
 Type of scan: rectangular
 Number of detectors: 1
@@ -32,14 +32,14 @@ Detector full axes (x,y): (1.4, 1)
 Detector centres (x,y): (2.35, 0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, -, 2.5, -, 360)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
-STL pinhole model: normal incidence 3mm
+STL pinhole model: none
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 50,000
+Number of Rays: 10,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -49,19 +49,20 @@ Effuse size (relative to the direct beam): 1
 
 %% Set up your sample
 % There are a few inbuilt samples or you can provide your own stl/obj file of a
-% sample, options are: 'flat', 'sphere', 'custom', 'photoStereo'
+% sample, options are: 'flat', 'sphere', 'custom', 'photoStereo', 'circle'
 %  - If you are using the 'sphere' option specify the radius of sphere.
 %  - If using the 'flat' option specify the size of the flat square sample.
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: sphere
+What type of sample are you useing: circle
 Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 30
 Sample description: A sphere
-Working distance to place the sample at: 5.2
+Working distance to place the sample at: 2.1
 Sphere radius (mm): 0.2
+Circle radius (mm): 1
 Length of side of flat sample: 2
 Custom sample stl file: samples/photoStereoSample.stl
 Manual alignment: no
@@ -69,16 +70,16 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.003
-Scan range x (mm): 0.6
-Scan range y (mm): 0.5
-Ignore incidence angle in scan pattern: no
+Pixel seperation (mm): 0.1
+Scan range x (mm): 3
+Scan range y (mm): 3
+Ignore incidence angle in scan pattern: yes
 
 % This assumes you are doing a 1D scan
 Scan direction: y
 Scan min (mm): -2.5
 Scan max (mm): 8
-Pixel seperation (mm): 0.1
+Pixel seperation (mm): 0.05
 
 %% Other parameters
 Label for the output directory (no spaces please): normal_incidence_test

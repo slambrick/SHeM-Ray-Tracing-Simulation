@@ -36,6 +36,8 @@ function square_scan_info = rectangularScan(varargin)
                 dist_to_sample = varargin{i_+1};
             case 'sphere'
                 sphere = varargin{i_+1};
+            case 'circle'
+                circle = varargin{i_+1};
             case 'thePath'
                 thePath = varargin{i_+1};
             case 'pinhole_model'
@@ -74,7 +76,7 @@ function square_scan_info = rectangularScan(varargin)
     tic
 
     % Are we running in Matlab or Octave
-    isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+    isOctave = true;%exist('OCTAVE_VERSION', 'builtin') ~= 0;
 
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
@@ -113,26 +115,29 @@ function square_scan_info = rectangularScan(varargin)
     % more optimal
     % NOTE: could use parfeval?
     % TODO: consider moving this loop into C?
-    parfor i_=1:N_pixels
+    for i_=1:N_pixels
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);
         this_surface.moveBy([xx(i_), 0, zz(i_)]);
         this_sphere = sphere;
         this_sphere.centre(1) = this_sphere.centre(1) + xx(i_);
         this_sphere.centre(3) = this_sphere.centre(3) + zz(i_);
+        this_circle = circle;
+        this_circle.centre(1) = this_circle.centre(1) + xx(i_);
+        this_circle.centre(3) = this_circle.centre(3) + zz(i_);
 
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
             plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'sphere', this_sphere, 'ray_model', ...
+            'sphere', this_sphere, 'circle', this_circle, 'ray_model', ...
             ray_model, 'which_beam', direct_beam.source_model, 'beam', direct_beam);
 
         % Effuse beam
         [effuse_cntr, ~, ~] = switch_plate('plate_represent', ...
             plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
-            'sphere', this_sphere, 'ray_model', ...
+            'sphere', this_sphere, 'circle', this_circle, 'ray_model', ...
             ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
 
         % Update the progress bar if we are working in the MATLAB GUI.

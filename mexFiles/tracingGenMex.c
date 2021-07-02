@@ -141,7 +141,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     n_rays = (int)mxGetScalar(prhs[17]);
 
     // TODO: pass through source as a struct?
-    get_source(prhs[18], (int)mxGetScalar(prhs[18]), &source);
+    get_source(prhs[19], (int)mxGetScalar(prhs[18]), &source);
     
     /**************************************************************************/
 

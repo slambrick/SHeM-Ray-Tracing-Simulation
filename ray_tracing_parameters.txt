@@ -24,7 +24,7 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
-Design working distance (mm): 2.1
+Design working distance (mm): 2.121
 Incidence angle (deg): 0
 Type of scan: rectangular
 Number of detectors: 1
@@ -32,7 +32,7 @@ Detector full axes (x,y): (1.4, 1)
 Detector centres (x,y): (2.35, 0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, -, 2.5, -, 360)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
-STL pinhole model: none
+STL pinhole model: cambridge
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a

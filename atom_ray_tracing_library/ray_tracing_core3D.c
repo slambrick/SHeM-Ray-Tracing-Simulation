@@ -391,6 +391,7 @@ void print_ray(Ray3D const * const the_ray) {
     printf("\non_element = %i\n", the_ray->on_element);
     printf("on_surface = %i\n", the_ray->on_surface);
     printf("nScatters = %i\n", the_ray->nScatters);
+    printf("status = %i\n", the_ray->status);
     printf("Position: ");
     print1D_double(the_ray->position, 3);
     printf("Direction: ");

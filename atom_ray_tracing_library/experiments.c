@@ -61,10 +61,12 @@ void generating_rays_simple_pinhole(SourceParam source, int n_rays, int * const 
 
     int i;
     // TODO: this will be where memory is moved to the GPU
-
+    printf("\n\nNew pixel\n=========\n");
     for (i = 0; i < n_rays; i++) {
         Ray3D the_ray;
         int ind;
+        
+        printf("\n\nNew ray\n-------\n");
 
         create_ray(&the_ray, &source, myrng);
 

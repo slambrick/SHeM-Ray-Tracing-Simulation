@@ -111,7 +111,7 @@ circle_plate_r = 4;
 % Should a flat pinhole plate be modelled (with 'N circle'). not including may
 % speed up the simulation but won't model the effuse and multiple scattering
 % backgrounds properly.
-plate_represent = 0;
+plate_represent = 1;
 
 % In the case of 'abstract', specify the two angles of the location of the
 % detector aperture and the half cone angle of its extent. Note that the
@@ -434,7 +434,7 @@ end
 % Plot the sample surface in 3D space, if we are using a graphical window
 % TODO: put in a seperate
 if feature('ShowFigureWindows')
-    if ~strcmp(typeScan, 'single_pixel')
+    if ~strcmp(typeScan, 'single_pixel') && ~strcmp(sample_inputs.sample_type, 'circle')
         sample_surface.patchPlot(true);
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
     end

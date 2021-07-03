@@ -119,13 +119,9 @@ function square_scan_info = rectangularScan(varargin)
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);
         this_surface.moveBy([xx(i_), 0, zz(i_)]);
-        this_sphere = sphere;
-        this_sphere.centre(1) = this_sphere.centre(1) + xx(i_);
-        this_sphere.centre(3) = this_sphere.centre(3) + zz(i_);
-        this_circle = circle;
-        this_circle.centre(1) = this_circle.centre(1) + xx(i_);
-        this_circle.centre(3) = this_circle.centre(3) + zz(i_);
-
+        this_sphere = sphere.move([xx(i_), 0, zz(i_)]);
+        this_circle = circle.move([xx(i_), 0, zz(i_)]);
+        
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
             plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...

@@ -306,4 +306,8 @@ void set_vertex(Surface3D const * const s, int ind, double new_v[3]);
 
 void moveSurface(Surface3D * const s, double displace[3]);
 
+void set_up_plate(int plate_represent, int n_detect, double circle_plate_r, 
+        double * aperture_axes, double * aperture_c, Material M, int surf_index, 
+        NBackWall * const plate);
+
 #endif

@@ -105,6 +105,18 @@ void set_up_circle(int make_circle, double * const circle_c, double circle_r,
 	circ->material = M;
 }
 
+void set_up_plate(int plate_represent, int n_detect, double circle_plate_r, 
+        double * aperture_axes, double * aperture_c, Material M, int surf_index, 
+        NBackWall * const plate) {
+    plate->plate_represent = plate_represent;
+    plate->n_detect = n_detect;
+    plate->aperture_axes = aperture_axes;
+    plate->aperture_c = aperture_c;
+    plate->circle_plate_r = circle_plate_r;
+    plate->material = M;
+    plate->surf_index = surf_index;
+}
+
 void generate_empty_sphere(int surf_index, AnalytSphere * const sph) {
     double c[3] = {0, 0, 0};
     Material standard_mat;

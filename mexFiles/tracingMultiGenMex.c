@@ -127,7 +127,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     // extract plate properties from thePlate cell array containing plate options
     plate = get_plate(prhs[7], plate_index);
-
+    
     // materials
     int num_materials = mxGetN(prhs[8]);
     M = calloc(num_materials, sizeof(Material));

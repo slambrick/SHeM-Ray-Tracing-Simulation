@@ -463,7 +463,8 @@ end
 %sample_surface.normalise_lattice();
 
 %% Pinhole plate import and plotting
-[pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(pinhole_plate_inputs, sample_surface);
+[pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(...
+    pinhole_plate_inputs, sample_surface, defMaterial);
 %thePlate.backwall_represent = 1;
 %% Compile the mex files
 

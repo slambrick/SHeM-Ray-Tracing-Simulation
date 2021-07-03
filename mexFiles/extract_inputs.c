@@ -242,43 +242,44 @@ NBackWall get_plate(const mxArray * plate_opts, int plate_index) {
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Representation of pinhole plate must be scalar. In get_plate.");
-    plate.plate_represent = (int)mxGetScalar(field);
+    int plate_represent = (int)mxGetScalar(field);
     
     // Get the number of detectors
     field = mxGetField(plate_opts, 0, "n_detectors");
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Number of detectors must be scalar. In get_plate.");
-    plate.n_detect = (int)mxGetScalar(field);
+    int n_detect = (int)mxGetScalar(field);
     
     // Get the radius of the pinhole plate
     field = mxGetField(plate_opts, 0, "circle_plate_r");
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Radius of pinhole plate must be scalar. In get_plate.");
-    plate.circle_plate_r = mxGetScalar(field);
+    double circle_plate_r = mxGetScalar(field);
     
     // Get the axes of the apertures
     field = mxGetField(plate_opts, 0, "aperture_axes");
-    if (!mxIsDouble(field) || mxGetN(field) != (unsigned int)2*plate.n_detect)
+    if (!mxIsDouble(field) || mxGetN(field) != (unsigned int)2*n_detect)
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Aperture axes must be array of 2xnumber of detectors doubles. In get_plate.");
-    plate.aperture_axes = mxGetDoubles(field);
+    double * aperture_axes = mxGetDoubles(field);
     
     // Get the centres of the apertures
     field = mxGetField(plate_opts, 0, "aperture_c");
-    if (!mxIsDouble(field) || mxGetN(field) !=  (unsigned int)2*plate.n_detect)
+    if (!mxIsDouble(field) || mxGetN(field) !=  (unsigned int)2*n_detect)
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Aperture centres must be array of 2xnumber of detectors doubles. In get_plate.");
-    plate.aperture_c = mxGetDoubles(field);
+    double * aperture_c = mxGetDoubles(field);
+        
+    // now extract the material -- a nested struct
+    mxArray * circ_material = mxGetField(plate_opts, 0, "material");
+    Material mat;
+    char *names[] = {"plate"};
+    get_materials(circ_material, names, &mat);
 
-    // Get the number of detectors
-    field = mxGetField(plate_opts, 0, "n_detectors");
-    if (!mxIsScalar(field))
-        mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
-                          "Number of detectors must be scalar. In get_plate.");
-
-    plate.surf_index = plate_index;
-
+    set_up_plate(plate_represent, n_detect, circle_plate_r, aperture_axes, aperture_c,
+        mat, plate_index, &plate);
+    
     return plate;
 }

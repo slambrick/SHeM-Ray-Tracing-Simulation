@@ -77,7 +77,7 @@ function line_scan_info = lineScan(varargin)
     tic
 
     % Are we running in Matlab or Octave
-    isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+    isOctave = true;%exist('OCTAVE_VERSION', 'builtin') ~= 0;
 
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
@@ -109,7 +109,7 @@ function line_scan_info = lineScan(varargin)
     plate_represent = pinhole_model;
 
     % TODO: make this parallel in Octave
-    parfor i_=1:n_pixels
+    for i_=1:n_pixels
         scan_pos = sample_xs(i_);
         this_surface = copy(sample_surface);
 

@@ -138,6 +138,8 @@ scale = 2;
 %  'strips' - Two parallel series of strips with varying parameters
 % make the model 10 times larger (Inventor exports in cm by default...).
 scale = 0.5;
+% By default have the scale set to 1
+scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
@@ -419,6 +421,10 @@ if false
     % p[attern
     sample_surface.rotateGeneral('x', -2.1);
     sample_surface.rotateGeneral('z', -3.8);
+end
+
+if true
+    sample_surface.rotateGeneral('y', 15);
 end
 
 % Specifically for the simulation of the LiF diffrtaction with multiscat

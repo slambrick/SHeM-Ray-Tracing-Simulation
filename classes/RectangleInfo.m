@@ -344,6 +344,9 @@ classdef RectangleInfo < SimulationInfo
             if ~exist('detector', 'var')
                 detector = 1;
             end
+            if ~exist('make_plot', 'var')
+                make_plot = false;
+            end
             
             cntrSum2 = obj.cntrSum{detector} - obj.counter_effusive{detector};
             

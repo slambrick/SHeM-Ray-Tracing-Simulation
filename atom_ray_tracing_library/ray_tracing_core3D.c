@@ -18,6 +18,7 @@
 #include <string.h>
 #include "mtwister.h"
 #include <stdbool.h>
+#include "mex.h"
 
 static void get_normal_ptr(Surface3D const * const s, int ind, double ** n);
 static void get_lattice_ptr(Surface3D const * const s, int ind, double ** b);

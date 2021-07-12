@@ -39,12 +39,12 @@ STL pinhole model: N circle
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 5,000
+Number of Rays: 10,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
 Source standard deviation (rad): 0.1
-Effuse beam: On
+Effuse beam: Off
 Effuse size (relative to the direct beam): 2
 
 %% Set up your sample
@@ -71,9 +71,9 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.015
-Scan range x (mm): 0.8
-Scan range y (mm): 0.8
+Pixel seperation (mm): 0.01
+Scan range x (mm): 0.75
+Scan range y (mm): 0.75
 Ignore incidence angle in scan pattern: yes
 
 % This assumes you are doing a 1D scan
@@ -83,6 +83,6 @@ Scan max (mm): 3
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): 3D_test
+Label for the output directory (no spaces please): pyramid_3D_test
 Sould the C code be recompiled: false
 

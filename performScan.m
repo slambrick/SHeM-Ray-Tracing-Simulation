@@ -5,7 +5,7 @@
 
 %close all
 clear
-clc
+%clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start of parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,7 +91,7 @@ max_scatter = 100;
 
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
-scan_pattern = 'regular';
+scan_pattern = 'rotations';
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
@@ -729,7 +729,7 @@ if save_to_text && strcmp(typeScan, 'rotations')
     for i_=1:length(rot_angles)
         % TODO: bug here
         currentFname = [textFname(1:end-4) num2str(rot_angles(i_)) '.csv'];
-        simulationData.saveText([thePath '/' currentFname]);
+        simulationData{i_}.saveText([thePath '/' currentFname num2str(rot_angles(i_))]);
     end
 elseif save_to_text && ~(strcmp(typeScan, 'line_rotations') || ...
         strcmp(typeScan, 'rotations') || strcmp(typeScan, 'multiple_rectangular'))

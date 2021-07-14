@@ -425,6 +425,7 @@ end
 
 if true
     sample_surface.rotateGeneral('y', 15);
+    sample_surface.moveBy([0, 0.525, 0]);
 end
 
 % Specifically for the simulation of the LiF diffrtaction with multiscat

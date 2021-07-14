@@ -26,7 +26,7 @@
 %  - 'line_rotations', A series of z scans while rotating the sample
 Design working distance (mm): 3
 Incidence angle (deg): 0
-Type of scan: rectangular
+Type of scan: rotations
 Number of detectors: 1
 Detector full axes (x,y): (1.92, 1.5)
 Detector centres (x,y): (2.35, 0)
@@ -39,7 +39,7 @@ STL pinhole model: N circle
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 10,000
+Number of Rays: 15,000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -71,9 +71,9 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.01
-Scan range x (mm): 0.75
-Scan range y (mm): 0.75
+Pixel seperation (mm): 0.005
+Scan range x (mm): 0.85
+Scan range y (mm): 0.85
 Ignore incidence angle in scan pattern: yes
 
 % This assumes you are doing a 1D scan
@@ -83,6 +83,6 @@ Scan max (mm): 3
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): pyramid_3D_test
+Label for the output directory (no spaces please): pyramid_3D_test_final
 Sould the C code be recompiled: false
 

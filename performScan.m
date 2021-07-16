@@ -423,7 +423,7 @@ if false
     sample_surface.rotateGeneral('z', -3.8);
 end
 
-if true
+if false
     sample_surface.rotateGeneral('y', 15);
     sample_surface.moveBy([0, 0.525, 0]);
 end

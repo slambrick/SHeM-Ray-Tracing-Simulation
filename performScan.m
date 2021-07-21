@@ -5,7 +5,7 @@
 
 %close all
 clear
-clc
+%clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start of parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,7 +91,7 @@ max_scatter = 100;
 
 % If rotations are present the scan pattern can be regular or be adjusted to
 % match the rotation of the sample
-scan_pattern = 'regular';
+scan_pattern = 'rotations';
 
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
@@ -111,7 +111,7 @@ circle_plate_r = 4;
 % Should a flat pinhole plate be modelled (with 'N circle'). not including may
 % speed up the simulation but won't model the effuse and multiple scattering
 % backgrounds properly.
-plate_represent = 0;
+plate_represent = 1;
 
 % In the case of 'abstract', specify the two angles of the location of the
 % detector aperture and the half cone angle of its extent. Note that the
@@ -138,6 +138,8 @@ scale = 2;
 %  'strips' - Two parallel series of strips with varying parameters
 % make the model 10 times larger (Inventor exports in cm by default...).
 scale = 0.5;
+% By default have the scale set to 1
+scale = 1;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
@@ -421,6 +423,11 @@ if false
     sample_surface.rotateGeneral('z', -3.8);
 end
 
+if false
+    sample_surface.rotateGeneral('y', 15);
+    sample_surface.moveBy([0, 0.525, 0]);
+end
+
 % Specifically for the simulation of the LiF diffrtaction with multiscat
 % peak intensities
 if false
@@ -434,7 +441,7 @@ end
 % Plot the sample surface in 3D space, if we are using a graphical window
 % TODO: put in a seperate
 if feature('ShowFigureWindows')
-    if ~strcmp(typeScan, 'single_pixel')
+    if ~strcmp(typeScan, 'single_pixel') && ~strcmp(sample_inputs.sample_type, 'circle')
         sample_surface.patchPlot(true);
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
     end
@@ -463,7 +470,8 @@ end
 %sample_surface.normalise_lattice();
 
 %% Pinhole plate import and plotting
-[pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(pinhole_plate_inputs, sample_surface);
+[pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(...
+    pinhole_plate_inputs, sample_surface, defMaterial);
 %thePlate.backwall_represent = 1;
 %% Compile the mex files
 
@@ -722,7 +730,7 @@ if save_to_text && strcmp(typeScan, 'rotations')
     for i_=1:length(rot_angles)
         % TODO: bug here
         currentFname = [textFname(1:end-4) num2str(rot_angles(i_)) '.csv'];
-        simulationData.saveText([thePath '/' currentFname]);
+        simulationData{i_}.saveText([thePath '/' currentFname num2str(rot_angles(i_))]);
     end
 elseif save_to_text && ~(strcmp(typeScan, 'line_rotations') || ...
         strcmp(typeScan, 'rotations') || strcmp(typeScan, 'multiple_rectangular'))

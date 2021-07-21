@@ -162,8 +162,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Put the sample and pinhole plate surface into structs */
     // TODO: can we make a sample struct that can be passed from Matlab to C?
-    set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert_sample, sample_index, &sample);
-    set_up_surface(VS, NS, BS, FS, CS, M, num_materials, ntriag_plate, nvert_plate, plate_index, &plate);
+    set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert_sample, 
+                   sample_index, &sample);
+    set_up_surface(VS, NS, BS, FS, CS, M, num_materials, ntriag_plate, nvert_plate, 
+                   plate_index, &plate);
 
     /* Put all the sample structs together in one struct */
     overall_sample.the_sphere = &sphere;

@@ -1,4 +1,5 @@
-function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(pinhole_plate_inputs, sample_surface)
+function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(...
+        pinhole_plate_inputs, sample_surface, defMaterial)
     isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
     switch pinhole_plate_inputs.pinhole_model
         case 'stl'
@@ -18,7 +19,7 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
             end
 
             % To pass to the functions
-            thePlate = PinholeModel();
+            thePlate = PinholeModel(defMaterial);
             aperture_abstract = 0;
             pinhole_model = 'stl';
         case {'new', 'angular'}
@@ -43,7 +44,7 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
             end
 
             % To pass to the functions
-            thePlate = PinholeModel();
+            thePlate = PinholeModel(defMaterial);
             aperture_abstract = 0;
             pinhole_model = 'stl';
         case 'new_micro'
@@ -66,7 +67,7 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
             end
 
             % To pass to the functions
-            thePlate = PinholeModel();
+            thePlate = PinholeModel(defMaterial);
             aperture_abstract = 0;
             pinhole_model = 'stl';
         case 'normal'
@@ -86,7 +87,7 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
             end
 
             % To pass to the functions
-            thePlate = PinholeModel();
+            thePlate = PinholeModel(defMaterial);
             aperture_abstract = 0;
             pinhole_model = 'stl';
         otherwise
@@ -96,7 +97,8 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
             pinhole_surface = TriagSurface();
 
             % Struct with the information about the plate in
-            thePlate = PinholeModel(pinhole_plate_inputs.plate_represent, ...
+            thePlate = PinholeModel(defMaterial, ...
+                                    pinhole_plate_inputs.plate_represent, ...
                                     pinhole_plate_inputs.n_detectors, ...
                                     pinhole_plate_inputs.circle_plate_r, ...
                                     pinhole_plate_inputs.aperture_axes, ...

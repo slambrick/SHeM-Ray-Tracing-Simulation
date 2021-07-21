@@ -76,7 +76,7 @@ function square_scan_info = rectangularScan(varargin)
     tic
 
     % Are we running in Matlab or Octave
-    isOctave = true;%exist('OCTAVE_VERSION', 'builtin') ~= 0;
+    isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 
     % Starts the parallel pool if one does not already exist.
     if ~isOctave
@@ -109,29 +109,28 @@ function square_scan_info = rectangularScan(varargin)
     
     % Makes the parfor loop stop complaining.
     plate_represent = pinhole_model;
-
+    source_model = direct_beam.source_model;
+    
     % TODO: make this parallel in Octave
     % TODO: Make each iteration loop over multiple pixels so that the parfor is
     % more optimal
     % NOTE: could use parfeval?
     % TODO: consider moving this loop into C?
-    for i_=1:N_pixels
+    parfor i_=1:N_pixels
         % Place the sample into the right position for this pixel
         this_surface = copy(sample_surface);
         this_surface.moveBy([xx(i_), 0, zz(i_)]);
         this_sphere = sphere;
-        this_sphere.centre(1) = this_sphere.centre(1) + xx(i_);
-        this_sphere.centre(3) = this_sphere.centre(3) + zz(i_);
+        this_sphere.centre = this_sphere.centre + [xx(i_), 0, zz(i_)];
         this_circle = circle;
-        this_circle.centre(1) = this_circle.centre(1) + xx(i_);
-        this_circle.centre(3) = this_circle.centre(3) + zz(i_);
-
+        this_circle.centre = this_circle.centre + [xx(i_), 0, zz(i_)];
+        
         % Direct beam
         [~, killed, numScattersRay] = switch_plate('plate_represent', ...
             plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...
             'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
             'sphere', this_sphere, 'circle', this_circle, 'ray_model', ...
-            ray_model, 'which_beam', direct_beam.source_model, 'beam', direct_beam);
+            ray_model, 'which_beam', source_model, 'beam', direct_beam);
 
         % Effuse beam
         [effuse_cntr, ~, ~] = switch_plate('plate_represent', ...
@@ -201,3 +200,43 @@ function square_scan_info = rectangularScan(varargin)
     %formatOutput(square_scan_info, thePath);
 end
 
+
+function core_execution()
+    % Place the sample into the right position for this pixel
+    this_surface = copy(sample_surface);
+    this_surface.moveBy([xx(i_), 0, zz(i_)]);
+    this_sphere = sphere;
+    this_sphere = this_sphere.move([xx(i_), 0, zz(i_)]);
+    this_circle = circle;
+    this_circle = this_circle.move([xx(i_), 0, zz(i_)]);
+
+    % Direct beam
+    [~, killed, numScattersRay] = switch_plate('plate_represent', ...
+        plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...
+        'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
+        'sphere', this_sphere, 'circle', this_circle, 'ray_model', ...
+        ray_model, 'which_beam', source_model, 'beam', direct_beam);
+
+    % Effuse beam
+    [effuse_cntr, ~, ~] = switch_plate('plate_represent', ...
+        plate_represent, 'sample', this_surface, 'max_scatter', max_scatter, ...
+        'pinhole_surface', pinhole_surface, 'thePlate', thePlate, ...
+        'sphere', this_sphere, 'circle', this_circle, 'ray_model', ...
+        ray_model, 'which_beam', 'Effuse', 'beam', effuse_beam);
+
+    % Update the progress bar if we are working in the MATLAB GUI.
+    if progressBar && ~isOctave
+        ppm.increment();
+    elseif isOctave
+        waitbar(i_/N_pixels, h);
+    end
+
+    counters(:,:,i_) = numScattersRay;
+    num_killed(i_) = killed;
+    effuse_counters(:,i_) = effuse_cntr';
+
+    % Delete the surface object for this iteration
+    if ~isOctave
+        delete(this_surface);
+    end
+end

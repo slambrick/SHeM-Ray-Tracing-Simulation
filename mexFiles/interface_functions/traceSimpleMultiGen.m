@@ -96,8 +96,6 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     c = circle.to_struct();
     p = plate.to_struct();
     
-    disp(c);
-    
     % The calling of the mex function, ... here be dragons ... don't meddle
     % unles you know what you're doing
     [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, B, C, s, c, p,...

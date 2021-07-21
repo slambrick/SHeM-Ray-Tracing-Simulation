@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-20, Sam Lambrick, Dan Serment.
+ * Copyright (c) 2018-21, Sam Lambrick, Dan Serment.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -100,7 +100,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         		"%d inputs required for tracingMultiGenMex.", NINPUTS);
     }
     if (nlhs != NOUTPUTS) {
-        mexErrMsgIdAndTxt("AtomRayTracing:tracingMultiGenMex:nrhs",
+        mexErrMsgIdAndTxt("AtomRayTracing:tracingMultiGenMex:nlhs",
         		"%d outputs required for tracingMultiGenMex.", NOUTPUTS);
     }
 
@@ -127,7 +127,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     // extract plate properties from thePlate cell array containing plate options
     plate = get_plate(prhs[7], plate_index);
-
+    
     // materials
     int num_materials = mxGetN(prhs[8]);
     M = calloc(num_materials, sizeof(Material));
@@ -173,7 +173,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     cntr_detected = (int32_t*)mxGetData(plhs[0]);
     numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
-    print_circle(&the_circle);
     /**************************************************************************/
 
     /* Main implementation of the ray tracing */

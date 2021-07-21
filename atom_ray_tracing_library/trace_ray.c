@@ -38,7 +38,7 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
     while (!(the_ray->status)) {
         /* The ray is dead unless we hit something */
         the_ray->status = 1;
-
+        
         /*
         * Try to scatter of sample. This only tries to scatter off of the
         * sample and not the pinhole plate.
@@ -46,6 +46,8 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
+            //printf("\n\nwhich_surface = %i", the_ray->on_surface);
+            //print_ray(the_ray);
             scatterOffSurface(the_ray, overall_sample, myrng);
             if (!the_ray->status) {
                 /* Hit the sample */
@@ -56,6 +58,8 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
                 continue;
             }
         }
+        //printf("\nwhich_surface #1 = %i", the_ray->on_surface);
+        //print_ray(the_ray);
 
         /* The number of scattering events is set to -1 if we exceed the overall
          * number of scattering events. */
@@ -70,6 +74,9 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
         /* Try to scatter of both surfaces. */
         scatterSimpleMulti(the_ray, overall_sample, plate, &detector, myrng);
 
+        //printf("\nwhich_surface #2 = %i", the_ray->on_surface);
+        //print_ray(the_ray);
+        
         if (the_ray->status == 2) {
             the_ray->detector = detector;
             break;
@@ -80,10 +87,8 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
         if (the_ray->status == 0) {
             /* Hit a surface */
             n_allScatters++;
-
-            /* Hit the sample */
-            if ((the_ray->on_surface == overall_sample.triag_sample->surf_index) ||
-                    (the_ray->on_surface == overall_sample.the_sphere->surf_index)) {
+            
+            if (the_ray->on_surface != plate.surf_index) {
                 the_ray->nScatters += 1;
             }
         }
@@ -151,8 +156,7 @@ void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
             n_allScatters++;
 
             /* Hit the sample */
-            if ((the_ray->on_surface == overall_sample.triag_sample->surf_index) ||
-                    (the_ray->on_surface == overall_sample.the_sphere->surf_index)) {
+            if (the_ray->on_surface != plate.surf_index) {
                 the_ray->nScatters++;
             }
         }

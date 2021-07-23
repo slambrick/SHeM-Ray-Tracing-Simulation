@@ -14,7 +14,7 @@ init_theta = 45;
 init_dir = [sind(init_theta), -cosd(init_theta), 0];
 
 % Number of rays to trace
-n_rays = 200000;
+n_rays = 50000;
 
 % The maximum number of scattering events a ray is allowed to undergo
 maxScatter = 1000;
@@ -24,7 +24,7 @@ maxScatter = 1000;
 sample_fname = 'samples/deep_trench_sample.stl';
 
 % Should the mex files be recompiled
-recompile = true;
+recompile = false;
 
 %% Perform calculation
 
@@ -35,7 +35,6 @@ loadpath
 sample_surface = inputSample('fname', sample_fname, 'dontMeddle', true, ...
     'scale', 0.1);
 sample_surface.moveBy([0, -max(sample_surface.vertices(:,2)), 0]);
-sample_surface.rotateY();
 
 % Choose a spot on the sample then displace backwards
 init_pos = [0, 0, 0];

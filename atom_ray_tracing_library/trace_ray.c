@@ -12,6 +12,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "mtwister.h"
+#include "mex.h"
 
 /*
  * For a simple model of the pinhole plate as a circle with multiple detectors.

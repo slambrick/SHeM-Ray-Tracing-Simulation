@@ -1,4 +1,4 @@
-% Copyright (c) 2020, Dan Seremet, Sam Lambrick.
+% Copyright (c) 2020-21, Dan Seremet, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
@@ -34,6 +34,9 @@ function [theta, phi] = distribution_test(varargin)
     %direction = [sin(pi/6), -cos(pi/6), 0];
     direction = direction/norm(direction);
     normal = [0, 1, 0];
+    % The lattice needs to be set if the diffraction models are to be used
+    % the default is for a square lattice
+    lattice = [0.0 1.0 0.0 0.0 0.0 1.0];
     
     switch scattering
         case 'diffraction'
@@ -70,8 +73,10 @@ function [theta, phi] = distribution_test(varargin)
             error('Specified type of scattering not recognised');
     end
 
-    [theta, phi] = distributionTestMex(num_rays, direction, material, normal);
+    [theta, phi] = distributionTestMex(num_rays, direction, material, normal, lattice);
 
+    %[theta, phi] = calc_angles(final_dir', normal', direction');
+    
     plot_distribution_3d(sin(theta), phi, 1, 100, '\theta')
     plot_distribution_slice(theta, phi, 0, 0.09, 200)
     
@@ -93,3 +98,4 @@ function [theta, phi] = distribution_test(varargin)
     print(gcf, 'density_plot_generated60.eps', '-depsc')
     title('Generated directions')
 end
+

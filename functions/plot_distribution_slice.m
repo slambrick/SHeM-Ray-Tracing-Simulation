@@ -46,7 +46,4 @@ function plot_distribution_slice(theta, phi, direction, slice_width, nbins)
 
     xlabel('\theta (rad)')
     ylabel('Counts')
-
-    set(gca, 'FontSize', 30)
-    set(gcf, 'Position', [100, 100, 900, 800])
 end

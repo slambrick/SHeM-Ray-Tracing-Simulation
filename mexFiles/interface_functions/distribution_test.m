@@ -40,6 +40,7 @@ function [theta, phi] = distribution_test(varargin)
     
     switch scattering
         case 'diffraction'
+            % A diffraction model that provides the lattice vectors
             diff_params = [
                 6,   6,   0.1996,... % maxp and maxq, lambda/a
                 cosd(14), sind(14), -sind(14), cosd(14),... % rec lattice vectors
@@ -49,31 +50,42 @@ function [theta, phi] = distribution_test(varargin)
             material.params = [0.6, diff_params];
             material.color = [0.8, 0.8, 1.0];
         case 'cosine'
+            % A purely diffuse distribution following a cosine function
+            % centred on the surface normal.
             material.function = 'cosine';
             material.params = [];
             material.color = [1.0, 0.8, 0.8];
         case 'uniform'
+            % A completely uniform distribution with equal probability of
+            % scattering in all directions
             material.function = 'uniform';
-            material.params = [];
+            material.params = [45]; % Need a cutoff to stop scattering into 
+                                    % the sample plane, can't allow 90deg
             material.color = [1.0, 0.3, 0.3];
         case 'broad specular'
+            % A broadened specular distibution based on a Gaussian, a
+            % proportion of the scattering can be diffuse
             material.function = 'broad_specular';
-            % 50% specular with S.D. of 20deg
-            material.params = [0.5, 20*pi/180];
+            material.params = [0.5, 50];   % 50% specular with S.D. of 50deg
             material.color = [0.3, 1, 0.3];
         case 'cosine specular'
-            material.function = 'cosine_Specular';
+            % A cosine scattering model centred on the specular condition.
+            material.function = 'cosine_specular';
             material.params = [];
             material.color = [0.8, 1, 0.8];
         case 'diffraction2'
+            % A diffraction model that uses the lattice vectors described
+            % in 3D in the sample object
             material.function = 'diffraction2';
-            material.params = [6, 6, 0.1996, 0.0316, 2];
+            material.params = [0.6, ...          % Proportion that is diffuse
+                               6, 6, 0.1996, ... % maxp and maxq, lambda/a
+                               0.0316, 2];       % peak sigma and envelope sigma
             material.colour = [0.5, 0.5, 1.0];
         otherwise
             error('Specified type of scattering not recognised');
     end
 
-    [theta, phi] = distributionTestMex(num_rays, direction, material, normal, lattice);
+    [theta, phi, final_dir] = distributionTestMex(num_rays, direction, material, normal, lattice);
 
     %[theta, phi] = calc_angles(final_dir', normal', direction');
     

@@ -42,7 +42,7 @@ function plot_distribution_slice(theta, phi, direction, slice_width, nbins)
     % make pretty
     xticks(-pi/2:pi/6:pi/2);
     xticklabels({'-\pi/2', '-\pi/3', '-\pi/6', '0', '\pi/6', '\pi/3', '\pi/2'});
-    xlim([-pi/3, pi/2]);
+    xlim([-pi/2, pi/2]);
 
     xlabel('\theta (rad)')
     ylabel('Counts')

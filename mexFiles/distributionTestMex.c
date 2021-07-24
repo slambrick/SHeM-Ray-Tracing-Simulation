@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Dan Seremet, Sam Lambrick.
+ * Copyright (c) 2020-21, Dan Seremet, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -32,7 +32,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
 
     const int N_INPUTS = 5;
-    const int N_OUTPUTS = 2;
+    const int N_OUTPUTS = 3;
     
     /* Input variables */
     int n_rays;
@@ -44,6 +44,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Output variables */
     double * thetas;
     double * phis;
+    double * final_dir;
     
     /* Other varibles */
     double dir_projection[3];
@@ -108,8 +109,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // allocate output array and get pointer
     plhs[0] = mxCreateDoubleMatrix(n_rays, 1, mxREAL);
     plhs[1] = mxCreateDoubleMatrix(n_rays, 1, mxREAL);
+    plhs[2] = mxCreateDoubleMatrix(n_rays, 3, mxREAL);
     thetas = mxGetDoubles(plhs[0]);
     phis = mxGetDoubles(plhs[1]);
+    final_dir = mxGetDoubles(plhs[2]);
 
     /* project the initial direction onto the surface plane to find azimuth angle phi
      * this looks like d' = d - (n.d)n */
@@ -153,6 +156,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
         dot(new_dir_proj, perpendicular, &sin_phi);
         dot(new_dir_proj, dir_projection, &cos_phi);
         phis[i] = atan2(sin_phi, cos_phi);
+        
+        for (int j = 0; j < 3; j++)
+            final_dir[3*i+j] = new_dir[j];
     }
 
     mexPrintf("done.\n\n");

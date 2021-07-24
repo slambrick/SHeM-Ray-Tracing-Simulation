@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-20, Sam Lambrick.
+ * Copyright (c) 2018-21, Dan Seremet, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -635,14 +635,14 @@ void uniform_scatter(const double normal[3], const double lattice[6], const doub
     double t2[3];
 
     perpendicular_plane(normal, t1, t2);
-    double c_theta_min = cos(params[0]);
+    double c_theta_max = cos(params[0]*M_PI/180);
 
     /* Generate random numbers for phi and cos(theta) */
     double uni_rand;
     genRand(myrng, &uni_rand);
     phi = 2*M_PI*uni_rand;
     genRand(myrng, &uni_rand);
-    c_theta = fabs(c_theta_min*uni_rand - 1);
+    c_theta = uni_rand*(1 - c_theta_max) + c_theta_max;
     s_theta = sqrt(1 - c_theta*c_theta);
 
     /* Create the new random direction from the two random angles */

@@ -49,6 +49,8 @@ function sample_surface = inputSample(varargin)
                 sample_dist = varargin{i_+1};
             case 'defMaterial'
                 defMaterial = varargin{i_+1};
+            case 'init_angle'
+                init_angle = varargin{i_+1};
             otherwise
                 warning([' Input ' num2str(i_) ' not recognised.'])
         end
@@ -120,7 +122,8 @@ function sample_surface = inputSample(varargin)
         interestingV = V(~ind,:);
         middleX = (max(interestingV(:,1)) + min(interestingV(:,1))) / 2;
         middleZ = (max(interestingV(:,3)) + min(interestingV(:,3))) / 2;
-        moveX = -(plate_dist - sample_dist) - middleX;
+        % TODO: take into account the incidence angle when doing this
+        moveX = -tand(init_angle)*(plate_dist - sample_dist) - middleX;
         sample_surface.moveBy([moveX, 0, -middleZ]);
     end
 end

@@ -25,4 +25,8 @@ void given_rays_cad_pinhole(Rays3D * const all_rays, int * const killed, int * c
         Sample overall_sample, Surface3D plate, double const backWall[],
         int maxScatters, int32_t * const detected, MTRand * const myrng);
 
+//void single_start_ray_simple_pinhole(Ray3D start_ray, int nrays, int * killed, int * const cntr_detected, 
+//        int maxScatters, Sample overall_sample, NBackWall plate, MTRand * const myrng, 
+//        int32_t * const numScattersRay);
+
 #endif /* EXPERIMENTS_H_ */

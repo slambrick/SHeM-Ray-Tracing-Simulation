@@ -46,8 +46,6 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
         * If the ray has not hit the sample then it is immediately dead.
         */
         if (the_ray->nScatters == 0) {
-            //printf("\n\nwhich_surface = %i", the_ray->on_surface);
-            //print_ray(the_ray);
             scatterOffSurface(the_ray, overall_sample, myrng);
             if (!the_ray->status) {
                 /* Hit the sample */
@@ -58,8 +56,6 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
                 continue;
             }
         }
-        //printf("\nwhich_surface #1 = %i", the_ray->on_surface);
-        //print_ray(the_ray);
 
         /* The number of scattering events is set to -1 if we exceed the overall
          * number of scattering events. */

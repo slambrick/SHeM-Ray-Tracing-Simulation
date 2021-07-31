@@ -34,7 +34,8 @@ function [sample_surface, sphere, circle, sample_description] = sample_import(sa
             circle.make = 0;
             sample_surface = inputSample('fname', sample_inputs.sample_fname, 'sample_dist', sample_inputs.dist_to_sample, ...
                                          'working_dist', working_dist, 'scale', sample_inputs.scale, ...
-                                         'defMaterial', sample_inputs.material, 'dontMeddle', dontMeddle);
+                                         'defMaterial', sample_inputs.material, 'dontMeddle', dontMeddle, ...
+                                         'init_angle', init_angle);
             sphere = Sphere(0, sample_inputs.material);
             sample_description = sample_inputs.sample_description;
         case 'photoStereo'

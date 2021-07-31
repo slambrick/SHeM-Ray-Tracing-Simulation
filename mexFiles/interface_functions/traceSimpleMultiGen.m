@@ -84,6 +84,11 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
             theta_max = 0;
             sigma_source = 0;
             init_angle = 0;
+        case 'Infinite'
+            source_model = 3;
+            theta_max = 0;
+            sigma_source = 0;
+            init_angle = pi*beam.init_angle/180;
     end
 
     % Pass the source parameters to C

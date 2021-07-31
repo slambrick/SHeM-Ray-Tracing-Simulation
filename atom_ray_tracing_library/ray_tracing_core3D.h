@@ -168,6 +168,8 @@ typedef struct _scatterInfo {
 /*                           Function declarations                            */
 /******************************************************************************/
 
+void copy_ray(Ray3D * new_ray, Ray3D old_ray);
+
 /*  Set up a surface containing the information on a triangulated surface. */
 void set_up_surface(double V[], double N[], double B[], int32_t F[], char * C[], Material M[],
 		int nmaterials, int ntriag, int nvert, int surf_index, Surface3D * const surf);

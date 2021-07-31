@@ -25,6 +25,18 @@ static void get_lattice_ptr(Surface3D const * const s, int ind, double ** b);
 static void get_face_ptr(Surface3D const * const s, int ind, int32_t ** f);
 static void get_vertex_ptr(Surface3D const * const s, int ind, double ** v);
 
+void copy_ray(Ray3D * new_ray, Ray3D old_ray) {
+    for (int i = 0; i < 3; i++) {
+        new_ray->position[i] = old_ray.position[i];
+        new_ray->direction[i] = old_ray.direction[i];
+    }
+    new_ray->nScatters = old_ray.nScatters;
+    new_ray->on_element = old_ray.on_element;
+    new_ray->on_surface = old_ray.on_surface;
+    new_ray->status = old_ray.status;
+    new_ray->detector = old_ray.detector;
+}
+
 /*
  * Set up a surface containing the information on a triangulated surface.
  * At the end of the program, MUST call clean_up_surface to free allocated memory.
@@ -522,6 +534,10 @@ void create_ray(Ray3D * const gen_ray, SourceParam const * const source, MTRand 
             normal[2] = 0;
             cosine_scatter(normal, NULL, NULL, gen_ray->direction, NULL, myrng);
             break;
+        case 3:
+            /* Single ray model */
+            phi = 0;
+            theta = 0;
     }
 
     if (source->source_model != 2) {

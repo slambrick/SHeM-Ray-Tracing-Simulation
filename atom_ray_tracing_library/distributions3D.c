@@ -46,7 +46,7 @@ distribution_func distribution_by_name(const char * name) {
         return(debye_waller_specular);
     if(strcmp(name, "dw_diffraction") == 0)
         return(debye_waller_diffraction);
-    if(strcmp(name, "pure_specular") == 0)
+    if(strcmp(name, "specular") == 0)
         return(pure_specular);
     if(strcmp(name, "diffraction2") == 0)
         return(diffuse_and_diffraction2);

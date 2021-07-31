@@ -24,26 +24,28 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
-Design working distance (mm): 3
+Design working distance (mm): 0.1
 Incidence angle (deg): 0
-Type of scan: rotations
+Type of scan: rectangular
 Number of detectors: 1
-Detector full axes (x,y): (1.92, 1.5)
-Detector centres (x,y): (2.35, 0)
+Detector full axes (x,y): (5, 7)
+Detector centres (x,y): (2.5, 0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, 72, 144, 216, 288)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
 STL pinhole model: N circle
 
 %% Set up your source
-% There are two models of the source, 'Uniform' source at the skimmer, or a
-% 'Gaussian'. In the first case provide the maximum angular value, in the second
+% There are three models of the source, 'Uniform' source at the skimmer, or a
+% 'Gaussian', finally the source may be 'Infinite' which gives the initial
+% beam as a single ray with the rest of the rays generated upon the first
+% scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 15,000
-Pinhole radius (mm): 0.001
-Source model: Uniform
+Number of Rays: 500
+Pinhole radius (mm): 0.0001
+Source model: Infinite
 Angular source size (rad): 0.0005
-Source standard deviation (rad): 0.1
+Source standard deviation (rad): 0.05
 Effuse beam: Off
 Effuse size (relative to the direct beam): 2
 
@@ -59,21 +61,21 @@ Effuse size (relative to the direct beam): 2
 What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.5
-Standard deviation (deg): 30
+Standard deviation (deg): 0.1
 Sample description: Write something here
-Working distance to place the sample at: 3
+Working distance to place the sample at: 0.05
 Sphere radius (mm): 0.2
 Circle radius (mm): 6
 Length of side of flat sample: 8
-Custom sample stl file: samples/single_pyramid.stl
+Custom sample stl file: samples/pollen_grain2.stl
 Manual alignment: no
 
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.005
-Scan range x (mm): 0.85
-Scan range y (mm): 0.85
+Pixel seperation (mm): 0.01
+Scan range x (mm): 1
+Scan range y (mm): 1
 Ignore incidence angle in scan pattern: yes
 
 % This assumes you are doing a 1D scan
@@ -83,6 +85,6 @@ Scan max (mm): 3
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): pyramid_3D_test_final
+Label for the output directory (no spaces please): pollen_test
 Sould the C code be recompiled: false
 

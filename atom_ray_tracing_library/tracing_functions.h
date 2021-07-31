@@ -22,6 +22,14 @@
  */
 void scatterOffSurface(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng);
 
+
+/*
+ * The same a scatterOffSurface but it returns the parameters needed to generate
+ * more directions from the scattering point.
+ */
+void scatterOffSurfaceReturn(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng,
+        double * nearest_n, double * nearest_b);
+
 /*
  *  Finds the intersection, normal at the point of intersection and distance to
  *  the intersection between the ray and a triangulated surface.

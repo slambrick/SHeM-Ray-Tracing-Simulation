@@ -12,10 +12,10 @@
 #include "ray_tracing_core3D.h"
 #include "intersect_detection3D.h"
 #include "distributions3D.h"
+#include "tracing_functions.h"
 #include <math.h>
 #include "mtwister.h"
 #include <stdbool.h>
-
 
 /*
  * Scatters the given ray off a single triangulated surface, the sample, and an
@@ -33,11 +33,21 @@
  *         met), 0 is alive (has met)
  */
 void scatterOffSurface(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng) {
+    double nearest_n[3];
+    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
+
+    scatterOffSurfaceReturn(the_ray, overall_sample, myrng, nearest_n, nearest_b);
+}
+
+/*
+ * The same a scatterOffSurface but it returns the parameters needed to generate
+ * more directions from the scattering point.
+ */
+void scatterOffSurfaceReturn(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng,
+        double * nearest_n, double * nearest_b) {
     double min_dist;
     int meets = 0;
     int tri_hit = -1;
-    double nearest_n[3];
-    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
     double nearest_inter[3];
     double new_direction[3];
     int which_surface = -1;

@@ -84,6 +84,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     Sample overall_sample;
 
     /* Indexing the surfaces, -1 refers to no surface */
+    /* TODO: make this work a bit better */
     int sample_index = 0, plate_index = 1, sphere_index = 2, circle_index = 3;
     
     /* For random number generation */

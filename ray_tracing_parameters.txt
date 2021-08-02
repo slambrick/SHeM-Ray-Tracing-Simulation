@@ -13,6 +13,7 @@
 % - 'crude annular', WD=3
 % - 'normal incidence 3mm', WD=3?
 % - 'N circle'
+% - 'abstract', specifies a detection direction only
 % New models of plate can be added by creating an appropriate CAD file and
 % then writing a function in 'functions/pinhole_plate_import/', and adding
 % it as an option in 'functions/pinhole_import.m' and 
@@ -33,6 +34,8 @@ Detector centres (x,y): (2.5, 0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, 72, 144, 216, 288)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
 STL pinhole model: N circle
+Location of abstract detector (theta, phi): (60, 0)
+Half cone angle of detector: 20 
 
 %% Set up your source
 % There are three models of the source, 'Uniform' source at the skimmer, or a

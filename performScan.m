@@ -28,45 +28,47 @@ aperture_axes = parse_list_input(param_list{5});
 aperture_c = parse_list_input(param_list{6});
 rot_angles = parse_rotations(param_list{7});
 pinhole_model = parse_pinhole(param_list{8});
+[aperture_theta, aperture_phi] = parse_list_input(param_list{9});
+aperture_half_cone = str2double(param_list{10});
 
 % Set up source
-n_rays = str2double(param_list{9});
-pinhole_r = str2double(param_list{10});
-source_model = strtrim(param_list{11});
-theta_max = str2double(param_list{12});
-sigma_source = str2double(param_list{13});
-if ~parse_yes_no(param_list{14})
+n_rays = str2double(param_list{11});
+pinhole_r = str2double(param_list{12});
+source_model = strtrim(param_list{13});
+theta_max = str2double(param_list{14});
+sigma_source = str2double(param_list{15});
+if ~parse_yes_no(param_list{16})
     effuse_size = 0;
 else
-    effuse_size = str2double(param_list{15});
+    effuse_size = str2double(param_list{17});
 end
 
 % Set up sample
-sample_type = strtrim(param_list{16});
-material = parse_scattering(strtrim(param_list{17}), str2double(param_list{18}), ...
-    str2double(param_list{19}));
-sample_description = param_list{20};
-dist_to_sample = str2double(param_list{21});
-sphere_r = str2double(param_list{22});
-circle_r = str2double(param_list{23});
-square_size = str2double(param_list{24});
-sample_fname = strtrim(param_list{25});
-dontMeddle = parse_yes_no(param_list{26});
+sample_type = strtrim(param_list{18});
+material = parse_scattering(strtrim(param_list{17}), str2double(param_list{20}), ...
+    str2double(param_list{21}));
+sample_description = param_list{22};
+dist_to_sample = str2double(param_list{23});
+sphere_r = str2double(param_list{24});
+circle_r = str2double(param_list{25});
+square_size = str2double(param_list{26});
+sample_fname = strtrim(param_list{27});
+dontMeddle = parse_yes_no(param_list{28});
 
 % Set up scan
-pixel_seperation = str2double(param_list{27});
-range_x = str2double(param_list{28});
-range_z = str2double(param_list{29});
-init_angle_pattern = ~parse_yes_no(param_list{30});
+pixel_seperation = str2double(param_list{29});
+range_x = str2double(param_list{30});
+range_z = str2double(param_list{31});
+init_angle_pattern = ~parse_yes_no(param_list{32});
 
 % 1D scan parameters
-scan_direction = strtrim(param_list{31});
-range_1D = [str2double(param_list{32}), str2double(param_list{33})];
-res_1D = str2double(param_list{34});
+scan_direction = strtrim(param_list{33});
+range_1D = [str2double(param_list{34}), str2double(param_list{35})];
+res_1D = str2double(param_list{36});
 
 % Other parameters
-directory_label = strtrim(param_list{35});
-recompile = parse_yes_no(param_list{36});
+directory_label = strtrim(param_list{37});
+recompile = parse_yes_no(param_list{38});
 
 %% Generate parameters from the inputs 
 
@@ -116,15 +118,6 @@ circle_plate_r = 4;
 % speed up the simulation but won't model the effuse and multiple scattering
 % backgrounds properly.
 plate_represent = 0;
-
-% In the case of 'abstract', specify the two angles of the location of the
-% detector aperture and the half cone angle of its extent. Note that the
-% aperture can only be placed in the hemisphere facing the sample. All
-% angles in degrees.
-% TODO: this
-aperture_theta = 0;
-aperture_phi = 0;
-aperture_half_cone = 15;
 
 
 %% Parameters for multiple rectangular scans
@@ -303,13 +296,15 @@ switch pinhole_model
         pinhole_plate_inputs.aperture_phi = NaN;
         pinhole_plate_inputs.aperture_half_cone = NaN;
     case 'abstract'
-        % TODO: make the 'abstract' simulations work
-        pinhole_plate_inputs.n_detectors = n_detectors;
+        pinhole_plate_inputs.plate_accuracy = NaN;
+        pinhole_plate_inputs.n_detectors = 1;
         pinhole_plate_inputs.plate_represent = 0;
+        pinhole_plate_inputs.aperture_axes = NaN;
+        pinhole_plate_inputs.aperture_c = NaN;
         pinhole_plate_inputs.circle_plate_r = NaN;
-        pinhole_plate_inputs.aperture_theta = NaN;
-        pinhole_plate_inputs.aperture_phi = NaN;
-        pinhole_plate_inputs.aperture_half_cone = NaN;
+        pinhole_plate_inputs.aperture_theta = aperture_theta;
+        pinhole_plate_inputs.aperture_phi = aperture_phi;
+        pinhole_plate_inputs.aperture_half_cone = aperture_half_cone;
 end
 
 % Input structs are:
@@ -474,7 +469,7 @@ end
 %sample_surface.normalise_lattice();
 
 %% Pinhole plate import and plotting
-[pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(...
+[pinhole_surface, thePlate, pinhole_model] = pinhole_import(...
     pinhole_plate_inputs, sample_surface, defMaterial);
 %thePlate.backwall_represent = 1;
 %% Compile the mex files

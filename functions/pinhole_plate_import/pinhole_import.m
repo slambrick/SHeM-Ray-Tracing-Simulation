@@ -90,8 +90,18 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
             thePlate = PinholeModel(defMaterial);
             aperture_abstract = 0;
             pinhole_model = 'stl';
-        otherwise
-            % Do not have a CAD repreentation of the pinhole plate
+        case 'abstract'
+            % A single aperture at a specified direction
+
+            % Create an empty TriagSurface as the pinhole plate
+            pinhole_surface = TriagSurface();
+            
+            % Struct with the information about the plate in
+            thePlate = AbstractModel(pinhole_plate_inputs.aperture_theta, ...
+                                     pinhole_plate_inputs.aperture_phi, ...
+                                     pinhole_plate_inputs.aperture_half_cone);
+        case 'N circle'
+            % A series of circular apertures in a plane
 
             % Create an empty TriagSurface as the pinhole plate
             pinhole_surface = TriagSurface();
@@ -103,8 +113,7 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
                                     pinhole_plate_inputs.circle_plate_r, ...
                                     pinhole_plate_inputs.aperture_axes, ...
                                     pinhole_plate_inputs.aperture_c);
-            aperture_abstract = {pinhole_plate_inputs.aperture_theta, ...
-                pinhole_plate_inputs.aperture_phi, pinhole_plate_inputs.aperture_half_cone};
-            pinhole_model = 'N circle';
+        otherwise
+            error('Specifiy an existing pinhole plate model');
     end
 end

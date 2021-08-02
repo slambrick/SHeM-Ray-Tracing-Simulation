@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2018-20, Sam Lambrick.
+ * Copyright (c) 2018-21, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
+ * 
+ * The functions in this file perform a simulation for a single ray.
  */
 
 #include "trace_ray.h"
@@ -17,9 +19,6 @@
  * For a simple model of the pinhole plate as a circle with multiple detectors.
  *
  * Traces a single ray
- *
- * NOTE: This function run by itself does cause seg faults
- * TODO: find the basterd pointer that causes this!
  */
 void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_sample, 
                             NBackWall plate, MTRand * const myrng) {
@@ -66,20 +65,12 @@ void trace_ray_simple_multi(Ray3D *the_ray, int maxScatters, Sample overall_samp
             break;
         }
 
-
         /* Try to scatter of both surfaces. */
         scatterSimpleMulti(the_ray, overall_sample, plate, &detector, myrng);
-
-        //printf("\nwhich_surface #2 = %i", the_ray->on_surface);
-        //print_ray(the_ray);
-        
         if (the_ray->status == 2) {
             the_ray->detector = detector;
             break;
         }
-        /******************************************************************/
-        /* Update counters */
-
         if (the_ray->status == 0) {
             /* Hit a surface */
             n_allScatters++;
@@ -164,8 +155,6 @@ void trace_ray_triag_plate(Ray3D * the_ray, int maxScatters,
  * acquired from the scattering.
  *
  * Trace a single ray off only ths sample
- *
- * TODO: change to use the new ray status inside the struct
  */
 void trace_ray_just_sample(Ray3D * the_ray, int * const killed, int maxScatters,
         Sample overall_sample, MTRand * const myrng) {
@@ -188,6 +177,69 @@ void trace_ray_just_sample(Ray3D * the_ray, int * const killed, int maxScatters,
             the_ray->nScatters = -1;
             *killed += 1;
             break;
+        }
+    }
+}
+
+void trace_ray_abstract(Ray3D * the_ray, int maxScatters, Sample overall_sample,
+        AbstractHemi plate, MTRand * const myrng) {
+    /*
+     * The total number of scattering events undergone (sample and pinhole
+     * plate) 1000 events are allowed in total. A separate limit is placed
+     * on the number of scattering events off of the sample.
+     */
+    int n_allScatters = 0;
+    int detector = 0;
+    
+    /*
+     * Keep propagating the ray until it is deemed 'dead', by either not
+     * intersecting either the sample or the pinhole plate.
+     */
+    while (!(the_ray->status)) {
+        /* The ray is dead unless we hit something */
+        the_ray->status = 1;
+        
+        /*
+        * Try to scatter of sample. This only tries to scatter off of the
+        * sample and not the pinhole plate.
+        *
+        * If the ray has not hit the sample then it is immediately dead.
+        */
+        if (the_ray->nScatters == 0) {
+            scatterOffSurface(the_ray, overall_sample, myrng);
+            if (!the_ray->status) {
+                /* Hit the sample */
+                the_ray->nScatters += 1;
+                n_allScatters++;
+            } else {
+                /* Move onto the next ray */
+                continue;
+            }
+        }
+        
+        /* The number of scattering events is set to -1 if we exceed the overall
+         * number of scattering events. */
+        if ((the_ray->nScatters > maxScatters) || (n_allScatters > 50)) {
+            /* Ray has exceeded the maximum number of scatters, kill it */
+            the_ray->nScatters = -1;
+            the_ray->status = -1;
+            break;
+        }
+        
+        /* Try to scatter of both surfaces */
+        scatterAbstractSurfaces(the_ray, overall_sample, &plate, &detector, myrng);
+        if (the_ray->status == 2) {
+            the_ray->detector = detector;
+            break;
+        }
+
+        if (the_ray->status == 0) {
+            /* Hit a surface */
+            n_allScatters++;
+            
+            if (the_ray->on_surface != plate.surf_index) {
+                the_ray->nScatters += 1;
+            }
         }
     }
 }

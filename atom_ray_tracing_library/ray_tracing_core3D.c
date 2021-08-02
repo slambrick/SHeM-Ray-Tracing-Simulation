@@ -25,6 +25,14 @@ static void get_lattice_ptr(Surface3D const * const s, int ind, double ** b);
 static void get_face_ptr(Surface3D const * const s, int ind, int32_t ** f);
 static void get_vertex_ptr(Surface3D const * const s, int ind, double ** v);
 
+/*
+ * Copys the old ray into the new ray.
+ * 
+ * INPUTS: 
+ *  new_ray - pointer to the new ray struct, the information will be copied into
+ *            here
+ *  old_ray - ray struct, the information will be copied from here
+ */
 void copy_ray(Ray3D * new_ray, Ray3D old_ray) {
     for (int i = 0; i < 3; i++) {
         new_ray->position[i] = old_ray.position[i];

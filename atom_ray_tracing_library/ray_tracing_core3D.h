@@ -85,10 +85,8 @@ typedef struct _nBackWall{
 /* Information on the abstract hemisphere model of detection */
 typedef struct _abstractHemi {
     int surf_index;
-    double aperture_theta;
-    double aperture_phi;
     double half_cone_angle;
-    double dist_to_sample;
+    double det_dir[3];
 } AbstractHemi;
 
 /* A structure to hold information on the analytic sphere */
@@ -112,10 +110,19 @@ typedef struct _circle {
 
 /* The total information on a potential sample */
 typedef struct _sample {
-    Circle *the_circle;
-    AnalytSphere *the_sphere;
-    Surface3D *triag_sample;
+    Circle * the_circle;
+    AnalytSphere * the_sphere;
+    Surface3D * triag_sample;
 } Sample;
+
+/* The total information on the models of pinhole plate */
+// TODO: refactor code to make use of this
+typedef struct _plate {
+    NBackWall * simple_model;      // Information on the simple model
+    Surface3D * triag_model;       // CAD model of a pinhole plate
+    double * backWall;             // information on the back location of the plate
+    AbstractHemi * abstract_model; // Information on the abstract model
+} CompletePlate;
 
 /* Information on a plane */
 typedef struct _plane {

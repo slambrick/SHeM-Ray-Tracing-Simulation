@@ -36,8 +36,7 @@ void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist
         double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const meets, int * const tri_hit,
         int * const which_surface, int * const which_aperture);
 
-//void abstractScatter(Ray3D * the_ray, AbstractHemi const * detector, double * min_dist,
-//        double nearest_inter[3], bool * meets, int * tri_hit, int * which_surface,
-//		int *which_detector);
+void abstractScatter(Ray3D * the_ray, AbstractHemi const * plate, double * const min_dist, 
+        int * const tri_hit, int * const which_surface, int * const which_aperture);
 
 #endif

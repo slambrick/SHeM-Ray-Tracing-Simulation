@@ -55,7 +55,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
  *  Scatters the ray off a sample and a attempts dtection on a hemisphere with abstract
  *  detector apertures placed on it.
  */
-//int scatterAbstractSurfaces(Ray3D * the_ray, Surface3D const  * sample, AbstractHemi const *  plate,
-//		const AnalytSphere * the_sphere, MTRand * myrng, int * status) ;
+void scatterAbstractSurfaces(Ray3D *the_ray, Sample overall_sample, AbstractHemi const * plate,
+		int * detector, MTRand * const myrng);
 
 #endif

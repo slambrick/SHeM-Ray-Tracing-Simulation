@@ -420,8 +420,8 @@ void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, do
  * detected or the index of the detector is has entered.
  */
 void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist,
-        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * meets, int * const tri_hit,
-        int * const which_surface, int * const which_aperture) {
+        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * meets,
+        int * const tri_hit, int * const which_surface, int * const which_aperture) {
     double *d;
     d = the_ray->direction;
 
@@ -543,14 +543,22 @@ void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist
 }
 
 /* Scatter off an abstract hemisphere */
-/* TODO: fix this!! */
-//void abstractScatter(Ray3D * the_ray, AbstractHemi const * detector, double * min_dist,
-//        double nearest_inter[3], bool * meets, int *tri_hit, int * which_surface,
-//		int * which_detector) {
-//
-//    /* No detection, do nothing, maybe code this eventually */
-//    return;
-//}
+void abstractScatter(Ray3D * the_ray, AbstractHemi const * plate, double * const min_dist, 
+        int * const tri_hit, int * const which_surface, int * const which_aperture) {
+    double angle_sep, tmp;
+
+    // Get the angle between the ray and the 
+    dot(the_ray->direction, plate->det_dir, &tmp);
+    angle_sep = acos(tmp);
+    
+    if (angle_sep > plate->half_cone_angle) {
+        return;
+    } else if (*min_dist > 1e6) { // 1e6 = 1km
+        *which_aperture = 1;
+        *which_surface = plate->surf_index;
+        *tri_hit = -1;
+    }
+}
 
 
 /*

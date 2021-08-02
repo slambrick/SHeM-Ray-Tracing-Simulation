@@ -57,4 +57,6 @@ void get_source(const mxArray * source, int source_model, SourceParam * Source);
  */
 NBackWall get_plate(const mxArray * plate_opts, int plate_index);
 
+AbstractHemi get_abstract(const mxArray * plate_opts, int plate_index);
+
 #endif

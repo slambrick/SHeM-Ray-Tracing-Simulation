@@ -283,3 +283,45 @@ NBackWall get_plate(const mxArray * plate_opts, int plate_index) {
     
     return plate;
 }
+
+/*
+ * Extract the plate properties from MATLAB struct of length 5
+ * and write to NBackWall struct.
+ *
+ * INPUTS:
+ * - plate_opts = mxArray containing options
+ * - plate_index = the surface index of the plate
+ */
+AbstractHemi get_abstract(const mxArray * plate_opts, int plate_index) {
+    AbstractHemi plate;
+    mxArray * field;
+
+    if(!mxIsStruct(plate_opts))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_abstract:plate_opts",
+                          "Must be struct array. In get_abstract.");
+    if(mxGetN(plate_opts) != 1 || mxGetM(plate_opts) != 1)
+        mexErrMsgIdAndTxt("AtomRayTracing:tracingMex:plate_opts",
+                          "Must be one struct. In get_abstract.");
+
+    
+    // Get the half cone angle
+    field = mxGetField(plate_opts, 0, "half_cone_angle");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_abstract:plate_opts",
+                          "Half cone angle must be scalar. In get_abstract.");
+    double half_cone_angle = mxGetScalar(field);
+    
+    // Get the axes of the apertures
+    field = mxGetField(plate_opts, 0, "det_dir");
+    if (!mxIsDouble(field) || mxGetN(field) != 3)
+        mexErrMsgIdAndTxt("AtomRayTracing:get_abstract:plate_opts",
+                          "Aperture axes must be array of 3. In get_abstract.");
+    double * det_dir = mxGetDoubles(field);
+
+    plate.half_cone_angle = half_cone_angle;
+    for (int i = 0; i < 3; i++)
+        plate.det_dir[i] = det_dir[i];
+    plate.surf_index = plate_index;
+    
+    return plate;
+}

@@ -1,4 +1,4 @@
-function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(...
+function [pinhole_surface, thePlate, pinhole_model] = pinhole_import(...
         pinhole_plate_inputs, sample_surface, defMaterial)
     isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
     switch pinhole_plate_inputs.pinhole_model
@@ -97,9 +97,11 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
             pinhole_surface = TriagSurface();
             
             % Struct with the information about the plate in
+            
             thePlate = AbstractModel(pinhole_plate_inputs.aperture_theta, ...
                                      pinhole_plate_inputs.aperture_phi, ...
                                      pinhole_plate_inputs.aperture_half_cone);
+            pinhole_model = 'abstract';
         case 'N circle'
             % A series of circular apertures in a plane
 
@@ -113,6 +115,8 @@ function [pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole
                                     pinhole_plate_inputs.circle_plate_r, ...
                                     pinhole_plate_inputs.aperture_axes, ...
                                     pinhole_plate_inputs.aperture_c);
+            aperture_abstract = 0;
+            pinhole_model = 'N circle';
         otherwise
             error('Specifiy an existing pinhole plate model');
     end

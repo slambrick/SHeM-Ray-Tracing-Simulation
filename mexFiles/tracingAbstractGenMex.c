@@ -32,7 +32,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Expected number of inputs and outputs */
     int const NINPUTS = 15;
     int const NOUTPUTS = 3;
-
+    
     /* Declare the input variables */
     int ntriag_sample;     /* number of sample triangles */
     double *V;             /* sample triangle vertices 3xn */
@@ -45,7 +45,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     int maxScatters;       /* Maximum number of scattering events per ray */
     
     /* Declare the output variables */
-    int32_t * cntr_detected;       /* The number of detected rays */
+    int cntr_detected = 0;       /* The number of detected rays */
     int killed = 0;                /* The number of killed rays */
     int32_t * numScattersRay;      /* The number of sample scatters that each
                                     * ray has undergone */
@@ -137,7 +137,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
      * They need to be created as the transpose of what we want because of the
      * difference in indexing between MATLAB and C.
      */
-    plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
     plhs[2] = mxCreateNumericMatrix(1, 1*maxScatters, mxINT32_CLASS, mxREAL);
 
     /* Put all the sample structs together in one struct */
@@ -146,17 +145,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     overall_sample.triag_sample = &sample;
     
     /* Pointers to the output matrices so we may change them*/
-    cntr_detected = (int32_t*)mxGetData(plhs[0]);
     numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
     /**************************************************************************/
-
+    
     /* Main implementation of the ray tracing */
-    generating_rays_abstract_pinhole(source, n_rays, &killed, cntr_detected,
+    generating_rays_abstract_pinhole(source, n_rays, &killed, &cntr_detected,
             maxScatters, overall_sample, plate, &myrng, numScattersRay);
 
     /**************************************************************************/
-
+    
+    plhs[0] = mxCreateDoubleScalar(cntr_detected);
     plhs[1] = mxCreateDoubleScalar(killed);
 
     /* Free space */

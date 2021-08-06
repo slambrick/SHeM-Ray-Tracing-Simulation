@@ -230,6 +230,8 @@ void get_directions_indexed(Rays3D const * const all_rays, bool * const index,
 /* Get the number of scattering events for the rays */
 void get_scatters(Rays3D const * const all_rays, int * const nScatters);
 
+void print_abstract(AbstractHemi const * const plate);
+
 /* Print details of material */
 void print_material(Material const * const mat);
 

@@ -28,7 +28,9 @@ aperture_axes = parse_list_input(param_list{5});
 aperture_c = parse_list_input(param_list{6});
 rot_angles = parse_rotations(param_list{7});
 pinhole_model = parse_pinhole(param_list{8});
-[aperture_theta, aperture_phi] = parse_list_input(param_list{9});
+aperture_size = parse_list_input(param_list{9});
+aperture_theta = aperture_size(1);
+aperture_phi = aperture_size(2);
 aperture_half_cone = str2double(param_list{10});
 
 % Set up source
@@ -45,7 +47,7 @@ end
 
 % Set up sample
 sample_type = strtrim(param_list{18});
-material = parse_scattering(strtrim(param_list{17}), str2double(param_list{20}), ...
+material = parse_scattering(strtrim(param_list{19}), str2double(param_list{20}), ...
     str2double(param_list{21}));
 sample_description = param_list{22};
 dist_to_sample = str2double(param_list{23});
@@ -98,7 +100,7 @@ scan_pattern = 'rotations';
 % Do we want to generate rays in Matlab (more flexibility, more output options)
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
 % In general stick to 'C' unless your own source model is being used
-ray_model = 'MATLAB';
+ray_model = 'C';
 if strcmp(source_model, 'Infinite')
     ray_model = 'C';
     pinhole_r = 0;

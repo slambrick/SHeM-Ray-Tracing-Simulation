@@ -363,6 +363,13 @@ void get_scatters(Rays3D const * const all_rays, int * const nScatters) {
     }
 }
 
+void print_abstract(AbstractHemi const * const plate) {
+    printf("Surface index: %i\n", plate->surf_index);
+    printf("Detection direction:\n");
+    print1D_double(plate->det_dir, 3);
+    printf("Aperture half cone angle: %f\n\n", plate->half_cone_angle);
+}
+
 /* print details of Material struct */
 void print_material(Material const * const mat) {
     printf("\tMAT %-10s func %-12s", mat->name, mat->func_name);

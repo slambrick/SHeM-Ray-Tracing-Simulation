@@ -19,7 +19,7 @@ classdef AbstractModel
             else
                 obj.theta = theta;
                 obj.phi = phi;
-                obj.direction = [];
+                obj.direction = [cosd(phi)*sind(theta), cosd(theta), sind(phi)*sind(theta)];
                 obj.half_cone_angle = half_cone_angle;
                 obj.in_use = true;
             end
@@ -28,7 +28,7 @@ classdef AbstractModel
         function p = to_struct(obj)
             if obj.in_use
                 p.direction = obj.direction;
-                p.half_cone_angle = obj.half_cone_angle;
+                p.half_cone_angle = obj.half_cone_angle*pi/180;
             else
                 error('The simple model of the pinhole plate has not been initialised');
             end

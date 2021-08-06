@@ -312,7 +312,7 @@ AbstractHemi get_abstract(const mxArray * plate_opts, int plate_index) {
     double half_cone_angle = mxGetScalar(field);
     
     // Get the axes of the apertures
-    field = mxGetField(plate_opts, 0, "det_dir");
+    field = mxGetField(plate_opts, 0, "direction");
     if (!mxIsDouble(field) || mxGetN(field) != 3)
         mexErrMsgIdAndTxt("AtomRayTracing:get_abstract:plate_opts",
                           "Aperture axes must be array of 3. In get_abstract.");

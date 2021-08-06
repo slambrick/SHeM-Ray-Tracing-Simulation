@@ -33,8 +33,8 @@ Detector full axes (x,y): (5, 7)
 Detector centres (x,y): (2.5, 0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, 72, 144, 216, 288)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
-STL pinhole model: N circle
-Location of abstract detector (theta, phi): (60, 0)
+STL pinhole model: abstract
+Location of abstract detector (theta, phi): (70, 0)
 Half cone angle of detector: 20 
 
 %% Set up your source
@@ -44,11 +44,11 @@ Half cone angle of detector: 20
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 500
-Pinhole radius (mm): 0.0001
-Source model: Infinite
+Number of Rays: 1000
+Pinhole radius (mm): 0.0005
+Source model: Gaussian
 Angular source size (rad): 0.0005
-Source standard deviation (rad): 0.05
+Source standard deviation (rad): 0.012
 Effuse beam: Off
 Effuse size (relative to the direct beam): 2
 

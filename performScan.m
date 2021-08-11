@@ -51,26 +51,28 @@ material = parse_scattering(strtrim(param_list{19}), str2double(param_list{20}),
     str2double(param_list{21}));
 sample_description = param_list{22};
 dist_to_sample = str2double(param_list{23});
-sphere_r = str2double(param_list{24});
-circle_r = str2double(param_list{25});
-square_size = str2double(param_list{26});
-sample_fname = strtrim(param_list{27});
-dontMeddle = parse_yes_no(param_list{28});
+sphere_rs = parse_list_input(param_list{24});
+n_sphere = length(sphere_rs);
+sphere_cs = reshape(parse_list_input(param_list{25}), [2, n_sphere]);
+circle_r = str2double(param_list{26});
+square_size = str2double(param_list{27});
+sample_fname = strtrim(param_list{28});
+dontMeddle = parse_yes_no(param_list{29});
 
 % Set up scan
-pixel_seperation = str2double(param_list{29});
-range_x = str2double(param_list{30});
-range_z = str2double(param_list{31});
-init_angle_pattern = ~parse_yes_no(param_list{32});
+pixel_seperation = str2double(param_list{30});
+range_x = str2double(param_list{31});
+range_z = str2double(param_list{32});
+init_angle_pattern = ~parse_yes_no(param_list{33});
 
 % 1D scan parameters
-scan_direction = strtrim(param_list{33});
-range_1D = [str2double(param_list{34}), str2double(param_list{35})];
-res_1D = str2double(param_list{36});
+scan_direction = strtrim(param_list{34});
+range_1D = [str2double(param_list{35}), str2double(param_list{36})];
+res_1D = str2double(param_list{37});
 
 % Other parameters
-directory_label = strtrim(param_list{37});
-recompile = parse_yes_no(param_list{38});
+directory_label = strtrim(param_list{38});
+recompile = parse_yes_no(param_list{39});
 
 %% Generate parameters from the inputs 
 
@@ -78,9 +80,12 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2] + tand(init_angle)*(dist_to_sample - working_dist);
+xrange = [-range_x/2, range_x/2];% + tand(init_angle)*(dist_to_sample - working_dist);
 zrange = [-range_z/2, range_z/2];
-sphere_c = [0, -dist_to_sample + sphere_r, 0];
+
+% TODO: sphere locations and 
+sphere_y = -dist_to_sample + sphere_rs;
+sphere_cs = [sphere_cs(1,:); sphere_y; sphere_cs(2,:)];
 
 %% Define remaining parameters
 
@@ -119,7 +124,7 @@ circle_plate_r = 4;
 % Should a flat pinhole plate be modelled (with 'N circle'). not including may
 % speed up the simulation but won't model the effuse and multiple scattering
 % backgrounds properly.
-plate_represent = 0;
+plate_represent = 1;
 
 
 %% Parameters for multiple rectangular scans
@@ -333,10 +338,6 @@ if false
             'the pinhole plate.']);
     end
 
-    if sphere_r*2 > dist_to_sample
-        error('The sphere is too big for the pinhole plate-sample distance.');
-    end
-
     if strcmp(typeScan, 'line') && (range1D(1) > range1D(2))
         error('Impossible range for a line scan specified.');
     end
@@ -355,10 +356,6 @@ if false
     if (~strcmp(sample_type, 'flat') && ~strcmp(sample_type, 'sphere') ...
             && (~strcmp(sample_type, 'custom')))
         error('Specify a correct type of sample.')
-    end
-
-    if (strcmp(sample_type, 'sphere') && sphere_r <= 0)
-        error('The sphere must have a positive non-zero radius.')
     end
 
     if ((strcmp(sample_type, 'sphere') || strcmp(sample_type, 'flate')) && ...
@@ -403,7 +400,7 @@ addpath(thePath);
 %% Sample import and plotting
 
 % A struct to represent the sphere and circle parts of the sample
-sphere = Sphere(1, material, sphere_c, sphere_r);
+sphere = Sphere(1, material, sphere_cs, sphere_rs);
 circle = Circle(1, material, circle_c, circle_r, circle_n);
 
 % Importing the sample as a TriagSurface object.
@@ -424,7 +421,7 @@ if false
     sample_surface.rotateGeneral('z', -3.8);
 end
 
-if true
+if false
     sample_surface.rotateGeneral('y', 30);
     %sample_surface.moveBy([0, 0.525, 0]);
 end

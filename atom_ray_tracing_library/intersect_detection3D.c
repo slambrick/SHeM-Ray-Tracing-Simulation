@@ -397,16 +397,19 @@ void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, do
     scatterTriag(the_ray, overall_sample.triag_sample, min_dist, nearest_inter, nearest_n, 
         nearest_b, meets, tri_hit, which_surface);
 
-    if (overall_sample.the_sphere->make_sphere) {
-        if (the_ray->on_surface != overall_sample.the_sphere->surf_index) {
-            scatterSphere(the_ray, overall_sample.the_sphere, min_dist, nearest_inter,
-            	nearest_n, nearest_b, tri_hit, which_surface, &meets_sphere);
+    for (int i = 0; i < overall_sample.n_sphere; i ++) {
+        bool meets_this_sphere = 0;
+        if (overall_sample.the_sphere[i].make_sphere) {
+            if (the_ray->on_surface != overall_sample.the_sphere[i].surf_index) {
+                scatterSphere(the_ray, &overall_sample.the_sphere[i], min_dist, nearest_inter,
+                    nearest_n, nearest_b, tri_hit, which_surface, &meets_this_sphere);
+                meets_sphere = meets_sphere || meets_this_sphere;
+            }
         }
     }
     
     if (overall_sample.the_circle->make_circle) {
         if (the_ray->on_surface != overall_sample.the_circle->surf_index) {
-            printf("Try scatter circle\n");
             scatterCircle(the_ray, overall_sample.the_circle, min_dist, nearest_inter,
             	nearest_n, nearest_b, tri_hit, which_surface, &meets_circle);
         }

@@ -363,23 +363,24 @@ void get_scatters(Rays3D const * const all_rays, int * const nScatters) {
     }
 }
 
+
 void print_abstract(AbstractHemi const * const plate) {
-    printf("Surface index: %i\n", plate->surf_index);
-    printf("Detection direction:\n");
+    mexPrintf("Surface index: %i\n", plate->surf_index);
+    mexPrintf("Detection direction:\n");
     print1D_double(plate->det_dir, 3);
-    printf("Aperture half cone angle: %f\n\n", plate->half_cone_angle);
+    mexPrintf("Aperture half cone angle: %f\n\n", plate->half_cone_angle);
 }
 
 /* print details of Material struct */
 void print_material(Material const * const mat) {
-    printf("\tMAT %-10s func %-12s", mat->name, mat->func_name);
+    mexPrintf("\tMAT %-10s func %-12s", mat->name, mat->func_name);
     for (int i = 0; i < mat->n_params; i++)
-        printf(" %.2f ", mat->params[i]);
+        mexPrintf(" %.2f ", mat->params[i]);
 }
 
 /* Print details of whole sample to console */
 void print_surface(Surface3D const * const s) {
-    printf("Surface index = %i\n", s->surf_index);
+    mexPrintf("Surface index = %i\n", s->surf_index);
     for (int ivert = 0; ivert < s->n_vertices; ivert++) {
     	double v[3];
     	get_vertex(s, ivert, v);
@@ -387,15 +388,15 @@ void print_surface(Surface3D const * const s) {
         //lin(ivert, 0, &ind0);
         //lin(ivert, 1, &ind1);
         //lin(ivert, 2, &ind2);
-        //printf("\n VERT % .2f % .2f % .2f", s->vertices[ind0],
+        //mexPrintf("\n VERT % .2f % .2f % .2f", s->vertices[ind0],
         //    s->vertices[ind1], s->vertices[ind2]);
-    	printf("\n VERT % .2f % .2f % .2f", v[0], v[1], v[2]);
+    	mexPrintf("\n VERT % .2f % .2f % .2f", v[0], v[1], v[2]);
     }
     for (int iface = 0; iface < s->n_faces; iface++) {
         int32_t f[3];
         double n[3];
         double b[6];
-    	printf("\n FACE %2d", iface);
+    	mexPrintf("\n FACE %2d", iface);
         get_face(s, iface, f);
         get_normal(s, iface, n);
         get_lattice(s, iface, b);
@@ -403,77 +404,85 @@ void print_surface(Surface3D const * const s) {
         //lin(iface, 0, &ind0);
         //lin(iface, 1, &ind1);
         //lin(iface, 2, &ind2);
-        printf("\tV %3d %3d %3d\n", f[0], f[1], f[2]);
+        mexPrintf("\tV %3d %3d %3d\n", f[0], f[1], f[2]);
         //s->faces[ind0], s->faces[ind1], s->faces[ind2]);
-        printf("\tN % .2f % .2f % .2f\n", n[0], n[1], n[2]);
-        printf("\tB % .2f % .2f % .2f % .2f % .2f % .2f\n", b[0], b[1], b[2],
+        mexPrintf("\tN % .2f % .2f % .2f\n", n[0], n[1], n[2]);
+        mexPrintf("\tB % .2f % .2f % .2f % .2f % .2f % .2f\n", b[0], b[1], b[2],
                b[3], b[4], b[5]);
         //s->normals[ind0],s->normals[ind1], s->normals[ind2]);
         print_material(s->compositions[iface]);
     }
-    printf("\n");
+    mexPrintf("\n");
 }
 
 /* Prints all the information about the ray to the terminal */
 void print_ray(Ray3D const * const the_ray) {
-    printf("\non_element = %i\n", the_ray->on_element);
-    printf("on_surface = %i\n", the_ray->on_surface);
-    printf("nScatters = %i\n", the_ray->nScatters);
-    printf("status = %i\n", the_ray->status);
-    printf("Position: ");
+    mexPrintf("\non_element = %i\n", the_ray->on_element);
+    mexPrintf("on_surface = %i\n", the_ray->on_surface);
+    mexPrintf("nScatters = %i\n", the_ray->nScatters);
+    mexPrintf("status = %i\n", the_ray->status);
+    mexPrintf("Position: ");
     print1D_double(the_ray->position, 3);
-    printf("Direction: ");
+    mexPrintf("Direction: ");
     print1D_double(the_ray->direction, 3);
 }
 
 /* Prints all the information about a BackWall struct */
 void print_BackWall(BackWall const * const wall) {
-    printf("\nSurface index = %i\n", wall->surf_index);
-    printf("Plate represent = %i\n", wall->plate_represent);
-    printf("Aperture centre: ");
+    mexPrintf("\nSurface index = %i\n", wall->surf_index);
+    mexPrintf("Plate represent = %i\n", wall->plate_represent);
+    mexPrintf("Aperture centre: ");
     print1D_double(wall->aperture_c, 2);
-    printf("Aperture axes: ");
+    mexPrintf("Aperture axes: ");
     print1D_double(wall->aperture_axes, 2);
-    printf("Radius of the plate = %f\n", wall->circle_plate_r);
+    mexPrintf("Radius of the plate = %f\n", wall->circle_plate_r);
     print_material(&(wall->material));
-    printf("\n");
+    mexPrintf("\n");
 }
 
 /* Prints all the information on all the apertues in the NBackWall struct */
 void print_nBackWall(NBackWall const * const all_apertures) {
-    printf("\nNumber of apertures = %i\n", all_apertures->n_detect);
+    mexPrintf("\nNumber of apertures = %i\n", all_apertures->n_detect);
     for (int i = 0; i < all_apertures->n_detect; i++) {
-        printf("Aperture %i:\n", i);
-        printf("Centre: ");
+        mexPrintf("Aperture %i:\n", i);
+        mexPrintf("Centre: ");
         print1D_double(&all_apertures->aperture_c[2*i], 2);
-        printf("Axes: ");
+        mexPrintf("Axes: ");
         print1D_double(&all_apertures->aperture_axes[2*i], 2);
     }
     // print_material(&(all_apertures->material));
-    printf("\n");
+    mexPrintf("\n");
 }
 
 
 /* Print the position, radius, material etc of a sphere */
 void print_sphere(AnalytSphere const * const sphere){
-    printf("\n\t Sphere make %d \n R %3.3f\n C %3.3f %3.3f %3.3f\n", sphere->make_sphere,
+    mexPrintf("\n\t Sphere make %d \n R %3.3f\n C %3.3f %3.3f %3.3f\n", sphere->make_sphere,
               sphere->sphere_r, sphere->sphere_c[0],
               sphere->sphere_c[1], sphere->sphere_c[2]);
     print_material(&(sphere->material));
 }
 
+
+void print_spheres(AnalytSphere const * const spheres, int n_sphere) {
+    for (int i = 0; i < n_sphere; i++) {
+        mexPrintf("------------\nSphere number %i\n", i);
+        print_sphere(&spheres[i]);
+    }
+}
+
 void print_circle(Circle const * const circle) {
-	printf("\n\t Circle make %d \n R %3.3f\n C %3.3f %3.3f %3.3f\n N %3.3f %3.3f %3.3f\n",
+	mexPrintf("\n\t Circle make %d \n R %3.3f\n C %3.3f %3.3f %3.3f\n N %3.3f %3.3f %3.3f\n",
 			circle->make_circle, circle->r, circle->centre[0], circle->centre[1],
 			circle->centre[2], circle->normal[0], circle->normal[1], circle->normal[2]);
 }
 
 void print_triangle(Triangle const * const tri) {
-	printf("Triangle element:");
-	printf("\n VERT1 % .2f % .2f % .2f", tri->v1[0], tri->v1[1], tri->v1[2]);
-	printf("\n VERT2 % .2f % .2f % .2f", tri->v2[0], tri->v2[1], tri->v2[2]);
-	printf("\n VERT3 % .2f % .2f % .2f", tri->v3[0], tri->v3[1], tri->v3[2]);
-	printf("\n NORM  % .2f % .2f % .2f\n", tri->normal[0], tri->normal[1], tri->normal[2]);
+	mexPrintf("Triangle element:");
+	mexPrintf("\n VERT1 % .2f % .2f % .2f", tri->v1[0], tri->v1[1], tri->v1[2]);
+	mexPrintf("\n VERT2 % .2f % .2f % .2f", tri->v2[0], tri->v2[1], tri->v2[2]);
+	mexPrintf("\n VERT3 % .2f % .2f % .2f", tri->v3[0], tri->v3[1], tri->v3[2]);
+	mexPrintf("\n NORM  % .2f % .2f % .2f\n", tri->normal[0], tri->normal[1], tri->normal[2]);
 }
 
 /*

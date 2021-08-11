@@ -57,7 +57,7 @@ distribution_func distribution_by_name(const char * name) {
 
 void pure_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * const params, MTRand * const myrng) {
-    //printf("\nIt has reflected\n");
+    //mexPrintf("\nIt has reflected\n");
     reflect3D(normal, init_dir, new_dir);
 }
 
@@ -280,7 +280,7 @@ void diffraction_pattern3D(const double normal[3], const double lattice[6], cons
     double peak_sig = params[3];    // width of individual peaks
     double envelope_sig = params[4]; // width of overall envelope
     
-    //printf("Sucessfully read parameters\n");
+    //mexPrintf("Sucessfully read parameters\n");
     for (i = 0; i < 3; i++) {
         B1[i] = lattice[i];
         B2[i] = lattice[i + 3];
@@ -361,7 +361,7 @@ void diffraction_pattern_specified(const double normal[3], const double lattice[
     
     double peak_sig = params[1];    // width of individual peaks
     
-    //printf("Sucessfully read parameters\n");
+    //mexPrintf("Sucessfully read parameters\n");
     for (i = 0; i < 3; i++) {
         B1[i] = lattice[i];
         B2[i] = lattice[i + 3];

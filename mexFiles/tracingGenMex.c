@@ -41,7 +41,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
     
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 20;
+    const int NINPUTS = 21;
     const int NOUTPUTS = 3;
 
     /* Declare the input variables */
@@ -71,15 +71,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
                               * ray has undergone */
 
     /* Indexing the surfaces, -1 refers to no surface */
-    int sample_index = 0, plate_index = 1, sphere_index = 2, circle_index = 3;
+    int sample_index = 0, plate_index = 1, circle_index = 2, sphere_index = 3;
 
     /* Declare structs */
     Surface3D sample;
     Surface3D plate;
-    AnalytSphere sphere;
+    AnalytSphere * spheres;
     Circle the_circle;
     SourceParam source;
     Sample overall_sample;
+    int n_sphere;
 
     /* For random number generation */
     struct timeval tv;
@@ -128,20 +129,24 @@ void mexFunction(int nlhs, mxArray *plhs[],
     get_string_cell_arr(prhs[9], CS);
 
     // get the sphere from matlab struct array
-    sphere = get_sphere(prhs[10], sphere_index);
-    the_circle = get_circle(prhs[11], circle_index);
-    backWall = mxGetPr(prhs[12]);
+    // TODO: actual make this work
+    n_sphere = (int)mxGetScalar(prhs[10]);
+    spheres = (AnalytSphere *)malloc(n_sphere*sizeof(AnalytSphere));
+    get_spheres(n_sphere, prhs[11], sphere_index, spheres);
+    //sphere = get_sphere(prhs[10], sphere_index);
+    the_circle = get_circle(prhs[12], circle_index);
+    backWall = mxGetPr(prhs[13]);
 
     // materials
-    int num_materials = mxGetN(prhs[13]);
+    int num_materials = mxGetN(prhs[14]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[13], prhs[14], prhs[15], M);
+    get_materials_array(prhs[14], prhs[15], prhs[16], M);
 
-    maxScatters = (int)mxGetScalar(prhs[16]); /* mxGetScalar gives a double */
-    n_rays = (int)mxGetScalar(prhs[17]);
+    maxScatters = (int)mxGetScalar(prhs[17]); /* mxGetScalar gives a double */
+    n_rays = (int)mxGetScalar(prhs[18]);
 
     // TODO: pass through source as a struct?
-    get_source(prhs[19], (int)mxGetScalar(prhs[18]), &source);
+    get_source(prhs[20], (int)mxGetScalar(prhs[19]), &source);
     
     /**************************************************************************/
 
@@ -168,9 +173,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
                    plate_index, &plate);
 
     /* Put all the sample structs together in one struct */
-    overall_sample.the_sphere = &sphere;
+    overall_sample.the_sphere = spheres;
     overall_sample.the_circle = &the_circle;
     overall_sample.triag_sample = &sample;
+    overall_sample.n_sphere = n_sphere;
     
     /*
      * Create the output matrices

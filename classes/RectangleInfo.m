@@ -877,7 +877,7 @@ classdef RectangleInfo < SimulationInfo
                     case 'plot'
                         make_plot = varargin{i_+1};
                     otherwise
-                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                        warning(['Unknown input #' num2str(i_) ' to .']);
                 end
             end
             

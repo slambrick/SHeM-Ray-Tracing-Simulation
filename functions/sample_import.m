@@ -22,7 +22,7 @@ function [sample_surface, sphere, circle, sample_description] = sample_import(sa
                 num2str(sphere.radius) 'mm on a flat square of ' num2str(square_size) 'mm.'];
             shift = (working_dist - sample_inputs.dist_to_sample)*tand(init_angle);
             sample_surface.moveBy([-shift, 0, 0]);
-            sphere.centre = sphere.centre + [-shift, 0, 0];
+            sphere.centre = sphere.centre + [-shift; 0; 0];
         case 'circle'
             sample_surface = flatSample(1, -1000, sample_inputs.material);
             circle.make = 1;

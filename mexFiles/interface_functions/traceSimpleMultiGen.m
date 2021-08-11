@@ -97,13 +97,13 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
         theta_max, init_angle, sigma_source];
     
     % Variables passed as structs not objects
-    s = sphere.to_struct();
+    [s, n_sphere] = sphere.to_struct();
     c = circle.to_struct();
     p = plate.to_struct();
     
     % The calling of the mex function, ... here be dragons ... don't meddle
     % unles you know what you're doing
-    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, B, C, s, c, p,...
+    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, B, C, n_sphere, s, c, p,...
         mat_names, mat_functions, mat_params, max_scatter, beam.n, ...
         source_model, source_parameters);
 

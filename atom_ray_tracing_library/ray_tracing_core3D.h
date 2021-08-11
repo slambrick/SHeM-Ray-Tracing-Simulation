@@ -110,9 +110,10 @@ typedef struct _circle {
 
 /* The total information on a potential sample */
 typedef struct _sample {
-    Circle * the_circle;
-    AnalytSphere * the_sphere;
-    Surface3D * triag_sample;
+    Circle * the_circle;        // Flat circular sample
+    AnalytSphere * the_sphere;  // Array of spheres
+    Surface3D * triag_sample;   // Triangular mesh surface
+    int n_sphere;               // How many spheres are there?
 } Sample;
 
 /* The total information on the models of pinhole plate */
@@ -122,6 +123,7 @@ typedef struct _plate {
     Surface3D * triag_model;       // CAD model of a pinhole plate
     double * backWall;             // information on the back location of the plate
     AbstractHemi * abstract_model; // Information on the abstract model
+    int which_model;               // Which model, 0=N circle, 1=triag, 2=abstract
 } CompletePlate;
 
 /* Information on a plane */
@@ -245,6 +247,8 @@ void print_BackWall(BackWall const * const wall);
 
 /* Prints the centres and axes of all the apertures in the NBackWall struct */
 void print_nBackWall(NBackWall const * const all_apertures);
+
+void print_spheres(AnalytSphere const * const spheres, int n_sphere);
 
 /* Print the position, radius, material etc of a sphere */
 void print_sphere(AnalytSphere const * const sphere);

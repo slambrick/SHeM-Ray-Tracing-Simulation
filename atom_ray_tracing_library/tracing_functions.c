@@ -68,12 +68,18 @@ void scatterOffSurfaceReturn(Ray3D * the_ray, Sample overall_sample, MTRand * co
     if (meets) {
         Material const * composition;
 
-        if (which_surface == overall_sample.the_sphere->surf_index) {
-            composition = &(overall_sample.the_sphere->material);
-        } else if (which_surface == overall_sample.the_circle->surf_index) {
-            composition = &(overall_sample.the_sphere->material);
-        } else {
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
             composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
         }
         
         /* Find the new direction and update position*/
@@ -237,7 +243,7 @@ void scatterSurfaces(Ray3D * the_ray, Sample overall_sample, Surface3D plate,
     if (meets) {
         Material const * composition;
 
-        if (which_surface == overall_sample.the_sphere->surf_index) {
+        /*if (which_surface == overall_sample.the_sphere->surf_index) {
             composition = &(overall_sample.the_sphere->material);
         } else if (which_surface == overall_sample.the_circle->surf_index) {
             composition = &(overall_sample.the_circle->material);
@@ -245,6 +251,22 @@ void scatterSurfaces(Ray3D * the_ray, Sample overall_sample, Surface3D plate,
             composition = plate.compositions[tri_hit];
         } else {
             composition = overall_sample.triag_sample->compositions[tri_hit];
+        }*/
+        
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
+            composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else if (which_surface == plate.surf_index) {
+            composition = plate.compositions[tri_hit];
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
         }
 
         /* Find the new direction and update position*/
@@ -283,8 +305,8 @@ void scatterSurfaces(Ray3D * the_ray, Sample overall_sample, Surface3D plate,
                     (backWall[2]/2))) {
                 /* We update position only and keep the direction the same */
                 update_ray_position(the_ray, wall_hit);
-
                 the_ray->status = 2;
+                the_ray->detector = 1;
                 return;
             }
         } else {
@@ -359,7 +381,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
     if (meets) {
         Material const * composition;
 
-        if (which_surface == overall_sample.the_sphere->surf_index) {
+        /*if (which_surface == overall_sample.the_sphere->surf_index) {
             composition = &(overall_sample.the_sphere->material);
         } else if (which_surface == overall_sample.the_circle->surf_index) {
             composition = &(overall_sample.the_circle->material);
@@ -367,6 +389,23 @@ void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
             composition = &(plate.material);
         } else {
             composition = overall_sample.triag_sample->compositions[tri_hit];
+        }*/
+        
+        
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
+            composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else if (which_surface == plate.surf_index) {
+            composition = &(plate.material);
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
         }
 
         /* Find the new direction and update position*/
@@ -439,14 +478,28 @@ void scatterAbstractSurfaces(Ray3D *the_ray, Sample overall_sample, AbstractHemi
     if (meets) {
         Material const * composition;
 
-        if (which_surface == overall_sample.the_sphere->surf_index) {
+        /*if (which_surface == overall_sample.the_sphere->surf_index) {
             composition = &(overall_sample.the_sphere->material);
         } else if (which_surface == overall_sample.the_circle->surf_index) {
             composition = &(overall_sample.the_circle->material);
         } else {
             composition = overall_sample.triag_sample->compositions[tri_hit];
-        }
+        }*/
 
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
+            composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
+        }
+        
         /* Find the new direction and update position*/
         composition->func(nearest_n, nearest_b, the_ray->direction,
             new_direction, composition->params, myrng);

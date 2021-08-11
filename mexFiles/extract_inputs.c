@@ -37,6 +37,8 @@ int get_string_cell_arr(const mxArray * cell_array, char ** strings) {
  * Extract the sphere C struct from the MATLAB struct array.
  * INPUTS: theSphere = mxArray containing ONE sphere struct
  *         index = the surface_index of the sphere surface
+ * 
+ * NOTE: this is depreciated
  */
 AnalytSphere get_sphere(const mxArray * theSphere, int index) {
     // check if sphere is one struct
@@ -77,6 +79,56 @@ AnalytSphere get_sphere(const mxArray * theSphere, int index) {
     AnalytSphere sph;
     set_up_sphere(make_sphere, sphere_c, sphere_r, mat, index, &sph);
     return sph;
+}
+
+/*
+ * Extract the sphere C struct from the MATLAB struct array.
+ * INPUTS: theSphere = mxArray containing ONE sphere struct
+ *         index = the surface_index of the sphere surface
+ */
+void get_spheres(int n_sphere, const mxArray * theSphere, int index, AnalytSphere * spheres) {
+    
+    // check if sphere is one struct
+    if(!mxIsStruct(theSphere))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_sphere:theSphere",
+                          "Must be struct array. In get_sphere.");
+    if(mxGetN(theSphere) != 1 || mxGetM(theSphere) != 1)
+        mexErrMsgIdAndTxt("AtomRayTracing:get_sphere:theSphere",
+                          "Must be one struct. In get_sphere.");
+
+    // get the radius - array of doubles
+    mxArray * field = mxGetField(theSphere, 0, "r");
+    long unsigned int n_spheres = mxGetN(field);
+    if (!mxIsDouble(field))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_sphere:theSphere",
+                          "Sphere radius must be array of doubles. In get_sphere.");
+    double * sphere_r = mxGetDoubles(field);
+    
+    // get the centre
+    field = mxGetField(theSphere, 0, "c");
+    if (!mxIsDouble(field) || mxGetN(field) != 3*n_spheres)
+        mexErrMsgIdAndTxt("AtomRayTracing:get_sphere:theSphere",
+                          "Centre must be array of 3*n doubles. In get_sphere.");
+    double * sphere_c = mxGetDoubles(field);
+
+
+    // get the 'make' - one integer
+    field = mxGetField(theSphere, 0, "make");
+    if (!mxIsScalar(field))
+        mexErrMsgIdAndTxt("AtomRayTracing:get_sphere:theSphere",
+                          "Sphere make must be scalar. In get_sphere.");
+    int make_sphere = (int)mxGetScalar(field);
+
+    // now extract the material -- a nested struct
+    mxArray * sph_material = mxGetField(theSphere, 0, "material");
+    Material mat;
+    char *names[] = {"sphere"};
+    get_materials(sph_material, names, &mat);
+    
+    for (int i = 0; i < n_sphere; i++) {
+        set_up_sphere(make_sphere, &sphere_c[3*i], sphere_r[i], mat, index + i, &spheres[i]);
+    }
+    //return sph;
 }
 
 Circle get_circle(const mxArray * theCircle, int index) {

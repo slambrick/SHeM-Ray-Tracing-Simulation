@@ -32,6 +32,8 @@ int get_string_cell_arr(const mxArray * cell_array, char ** strings);
  */
 AnalytSphere get_sphere(const mxArray * theSphere, int index);
 
+void get_spheres(int n_sphere, const mxArray * theSphere, int index, AnalytSphere * spheres);
+
 Circle get_circle(const mxArray * theCircle, int index);
 
 /* Extract array of material structs. Return how many were extracted. */

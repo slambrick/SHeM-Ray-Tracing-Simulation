@@ -144,7 +144,7 @@ scale = 2;
 scale = 0.5;
 % By default have the scale set to 1
 scale = 1;
-
+scale = 2;
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
 sample_description = 'Sample with series of diffractive peaks.';
@@ -421,7 +421,7 @@ if false
     sample_surface.rotateGeneral('z', -3.8);
 end
 
-if false
+if true
     sample_surface.rotateGeneral('y', 30);
     %sample_surface.moveBy([0, 0.525, 0]);
 end

@@ -105,22 +105,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spheres = (AnalytSphere *)malloc(n_sphere*sizeof(AnalytSphere));
     get_spheres(n_sphere, prhs[6], sphere_index, spheres);
     //sphere = get_sphere(prhs[5], sphere_index);
-    the_circle = get_circle(prhs[6], circle_index);
+    the_circle = get_circle(prhs[7], circle_index);
 
     // extract plate properties from thePlate cell array containing plate options
-    plate = get_abstract(prhs[7], plate_index);
+    plate = get_abstract(prhs[8], plate_index);
     
     // materials
-    int num_materials = mxGetN(prhs[8]);
+    int num_materials = mxGetN(prhs[9]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[8], prhs[9], prhs[10], M);
+    get_materials_array(prhs[9], prhs[10], prhs[11], M);
     
     // simulation parameters
-    maxScatters = (int)mxGetScalar(prhs[11]);
-    n_rays = (int)mxGetScalar(prhs[12]);
+    maxScatters = (int)mxGetScalar(prhs[12]);
+    n_rays = (int)mxGetScalar(prhs[13]);
     
     // TODO: pass through source as a struct?
-    get_source(prhs[14], (int)mxGetScalar(prhs[13]), &source);
+    get_source(prhs[15], (int)mxGetScalar(prhs[14]), &source);
 
     /**************************************************************************/
         

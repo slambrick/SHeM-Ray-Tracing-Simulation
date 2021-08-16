@@ -80,7 +80,7 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2];% + tand(init_angle)*(dist_to_sample - working_dist);
+xrange = [-range_x/2, range_x/2]% + tand(init_angle)*(dist_to_sample - working_dist);
 zrange = [-range_z/2, range_z/2];
 
 % TODO: sphere locations and 
@@ -124,7 +124,7 @@ circle_plate_r = 4;
 % Should a flat pinhole plate be modelled (with 'N circle'). not including may
 % speed up the simulation but won't model the effuse and multiple scattering
 % backgrounds properly.
-plate_represent = 1;
+plate_represent = 0;
 
 
 %% Parameters for multiple rectangular scans
@@ -422,7 +422,9 @@ if false
 end
 
 if true
-    sample_surface.rotateGeneral('y', 30);
+    sample_surface.rotateGeneral('y', -60+90+20);
+    sample_surface.rotateGeneral('y', 180);
+    sample_surface.moveBy([0.05, 0, 0])
     %sample_surface.moveBy([0, 0.525, 0]);
 end
 

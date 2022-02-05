@@ -36,7 +36,7 @@ function mexCompile(recompile, library)
     else
         atom_obj2 = 'atom_ray_tracing_library/atom_ray_tracing2D.o';
     end
-    if (~exist(atom_obj2, 'file') || recompile || strcmp(library, 'atom2D')) && false
+    if (~exist(atom_obj2, 'file') || recompile || strcmp(library, 'atom2D')) && true
         % TODO: serious errors here
         mex -c -R2018a CFLAGS='$CFLAGS -std=c99 -Imtwister -Iatom_ray_tracing_library -Wall -pedantic -Wextra -O3   ' ...
             -outdir atom_ray_tracing_library ...
@@ -201,7 +201,7 @@ function mexCompile(recompile, library)
     else
         scat2dMex = 'bin/scatterRaysMex2D.mexa64';
     end
-    if (~exist(scat2dMex, 'file') || recompile) && false
+    if (~exist(scat2dMex, 'file') || recompile) && true
         if ispc
             mex -R2018a CFLAGS='$CFLAGS -std=c99 -I mtwister -I atom_ray_tracing_library -Wall -pedantic -Wextra -O3   ' ...
                 -outdir bin ...

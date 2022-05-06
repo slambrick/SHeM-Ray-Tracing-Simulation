@@ -57,12 +57,12 @@ Effuse size (relative to the direct beam): 2
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
 What type of sample are you useing: sphere
-Scattering: cosine
+Scattering: backscattering
 Reflectivity: 0.5
 Standard deviation (deg): 30
 Sample description: Write something here
-Working distance to place the sample at: 2.85
-Sphere radius (mm): 0.217
+Working distance to place the sample at: 3.9
+Sphere radius (mm): 0.55
 Circle radius (mm): 6
 Length of side of flat sample: 6
 Custom sample stl file: samples/single_pyramid.stl
@@ -71,9 +71,9 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.
-Pixel seperation (mm): 0.005
-Scan range x (mm): 1.3
-Scan range y (mm): 0.55
+Pixel seperation (mm): 0.01
+Scan range x (mm): 3
+Scan range y (mm): 1.4
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
@@ -83,6 +83,6 @@ Scan max (mm): 3
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): sphere_2-85mm_cosine
+Label for the output directory (no spaces please): stainless_sphere_3-9mm_backscattering
 Sould the C code be recompiled: false
 

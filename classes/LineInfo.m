@@ -131,7 +131,7 @@ classdef LineInfo < SimulationInfo
 
             fig = figure;
             ax = axes(fig);
-            plot(ax, xs, total, 'LineWidth', 2)
+            plot(ax, xs, total, 'LineWidth', 1.5)
 
             if obj.Direction == 'y'
                 xlabel(ax, 'Distance from pinhole plate/mm')
@@ -142,8 +142,9 @@ classdef LineInfo < SimulationInfo
 
             % size and font for report
             xlim(ax, [obj.sample_positions(1), obj.sample_positions(end)])
-            set(ax, 'FontSize', 30)
-            set(fig, 'Position', [100 100 900 800])
+            set(ax, 'FontSize', 12)
+            %set(fig, 'Position', [100 100 900 800])
+            grid on
         end
         
         function producePlots(obj, thePath)

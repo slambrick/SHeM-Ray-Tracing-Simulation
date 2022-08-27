@@ -24,23 +24,23 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
-Design working distance (mm): 2.121
+Design working distance (mm): 2
 Incidence angle (deg): 45
-Type of scan: rectangular
+Type of scan: line
 Number of detectors: 1
-Detector full axes (x,y): (1.4, 1)
-Detector centres (x,y): (2.35, 0)
+Detector full axes (x,y): (1.73, 1.5)
+Detector centres (x,y): (1.73, 0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, 72, 144, 216, 288)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
-STL pinhole model: N circle
+STL pinhole model: angular resolution
 
 %% Set up your source
 % There are two models of the source, 'Uniform' source at the skimmer, or a
 % 'Gaussian'. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 40,000
-Pinhole radius (mm): 0.0025
+Number of Rays: 500,000
+Pinhole radius (mm): 0.005
 Source model: Uniform
 Angular source size (rad): 0.0005
 Source standard deviation (rad): 0.1
@@ -56,15 +56,15 @@ Effuse size (relative to the direct beam): 2
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: sphere
-Scattering: backscattering
-Reflectivity: 0.5
-Standard deviation (deg): 30
+What type of sample are you useing: flat
+Scattering: cosine
+Reflectivity: 0.9
+Standard deviation (deg): 5
 Sample description: Write something here
-Working distance to place the sample at: 3.9
+Working distance to place the sample at: 2
 Sphere radius (mm): 0.55
 Circle radius (mm): 6
-Length of side of flat sample: 6
+Length of side of flat sample: 3
 Custom sample stl file: samples/single_pyramid.stl
 Manual alignment: no
 
@@ -78,11 +78,11 @@ Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -1.5
-Scan max (mm): 3
+Scan min (mm): -1.8
+Scan max (mm): 5
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): stainless_sphere_3-9mm_backscattering
+Label for the output directory (no spaces please): B-SHeM_zscan_specular
 Sould the C code be recompiled: false
 

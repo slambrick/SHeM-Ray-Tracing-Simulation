@@ -16,6 +16,10 @@ function material = parse_scattering(model, reflectivity, sigma)
             material.function = 'broad_specular';
             material.params = [reflectivity, sigma];
             material.color = [1.0 0.4 1.0];
+        case 'backscattering'
+            material.function = 'backscattering';
+            material.params = [reflectivity, sigma]
+            material.color = [1.0 1.0 0.4];
         otherwise
             error('Input not reconised for the scattering');
     end

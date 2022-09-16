@@ -34,6 +34,8 @@ static double theta_generate(double sigma, MTRand * const myrng);
 distribution_func distribution_by_name(const char * name) {
     if(strcmp(name, "broad_specular") == 0)
         return(diffuse_and_specular);
+    if(strcmp(name, "backscattering") == 0)
+        return(diffuse_and_backscattering);
     if(strcmp(name, "cosine") == 0)
         return(cosine_scatter);
     if(strcmp(name, "cosine_specular") == 0)
@@ -53,6 +55,23 @@ distribution_func distribution_by_name(const char * name) {
     if(strcmp(name, "diffraction_specified") == 0)
         return(diffuse_and_diffraction3);
     return NULL;
+}
+
+void diffuse_and_backscattering(const double normal[3], const double lattice[6], const double init_dir[3],
+    double new_dir[3], const double * const params, MTRand * const myrng) {
+
+    double diffuse_lvl = params[0];
+    double tester;
+    double reverse[3];
+    int i;
+    reflect3D(normal, init_dir, reverse);
+    for (i = 0; i < 3; i++)
+        reverse[i] = -reverse[i];
+    genRand(myrng, &tester);
+    if(tester < diffuse_lvl)
+        cosine_scatter(normal, lattice, init_dir, new_dir, params+1, myrng);
+    else
+        broad_specular_scatter(normal, lattice, reverse, new_dir, params+1, myrng);
 }
 
 void pure_specular(const double normal[3], const double lattice[6], const double init_dir[3],

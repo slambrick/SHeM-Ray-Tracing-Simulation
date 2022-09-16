@@ -7,26 +7,29 @@ classdef PinholeModel
         aperture_axes
         aperture_c
         in_use
+        material
     end
     
     methods
-        function obj = PinholeModel(represent, n_detectors, radius, axes, centres)
-            if nargin == 0
+        function obj = PinholeModel(material, represent, n_detectors, radius, axes, centres)
+            if nargin == 1
                 obj.backwall_represent = NaN;
                 obj.n_detectors = NaN;
                 obj.circle_plate_radius = NaN;
                 obj.aperture_axes = NaN;
                 obj.aperture_c = NaN;
                 obj.in_use = false;
-            elseif nargin == 5
+                obj.material = material;
+            elseif nargin == 6
                 obj.backwall_represent = represent;
                 obj.n_detectors = n_detectors;
                 obj.circle_plate_radius = radius;
                 obj.aperture_axes = axes;
                 obj.aperture_c = centres;
                 obj.in_use = true;
+                obj.material = material;
             else
-                error('Only accepts 0 or 5 arguments');
+                error('Only accepts 1 or 6 arguments');
             end
         end
         
@@ -39,6 +42,7 @@ classdef PinholeModel
                 p.circle_plate_r = obj.circle_plate_radius;
                 p.aperture_axes = obj.aperture_axes;
                 p.aperture_c = obj.aperture_c;
+                p.material = obj.material;
             else
                 error('The simple model of the pinhole plate has not been initialised');
             end

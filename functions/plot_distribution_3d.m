@@ -24,8 +24,8 @@ function plot_distribution_3d(radius, phi, rad_limit, rad_bins, name)
     ylabel('n_{f, y}')
     zlabel('Counts')
     % title([name ' spatial distribution'])
-    set(gca, 'FontSize', 30)
-    set(gcf, 'Position', [100, 100, 900, 800])
+    %set(gca, 'FontSize', 30)
+    %set(gcf, 'Position', [100, 100, 900, 800])
     daspect([1 1 1])
 
 end

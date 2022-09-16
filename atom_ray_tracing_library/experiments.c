@@ -7,6 +7,7 @@
 
 #include "trace_ray.h"
 #include "ray_tracing_core3D.h"
+#include "mex.h"
 
 /*
  * Using C ray generation and a CAD model of the pinhole plate with a single
@@ -61,11 +62,9 @@ void generating_rays_simple_pinhole(SourceParam source, int n_rays, int * const 
 
     int i;
     // TODO: this will be where memory is moved to the GPU
-
     for (i = 0; i < n_rays; i++) {
         Ray3D the_ray;
         int ind;
-
         create_ray(&the_ray, &source, myrng);
 
         trace_ray_simple_multi(&the_ray, maxScatters, overall_sample, plate, myrng);
@@ -105,7 +104,7 @@ void given_rays_simple_pinhole(Rays3D * const all_rays, int * killed,
     // TODO: this will be where memory is moved to the GPU
 
     for (i = 0; i < all_rays->nrays; i++) {
-        trace_ray_simple_multi(&all_rays->rays[i], maxScatters, overall_sample, plate, myrng);
+        //trace_ray_simple_multi(&all_rays->rays[i], maxScatters, overall_sample, plate, myrng);
         which_detector[i] = all_rays->rays[i].detector;
         switch (all_rays->rays[i].status) {
             case 2:

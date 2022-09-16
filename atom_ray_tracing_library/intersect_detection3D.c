@@ -406,6 +406,7 @@ void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, do
     
     if (overall_sample.the_circle->make_circle) {
         if (the_ray->on_surface != overall_sample.the_circle->surf_index) {
+            printf("Try scatter circle\n");
             scatterCircle(the_ray, overall_sample.the_circle, min_dist, nearest_inter,
             	nearest_n, nearest_b, tri_hit, which_surface, &meets_circle);
         }

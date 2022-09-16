@@ -18,6 +18,7 @@
 #include <string.h>
 #include "mtwister.h"
 #include <stdbool.h>
+#include "mex.h"
 
 static void get_normal_ptr(Surface3D const * const s, int ind, double ** n);
 static void get_lattice_ptr(Surface3D const * const s, int ind, double ** b);
@@ -103,6 +104,18 @@ void set_up_circle(int make_circle, double * const circle_c, double circle_r,
 	circ->normal = circle_n;
 	circ->make_circle = make_circle;
 	circ->material = M;
+}
+
+void set_up_plate(int plate_represent, int n_detect, double circle_plate_r, 
+        double * aperture_axes, double * aperture_c, Material M, int surf_index, 
+        NBackWall * const plate) {
+    plate->plate_represent = plate_represent;
+    plate->n_detect = n_detect;
+    plate->aperture_axes = aperture_axes;
+    plate->aperture_c = aperture_c;
+    plate->circle_plate_r = circle_plate_r;
+    plate->material = M;
+    plate->surf_index = surf_index;
 }
 
 void generate_empty_sphere(int surf_index, AnalytSphere * const sph) {
@@ -379,6 +392,7 @@ void print_ray(Ray3D const * const the_ray) {
     printf("\non_element = %i\n", the_ray->on_element);
     printf("on_surface = %i\n", the_ray->on_surface);
     printf("nScatters = %i\n", the_ray->nScatters);
+    printf("status = %i\n", the_ray->status);
     printf("Position: ");
     print1D_double(the_ray->position, 3);
     printf("Direction: ");

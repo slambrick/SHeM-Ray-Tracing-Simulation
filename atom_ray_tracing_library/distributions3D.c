@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-20, Sam Lambrick.
+ * Copyright (c) 2018-21, Dan Seremet, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
@@ -34,6 +34,8 @@ static double theta_generate(double sigma, MTRand * const myrng);
 distribution_func distribution_by_name(const char * name) {
     if(strcmp(name, "broad_specular") == 0)
         return(diffuse_and_specular);
+    if(strcmp(name, "backscattering") == 0)
+        return(diffuse_and_backscattering);
     if(strcmp(name, "cosine") == 0)
         return(cosine_scatter);
     if(strcmp(name, "cosine_specular") == 0)
@@ -53,6 +55,23 @@ distribution_func distribution_by_name(const char * name) {
     if(strcmp(name, "diffraction_specified") == 0)
         return(diffuse_and_diffraction3);
     return NULL;
+}
+
+void diffuse_and_backscattering(const double normal[3], const double lattice[6], const double init_dir[3],
+    double new_dir[3], const double * const params, MTRand * const myrng) {
+
+    double diffuse_lvl = params[0];
+    double tester;
+    double reverse[3];
+    int i;
+    reflect3D(normal, init_dir, reverse);
+    for (i = 0; i < 3; i++)
+        reverse[i] = -reverse[i];
+    genRand(myrng, &tester);
+    if(tester < diffuse_lvl)
+        cosine_scatter(normal, lattice, init_dir, new_dir, params+1, myrng);
+    else
+        broad_specular_scatter(normal, lattice, reverse, new_dir, params+1, myrng);
 }
 
 void pure_specular(const double normal[3], const double lattice[6], const double init_dir[3],
@@ -635,14 +654,14 @@ void uniform_scatter(const double normal[3], const double lattice[6], const doub
     double t2[3];
 
     perpendicular_plane(normal, t1, t2);
-    double c_theta_min = cos(params[0]);
+    double c_theta_max = cos(params[0]*M_PI/180);
 
     /* Generate random numbers for phi and cos(theta) */
     double uni_rand;
     genRand(myrng, &uni_rand);
     phi = 2*M_PI*uni_rand;
     genRand(myrng, &uni_rand);
-    c_theta = fabs(c_theta_min*uni_rand - 1);
+    c_theta = uni_rand*(1 - c_theta_max) + c_theta_max;
     s_theta = sqrt(1 - c_theta*c_theta);
 
     /* Create the new random direction from the two random angles */

@@ -57,7 +57,8 @@ void debye_waller_diffraction(const double normal[3], const double lattice[6], c
  */
 void diffuse_and_specular(const double normal[3], const double lattice[6], const double init_dir[3],
         double new_dir[3], const double * params, MTRand * const myrng);
-
+void diffuse_and_backscattering(const double normal[3], const double lattice[6], const double init_dir[3],
+    double new_dir[3], const double * const params, MTRand * const myrng);
 /*
  * Generate rays according to a 2D diffraction pattern but with cosine-distributed
  * diffuse background.

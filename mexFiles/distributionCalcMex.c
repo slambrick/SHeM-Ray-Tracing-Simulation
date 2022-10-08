@@ -1,11 +1,8 @@
 /*
- * Copyright (c) 2019, Sam Lambrick.
+ * Copyright (c) 2019-21, Sam Lambrick.
  * All rights reserved.
  * This file is part of the SHeM ray tracing simulation, subject to the
  * GNU/GPL-3.0-or-later.
- *
- *
- * The main MEX function for performing the SHeM Simulation.
  *
  * The calling syntax is:
  *
@@ -38,6 +35,9 @@
 void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]) {
 
+    const int N_INPUTS = 12;
+    const int N_OUTPUTS = 4;
+
     /* Declare the input variables */
     double *V;             /* sample triangle vertices 3xn */
     int32_t *F;            /* sample triangle faces 3xM */
@@ -69,6 +69,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // surface indexing: -1 is no surface, 0 is the sample, etc
     int sample_index = 0;   
     int sphere_index = 1;
+    int circle_index = 2;
     Rays3D all_rays;
     int gen_rays;
     
@@ -80,13 +81,15 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /*******************************************************************************/
 
     /* Check for the right number of inputs and outputs */
-    if (nrhs != 11) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
-                          "11 inputs required for distributionCalcMex.");
+    if (nrhs != N_INPUTS) {
+        char errStr1[80];
+        sprintf(errStr1, "%i inputs required for distributionCalcMex.", N_INPUTS);
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", errStr1);
     }
-    if (nlhs != 4) {
-        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
-                          "4 outpus required for distributionCalcMex.");
+    if (nlhs != N_OUTPUTS) {
+        char errStr2[80];
+        sprintf(errStr2, "%i outpus required for distributionCalcMex.", N_OUTPUTS);
+        mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs", errStr2);
     }
 
     /**************************************************************************/
@@ -111,7 +114,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     get_string_cell_arr(prhs[4], C);
     
     // Get the materials
-    int num_materials = mxGetN(prhs[4]);
+    int num_materials = mxGetN(prhs[5]);
     M = mxCalloc(num_materials, sizeof(Material));
     get_materials_array(prhs[5], prhs[6], prhs[7], M);
     
@@ -119,7 +122,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     
     /* Depending on the size of the starting vectors we may or may not generate
      * ray positions ourselves. */
-    n_provided_rays = mxGetN(prhs[9]);
+    n_provided_rays = mxGetN(prhs[10]);
     gen_rays = n_provided_rays == 1;
     if (nrays != n_provided_rays) {
         mexErrMsgIdAndTxt("MyToolbox:tracingMex:nrhs",
@@ -140,9 +143,11 @@ void mexFunction(int nlhs, mxArray *plhs[],
     /* Put the sample into a struct */
     set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
 
-    /* Define sphere not to exist */
-    // TODO: sphere to be passed in as a struct
-    set_up_sphere(0, start_pos, 1, M[0], sphere_index, &the_sphere);
+    /* Define the sphere and circle not to exist */
+    double c[3] = {0, 0, 0};
+    double n[3] = {0, 1, 0};
+    set_up_sphere(0, c, 1, M[0], sphere_index, &the_sphere);
+    set_up_circle(0, c, 1, n, M[0], circle_index, &the_circle);
 
     /* Put all the sample structs together in one struct */
     overall_sample.the_sphere = &the_sphere;
@@ -167,6 +172,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     /* Loop through all the rays, tracing each one */
     int i, j;
+    
     for (i = 0; i < nrays; i++) {
         Ray3D the_ray;
         

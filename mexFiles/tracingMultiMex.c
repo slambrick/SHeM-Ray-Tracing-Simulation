@@ -10,6 +10,10 @@
  * The calling syntax is:
  *
  * This is a MEX file for MATLAB.
+ * 
+ * TODO: I think we only really need 2 gateway functions for the main simulation
+ * 
+ * Perhaps a 3rd one for the "sample only" scattering
  */
 
 #include <mex.h>
@@ -30,7 +34,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], 
                  int nrhs, const mxArray *prhs[]) {
     /* Expected number of inputs and outputs */
-    const int NINPUTS = 14;
+    const int NINPUTS = 15;
     const int NOUTPUTS = 5;
     
     /* Declare the input variables */
@@ -56,15 +60,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
     int * which_detector;    /* Which detector was the ray detected in */
 
     /* Declare other variables */
-    int sample_index = 0, plate_index = 1, sphere_index = 2, circle_index = 3;
+    int sample_index = 0, plate_index = 1, circle_index = 2, sphere_index = 3;
 
     /* Declare structs */
     Surface3D sample;
     NBackWall plate;
-    AnalytSphere sphere;
+    AnalytSphere * spheres;
     Circle the_circle;
     Rays3D all_rays;
     Sample overall_sample;
+    int n_sphere;
     
     /* For random number generation */
     struct timeval tv;
@@ -105,19 +110,23 @@ void mexFunction(int nlhs, mxArray *plhs[],
     get_string_cell_arr(prhs[6], C);
 
     // get the sphere from struct
-    sphere = get_sphere(prhs[7], sphere_index);
-    the_circle = get_circle(prhs[8], circle_index);
+    // TODO: actual make this work
+    n_sphere = (int)mxGetScalar(prhs[7]);
+    spheres = (AnalytSphere *)malloc(n_sphere*sizeof(AnalytSphere));
+    get_spheres(n_sphere, prhs[8], sphere_index, spheres);
+    //sphere = get_sphere(prhs[7], sphere_index);
+    the_circle = get_circle(prhs[9], circle_index);
 
     // extract plate properties from theplate cell array containing plate options
-    plate = get_plate(prhs[9], plate_index);
+    plate = get_plate(prhs[10], plate_index);
 
     // materials
-    int num_materials = mxGetN(prhs[10]);
+    int num_materials = mxGetN(prhs[11]);
     M = calloc(num_materials, sizeof(Material));
-    get_materials_array(prhs[10], prhs[11], prhs[12], M);
+    get_materials_array(prhs[11], prhs[12], prhs[13], M);
     
     // simulation parameters
-    maxScatters = (int)mxGetScalar(prhs[13]); /* mxGetScalar gives a double */
+    maxScatters = (int)mxGetScalar(prhs[14]); /* mxGetScalar gives a double */
     
     /**************************************************************************/
 
@@ -137,9 +146,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     set_up_surface(V, N, B, F, C, M, num_materials, ntriag_sample, nvert, sample_index, &sample);
 
     /* Put all the sample structs together in one struct */
-    overall_sample.the_sphere = &sphere;
+    overall_sample.the_sphere = spheres;
     overall_sample.the_circle = &the_circle;
     overall_sample.triag_sample = &sample;
+    overall_sample.n_sphere = n_sphere;
     
     /* Output matrix for total number of counts */
     plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);

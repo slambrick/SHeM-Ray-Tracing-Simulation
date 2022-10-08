@@ -8,6 +8,15 @@
 #ifndef EXPERIMENTS_H_
 #define EXPERIMENTS_H_
 
+void single_start_ray_cad_pinhole(Ray3D start_ray, int nrays, int * killed,
+        int * const cntr_detected, int maxScatters, Sample overall_sample,
+        Surface3D plate, double const backWall[], MTRand * const myrng,
+        int32_t * const numScattersRay);
+
+void single_start_ray_simple_pinhole(Ray3D start_ray, int nrays, int * killed, 
+        int * const cntr_detected, int maxScatters, Sample overall_sample, 
+        NBackWall plate, MTRand * const myrng, int32_t * const numScattersRay);
+
 void generating_rays_cad_pinhole(SourceParam source, int nrays, int *killed,
         int32_t * const cntr_detected, int maxScatters, Sample overall_sample, Surface3D plate,
         double const backWall[], MTRand * const myrng, int32_t * const numScattersRay);
@@ -24,5 +33,10 @@ void given_rays_simple_pinhole(Rays3D * const all_rays, int * killed,
 void given_rays_cad_pinhole(Rays3D * const all_rays, int * const killed, int * const cntr_detected,
         Sample overall_sample, Surface3D plate, double const backWall[],
         int maxScatters, int32_t * const detected, MTRand * const myrng);
+
+
+void generating_rays_abstract_pinhole(SourceParam source, int nrays, int * const killed,
+        int * const cntr_detected, int maxScatters, Sample overall_sample, AbstractHemi plate,
+        MTRand * const myrng, int32_t * const numScattersRay);
 
 #endif /* EXPERIMENTS_H_ */

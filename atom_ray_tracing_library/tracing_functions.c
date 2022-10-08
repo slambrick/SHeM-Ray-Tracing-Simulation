@@ -5,17 +5,22 @@
  * GNU/GPL-3.0-or-later.
  *
  *
- * Functions for performing a single iteration of the ray tracing algorithm. One
+ * Functions for performing a single iteration of the ray tracing algorith. One
  * ray is scattered once. There are different ways to do that depending on the
  * simulation being run.
+ * 
+ * TODO: can these functions be included in a differnt file? Having this one
+ *       makes the file system clunky...
+ * 
+ * TODO: there is also a lot of repition in this file, can that be simplified
  */
 #include "ray_tracing_core3D.h"
 #include "intersect_detection3D.h"
 #include "distributions3D.h"
+#include "tracing_functions.h"
 #include <math.h>
 #include "mtwister.h"
 #include <stdbool.h>
-
 
 /*
  * Scatters the given ray off a single triangulated surface, the sample, and an
@@ -33,11 +38,21 @@
  *         met), 0 is alive (has met)
  */
 void scatterOffSurface(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng) {
+    double nearest_n[3];
+    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
+
+    scatterOffSurfaceReturn(the_ray, overall_sample, myrng, nearest_n, nearest_b);
+}
+
+/*
+ * The same a scatterOffSurface but it returns the parameters needed to generate
+ * more directions from the scattering point.
+ */
+void scatterOffSurfaceReturn(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng,
+        double * nearest_n, double * nearest_b) {
     double min_dist;
     int meets = 0;
     int tri_hit = -1;
-    double nearest_n[3];
-    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
     double nearest_inter[3];
     double new_direction[3];
     int which_surface = -1;
@@ -53,12 +68,18 @@ void scatterOffSurface(Ray3D * the_ray, Sample overall_sample, MTRand * const my
     if (meets) {
         Material const * composition;
 
-        if (which_surface == overall_sample.the_sphere->surf_index) {
-            composition = &(overall_sample.the_sphere->material);
-        } else if (which_surface == overall_sample.the_circle->surf_index) {
-            composition = &(overall_sample.the_sphere->material);
-        } else {
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
             composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
         }
         
         /* Find the new direction and update position*/
@@ -222,7 +243,7 @@ void scatterSurfaces(Ray3D * the_ray, Sample overall_sample, Surface3D plate,
     if (meets) {
         Material const * composition;
 
-        if (which_surface == overall_sample.the_sphere->surf_index) {
+        /*if (which_surface == overall_sample.the_sphere->surf_index) {
             composition = &(overall_sample.the_sphere->material);
         } else if (which_surface == overall_sample.the_circle->surf_index) {
             composition = &(overall_sample.the_circle->material);
@@ -230,6 +251,22 @@ void scatterSurfaces(Ray3D * the_ray, Sample overall_sample, Surface3D plate,
             composition = plate.compositions[tri_hit];
         } else {
             composition = overall_sample.triag_sample->compositions[tri_hit];
+        }*/
+        
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
+            composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else if (which_surface == plate.surf_index) {
+            composition = plate.compositions[tri_hit];
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
         }
 
         /* Find the new direction and update position*/
@@ -268,8 +305,8 @@ void scatterSurfaces(Ray3D * the_ray, Sample overall_sample, Surface3D plate,
                     (backWall[2]/2))) {
                 /* We update position only and keep the direction the same */
                 update_ray_position(the_ray, wall_hit);
-
                 the_ray->status = 2;
+                the_ray->detector = 1;
                 return;
             }
         } else {
@@ -344,7 +381,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
     if (meets) {
         Material const * composition;
 
-        if (which_surface == overall_sample.the_sphere->surf_index) {
+        /*if (which_surface == overall_sample.the_sphere->surf_index) {
             composition = &(overall_sample.the_sphere->material);
         } else if (which_surface == overall_sample.the_circle->surf_index) {
             composition = &(overall_sample.the_circle->material);
@@ -352,6 +389,23 @@ void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
             composition = &(plate.material);
         } else {
             composition = overall_sample.triag_sample->compositions[tri_hit];
+        }*/
+        
+        
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
+            composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else if (which_surface == plate.surf_index) {
+            composition = &(plate.material);
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
         }
 
         /* Find the new direction and update position*/
@@ -375,10 +429,90 @@ void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
  * Detects on a hemisphere centered on the sample plane, the aperture is
  * specified by two angles and a half cone angle.
  */
-//void scatterAbstractSurfaces(Ray3D *the_ray, Surface3D const * sample, AbstractHemi const * plate,
-//		AnalytSphere const * the_sphere, MTRand * const myrng, int * status) {
-//
-//    int meets = 0;
-//
-//    *status =!meets;
-//}
+void scatterAbstractSurfaces(Ray3D *the_ray, Sample overall_sample, AbstractHemi const * plate,
+		int * detector, MTRand * const myrng) {
+    double nearest_n[3];
+    double nearest_b[6] = {0, 0, 0, 0, 0, 0};
+    double nearest_inter[3];
+    double new_direction[3];
+
+    /* tri_hit stores which triangle has been hit */
+    int tri_hit = -1;
+
+    /* By default no detection */
+    int detected = 0;
+
+    /* which_surface stores which surface has been hit */
+    int which_surface = -1;
+
+    /* meets is false/true have we met a triangle */
+    int meets = 0;
+
+    /* Much further than any of the triangles */
+    double min_dist = 10.0e10;
+
+    /* Try to scatter off the sample */
+    int meets_sample = 0;
+    scatterSample(the_ray, overall_sample, &min_dist, nearest_inter, nearest_n, 
+        nearest_b, &meets_sample, &tri_hit, &which_surface);
+    meets = meets_sample;
+
+    /* Try to scatter off the simple pinhole plate */
+    if (the_ray->on_surface != plate->surf_index) {
+        abstractScatter(the_ray, plate, &min_dist, &tri_hit, &which_surface, &detected);
+    }
+
+    /* If we are detected */
+    if (detected) {
+        /* Update the ray position but not the direction */
+        update_ray_position(the_ray, nearest_inter);
+        *detector = detected;
+
+        /* 2 = detected ray */
+        the_ray->status = 2;
+        return;
+    }
+
+    /* Update position/direction etc. */
+    // TODO: versions of this bit of code are repeated a lot, create a function for it
+    if (meets) {
+        Material const * composition;
+
+        /*if (which_surface == overall_sample.the_sphere->surf_index) {
+            composition = &(overall_sample.the_sphere->material);
+        } else if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else {
+            composition = overall_sample.triag_sample->compositions[tri_hit];
+        }*/
+
+        // TODO: put in a fucntion!
+        //get_composition(overall_sample, which_surface, &composition);
+        if (which_surface == overall_sample.the_circle->surf_index) {
+            composition = &(overall_sample.the_circle->material);
+        } else if (which_surface == overall_sample.triag_sample->surf_index) {
+            composition = overall_sample.triag_sample->compositions[tri_hit];
+        } else {
+            for (int i = 0; i < overall_sample.n_sphere; i++) {
+                if (which_surface == overall_sample.the_sphere[i].surf_index) {
+                    composition = &(overall_sample.the_sphere[i].material);
+                }
+            }
+        }
+        
+        /* Find the new direction and update position*/
+        composition->func(nearest_n, nearest_b, the_ray->direction,
+            new_direction, composition->params, myrng);
+        /* Updates the current triangle and surface the ray is on */
+        the_ray->on_element = tri_hit;
+        the_ray->on_surface = which_surface;
+        update_ray_direction(the_ray, new_direction);
+        update_ray_position(the_ray, nearest_inter);
+    } else {
+        /* Ray be dead */
+        meets = 0;
+    }
+
+    the_ray->status = !meets;
+}
+

@@ -9,7 +9,7 @@ function material = parse_scattering(model, reflectivity, sigma)
             material.params = 0;
             material.color = [0.8 1.0 0.8];
         case 'specular'
-            material.function = 'pure_specular';
+            material.function = 'specular';
             material.params = 0;
             material.color = [1.0 0.8 0.8];
         case 'broad_specular'

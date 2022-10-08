@@ -13,6 +13,7 @@
 % - 'crude annular', WD=3
 % - 'normal incidence 3mm', WD=3?
 % - 'N circle'
+% - 'abstract', specifies a detection direction only
 % New models of plate can be added by creating an appropriate CAD file and
 % then writing a function in 'functions/pinhole_plate_import/', and adding
 % it as an option in 'functions/pinhole_import.m' and 
@@ -24,28 +25,32 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
-Design working distance (mm): 2
-Incidence angle (deg): 45
-Type of scan: line
-Number of detectors: 1
-Detector full axes (x,y): (1.73, 1.5)
-Detector centres (x,y): (1.73, 0)
+Design working distance (mm): 4
+Incidence angle (deg): 30
+Type of scan: rectangular
+Number of detectors: 3
+Detector full axes (x1,y1,x2,y2,...), mm: (0.69, 0.6, 0.69, 0.6, 0.69, 0.6)
+Detector centres (x1,y1,x2,y2,...), mm: (2.31, 0, -1.15, 2, -1.15, -2)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, 72, 144, 216, 288)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
-STL pinhole model: angular resolution
+STL pinhole model: N circle
+Location of abstract detector (theta, phi), deg: (70, 0)
+Half cone angle of detector, deg: 10 
 
 %% Set up your source
-% There are two models of the source, 'Uniform' source at the skimmer, or a
-% 'Gaussian'. In the first case provide the maximum angular value, in the second
+% There are three models of the source, 'Uniform' source at the skimmer, or a
+% 'Gaussian', finally the source may be 'Infinite' which gives the initial
+% beam as a single ray with the rest of the rays generated upon the first
+% scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 500,000
-Pinhole radius (mm): 0.005
+Number of Rays: 10000
+Pinhole radius (mm): 0.0005
 Source model: Uniform
 Angular source size (rad): 0.0005
-Source standard deviation (rad): 0.1
+Source standard deviation (rad): 0.02
 Effuse beam: Off
-Effuse size (relative to the direct beam): 2
+Effuse size (relative to the direct beam): 5
 
 %% Set up your sample
 % There are a few inbuilt samples or you can provide your own stl/obj file of a
@@ -56,33 +61,35 @@ Effuse size (relative to the direct beam): 2
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: flat
+What type of sample are you useing: sphere
 Scattering: cosine
-Reflectivity: 0.9
-Standard deviation (deg): 5
+Reflectivity: 0.5
+Standard deviation (deg): 0.1
 Sample description: Write something here
-Working distance to place the sample at: 2
-Sphere radius (mm): 0.55
-Circle radius (mm): 6
-Length of side of flat sample: 3
-Custom sample stl file: samples/single_pyramid.stl
+Working distance to place the sample at: 4.4
+Sphere radii (r1, r2, ...) (mm): (1)
+Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0)
+Circle radius (mm): 2
+Length of side of flat sample: 8
+Custom sample stl file: samples/alternative_design_test_sample.stl
 Manual alignment: no
 
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
-% middle on the sample.
-Pixel seperation (mm): 0.01
-Scan range x (mm): 3
-Scan range y (mm): 1.4
+% middle on the sample.     
+Pixel seperation (mm): 0.03
+Scan range x (mm): 5
+Scan range y (mm): 4
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -1.8
-Scan max (mm): 5
+Scan min (mm): -3
+Scan max (mm): 3
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): B-SHeM_zscan_specular
+Label for the output directory (no spaces please): B-SHeM_spheres
+
 Sould the C code be recompiled: false
 

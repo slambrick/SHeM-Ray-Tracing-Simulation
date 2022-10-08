@@ -13,7 +13,7 @@ clc
 %% Parameters
 
 % Values of the ratio to use
-ratios = 0:0.02:0.4;
+ratios = 0:0.05:0.4;
 
 % The code cannot cope with a ratio of 0, so we make it small but finite
 ratios(1) = 0.001;
@@ -31,7 +31,7 @@ init_angle = 45;
 recompile = false;
 
 % File to save the data to
-file_name = 'increasing_roughness011.mat';
+file_name = 'increasing_roughness_new_gen001.mat';
 
 %% Perform simulations
 
@@ -51,20 +51,20 @@ num_scatters = zeros(size(thetas));
 tic
 
 % Loop through all the different roughnesses, parrallized for loop
-if isempty(gcp('nocreate'))
-    parpool 
-end
-ppm = ParforProgressbar(length(ratios));
-parfor i_=1:length(ratios)
+%if isempty(gcp('nocreate'))
+%    parpool 
+%end
+%ppm = ParforProgressbar(length(ratios));
+for i_=1:length(ratios)
     [thetas(i_,:), num_scatters(i_,:)] = tracing2D.random_scatter('ratio', ratios(i_), ...
         'n_rays', n_rays, 'Nelements', n_elements, 'init_angle', init_angle, ...
         'scattering', 'specular');
-    ppm.increment();
+    %ppm.increment();
 end
-delete(ppm);
+%delete(ppm);
 
-current_pool = gcp('nocreate');
-delete(current_pool);
+%current_pool = gcp('nocreate');
+%delete(current_pool);
 
 t = toc;
 

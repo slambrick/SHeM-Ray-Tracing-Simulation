@@ -22,6 +22,14 @@
  */
 void scatterOffSurface(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng);
 
+
+/*
+ * The same a scatterOffSurface but it returns the parameters needed to generate
+ * more directions from the scattering point.
+ */
+void scatterOffSurfaceReturn(Ray3D * the_ray, Sample overall_sample, MTRand * const myrng,
+        double * nearest_n, double * nearest_b);
+
 /*
  *  Finds the intersection, normal at the point of intersection and distance to
  *  the intersection between the ray and a triangulated surface.
@@ -47,7 +55,7 @@ void scatterSimpleMulti(Ray3D * the_ray, Sample overall_sample, NBackWall plate,
  *  Scatters the ray off a sample and a attempts dtection on a hemisphere with abstract
  *  detector apertures placed on it.
  */
-//int scatterAbstractSurfaces(Ray3D * the_ray, Surface3D const  * sample, AbstractHemi const *  plate,
-//		const AnalytSphere * the_sphere, MTRand * myrng, int * status) ;
+void scatterAbstractSurfaces(Ray3D *the_ray, Sample overall_sample, AbstractHemi const * plate,
+		int * detector, MTRand * const myrng);
 
 #endif

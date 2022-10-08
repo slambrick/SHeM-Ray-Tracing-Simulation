@@ -224,6 +224,8 @@ classdef RectangleInfo < SimulationInfo
                         limY = varargin{i_+1};
                     case 'detector'
                         detector = varargin{i_+1};
+                    case 'plot'
+                        make_plot = varargin{i_+1};
                     otherwise
                         warning(['Unknown input #' num2str(i_) ' to imageAll.']);
                 end
@@ -239,20 +241,25 @@ classdef RectangleInfo < SimulationInfo
             if ~exist('detector', 'var')
                 detector = 1;
             end
+            if ~exist('make_plot', 'var')
+                make_plot = true;
+            end
             
             if exist('limX', 'var') && exist('limY', 'var')
                 if strcmp('scale', 'manual')
                     I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', ...
-                        scale, 'specifyScale', specifyScale, 'limX', limX, 'limY', limY);
+                        scale, 'specifyScale', specifyScale, 'limX', limX, ... 
+                        'limY', limY, 'plot', make_plot);
                 else
                     I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', ...
-                        scale, 'limX', limX, 'limY', limY);
+                        scale, 'limX', limX, 'limY', limY, 'plot', make_plot);
                 end
             else
                 if strcmp(scale, 'manual')
-                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale, 'specifyScale', specifyScale);
+                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale, ...
+                        'specifyScale', specifyScale, 'plot', make_plot);
                 else
-                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale);
+                    I = obj.generalImage('im', obj.cntrSum{detector}, 'scale', scale, 'plot', make_plot);
                 end
             end
         end % End image generating function
@@ -413,8 +420,13 @@ classdef RectangleInfo < SimulationInfo
                         scale, 'limX', limX, 'limY', limY, 'plot', make_plot);
                 end
             else
-                I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
-                    make_plot);
+                if strcmp(scale, 'manual')
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
+                        make_plot, 'specifyScale', specifyScale);
+                else
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
+                        make_plot);
+                end
             end
         end
         
@@ -467,8 +479,13 @@ classdef RectangleInfo < SimulationInfo
                         'limX', limX, 'limY', limY, 'plot', make_plot);
                 end
             else
-                I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
-                    make_plot);
+                if strcmp(scale, 'manual')
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
+                        make_plot, 'specifyScale', specifyScale);
+                else
+                    I = obj.generalImage('im', cntrSum2, 'scale', scale, 'plot', ...
+                        make_plot);
+                end
             end
         end
         
@@ -710,39 +727,110 @@ classdef RectangleInfo < SimulationInfo
         
             for i_=1:obj.n_detector
                 I = obj.imageSingle('detector', i_);
-                title(['Detector ' num2str(i_)]);pause(0.1);
+                title(['Detector ' num2str(i_) ', single']);pause(0.1);
                 imwrite(I, [thePath '/single' num2str(i_) '.png']);
                 I = obj.imageMultiple('detector', i_);
-                title(['Detector ' num2str(i_)]);pause(0.1);
+                title(['Detector ' num2str(i_) ', multiple']);pause(0.1);
                 imwrite(I, [thePath '/multiple' num2str(i_) '.png']);
                 if obj.n_effuse == 0
                     I = obj.imageAll('detector', i_);
-                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    title(['Detector ' num2str(i_) ', all']);pause(0.1);
                     imwrite(I, [thePath '/noEffuse' num2str(i_) '.png']);
+                    saveas(gcf, [thePath '/noEffuse' num2str(i_) '.eps'])
                 else
                     I = obj.imageAll('detector', i_);
-                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    title(['Detector ' num2str(i_) ', all']);pause(0.1);
                     imwrite(I, [thePath '/all' num2str(i_) '.png']);
                     I = obj.imageEffuse('detector', i_);
-                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    title(['Detector ' num2str(i_) ', effuse']);pause(0.1);
                     imwrite(I, [thePath '/effuse' num2str(i_) '.png']);
                     I = obj.imageNoEffuse('detector', i_);
-                    title(['Detector ' num2str(i_)]);pause(0.1);
+                    title(['Detector ' num2str(i_) ', exc. effuse']);pause(0.1);
                     imwrite(I, [thePath '/noEffuse' num2str(i_) '.png']);
                 end
             end
-
-            %obj.contourImage(30);
-            %isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
-            %if ~isOctave
-            %    saveas(gcf, [thePath '/contourAll.eps'], 'epsc');
-            %end
         end % End image creation and saving function.
         
         function ProduceImagesScaled(obj, thePath)
         % Produces and saves a series of images from the simulation, uses a
         % constant greyscale across all images
+        %
+        % Calling syntax:
+        %  obj.produceImages(thePath)
+        %
+        % INPUT:
+        %  thePath - data directory to save the images to
+            to_save = exist('thePath', 'var');
             
+            % Get a fixed scale for the three types of image
+            s_sc = [inf,0];
+            m_sc = [inf,0];
+            t_sc = [inf,0];
+            for i_=1:obj.n_detector
+                Is = obj.getSingle(i_);
+                if min(Is(:)) < s_sc(1)
+                    s_sc(1) = min(Is(:));
+                end
+                if max(Is(:)) > s_sc(2)
+                    s_sc(2) = max(Is(:));
+                end
+                Im = obj.getMultiple(i_);
+                if min(Im(:)) < m_sc(1)
+                    m_sc(1) = min(Im(:));
+                end
+                if max(Im(:)) > m_sc(2)
+                    m_sc(2) = max(Im(:));
+                end
+                It = obj.cntrSum{i_};
+                if min(It(:)) < t_sc(1)
+                    t_sc(1) = min(It(:));
+                end
+                if max(It(:)) > t_sc(2)
+                    t_sc(2) = max(It(:));
+                end
+            end
+            
+            for i_=1:obj.n_detector
+                I = obj.imageSingle('detector', i_, 'scale', 'manual', 'specifyScale', s_sc);
+                title(['Detector ' num2str(i_) ', single']);pause(0.1);
+                if to_save
+                    imwrite(I, [thePath '/single_fixedGreyscale' num2str(i_) '.png']);
+                    saveas(gcf, [thePath '/single_fixedGreyscale' num2str(i_) '.eps']);
+                end
+                I = obj.imageMultiple('detector', i_, 'scale', 'manual',  'specifyScale', m_sc);
+                title(['Detector ' num2str(i_) ', multiple']);pause(0.1);
+                if to_save
+                    imwrite(I, [thePath '/multiple_fixedGreyscale' num2str(i_) '.png']);
+                    saveas(gcf, [thePath '/multiple_fixedGreyscale' num2str(i_) '.eps']);
+                end
+                if obj.n_effuse == 0
+                    I = obj.imageAll('detector', i_, 'scale', 'manual', 'specifyScale', t_sc);
+                    title(['Detector ' num2str(i_) ', all']);pause(0.1);
+                    if to_save
+                        imwrite(I, [thePath '/noEffuse_fixedGreyscale' num2str(i_) '.png']);
+                        saveas(gcf, [thePath '/noEffuse_fixedGreyscale' num2str(i_) '.eps']);
+                    end
+                else
+                    I = obj.imageAll('detector', i_, 'scale', 'manual', 'specifyScale', t_sc);
+                    title(['Detector ' num2str(i_) ', all']);pause(0.1);
+                    if to_save
+                        imwrite(I, [thePath '/all_fixedGreyscale' num2str(i_) '.png']);
+                        saveas(gcf, [thePath '/all_fixedGreyscale' num2str(i_) '.eps']);
+                    end
+                    I = obj.imageEffuse('detector', i_, 'scale', 'manual');
+                    title(['Detector ' num2str(i_) ', effuse']);pause(0.1);
+                    if to_save
+                        imwrite(I, [thePath '/effuse_fixedGreyscale' num2str(i_) '.png']);
+                        saveas(gcf, [thePath '/effuse_fixedGreyscale' num2str(i_) '.eps']);
+                    end
+                    I = obj.imageNoEffuse('detector', i_, 'scale', 'manual');
+                    title(['Detector ' num2str(i_) ', exc. effuse']);pause(0.1);
+                    if to_save
+                        imwrite(I, [thePath '/noEffuse_fixedGreyscale' num2str(i_) '.png']);
+                        saveas(gcf, [thePath '/noEffuse_fixedGreyscale' num2str(i_) '.eps']);
+                    end
+                end
+            end
         end
         
         function counts = saveCounts(obj, fname, contribution, detector)
@@ -877,7 +965,7 @@ classdef RectangleInfo < SimulationInfo
                     case 'plot'
                         make_plot = varargin{i_+1};
                     otherwise
-                        warning(['Unknown input #' num2str(i_) ' to imageAll.']);
+                        warning(['Unknown input #' num2str(i_) ' to .']);
                 end
             end
             

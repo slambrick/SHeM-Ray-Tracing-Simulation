@@ -166,7 +166,7 @@ classdef tracing2D
                 end
                 % Generate a random Gaussian surface with a Gaussian height distribution
                 % function and an exponential correlation length.
-                [hs, xs] = roughSurf1D.rsgene(Nelements+1, (Nelements+1)/100, ratio, 1);
+                [hs, xs] = random_surf_gen(Nelements+1, (Nelements+1)/100, ratio, 1);
                 gen_surf = true;
             elseif exist('xs', 'var') && exist('hs', 'var')
                 if exist('ratio', 'var') || exist('Nelements', 'var')

@@ -1,34 +1,4 @@
-% traceSimpleMultiGen.m
-%
-% Copyright (c) 2019-20, Sam Lambrick.
-% All rights reserved.
-% This file is part of the SHeM Ray Tracing Simulation, subject to the
-% GNU/GPL-3.0-or-later.
-%
-% Gatway function for a simple model of the pinhole plate and generating the
-% rays in C.
-%
-% Calling Syntax:
-% [counted, killed, diedNaturally, numScattersRay] = traceSimpleGen('name', value, ...)
-%
-% INPUTS:
-%  sample     - TriagSurface of the sample
-%  max_scatter - The maximum allowed scattering events
-%  plate      - Information on the pinhole plate model in a struct
-%  scan_pos   - [scan_pos_x, scan_pos_z]
-%  sphere     - Information on the analytic sphere in a cell array
-%  which_beam - What kind of beam is being moddled, 'Effuse, 'Uniform', or
-%               'Gaussian'
-%  beam       - Information on the beam model in an array
-%
-% OUTPUTS:
-%  counted           - The number of detected rays
-%  killed         - The number of artificailly stopped rays
-%  diedNaturally  - The number of rays that did not get detected naturally
-%  numScattersRay - Histogram of the number of scattering events detected rays
-%                   have undergone
-function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(varargin)
-
+function [counted, killed, diedNaturally, numScattersRay] = traceAbstractGen(varargin)
     for i_=1:2:length(varargin)
         switch varargin{i_}
             case 'sample'
@@ -103,11 +73,9 @@ function [counted, killed, diedNaturally, numScattersRay] = traceSimpleMultiGen(
     
     % The calling of the mex function, ... here be dragons ... don't meddle
     % unles you know what you're doing
-    [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, B, C, n_sphere, s, c, p,...
+    [counted, killed, numScattersRay]  = tracingAbstractGenMex(V, F, N, B, C, n_sphere, s, c, p,...
         mat_names, mat_functions, mat_params, max_scatter, beam.n, ...
         source_model, source_parameters);
-
-    numScattersRay = reshape(numScattersRay, max_scatter, plate.n_detectors);
 
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.

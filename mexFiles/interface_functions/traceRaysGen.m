@@ -103,13 +103,13 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
         theta_max, init_angle, sigma_source];
     
     % Variables passed as struct arrays not objects
-    s = sphere.to_struct();
+    [s, n_sphere] = sphere.to_struct();
     c = circle.to_struct();
     
     % The calling of the mex function, ... here be dragons ... don't meddle
     % unles you know what you're doing
     [cntr, killed, numScattersRay]  = ...
-        tracingGenMex(VT, FT, NT, BT, CT, VTS, FTS, NTS, BTS, CTS, s, c, backWall, mat_names, ...
+        tracingGenMex(VT, FT, NT, BT, CT, VTS, FTS, NTS, BTS, CTS, n_sphere, s, c, backWall, mat_names, ...
                 mat_functions, mat_params, max_scatter, beam.n, source_model, source_parameters);
     
     % The number of rays that died naturally, rather than being 'killed'

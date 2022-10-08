@@ -1,2 +1,3 @@
+% This script will load the paths for all the required subdirectories
 addpath(genpath('import_3d'), genpath('functions'), genpath('classes'), ...
     genpath('ParforProgMon'), genpath('mexFiles'), genpath('bin'), genpath('polarPcolor'));

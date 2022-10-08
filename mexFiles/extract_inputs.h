@@ -32,6 +32,8 @@ int get_string_cell_arr(const mxArray * cell_array, char ** strings);
  */
 AnalytSphere get_sphere(const mxArray * theSphere, int index);
 
+void get_spheres(int n_sphere, const mxArray * theSphere, int index, AnalytSphere * spheres);
+
 Circle get_circle(const mxArray * theCircle, int index);
 
 /* Extract array of material structs. Return how many were extracted. */
@@ -56,5 +58,7 @@ void get_source(const mxArray * source, int source_model, SourceParam * Source);
  * - plate_index = the surface index of the plate
  */
 NBackWall get_plate(const mxArray * plate_opts, int plate_index);
+
+AbstractHemi get_abstract(const mxArray * plate_opts, int plate_index);
 
 #endif

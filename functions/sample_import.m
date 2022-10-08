@@ -22,7 +22,7 @@ function [sample_surface, sphere, circle, sample_description] = sample_import(sa
                 num2str(sphere.radius) 'mm on a flat square of ' num2str(square_size) 'mm.'];
             shift = (working_dist - sample_inputs.dist_to_sample)*tand(init_angle);
             sample_surface.moveBy([-shift, 0, 0]);
-            sphere.centre = sphere.centre + [-shift, 0, 0];
+            sphere.centre = sphere.centre + [-shift; 0; 0];
         case 'circle'
             sample_surface = flatSample(1, -1000, sample_inputs.material);
             circle.make = 1;
@@ -34,7 +34,8 @@ function [sample_surface, sphere, circle, sample_description] = sample_import(sa
             circle.make = 0;
             sample_surface = inputSample('fname', sample_inputs.sample_fname, 'sample_dist', sample_inputs.dist_to_sample, ...
                                          'working_dist', working_dist, 'scale', sample_inputs.scale, ...
-                                         'defMaterial', sample_inputs.material, 'dontMeddle', dontMeddle);
+                                         'defMaterial', sample_inputs.material, 'dontMeddle', dontMeddle, ...
+                                         'init_angle', init_angle);
             sphere = Sphere(0, sample_inputs.material);
             sample_description = sample_inputs.sample_description;
         case 'photoStereo'
@@ -53,6 +54,22 @@ function [sample_surface, sphere, circle, sample_description] = sample_import(sa
             sample_surface.rotateZ;
             sample_surface.moveBy([0, -2.121, 0]);
             sphere = Sphere(0, sample_inputs.material);
+        case 'test_sample'
+            circle.make = 0;
+            sample_surface = inputSample('fname', 'samples/alternative_design_test_sample.stl', ...
+                'working_dist', working_dist', 'scale', 1, 'defMaterial', sample_inputs.material, ...
+                'dontMeddle', true, 'init_angle', init_angle);
+            sample_surface.rotateGeneral('y', -160); % Rotate this sample
+            sample_surface.moveBy([0, -0.2, 0]); % Moves the sample into the y=0 plane
+            sphere = Sphere(true, sample_inputs.material, [-0.22, -0.15; ...
+                                                0.015,  0.02; ...
+                                                0.13, 0.2], [0.03, 0.04]);
+            sample_surface.moveBy([tand(init_angle)*(sample_inputs.dist_to_sample - working_dist), -working_dist, 0]);
+            sphere = sphere.move([tand(init_angle)*(sample_inputs.dist_to_sample - working_dist); -working_dist; 0]);
+            sample_surface.moveBy([0.16, 0, -0.125]);
+            sphere = sphere.move([0.16; 0; -0.125]);
+            sample_description = 'Two spheres and some blocks';
+            
     end
 
     if dontMeddle

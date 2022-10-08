@@ -121,7 +121,7 @@ function square_scan_info = rectangularScan(varargin)
         this_surface = copy(sample_surface);
         this_surface.moveBy([xx(i_), 0, zz(i_)]);
         this_sphere = sphere;
-        this_sphere.centre = this_sphere.centre + [xx(i_), 0, zz(i_)];
+        this_sphere.centre = this_sphere.centre + [xx(i_); 0; zz(i_)];
         this_circle = circle;
         this_circle.centre = this_circle.centre + [xx(i_), 0, zz(i_)];
         

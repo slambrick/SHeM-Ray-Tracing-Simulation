@@ -85,10 +85,8 @@ typedef struct _nBackWall{
 /* Information on the abstract hemisphere model of detection */
 typedef struct _abstractHemi {
     int surf_index;
-    double aperture_theta;
-    double aperture_phi;
     double half_cone_angle;
-    double dist_to_sample;
+    double det_dir[3];
 } AbstractHemi;
 
 /* A structure to hold information on the analytic sphere */
@@ -112,10 +110,21 @@ typedef struct _circle {
 
 /* The total information on a potential sample */
 typedef struct _sample {
-    Circle *the_circle;
-    AnalytSphere *the_sphere;
-    Surface3D *triag_sample;
+    Circle * the_circle;        // Flat circular sample
+    AnalytSphere * the_sphere;  // Array of spheres
+    Surface3D * triag_sample;   // Triangular mesh surface
+    int n_sphere;               // How many spheres are there?
 } Sample;
+
+/* The total information on the models of pinhole plate */
+// TODO: refactor code to make use of this
+typedef struct _plate {
+    NBackWall * simple_model;      // Information on the simple model
+    Surface3D * triag_model;       // CAD model of a pinhole plate
+    double * backWall;             // information on the back location of the plate
+    AbstractHemi * abstract_model; // Information on the abstract model
+    int which_model;               // Which model, 0=N circle, 1=triag, 2=abstract
+} CompletePlate;
 
 /* Information on a plane */
 typedef struct _plane {
@@ -167,6 +176,8 @@ typedef struct _scatterInfo {
 /******************************************************************************/
 /*                           Function declarations                            */
 /******************************************************************************/
+
+void copy_ray(Ray3D * new_ray, Ray3D old_ray);
 
 /*  Set up a surface containing the information on a triangulated surface. */
 void set_up_surface(double V[], double N[], double B[], int32_t F[], char * C[], Material M[],
@@ -221,6 +232,8 @@ void get_directions_indexed(Rays3D const * const all_rays, bool * const index,
 /* Get the number of scattering events for the rays */
 void get_scatters(Rays3D const * const all_rays, int * const nScatters);
 
+void print_abstract(AbstractHemi const * const plate);
+
 /* Print details of material */
 void print_material(Material const * const mat);
 
@@ -234,6 +247,8 @@ void print_BackWall(BackWall const * const wall);
 
 /* Prints the centres and axes of all the apertures in the NBackWall struct */
 void print_nBackWall(NBackWall const * const all_apertures);
+
+void print_spheres(AnalytSphere const * const spheres, int n_sphere);
 
 /* Print the position, radius, material etc of a sphere */
 void print_sphere(AnalytSphere const * const sphere);

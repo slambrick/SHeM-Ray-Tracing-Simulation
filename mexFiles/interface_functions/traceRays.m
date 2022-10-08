@@ -85,13 +85,13 @@ function [cntr, killed, diedNaturally, final_pos, final_dir, ...
         mat_params{idx} = sample_surface.materials(mat_names{idx}).params;
     end
     
-    s = sphere.to_struct();
+    [s, n_sphere] = sphere.to_struct();
     c = circle.to_struct();
     
     % The calling of the mex function, ...
     [cntr, killed, final_pos, final_dir, numScattersRay, detected]  = ...
         tracingMex(ray_posT, ray_dirT, VT, FT, NT, BT, CT, VTS, FTS, ...
-                   NTS, BTS, CTS, s, c, backWall, mat_names, mat_functions, mat_params, max_scatter);
+                   NTS, BTS, CTS, n_sphere, s, c, backWall, mat_names, mat_functions, mat_params, max_scatter);
     
     % The number of rays that died naturally, rather than being 'killed'
     % because they scattered too many times.

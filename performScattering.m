@@ -59,7 +59,7 @@ init_dir = repmat(init_dir', 1, n_rays);
 %% Analyse results
 
 % Get the outgoing directions
-ind = numScattersRay > 0;
+ind = numScattersRay > 1;
 [az, el, r] = cart2sph(final_dir(1,ind), final_dir(3,ind), final_dir(2,ind));
 
 % Select the multiply scattered outgoing directions

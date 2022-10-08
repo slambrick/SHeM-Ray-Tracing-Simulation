@@ -7,30 +7,6 @@
  *
  * A main MEX function for performing the SHeM Simulation.
  *
- * The calling syntax is:
- *  [counted, killed, numScattersRay]  = tracingMultiGenMex(V, F, N, C, sphere, ...
- *  	plate, mat_names, mat_functions, mat_params, max_scatter, n_rays, ...
- *      source_model, source_parameters);
- * 
- * INPUTS:
- *  V - Vertices of the sample
- *  F - Faces of the sample
- *  N - Normals of the sample
- *  C - compositions (materials) of the sample
- *  sphere - matlab struct array of the parameters for an analytic sphere
- *  plate  - matlab struct array of the parameters for the detectors/pinhole plate
- *  mat_names - names of the materials used
- *  mat_functions - names of the functions used
- *  mat_params - array of parameters for the scattering functions used
- *  max_scatter - maximum allowed sample scattering events
- *  n_rays - number of rays to simulate
- *  source_model - string, the source model to use to generate the rays
- *  source_parameter - array of parameters for the source model
- * 
- * OUTPUTS:
- *  counted - number of detected rays into each detector
- *  killed  - number of rays that had to be stopped
- *  numScattesRay - number of scattering events each detected ray underwent
  *
  * This is a MEX file for MATLAB.
  */
@@ -56,7 +32,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Expected number of inputs and outputs */
     int const NINPUTS = 16;
     int const NOUTPUTS = 3;
-
+    
     /* Declare the input variables */
     int ntriag_sample;     /* number of sample triangles */
     double *V;             /* sample triangle vertices 3xn */
@@ -69,7 +45,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     int maxScatters;       /* Maximum number of scattering events per ray */
     
     /* Declare the output variables */
-    int32_t * cntr_detected;       /* The number of detected rays */
+    int cntr_detected = 0;       /* The number of detected rays */
     int killed = 0;                /* The number of killed rays */
     int32_t * numScattersRay;      /* The number of sample scatters that each
                                     * ray has undergone */
@@ -77,7 +53,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Declare other variables */
     int nvert;
     Surface3D sample;
-    NBackWall plate;
+    AbstractHemi plate;
     AnalytSphere * spheres;
     Circle the_circle;
     SourceParam source;
@@ -128,12 +104,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     n_sphere = (int)mxGetScalar(prhs[5]);
     spheres = (AnalytSphere *)malloc(n_sphere*sizeof(AnalytSphere));
     get_spheres(n_sphere, prhs[6], sphere_index, spheres);
-
     //sphere = get_sphere(prhs[5], sphere_index);
     the_circle = get_circle(prhs[7], circle_index);
 
     // extract plate properties from thePlate cell array containing plate options
-    plate = get_plate(prhs[8], plate_index);
+    plate = get_abstract(prhs[8], plate_index);
     
     // materials
     int num_materials = mxGetN(prhs[9]);
@@ -167,9 +142,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
      * They need to be created as the transpose of what we want because of the
      * difference in indexing between MATLAB and C.
      */
-    plhs[0] = mxCreateNumericMatrix(1, plate.n_detect, mxINT32_CLASS, mxREAL);
-    plhs[2] = mxCreateNumericMatrix(1, plate.n_detect*maxScatters, mxINT32_CLASS,
-                                    mxREAL);
+    plhs[2] = mxCreateNumericMatrix(1, 1*maxScatters, mxINT32_CLASS, mxREAL);
 
     /* Put all the sample structs together in one struct */
     overall_sample.the_sphere = spheres;
@@ -178,24 +151,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     overall_sample.n_sphere = n_sphere;
     
     /* Pointers to the output matrices so we may change them*/
-    cntr_detected = (int32_t*)mxGetData(plhs[0]);
     numScattersRay = (int32_t*)mxGetData(plhs[2]);
 
     /**************************************************************************/
-
-    //print_spheres(spheres, n_sphere);
+    
     /* Main implementation of the ray tracing */
-    generating_rays_simple_pinhole(source, n_rays, &killed, cntr_detected,
+    generating_rays_abstract_pinhole(source, n_rays, &killed, &cntr_detected,
             maxScatters, overall_sample, plate, &myrng, numScattersRay);
 
     /**************************************************************************/
-
+    
+    plhs[0] = mxCreateDoubleScalar(cntr_detected);
     plhs[1] = mxCreateDoubleScalar(killed);
 
     /* Free space */
     free(C);
     free(M);
-    free(spheres);
     clean_up_surface(&sample);
 
     return;

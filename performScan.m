@@ -28,45 +28,51 @@ aperture_axes = parse_list_input(param_list{5});
 aperture_c = parse_list_input(param_list{6});
 rot_angles = parse_rotations(param_list{7});
 pinhole_model = parse_pinhole(param_list{8});
+aperture_size = parse_list_input(param_list{9});
+aperture_theta = aperture_size(1);
+aperture_phi = aperture_size(2);
+aperture_half_cone = str2double(param_list{10});
 
 % Set up source
-n_rays = str2double(param_list{9});
-pinhole_r = str2double(param_list{10});
-source_model = strtrim(param_list{11});
-theta_max = str2double(param_list{12});
-sigma_source = str2double(param_list{13});
-if ~parse_yes_no(param_list{14})
+n_rays = str2double(param_list{11});
+pinhole_r = str2double(param_list{12});
+source_model = strtrim(param_list{13});
+theta_max = str2double(param_list{14});
+sigma_source = str2double(param_list{15});
+if ~parse_yes_no(param_list{16})
     effuse_size = 0;
 else
-    effuse_size = str2double(param_list{15});
+    effuse_size = str2double(param_list{17});
 end
 
 % Set up sample
-sample_type = strtrim(param_list{16});
-material = parse_scattering(strtrim(param_list{17}), str2double(param_list{18}), ...
-    str2double(param_list{19}));
-sample_description = param_list{20};
-dist_to_sample = str2double(param_list{21});
-sphere_r = str2double(param_list{22});
-circle_r = str2double(param_list{23});
-square_size = str2double(param_list{24});
-sample_fname = strtrim(param_list{25});
-dontMeddle = parse_yes_no(param_list{26});
+sample_type = strtrim(param_list{18});
+material = parse_scattering(strtrim(param_list{19}), str2double(param_list{20}), ...
+    str2double(param_list{21}));
+sample_description = param_list{22};
+dist_to_sample = str2double(param_list{23});
+sphere_rs = parse_list_input(param_list{24});
+n_sphere = length(sphere_rs);
+sphere_cs = reshape(parse_list_input(param_list{25}), [2, n_sphere]);
+circle_r = str2double(param_list{26});
+square_size = str2double(param_list{27});
+sample_fname = strtrim(param_list{28});
+dontMeddle = parse_yes_no(param_list{29});
 
 % Set up scan
-pixel_seperation = str2double(param_list{27});
-range_x = str2double(param_list{28});
-range_z = str2double(param_list{29});
-init_angle_pattern = ~parse_yes_no(param_list{30});
+pixel_seperation = str2double(param_list{30});
+range_x = str2double(param_list{31});
+range_z = str2double(param_list{32});
+init_angle_pattern = ~parse_yes_no(param_list{33});
 
 % 1D scan parameters
-scan_direction = strtrim(param_list{31});
-range_1D = [str2double(param_list{32}), str2double(param_list{33})];
-res_1D = str2double(param_list{34});
+scan_direction = strtrim(param_list{34});
+range_1D = [str2double(param_list{35}), str2double(param_list{36})];
+res_1D = str2double(param_list{37});
 
 % Other parameters
-directory_label = strtrim(param_list{35});
-recompile = parse_yes_no(param_list{36});
+directory_label = strtrim(param_list{38});
+recompile = parse_yes_no(param_list{39});
 
 %% Generate parameters from the inputs 
 
@@ -74,9 +80,12 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2] + dist_to_sample - working_dist + 0.1;
+xrange = [-range_x/2, range_x/2]% + tand(init_angle)*(dist_to_sample - working_dist);
 zrange = [-range_z/2, range_z/2];
-sphere_c = [0, -dist_to_sample + sphere_r, 0];
+
+% TODO: sphere locations and 
+sphere_y = -dist_to_sample + sphere_rs;
+sphere_cs = [sphere_cs(1,:); sphere_y; sphere_cs(2,:)];
 
 %% Define remaining parameters
 
@@ -97,12 +106,16 @@ scan_pattern = 'rotations';
 % or in C (much lower memory requirments and slightly faster), 'C' or 'MATLAB'
 % In general stick to 'C' unless your own source model is being used
 ray_model = 'C';
+if strcmp(source_model, 'Infinite')
+    ray_model = 'C';
+    pinhole_r = 0;
+end
 
 % Exponant of the cosine in the effuse beam model
 cosine_n = 1;
 
 % In the case of the predefined CAD model, specify the accuraccy of the
-% triangulation, 'low', 'medium', or 'high' (use 'low').
+% triangulation, 'low', 'medium', or 'high' (always use 'low').
 plate_accuracy = 'low';
 
 % In the case of 'circle', specify the radius of the circle (mm).
@@ -111,16 +124,7 @@ circle_plate_r = 4;
 % Should a flat pinhole plate be modelled (with 'N circle'). not including may
 % speed up the simulation but won't model the effuse and multiple scattering
 % backgrounds properly.
-plate_represent = 1;
-
-% In the case of 'abstract', specify the two angles of the location of the
-% detector aperture and the half cone angle of its extent. Note that the
-% aperture can only be placed in the hemisphere facing the sample. All
-% angles in degrees.
-% TODO: this
-aperture_theta = 0;
-aperture_phi = 0;
-aperture_half_cone = 15;
+plate_represent = 0;
 
 
 %% Parameters for multiple rectangular scans
@@ -140,6 +144,7 @@ scale = 2;
 scale = 0.5;
 % By default have the scale set to 1
 scale = 1;
+%scale = 2;
 
 % A string giving a brief description of the sample, for use with
 % sample_type = 'custom'
@@ -171,7 +176,9 @@ save_to_text = true;
 
 %% Create input structs to hold input data
 
-% TODO: convert from structs into classes??
+% TODO: convert from structs into classes?? <- generally everything would
+% be better than way, but ideally most of the code would be migrated to
+% C...
 direct_beam.n = n_rays;
 direct_beam.pinhole_c = pinhole_c;
 direct_beam.pinhole_r = pinhole_r;
@@ -299,13 +306,15 @@ switch pinhole_model
         pinhole_plate_inputs.aperture_phi = NaN;
         pinhole_plate_inputs.aperture_half_cone = NaN;
     case 'abstract'
-        % TODO: make the 'abstract' simulations work
-        pinhole_plate_inputs.n_detectors = n_detectors;
+        pinhole_plate_inputs.plate_accuracy = NaN;
+        pinhole_plate_inputs.n_detectors = 1;
         pinhole_plate_inputs.plate_represent = 0;
+        pinhole_plate_inputs.aperture_axes = NaN;
+        pinhole_plate_inputs.aperture_c = NaN;
         pinhole_plate_inputs.circle_plate_r = NaN;
-        pinhole_plate_inputs.aperture_theta = NaN;
-        pinhole_plate_inputs.aperture_phi = NaN;
-        pinhole_plate_inputs.aperture_half_cone = NaN;
+        pinhole_plate_inputs.aperture_theta = aperture_theta;
+        pinhole_plate_inputs.aperture_phi = aperture_phi;
+        pinhole_plate_inputs.aperture_half_cone = aperture_half_cone;
 end
 
 % Input structs are:
@@ -332,10 +341,6 @@ if false
             'the pinhole plate.']);
     end
 
-    if sphere_r*2 > dist_to_sample
-        error('The sphere is too big for the pinhole plate-sample distance.');
-    end
-
     if strcmp(typeScan, 'line') && (range1D(1) > range1D(2))
         error('Impossible range for a line scan specified.');
     end
@@ -354,10 +359,6 @@ if false
     if (~strcmp(sample_type, 'flat') && ~strcmp(sample_type, 'sphere') ...
             && (~strcmp(sample_type, 'custom')))
         error('Specify a correct type of sample.')
-    end
-
-    if (strcmp(sample_type, 'sphere') && sphere_r <= 0)
-        error('The sphere must have a positive non-zero radius.')
     end
 
     if ((strcmp(sample_type, 'sphere') || strcmp(sample_type, 'flate')) && ...
@@ -402,7 +403,7 @@ addpath(thePath);
 %% Sample import and plotting
 
 % A struct to represent the sphere and circle parts of the sample
-sphere = Sphere(1, material, sphere_c, sphere_r);
+sphere = Sphere(1, material, sphere_cs, sphere_rs);
 circle = Circle(1, material, circle_c, circle_r, circle_n);
 
 % Importing the sample as a TriagSurface object.
@@ -416,6 +417,11 @@ end
 
 % Do any extra manipulation of the sample here
 
+% Translation of the sphere
+if true
+    sphere.centre = sphere.centre + [0;-0.7;0];
+end
+
 if false
     % Tilt required to explain the problem with displacement of the diffraction
     % p[attern
@@ -424,8 +430,10 @@ if false
 end
 
 if false
-    sample_surface.rotateGeneral('y', 15);
-    sample_surface.moveBy([0, 0.525, 0]);
+    sample_surface.rotateGeneral('y', -60+90+20);
+    sample_surface.rotateGeneral('y', 180);
+    sample_surface.moveBy([0.05, 0, 0])
+    %sample_surface.moveBy([0, 0.525, 0]);
 end
 
 % Specifically for the simulation of the LiF diffrtaction with multiscat
@@ -470,7 +478,7 @@ end
 %sample_surface.normalise_lattice();
 
 %% Pinhole plate import and plotting
-[pinhole_surface, thePlate, aperture_abstract, pinhole_model] = pinhole_import(...
+[pinhole_surface, thePlate, pinhole_model] = pinhole_import(...
     pinhole_plate_inputs, sample_surface, defMaterial);
 %thePlate.backwall_represent = 1;
 %% Compile the mex files

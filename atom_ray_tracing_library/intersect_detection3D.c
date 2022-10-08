@@ -397,16 +397,19 @@ void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, do
     scatterTriag(the_ray, overall_sample.triag_sample, min_dist, nearest_inter, nearest_n, 
         nearest_b, meets, tri_hit, which_surface);
 
-    if (overall_sample.the_sphere->make_sphere) {
-        if (the_ray->on_surface != overall_sample.the_sphere->surf_index) {
-            scatterSphere(the_ray, overall_sample.the_sphere, min_dist, nearest_inter,
-            	nearest_n, nearest_b, tri_hit, which_surface, &meets_sphere);
+    for (int i = 0; i < overall_sample.n_sphere; i ++) {
+        bool meets_this_sphere = 0;
+        if (overall_sample.the_sphere[i].make_sphere) {
+            if (the_ray->on_surface != overall_sample.the_sphere[i].surf_index) {
+                scatterSphere(the_ray, &overall_sample.the_sphere[i], min_dist, nearest_inter,
+                    nearest_n, nearest_b, tri_hit, which_surface, &meets_this_sphere);
+                meets_sphere = meets_sphere || meets_this_sphere;
+            }
         }
     }
     
     if (overall_sample.the_circle->make_circle) {
         if (the_ray->on_surface != overall_sample.the_circle->surf_index) {
-            printf("Try scatter circle\n");
             scatterCircle(the_ray, overall_sample.the_circle, min_dist, nearest_inter,
             	nearest_n, nearest_b, tri_hit, which_surface, &meets_circle);
         }
@@ -420,8 +423,8 @@ void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, do
  * detected or the index of the detector is has entered.
  */
 void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist,
-        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * meets, int * const tri_hit,
-        int * const which_surface, int * const which_aperture) {
+        double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * meets,
+        int * const tri_hit, int * const which_surface, int * const which_aperture) {
     double *d;
     d = the_ray->direction;
 
@@ -543,14 +546,22 @@ void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist
 }
 
 /* Scatter off an abstract hemisphere */
-/* TODO: fix this!! */
-//void abstractScatter(Ray3D * the_ray, AbstractHemi const * detector, double * min_dist,
-//        double nearest_inter[3], bool * meets, int *tri_hit, int * which_surface,
-//		int * which_detector) {
-//
-//    /* No detection, do nothing, maybe code this eventually */
-//    return;
-//}
+void abstractScatter(Ray3D * the_ray, AbstractHemi const * plate, double * const min_dist, 
+        int * const tri_hit, int * const which_surface, int * const which_aperture) {
+    double angle_sep, tmp;
+
+    // Get the angle between the ray and the 
+    dot(the_ray->direction, plate->det_dir, &tmp);
+    angle_sep = acos(tmp);
+    
+    if (angle_sep > plate->half_cone_angle) {
+        return;
+    } else if (*min_dist > 1e6) { // 1e6 = 1km
+        *which_aperture = 1;
+        *which_surface = plate->surf_index;
+        *tri_hit = -1;
+    }
+}
 
 
 /*

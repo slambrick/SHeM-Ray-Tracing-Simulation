@@ -25,25 +25,17 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
-<<<<<<< HEAD
-Design working distance (mm): 2.12
-=======
-Design working distance (mm): 2.1
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
-Incidence angle (deg): 45
+Design working distance (mm): 4
+Incidence angle (deg): 30
 Type of scan: rectangular
-Number of detectors: 1
-Detector full axes (x,y): (1.41, 1)
-Detector centres (x,y): (2.35, 0)
+Number of detectors: 3
+Detector full axes (x1,y1,x2,y2,...), mm: (0.69, 0.6, 0.69, 0.6, 0.69, 0.6)
+Detector centres (x1,y1,x2,y2,...), mm: (2.31, 0, -1.15, 2, -1.15, -2)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, 72, 144, 216, 288)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
-<<<<<<< HEAD
-STL pinhole model: cambridge
-=======
 STL pinhole model: N circle
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
-Location of abstract detector (theta, phi): (70, 0)
-Half cone angle of detector: 10 
+Location of abstract detector (theta, phi), deg: (70, 0)
+Half cone angle of detector, deg: 10 
 
 %% Set up your source
 % There are three models of the source, 'Uniform' source at the skimmer, or a
@@ -52,22 +44,13 @@ Half cone angle of detector: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-<<<<<<< HEAD
-Number of Rays: 5000
-=======
-Number of Rays: 2000
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
+Number of Rays: 10000
 Pinhole radius (mm): 0.0005
 Source model: Uniform
 Angular source size (rad): 0.0005
 Source standard deviation (rad): 0.02
-<<<<<<< HEAD
-Effuse beam: On
-Effuse size (relative to the direct beam): 2
-=======
 Effuse beam: Off
 Effuse size (relative to the direct beam): 5
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
 
 %% Set up your sample
 % There are a few inbuilt samples or you can provide your own stl/obj file of a
@@ -78,19 +61,15 @@ Effuse size (relative to the direct beam): 5
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: circle
+What type of sample are you useing: sphere
 Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 0.1
 Sample description: Write something here
-<<<<<<< HEAD
-Working distance to place the sample at: 2.510
-=======
-Working distance to place the sample at: 2.1
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
-Sphere radii (r1, r2, ...) (mm): (0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025)
-Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0, 0.05, 0.035, -0.065, -0.05, 0.065, -0.025, 0.04, -0.075, -0.025, 0.07, -0.01, -0.085, -0.11, -0.105, -0.1, 0.015, 0.11, -0.12, 0.115, -0.015, 0.135, 0.03, 0.065, 0.085, 0.1, 0.115, 0.155, 0.08)
-Circle radius (mm): 4
+Working distance to place the sample at: 4.4
+Sphere radii (r1, r2, ...) (mm): (1)
+Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0)
+Circle radius (mm): 2
 Length of side of flat sample: 8
 Custom sample stl file: samples/alternative_design_test_sample.stl
 Manual alignment: no
@@ -98,17 +77,10 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.     
-<<<<<<< HEAD
-Pixel seperation (mm): 0.08
-Scan range x (mm): 10
-Scan range y (mm): 10
-Ignore incidence angle in scan pattern: yes
-=======
-Pixel seperation (mm): 0.005
-Scan range x (mm): 0.5
-Scan range y (mm): 0.45
+Pixel seperation (mm): 0.03
+Scan range x (mm): 5
+Scan range y (mm): 4
 Ignore incidence angle in scan pattern: no
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
 
 % This assumes you are doing a 1D scan
 Scan direction: y
@@ -117,10 +89,6 @@ Scan max (mm): 3
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-<<<<<<< HEAD
-Label for the output directory (no spaces please): background_circle_cad_model
-=======
-Label for the output directory (no spaces please): pollen_test_SHeM
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
+Label for the output directory (no spaces please): B-SHeM_spheres
 Sould the C code be recompiled: false
 

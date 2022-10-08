@@ -115,7 +115,7 @@ end
 cosine_n = 1;
 
 % In the case of the predefined CAD model, specify the accuraccy of the
-% triangulation, 'low', 'medium', or 'high' (use 'low').
+% triangulation, 'low', 'medium', or 'high' (always use 'low').
 plate_accuracy = 'low';
 
 % In the case of 'circle', specify the radius of the circle (mm).
@@ -176,7 +176,9 @@ save_to_text = true;
 
 %% Create input structs to hold input data
 
-% TODO: convert from structs into classes??
+% TODO: convert from structs into classes?? <- generally everything would
+% be better than way, but ideally most of the code would be migrated to
+% C...
 direct_beam.n = n_rays;
 direct_beam.pinhole_c = pinhole_c;
 direct_beam.pinhole_r = pinhole_r;
@@ -415,6 +417,11 @@ end
 
 % Do any extra manipulation of the sample here
 
+% Translation of the sphere
+if true
+    sphere.centre = sphere.centre + [0;-0.7;0];
+end
+
 if false
     % Tilt required to explain the problem with displacement of the diffraction
     % p[attern
@@ -422,15 +429,10 @@ if false
     sample_surface.rotateGeneral('z', -3.8);
 end
 
-<<<<<<< HEAD
 if false
-    sample_surface.rotateGeneral('y', 30);
-=======
-if true
     sample_surface.rotateGeneral('y', -60+90+20);
     sample_surface.rotateGeneral('y', 180);
     sample_surface.moveBy([0.05, 0, 0])
->>>>>>> 0e84e14adbb7b2d9140f0d70e4954f299d626e2d
     %sample_surface.moveBy([0, 0.525, 0]);
 end
 

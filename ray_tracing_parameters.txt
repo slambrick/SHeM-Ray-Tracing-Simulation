@@ -31,6 +31,7 @@ Type of scan: rectangular
 Number of detectors: 3
 Detector full axes (x1,y1,x2,y2,...), mm: (0.69, 0.6, 0.69, 0.6, 0.69, 0.6)
 Detector centres (x1,y1,x2,y2,...), mm: (2.31, 0, -1.15, 2, -1.15, -2)
+Rotate detectors (th1, th2, ...), deg: (0, -30, 30)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, 72, 144, 216, 288)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
 STL pinhole model: N circle

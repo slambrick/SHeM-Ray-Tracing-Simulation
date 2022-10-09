@@ -1,6 +1,6 @@
 % traceSimpleMultiGen.m
 %
-% Copyright (c) 2019-20, Sam Lambrick.
+% Copyright (c) 2019-22, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.

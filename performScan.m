@@ -106,7 +106,7 @@ end
 
 % Translation of the sphere
 if true
-    sphere.centre = sphere.centre + [0;-0.7;0];
+    sphere.centre = sphere.centre + [0;-1.36;0];
 end
 
 if false

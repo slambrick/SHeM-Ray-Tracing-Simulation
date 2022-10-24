@@ -45,7 +45,7 @@ Half cone angle of detector, deg: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 10000
+Number of Rays: 50000
 Pinhole radius (mm): 0.0005
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -78,9 +78,9 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.     
-Pixel seperation (mm): 0.03
-Scan range x (mm): 5
-Scan range y (mm): 4
+Pixel seperation (mm): 0.02
+Scan range x (mm): 4
+Scan range y (mm): 3.5
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
@@ -90,7 +90,7 @@ Scan max (mm): 3
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): B-SHeM_spheres
+Label for the output directory (no spaces please): B-SHeM_spheres_0-64mmProtruding
 
 Sould the C code be recompiled: false
 

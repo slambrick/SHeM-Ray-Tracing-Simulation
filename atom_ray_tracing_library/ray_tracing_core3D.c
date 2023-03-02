@@ -27,8 +27,8 @@ static void get_vertex_ptr(Surface3D const * const s, int ind, double ** v);
 
 /*
  * Copys the old ray into the new ray.
- * 
- * INPUTS: 
+ *
+ * INPUTS:
  *  new_ray - pointer to the new ray struct, the information will be copied into
  *            here
  *  old_ray - ray struct, the information will be copied from here
@@ -77,7 +77,7 @@ void set_up_surface(double V[], double N[], double B[], int32_t F[], char * C[],
     // assign references to the correct material
     // loop through faces and look for the material that fits the name
     surf->compositions = calloc(ntriag, sizeof(Material*));
-    
+
     for (int iface = 0; iface < ntriag; iface++) {
         bool found = false;
         int imat = 0;
@@ -126,13 +126,14 @@ void set_up_circle(int make_circle, double * const circle_c, double circle_r,
 	circ->material = M;
 }
 
-void set_up_plate(int plate_represent, int n_detect, double circle_plate_r, 
-        double * aperture_axes, double * aperture_c, Material M, int surf_index, 
-        NBackWall * const plate) {
+void set_up_plate(int plate_represent, int n_detect, double circle_plate_r,
+        double * aperture_axes, double * aperture_c, double * aperture_rotate,
+        Material M, int surf_index, NBackWall * const plate) {
     plate->plate_represent = plate_represent;
     plate->n_detect = n_detect;
     plate->aperture_axes = aperture_axes;
     plate->aperture_c = aperture_c;
+    plate->aperture_rotate = aperture_rotate;
     plate->circle_plate_r = circle_plate_r;
     plate->material = M;
     plate->surf_index = surf_index;
@@ -255,7 +256,7 @@ void get_element3D(Surface3D const * const sample, int idx, Triangle * element) 
     j = idx*6 + 0;
     for (int i = 0; i < 6; i++)
         element->lattice[i] = sample->lattice[j + i];
-    
+
     /* Vertices of the triangle */
     element->v1[0] = sample->vertices[vertices[0]];
     element->v1[1] = sample->vertices[vertices[0] + 1];
@@ -496,6 +497,9 @@ void get_nth_aperture(int n, NBackWall const * const allApertures, BackWall * co
     /* The axes of the aperture */
     this_wall->aperture_axes = &(allApertures->aperture_axes[2*n]);
 
+    /* The rotation of the ellipse */
+    this_wall->aperture_rotate = allApertures->aperture_rotate[n];
+    
     /* Other parameters */
     this_wall->surf_index = allApertures->surf_index;
     this_wall->circle_plate_r = allApertures->circle_plate_r;
@@ -526,7 +530,7 @@ void create_ray(Ray3D * const gen_ray, SourceParam const * const source, MTRand 
     double rot_angle;
     double normal[3];
     double dir[3];
-    
+
     /* Generate the position of the ray */
     double tmp;
     genRand(myrng, &tmp);
@@ -964,16 +968,16 @@ static void get_normal_ptr(Surface3D const * const s, int ind, double ** n){
 static void get_lattice_ptr(Surface3D const * const s, int ind, double ** b) {
     int ind0;
     ind0 = 6*ind;
-    
+
     *b = &s->lattice[ind0];
 }
 
 void get_lattice(Surface3D const * const s, int ind, double b[6]) {
     double * b_ptr;
     int j;
-    
+
     get_lattice_ptr(s, ind, &b_ptr);
-    
+
     for (j = 0; j < 6; j++)
         b[j] = b_ptr[j];
 }
@@ -1072,4 +1076,3 @@ void moveSurface(Surface3D * const s, double displace[3]) {
 		}
 	}
 }
-

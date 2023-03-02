@@ -38,7 +38,7 @@ static void intersectPlane(Ray3D * const the_ray, Triangle element, double new_l
  *  intersect - int, 1 or 0 depending on if the ray intersects the sphere.
  *
  */
-void scatterSphere(Ray3D * the_ray, AnalytSphere * the_sphere, double * const min_dist, 
+void scatterSphere(Ray3D * the_ray, AnalytSphere * the_sphere, double * const min_dist,
         double nearest_inter[3], double nearest_n[3], double nearest_b[6], int * const tri_hit,
         int * const which_surface, bool * const meets_sphere) {
     double a,b,c;
@@ -125,7 +125,7 @@ void scatterCircle(Ray3D * the_ray, Circle * the_circle, double * const min_dist
 		*meets_circle = false;
 		return;
 	}
-    
+
     // TODO: generalise for a circle not in the xz plane
     double dist_x = fabs(the_circle->centre[0] - new_loc[0]);
     double dist_z = fabs(the_circle->centre[2] - new_loc[2]);
@@ -133,7 +133,7 @@ void scatterCircle(Ray3D * the_ray, Circle * the_circle, double * const min_dist
         *meets_circle = false;
         return;
     }
-    
+
 	//
 	for (i = 0; i < 3; i++)
 		distance += (new_loc[i] - e[i])*(new_loc[i] - e[i]);
@@ -342,7 +342,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D * sample, double * const min_dist,
          */
         get_element3D(sample, j, &element);
         intersectPlane(the_ray, element, new_loc, &hit, &within);
-        
+
         if (!hit)
         	continue;
 
@@ -354,7 +354,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D * sample, double * const min_dist,
 
             /* We have hit a triangle */
             *meets = 1; // <- I think I've found the problem....
-            
+
             /* Movement is the vector from the current location to the possible
              * new location */
             movment[0] = new_loc[0] - e[0];
@@ -378,7 +378,7 @@ void scatterTriag(Ray3D * the_ray, Surface3D * sample, double * const min_dist,
                 }
                 for (k = 3; k < 6; k++)
                     nearest_b[k] = element.lattice[k];
-                    
+
                 *which_surface = sample->surf_index;
             }
         }
@@ -389,12 +389,12 @@ void scatterTriag(Ray3D * the_ray, Surface3D * sample, double * const min_dist,
  * Attempt to scatter off the total sample specification, that is a triangulated surface
  * an analytical sphere, and a circular surface.
  */
-void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, double * nearest_inter, 
+void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, double * nearest_inter,
                    double * nearest_n, double * nearest_b, int * meets, int * tri_hit, int * which_surface) {
     bool meets_sphere = 0;
     bool meets_circle = 0;
-    
-    scatterTriag(the_ray, overall_sample.triag_sample, min_dist, nearest_inter, nearest_n, 
+
+    scatterTriag(the_ray, overall_sample.triag_sample, min_dist, nearest_inter, nearest_n,
         nearest_b, meets, tri_hit, which_surface);
 
     for (int i = 0; i < overall_sample.n_sphere; i ++) {
@@ -407,14 +407,14 @@ void scatterSample(Ray3D * the_ray, Sample overall_sample, double * min_dist, do
             }
         }
     }
-    
+
     if (overall_sample.the_circle->make_circle) {
         if (the_ray->on_surface != overall_sample.the_circle->surf_index) {
             scatterCircle(the_ray, overall_sample.the_circle, min_dist, nearest_inter,
             	nearest_n, nearest_b, tri_hit, which_surface, &meets_circle);
         }
     }
-    
+
     *meets = *meets || meets_circle || meets_sphere;
 }
 
@@ -470,6 +470,7 @@ void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist
         test = 10; /* Number greater than 1 */
         for (i = 0; i < wallPlate.n_detect; i++) {
             BackWall plate;
+            double tmp;
             get_nth_aperture(i, &wallPlate, &plate);
             /*
              * See if it goes into the aperture. The aperture is defined by a centre,
@@ -477,8 +478,19 @@ void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist
              *     (x-h)^2/a^2 + (z-k)^2/b^2 = 1
              * where h and k are the x and z positions of the centre of the ellipse.
              */
+			// TODO: now we have a rotation of the elliptical aperture...
+			// how to do that, some maths is in order
+
+			// Move to centre
             x_disp = wall_hit[0] - plate.aperture_c[0];
             y_disp = wall_hit[2] - plate.aperture_c[1];
+
+			// Rotate the point in the opposite direction to the direction of
+			// rotation of the ellipse
+			tmp = x_disp*cos(- plate.aperture_rotate*M_PI/180) - y_disp*sin(- plate.aperture_rotate*M_PI/180);
+			y_disp = x_disp*sin(- plate.aperture_rotate*M_PI/180) + y_disp*cos(- plate.aperture_rotate*M_PI/180);
+			x_disp = tmp;
+
             test = x_disp*x_disp/
                 (0.25*plate.aperture_axes[0]*plate.aperture_axes[0]) +
                 y_disp*y_disp/
@@ -546,14 +558,14 @@ void multiBackWall(Ray3D * the_ray, NBackWall wallPlate, double * const min_dist
 }
 
 /* Scatter off an abstract hemisphere */
-void abstractScatter(Ray3D * the_ray, AbstractHemi const * plate, double * const min_dist, 
+void abstractScatter(Ray3D * the_ray, AbstractHemi const * plate, double * const min_dist,
         int * const tri_hit, int * const which_surface, int * const which_aperture) {
     double angle_sep, tmp;
 
-    // Get the angle between the ray and the 
+    // Get the angle between the ray and the
     dot(the_ray->direction, plate->det_dir, &tmp);
     angle_sep = acos(tmp);
-    
+
     if (angle_sep > plate->half_cone_angle) {
         return;
     } else if (*min_dist > 1e6) { // 1e6 = 1km

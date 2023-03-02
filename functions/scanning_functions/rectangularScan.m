@@ -194,10 +194,11 @@ function square_scan_info = rectangularScan(varargin)
     %  black - pixel with fewest counts
     %  white - pixel with the most counts
     % Only draws them if there is a GUI.
-    square_scan_info.produceImages(thePath);
+    square_scan_info.produceImages(thePath);;
+    square_scan_info.ProduceImagesScaled(thePath);
 
     % Also save a reduced set of formatted data
-    %formatOutput(square_scan_info, thePath);
+    square_scan_info.formatOutput(thePath);
 end
 
 

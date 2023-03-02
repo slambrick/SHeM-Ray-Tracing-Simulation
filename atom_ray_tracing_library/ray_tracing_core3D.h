@@ -66,6 +66,7 @@ typedef struct _backWall {
     int surf_index;         /* Index of this surface */
     double *aperture_c;     /* The centre of the detector aperture */
     double *aperture_axes;  /* The two axes of the elliptical aperture */
+    double aperture_rotate;  /* The rotation of the ellipse */
     double circle_plate_r;  /* The radius of the plate that the aperture sits on */
     Material material;
     int plate_represent;    /* Should the plate be scattered off, 0 or 1 */
@@ -77,6 +78,7 @@ typedef struct _nBackWall{
     int n_detect;
     double *aperture_c;
     double *aperture_axes;
+    double *aperture_rotate;
     double circle_plate_r;
     Material material;
     int plate_represent;
@@ -321,8 +323,8 @@ void set_vertex(Surface3D const * const s, int ind, double new_v[3]);
 
 void moveSurface(Surface3D * const s, double displace[3]);
 
-void set_up_plate(int plate_represent, int n_detect, double circle_plate_r, 
-        double * aperture_axes, double * aperture_c, Material M, int surf_index, 
-        NBackWall * const plate);
+void set_up_plate(int plate_represent, int n_detect, double circle_plate_r,
+        double * aperture_axes, double * aperture_c, double * aperture_rotate,
+        Material M, int surf_index, NBackWall * const plate);
 
 #endif

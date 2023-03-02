@@ -37,7 +37,7 @@ int get_string_cell_arr(const mxArray * cell_array, char ** strings) {
  * Extract the sphere C struct from the MATLAB struct array.
  * INPUTS: theSphere = mxArray containing ONE sphere struct
  *         index = the surface_index of the sphere surface
- * 
+ *
  * NOTE: this is depreciated
  */
 AnalytSphere get_sphere(const mxArray * theSphere, int index) {
@@ -87,7 +87,7 @@ AnalytSphere get_sphere(const mxArray * theSphere, int index) {
  *         index = the surface_index of the sphere surface
  */
 void get_spheres(int n_sphere, const mxArray * theSphere, int index, AnalytSphere * spheres) {
-    
+
     // check if sphere is one struct
     if(!mxIsStruct(theSphere))
         mexErrMsgIdAndTxt("AtomRayTracing:get_sphere:theSphere",
@@ -103,7 +103,7 @@ void get_spheres(int n_sphere, const mxArray * theSphere, int index, AnalytSpher
         mexErrMsgIdAndTxt("AtomRayTracing:get_sphere:theSphere",
                           "Sphere radius must be array of doubles. In get_sphere.");
     double * sphere_r = mxGetDoubles(field);
-    
+
     // get the centre
     field = mxGetField(theSphere, 0, "c");
     if (!mxIsDouble(field) || mxGetN(field) != 3*n_spheres)
@@ -124,7 +124,7 @@ void get_spheres(int n_sphere, const mxArray * theSphere, int index, AnalytSpher
     Material mat;
     char *names[] = {"sphere"};
     get_materials(sph_material, names, &mat);
-    
+
     for (int i = 0; i < n_sphere; i++) {
         set_up_sphere(make_sphere, &sphere_c[3*i], sphere_r[i], mat, index + i, &spheres[i]);
     }
@@ -145,14 +145,14 @@ Circle get_circle(const mxArray * theCircle, int index) {
         mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
                           "Centre must be array of 3 doubles. In get_circle.");
     double * circle_c = mxGetDoubles(field);
-    
+
     // get the radius - one double
     field = mxGetField(theCircle, 0, "r");
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_circle:theCircle",
                           "Sphere radius must be scalar. In get_circle.");
     double circle_r = mxGetScalar(field);
-    
+
     // get the normal
     field = mxGetField(theCircle, 0, "n");
     if (!mxIsDouble(field) || mxGetN(field) != 3)
@@ -172,7 +172,7 @@ Circle get_circle(const mxArray * theCircle, int index) {
     Material mat;
     char *names[] = {"circle"};
     get_materials(circ_material, names, &mat);
-    
+
     Circle circ;
     set_up_circle(make_circle, circle_c, circle_r, circle_n, mat, index, &circ);
     return circ;
@@ -288,42 +288,49 @@ NBackWall get_plate(const mxArray * plate_opts, int plate_index) {
     if(mxGetN(plate_opts) != 1 || mxGetM(plate_opts) != 1)
         mexErrMsgIdAndTxt("AtomRayTracing:tracingMex:plate_opts",
                           "Must be one struct. In get_plate.");
-        
+
     // Get whether to represent the pinhole plate as scattering
     field = mxGetField(plate_opts, 0, "plate_represent");
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Representation of pinhole plate must be scalar. In get_plate.");
     int plate_represent = (int)mxGetScalar(field);
-    
+
     // Get the number of detectors
     field = mxGetField(plate_opts, 0, "n_detectors");
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Number of detectors must be scalar. In get_plate.");
     int n_detect = (int)mxGetScalar(field);
-    
+
     // Get the radius of the pinhole plate
     field = mxGetField(plate_opts, 0, "circle_plate_r");
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Radius of pinhole plate must be scalar. In get_plate.");
     double circle_plate_r = mxGetScalar(field);
-    
+
     // Get the axes of the apertures
     field = mxGetField(plate_opts, 0, "aperture_axes");
     if (!mxIsDouble(field) || mxGetN(field) != (unsigned int)2*n_detect)
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Aperture axes must be array of 2xnumber of detectors doubles. In get_plate.");
     double * aperture_axes = mxGetDoubles(field);
-    
+
     // Get the centres of the apertures
     field = mxGetField(plate_opts, 0, "aperture_c");
     if (!mxIsDouble(field) || mxGetN(field) !=  (unsigned int)2*n_detect)
         mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
                           "Aperture centres must be array of 2xnumber of detectors doubles. In get_plate.");
     double * aperture_c = mxGetDoubles(field);
-        
+
+    // Get the rotation angles of teh ellipses
+    field = mxGetField(plate_opts, 0, "aperture_rotate");
+    if (!mxIsDouble(field) || mxGetN(field) !=  (unsigned int)n_detect)
+        mexErrMsgIdAndTxt("AtomRayTracing:get_plate:plate_opts",
+                          "Aperture rotations must be array of 1xnumber of detectors doubles. In get_plate.");
+    double * aperture_rotate = mxGetDoubles(field);
+
     // now extract the material -- a nested struct
     mxArray * circ_material = mxGetField(plate_opts, 0, "material");
     Material mat;
@@ -331,8 +338,8 @@ NBackWall get_plate(const mxArray * plate_opts, int plate_index) {
     get_materials(circ_material, names, &mat);
 
     set_up_plate(plate_represent, n_detect, circle_plate_r, aperture_axes, aperture_c,
-        mat, plate_index, &plate);
-    
+        aperture_rotate, mat, plate_index, &plate);
+
     return plate;
 }
 
@@ -355,14 +362,14 @@ AbstractHemi get_abstract(const mxArray * plate_opts, int plate_index) {
         mexErrMsgIdAndTxt("AtomRayTracing:tracingMex:plate_opts",
                           "Must be one struct. In get_abstract.");
 
-    
+
     // Get the half cone angle
     field = mxGetField(plate_opts, 0, "half_cone_angle");
     if (!mxIsScalar(field))
         mexErrMsgIdAndTxt("AtomRayTracing:get_abstract:plate_opts",
                           "Half cone angle must be scalar. In get_abstract.");
     double half_cone_angle = mxGetScalar(field);
-    
+
     // Get the axes of the apertures
     field = mxGetField(plate_opts, 0, "direction");
     if (!mxIsDouble(field) || mxGetN(field) != 3)
@@ -374,6 +381,6 @@ AbstractHemi get_abstract(const mxArray * plate_opts, int plate_index) {
     for (int i = 0; i < 3; i++)
         plate.det_dir[i] = det_dir[i];
     plate.surf_index = plate_index;
-    
+
     return plate;
 }

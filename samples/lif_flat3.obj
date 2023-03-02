@@ -1,5 +1,5 @@
 # Created by FreeCAD <http://www.freecadweb.org>
-mtllib lif_peaks2.mtl
+mtllib lif_peaks.mtl
 o Cube
 usemtl diffractive_45deg
 v 0.100000 0.500000 0.100000

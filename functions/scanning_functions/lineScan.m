@@ -92,6 +92,7 @@ function line_scan_info = lineScan(varargin)
     else
         progressBar = true;
     end
+    progressBar = false
 
     ppm = 0;
     if progressBar

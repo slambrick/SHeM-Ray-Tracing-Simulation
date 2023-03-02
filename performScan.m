@@ -105,7 +105,9 @@ end
 % Do any extra manipulation of the sample here
 
 % Translation of the sphere
-if true
+if false
+    % This is for indenting the sphere into the surface for the 3D
+    % reconstruction B-SHeM test.
     sphere.centre = sphere.centre + [0;-1.36;0];
 end
 
@@ -288,7 +290,7 @@ switch typeScan
             s = sin(theta);
             c = cos(theta);
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
-            sphere.centre = (R*sphere_centre')';
+            sphere.centre = (R*sphere_centre)';
             
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
@@ -377,7 +379,7 @@ switch typeScan
             s = sin(theta);
             c = cos(theta);
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
-            sphere.centre = (R*sphere_centre')';
+            sphere.centre = (R*sphere_centre)';
             %s_surface.patchPlot(true);
 
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];

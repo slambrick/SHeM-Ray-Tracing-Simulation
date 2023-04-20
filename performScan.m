@@ -355,7 +355,9 @@ switch typeScan
             
             % TODO: change the material of the sample to have the correct
             % parameters for the scattering distribution
-            if true
+            % This is used for specified MultiScat calculated diffractionp
+            % peak intensities
+            if false
                 th = 0;
                 if rot_angles(i_) > 90 && rot_angles(i_) <= 180
                     s_surface.rotateLattice('y', 90);

@@ -327,7 +327,7 @@ void diffraction_pattern3D(const double normal[3], const double lattice[6], cons
             q = q - maxq;
             
             // reject to give a Gaussian probability of peaks
-            x = p*p + q*q;
+            x = (abs(p) + abs(q))*(abs(p) + abs(q));
             gaussian_value = 0.05*exp(-x / 2 / (envelope_sig*envelope_sig)) + 
                 x*exp(-x / 2 / (envelope_sig*envelope_sig));
             genRand(myrng, &tester);

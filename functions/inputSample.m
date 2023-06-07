@@ -103,7 +103,8 @@ function sample_surface = inputSample(varargin)
     % finally, construct the surface object
     sample_surface = TriagSurface(vertices, fdef, fnorm, flattice, fmat, materials);
     
-    if true
+    if false
+        % WHY!!!!!?????
         sample_surface.rotateGeneral('y', 90);
     end
     

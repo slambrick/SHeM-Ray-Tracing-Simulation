@@ -4,7 +4,7 @@
 % GNU/GPL-3.0-or-later.
 
 %close all
-clear
+%clear
 %clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start of parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -130,6 +130,7 @@ end
 if false
     % Flip the z coordinates of the lattice vectors because of a difference
     % in the axes used in multiscat
+    % ..... This doesn't seem to have any impact on the results .....
     sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
     sample_surface.lattice(:,6) = -sample_surface.lattice(:,6);
 end
@@ -348,7 +349,10 @@ switch typeScan
         sphere_centre = sphere.centre;
 
         % Loop through the rotations
+        old_c = 'diffractive_0deg';
         for i_=1:N
+            disp(' ')
+            disp(['On rotation ' num2str(rot_angles(i_)) 'deg'])
             %close all % <- there are more elegant ways of doing this...
             s_surface = copy(sample_surface);
             s_surface.rotateGeneral('y', -rot_angles(i_));
@@ -357,24 +361,72 @@ switch typeScan
             % parameters for the scattering distribution
             % This is used for specified MultiScat calculated diffractionp
             % peak intensities
-            if false
-                th = 0;
-                if rot_angles(i_) > 90 && rot_angles(i_) <= 180
-                    s_surface.rotateLattice('y', 90);
-                    th = rot_angles(i_) - 90;
-                elseif rot_angles(i_) > 180 && rot_angles(i_) <= 270
-                    s_surface.rotateLattice('y', 180);
-                    th = rot_angles(i_) - 180;
-                elseif rot_angles(i_) > 270 && rot_angles(i_) <= 360
-                    s_surface.rotateLattice('y', 270);
-                    th = rot_angles(i_) - 270;
+            if false % For 90deg symmetry
+                th = rot_angles(i_);
+
+                % Total pattern repeats every 90deg
+                macro_th = 90*floor(th/90);
+                disp(['Macro alignment = ' num2str(macro_th)]); % Interval of 90deg to back rotate the lattice
+                %s_surface.rotateLattice('y', macro_th);
+                th_rem = mod(th, 90); % Remaiing difference
+                disp(['Remainder = ' num2str(th_rem)]);
+                if th_rem > 45
+                    % 50deg is equivalend to 40deg
+                    th = 90 - th_rem;
+                    th_tmp = th_rem - th;
+                    s_surface.rotateLattice('y', th_tmp);
+                    disp(['Back rotation = ' num2str(th_tmp)])
+                else
+                    th = th_rem;
                 end
-                if rot_angles(i_) > 90
-                    for j_=1:length(s_surface.nTriag)
+                disp(['Angle to set the diffraction = ' num2str(th)])
+                if true
+                    for j_=1:s_surface.nTriag
+                        % Only for diffractive surfaces with specified
+                        % diffraction intensities!
+                        th3 = round(th/2.5)*2.5;
+                        c = ['diffractive_' num2str(th3) 'deg'];
+                        if j_==1
+                            disp(['Changing composition to ' c]);
+                        end
+                        s_surface.compositions{j_} = c;
+                    end
+                end
+            end
+
+            if false % For 60deg symmetry
+                th = rot_angles(i_);
+                
+                % Total pattern repeats every 60deg
+                macro_th = 60*floor(th/60);
+                disp(['Macro alignment = ' num2str(macro_th)]); % Interval of 90deg to back rotate the lattice
+                s_surface.rotateLattice('y', macro_th);
+                th_rem = mod(th, 60); % Remaiing difference
+                disp(['Remainder = ' num2str(th_rem)]);
+                if th_rem > 30
+                    % 40deg is equivalent to 20deg
+                    th = 60 - th_rem;
+                    th_tmp = th_rem - th;
+                    s_surface.rotateLattice('y', th_tmp);
+                    disp(['Back rotation = ' num2str(th_tmp)])
+                else
+                    th = th_rem;
+                end
+                disp(['Angle to set the diffraction = ' num2str(th)])
+                if true
+                    for j_=1:s_surface.nTriag
+                        % Only for diffractive surfaces with specified
+                        % diffraction intensities!
+                        th3 = round(th/2.5)*2.5;
+                        c = ['diffractive_' num2str(th3) 'deg'];
+                        if j_==1
+                            disp(['Changing composition to ' c]);
+                        end
                         s_surface.compositions{j_} = ['diffractive_' num2str(th) 'deg'];
                     end
                 end
             end
+
 
             % Rotate the centre of the sphere
             theta = rot_angles(i_)*pi/180;
@@ -389,6 +441,9 @@ switch typeScan
                 mkdir(subPath)
             end
             %disp(s_surface.lattice);
+            %disp(rot_angles(i_))
+            %disp(th)
+            %disp(s_surface.compositions);
             simulationData{i_} = lineScan('sample_surface', s_surface, ...
                 'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
                 'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...
@@ -445,3 +500,7 @@ end
 %        pinhole_plate_inputs, scan_inputs);
 %end
 
+if strcmp(typeScan, 'line_rotations')
+    disp(['You may wish to run the python file "python plot_diffraction.py ' thePath '"'])
+    disp('This will plot the 2D diffraction pattern for you.')
+end

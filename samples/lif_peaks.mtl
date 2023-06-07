@@ -8,7 +8,7 @@ func diffraction
 params 0.6          # diffuse level
     6   6   0.1996  # maxp, maxq, lambda/a
     1   0   0   1   # b1, b2
-    0.0316  2.0     # peak_sig, envelope_sig
+    0.01  2.0     # peak_sig, envelope_sig
 
 newmtl diffuse
 Kd 0.55     0.55    0.55
@@ -22,7 +22,7 @@ d 0
 func diffraction2
 params 0.6          # diffuse level
     6   6   0.1996  # maxp, maxq, lambda/a
-    0.0316  1.0     # peak_sig, envelope_sig
+    0.01  1.0     # peak_sig, envelope_sig
 # Material Count: 2
 
 newmtl diffractive_0deg
@@ -30,7 +30,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
      -8    -2          0.452106E-07 
      -8    -1          0.514654E-07
      -8     0          0.145120E-06
@@ -115,7 +115,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.577183E-07
       -8    -1          0.545758E-07
       -8     0          0.142058E-06
@@ -201,7 +201,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.123642E-07
       -8    -1          0.117206E-06
       -8     0          0.167441E-06
@@ -288,7 +288,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.873745E-07
       -8    -1          0.488139E-07
       -8     0          0.138533E-06
@@ -375,7 +375,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.100124E-06
       -8    -1          0.549563E-07
       -8     0          0.738403E-07
@@ -460,7 +460,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.107657E-06
       -8    -1          0.405107E-07
       -8     0          0.993792E-07
@@ -547,7 +547,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.875617E-07
       -8    -1          0.675804E-07
       -8     0          0.744551E-07
@@ -633,7 +633,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.110717E-06
       -8    -1          0.375360E-07
       -8     0          0.815066E-07
@@ -718,7 +718,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.739367E-07
       -8    -1          0.296233E-07
       -8     0          0.768247E-07
@@ -804,7 +804,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.745511E-07
       -8    -1          0.352793E-07
       -8     0          0.429304E-07
@@ -890,7 +890,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.991422E-07
       -8    -1          0.341769E-07
       -7    -4          0.953892E-06
@@ -975,7 +975,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.746457E-07
       -8    -1          0.951101E-08
       -7    -4          0.110506E-05
@@ -1061,7 +1061,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -8    -2          0.340387E-07
       -8    -1          0.147734E-07
       -7    -4          0.497772E-06
@@ -1146,7 +1146,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.952755E-06
       -7    -3          0.424874E-05
       -7    -2          0.467159E-05
@@ -1229,7 +1229,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.916907E-06
       -7    -3          0.392734E-05
       -7    -2          0.518000E-05
@@ -1312,7 +1312,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.776702E-06
       -7    -3          0.321991E-05
       -7    -2          0.400082E-05
@@ -1398,7 +1398,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.578339E-06
       -7    -3          0.273586E-05
       -7    -2          0.326955E-05
@@ -1484,7 +1484,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.545843E-06
       -7    -3          0.199766E-05
       -7    -2          0.264098E-05
@@ -1659,7 +1659,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.260751E-06
       -7    -3          0.111914E-05
       -7    -2          0.142898E-05
@@ -1747,7 +1747,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.180744E-06
       -7    -3          0.700487E-06
       -7    -2          0.999842E-06
@@ -1833,7 +1833,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -4          0.911166E-07
       -7    -3          0.364552E-06
       -7    -2          0.394367E-06
@@ -1919,7 +1919,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -7    -3          0.153910E-07
       -6    -5          0.197940E-05
       -6    -4          0.146606E-04
@@ -2002,7 +2002,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -6    -5          0.844827E-06
       -6    -4          0.123999E-04
       -6    -3          0.346309E-04
@@ -2085,7 +2085,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -6    -5          0.982702E-06
       -6    -4          0.707894E-05
       -6    -3          0.227508E-04
@@ -2170,7 +2170,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -6    -5          0.275828E-06
       -6    -4          0.579309E-05
       -6    -3          0.156623E-04
@@ -2256,7 +2256,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -6    -5          0.350070E-06
       -6    -4          0.289547E-05
       -6    -3          0.818452E-05
@@ -2341,7 +2341,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -6    -5          0.202209E-06
       -6    -4          0.186679E-05
       -6    -3          0.575392E-05
@@ -2427,7 +2427,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -6    -4          0.104667E-05
       -6    -3          0.293510E-05
       -6    -2          0.263740E-05
@@ -2513,7 +2513,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -6    -4          0.497584E-06
       -6    -3          0.135600E-05
       -5    -6          0.842002E-06
@@ -2598,7 +2598,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -5    -6          0.345795E-06
       -5    -5          0.827322E-05
       -5    -4          0.535759E-04
@@ -2684,7 +2684,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -5    -6          0.275283E-06
       -5    -5          0.624067E-05
       -5    -4          0.402915E-04
@@ -2771,7 +2771,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -5    -5          0.387076E-05
       -5    -4          0.233090E-04
       -5    -3          0.655992E-04
@@ -2856,7 +2856,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -5    -5          0.205088E-05
       -5    -4          0.141906E-04
       -5    -3          0.403456E-04
@@ -2943,7 +2943,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -5    -5          0.939876E-06
       -5    -4          0.723719E-05
       -5    -3          0.201456E-04
@@ -3030,7 +3030,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -5    -4          0.381126E-05
       -5    -3          0.166799E-04
       -4    -6          0.501204E-05
@@ -3116,7 +3116,7 @@ Kd 0.3     0.5      0
 d 0
 func diffraction_specified
 params 0.6          # diffuse level
-    0.1996  0.0316   78 # lambda/a, peak_sig, n_peaks
+    0.1996  0.01   78 # lambda/a, peak_sig, n_peaks
       -4    -6          0.305832E-05
       -4    -5          0.533125E-04
       -4    -4          0.275775E-03

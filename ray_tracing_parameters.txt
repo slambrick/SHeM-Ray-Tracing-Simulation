@@ -45,7 +45,7 @@ Half cone angle of detector, deg: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 50000
+Number of Rays: 25000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -66,13 +66,13 @@ What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 10
-Sample description: MoS2
+Sample description: MoS2 with a Morse potential
 Working distance to place the sample at: 3.5
 Sphere radii (r1, r2, ...) (mm): (1)
 Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0)
 Circle radius (mm): 2
 Length of side of flat sample: 8
-Custom sample stl file: samples/MoS2_flat.obj
+Custom sample stl file: samples/MoS2_flat_morse2.obj
 Manual alignment: no
 
 %% Set up your scan
@@ -85,12 +85,12 @@ Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -2
+Scan min (mm): -1
 Scan max (mm): 4
 Pixel seperation (mm): 0.1
 
 %% Other parameters
-Label for the output directory (no spaces please): MoS2_arbitrary
+Label for the output directory (no spaces please): MoS2_morse_test_no_probability_rotate
 
 Sould the C code be recompiled: false
 

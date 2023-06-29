@@ -1,4 +1,4 @@
-% Copyright (c) 2018-22, Sam Lambrick, Aleksander Radic.
+% Copyright (c) 2018-23, Sam Lambrick, Aleksander Radic.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the
 % GNU/GPL-3.0-or-later.
@@ -127,10 +127,9 @@ end
 
 % Specifically for the simulation of the LiF diffrtaction with multiscat
 % peak intensities
-if false
+if true
     % Flip the z coordinates of the lattice vectors because of a difference
     % in the axes used in multiscat
-    % ..... This doesn't seem to have any impact on the results .....
     sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
     sample_surface.lattice(:,6) = -sample_surface.lattice(:,6);
 end
@@ -357,17 +356,17 @@ switch typeScan
             s_surface = copy(sample_surface);
             s_surface.rotateGeneral('y', -rot_angles(i_));
             
-            % TODO: change the material of the sample to have the correct
+            % Change the material of the sample to have the correct
             % parameters for the scattering distribution
-            % This is used for specified MultiScat calculated diffractionp
+            % This is used for specified MultiScat calculated diffraction
             % peak intensities
-            if false % For 90deg symmetry
+            if true % For 90deg symmetry
                 th = rot_angles(i_);
 
                 % Total pattern repeats every 90deg
                 macro_th = 90*floor(th/90);
                 disp(['Macro alignment = ' num2str(macro_th)]); % Interval of 90deg to back rotate the lattice
-                %s_surface.rotateLattice('y', macro_th);
+                s_surface.rotateLattice('y', macro_th);
                 th_rem = mod(th, 90); % Remaiing difference
                 disp(['Remainder = ' num2str(th_rem)]);
                 if th_rem > 45
@@ -443,7 +442,7 @@ switch typeScan
             %disp(s_surface.lattice);
             %disp(rot_angles(i_))
             %disp(th)
-            %disp(s_surface.compositions);
+            disp(s_surface.compositions{1});
             simulationData{i_} = lineScan('sample_surface', s_surface, ...
                 'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
                 'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...

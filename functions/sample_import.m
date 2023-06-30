@@ -46,6 +46,12 @@ function [sample_surface, sphere, circle, sample_description] = sample_import(sa
             sphere.make = 1;
             sphere = Sphere(1, sample_inputs.material, c, 0.05);
             sample_description = 'Sample containing different features for testsing photometric stereo';
+        case 'poly_crystal'
+            circle.make = 0;
+            sample_surface = inputSample('fname', 'samples/poly_crystal.obj', 'dontMeddle', true);
+            sphere = Sphere(0, sample_inputs.material);
+            sample_description = 'A polycrystalline sample';
+            sample_surface.moveBy([0, -sample_inputs.dist_to_sample, 0]);
         case 'special'
             circle.make = 0;
             % NOTE: I can't remember what this does...

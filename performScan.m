@@ -127,7 +127,7 @@ end
 
 % Specifically for the simulation of the LiF diffrtaction with multiscat
 % peak intensities
-if true
+if false
     % Flip the z coordinates of the lattice vectors because of a difference
     % in the axes used in multiscat
     sample_surface.lattice(:,3) = sample_surface.lattice(:,3);
@@ -136,7 +136,6 @@ end
 %sample_surface.rotateGeneral('y', 45);
 
 % Plot the sample surface in 3D space, if we are using a graphical window
-% TODO: put in a seperate
 if feature('ShowFigureWindows')
     if ~strcmp(typeScan, 'single_pixel') && ~strcmp(sample_inputs.sample_type, 'circle')
         sample_surface.patchPlot(true);
@@ -171,7 +170,9 @@ end
     pinhole_plate_inputs, sample_surface, defMaterial);
 
 if thePlate.in_use
-    thePlate.plot_detectors;
+    thePlate.plot_detectors(direct_beam);
+    thePlate.plot_detectors3D(direct_beam);
+    sample_surface.patchPlot(false);
 end
 %% Compile the mex files
 

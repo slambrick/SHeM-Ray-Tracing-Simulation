@@ -71,7 +71,7 @@ pinhole_c = [-working_dist*tand(init_angle), 0, 0];
 n_effuse = n_rays*effuse_size;
 raster_movment2D_x = pixel_seperation;
 raster_movment2D_z = pixel_seperation;
-xrange = [-range_x/2, range_x/2]% + tand(init_angle)*(dist_to_sample - working_dist);
+xrange = [-range_x/2, range_x/2];% + tand(init_angle)*(dist_to_sample - working_dist);
 zrange = [-range_z/2, range_z/2];
 
 % TODO: sphere locations and 

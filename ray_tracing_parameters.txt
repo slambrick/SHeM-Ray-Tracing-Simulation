@@ -27,12 +27,12 @@
 %  - 'line_rotations', A series of z scans while rotating the sample
 Design working distance (mm): 3.5
 Incidence angle (deg): 45
-Type of scan: line_rotations
+Type of scan: rectangular
 Number of detectors: 1
 Detector full axes (x1,y1,x2,y2,...), mm: (0.7, 0.5)
 Detector centres (x1,y1,x2,y2,...), mm: (3.5, 0)
 Rotate detectors (th1, th2, ...), deg: (0)
-Rotation angles (only needed for 'rotations'/'line_rotations'): (0, - , 1.25, -, 360)
+Rotation angles (only needed for 'rotations'/'line_rotations'): (0, - , 5, -, 180)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
 STL pinhole model: N circle
 Location of abstract detector (theta, phi), deg: (70, 0)
@@ -45,7 +45,7 @@ Half cone angle of detector, deg: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 200000
+Number of Rays: 10000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -55,14 +55,15 @@ Effuse size (relative to the direct beam): 5
 
 %% Set up your sample
 % There are a few inbuilt samples or you can provide your own stl/obj file of a
-% sample, options are: 'flat', 'sphere', 'custom', 'photoStereo', 'circle'
+% sample, options are: 'flat', 'sphere', 'custom', 'photoStereo', 'circle',
+% 'poly_crystal'
 %  - If you are using the 'sphere' option specify the radius of sphere.
 %  - If using the 'flat' option specify the size of the flat square sample.
 %  - If using the 'circle' option specify the radius of the flat circular sample
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: custom
+What type of sample are you useing: poly_crystal
 Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 10
@@ -79,8 +80,8 @@ Manual alignment: no
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.     
 Pixel seperation (mm): 0.005
-Scan range x (mm): 0.07
-Scan range y (mm): 3.5
+Scan range x (mm): 0.45
+Scan range y (mm): 0.45
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
@@ -90,7 +91,7 @@ Scan max (mm): 4
 Pixel seperation (mm): 0.05
 
 %% Other parameters
-Label for the output directory (no spaces please): LiF_do_rotate_probability_flipz
+Label for the output directory (no spaces please): MoS2_polycrystalline
 
 Sould the C code be recompiled: false
 

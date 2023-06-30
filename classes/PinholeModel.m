@@ -40,8 +40,15 @@ classdef PinholeModel
         end
 
         % Creates a plot of the detectors for this geometry
-        function [f, ax] = plot_detectors(obj)
-            f = figure;
+        function [f, ax] = plot_detectors(obj, direct_beam, newfig)
+            if nargin == 2
+                newfig = true;
+            end
+            if newfig
+                f = figure;
+            else
+                f = gcf;
+            end
             ax = axes(f);
             for i_=1:obj.n_detectors
                 a = obj.aperture_axes(i_*2 - 1);
@@ -61,6 +68,7 @@ classdef PinholeModel
                 hold on
             end
             plot(ax, [0], [0], 'o', 'MarkerFaceColor', 'red', 'Displayname', 'Design scattering point');
+            plot(ax, [direct_beam.pinhole_c(1)], [direct_beam.pinhole_c(3)], 'o', 'MarkerFaceColor', 'green', 'Displayname', 'Pinhole');
             xlabel(ax, 'x/mm')
             ylabel(ax, 'y/mm')
             legend(ax)
@@ -69,6 +77,44 @@ classdef PinholeModel
             title('"N Circle" detector setup')
         end
         
+        % Creates a plot of the detectors for this geometry in 3D
+        % coordinates (can be combined with a plot of the sample
+        function [f, ax] = plot_detectors3D(obj, direct_beam, newfig)
+            if nargin == 2
+                newfig = true;
+            end
+            if newfig
+                f = figure;
+            else
+                f = gcf;
+            end
+            ax = axes(f);
+            for i_=1:obj.n_detectors
+                a = obj.aperture_axes(i_*2 - 1);
+                b = obj.aperture_axes(i_*2);
+                x0 = obj.aperture_c(i_*2 - 1);
+                y0 = obj.aperture_c(i_*2);
+                th = obj.aperture_rotate(i_);
+                t=-pi:0.01:pi;
+                x=a*cos(t);
+                y=b*sin(t);
+                tmp = x*cosd(th) - y*sind(th);
+                y = x*sind(th) + y*cosd(th);
+                x = tmp;
+                x = x + x0;
+                y = y + y0;
+                plot3(ax, x, zeros(size(x)), y, 'DisplayName', ['Detector ' num2str(i_)]);
+                hold on
+            end
+            plot3(ax, [direct_beam.pinhole_c(1)], [direct_beam.pinhole_c(2)], [direct_beam.pinhole_c(3)], 'o', 'MarkerFaceColor', 'red', 'Displayname', 'Pinhole');
+            plot3(ax, [0], [0], [0], 'o', 'MarkerFaceColor', 'green', 'Displayname', 'Design scattering point (projected)');
+            xlabel(ax, 'x/mm')
+            ylabel(ax, 'y/mm')
+            zlabel(ax, 'z/mm')
+            legend(ax)
+            axis equal
+        end
+
         % NOTE: if the output names of this function are changed then changes
         % need to be made in the C code!
         function p = to_struct(obj)

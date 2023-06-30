@@ -91,6 +91,8 @@ function square_scan_info = rectangularScan(varargin)
     else
         progressBar = true;
     end
+    % Disable progress bar for now as I am having some problems with it.
+    progressBar = false;
     if progressBar && ~isOctave
         ppm = ParforProgressbar(N_pixels, 'showWorkerProgress', true);
         h = 0;

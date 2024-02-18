@@ -18,52 +18,53 @@ aperture_axes = parse_list_input(param_list{5});
 aperture_c = parse_list_input(param_list{6});
 aperture_rotate = parse_list_input(param_list{7});
 rot_angles = parse_rotations(param_list{8});
-pinhole_model = parse_pinhole(param_list{9});
-aperture_size = parse_list_input(param_list{10});
+det_pos = parse_rotations(param_list{9});
+pinhole_model = parse_pinhole(param_list{10});
+aperture_size = parse_list_input(param_list{11});
 aperture_theta = aperture_size(1);
 aperture_phi = aperture_size(2);
-aperture_half_cone = str2double(param_list{11});
+aperture_half_cone = str2double(param_list{12});
 
 % Set up source
-n_rays = str2double(param_list{12});
-pinhole_r = str2double(param_list{13});
-source_model = strtrim(param_list{14});
-theta_max = str2double(param_list{15});
-sigma_source = str2double(param_list{16});
-if ~parse_yes_no(param_list{17})
+n_rays = str2double(param_list{13});
+pinhole_r = str2double(param_list{14});
+source_model = strtrim(param_list{15});
+theta_max = str2double(param_list{16});
+sigma_source = str2double(param_list{17});
+if ~parse_yes_no(param_list{18})
     effuse_size = 0;
 else
-    effuse_size = str2double(param_list{18});
+    effuse_size = str2double(param_list{19});
 end
 
 % Set up sample
-sample_type = strtrim(param_list{19});
-material = parse_scattering(strtrim(param_list{20}), str2double(param_list{21}), ...
-    str2double(param_list{22}));
-sample_description = param_list{23};
-dist_to_sample = str2double(param_list{24});
-sphere_rs = parse_list_input(param_list{25});
+sample_type = strtrim(param_list{20});
+material = parse_scattering(strtrim(param_list{21}), str2double(param_list{22}), ...
+    str2double(param_list{23}));
+sample_description = param_list{24};
+dist_to_sample = str2double(param_list{25});
+sphere_rs = parse_list_input(param_list{26});
 n_sphere = length(sphere_rs);
-sphere_cs = reshape(parse_list_input(param_list{26}), [2, n_sphere]);
-circle_r = str2double(param_list{27});
-square_size = str2double(param_list{28});
-sample_fname = strtrim(param_list{29});
-dontMeddle = parse_yes_no(param_list{30});
+sphere_cs = reshape(parse_list_input(param_list{27}), [2, n_sphere]);
+circle_r = str2double(param_list{28});
+square_size = str2double(param_list{29});
+sample_fname = strtrim(param_list{30});
+dontMeddle = parse_yes_no(param_list{31});
 
 % Set up scan
-pixel_seperation = str2double(param_list{31});
-range_x = str2double(param_list{32});
-range_z = str2double(param_list{33});
-init_angle_pattern = ~parse_yes_no(param_list{34});
+pixel_seperation = str2double(param_list{32});
+range_x = str2double(param_list{33});
+range_z = str2double(param_list{34});
+init_angle_pattern = ~parse_yes_no(param_list{35});
 
 % 1D scan parameters
-scan_direction = strtrim(param_list{35});
-range_1D = [str2double(param_list{36}), str2double(param_list{37})];
-res_1D = str2double(param_list{38});
+scan_direction = strtrim(param_list{36});
+range_1D = [str2double(param_list{37}), str2double(param_list{38})];
+res_1D = str2double(param_list{39});
 
 % Other parameters
-directory_label = strtrim(param_list{39});
-recompile = parse_yes_no(param_list{40});
+directory_label = strtrim(param_list{40});
+recompile = parse_yes_no(param_list{41});
 
 %% Generate parameters from the inputs 
 
@@ -213,6 +214,15 @@ switch typeScan
         scan_inputs.range1D = NaN;
         scan_inputs.direction_1D = NaN;
     case 'line'
+        scan_inputs.rotationAngles = 0;
+        scan_inputs.raster_movment2D_x = NaN;
+        scan_inputs.raster_movment2D_z = NaN;
+        scan_inputs.xrange = NaN;
+        scan_inputs.zrange = NaN;
+        scan_inputs.raster_movment1D = res_1D;
+        scan_inputs.range1D = range_1D;
+        scan_inputs.direction_1D = scan_direction;
+    case 'line_detector_slide'
         scan_inputs.rotationAngles = 0;
         scan_inputs.raster_movment2D_x = NaN;
         scan_inputs.raster_movment2D_z = NaN;

@@ -1,7 +1,7 @@
 # Created by FreeCAD <http://www.freecadweb.org>
 mtllib lif_peaks2.mtl
 o Cube
-usemtl diffractive_0deg
+usemtl diffractive2
 v 0.100000 0.500000 0.100000
 v 0.100000 0.500000 1.900000
 v 0.100000 0.700000 0.100000

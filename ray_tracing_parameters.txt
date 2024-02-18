@@ -25,14 +25,16 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
+%  - 'line_detector_slide', 
 Design working distance (mm): 3.5
 Incidence angle (deg): 45
-Type of scan: rectangular
+Type of scan: line_detector_slide
 Number of detectors: 1
-Detector full axes (x1,y1,x2,y2,...), mm: (0.7, 0.5)
+Detector full axes (x1,y1,x2,y2,...), mm: (0.35, 0.25)
 Detector centres (x1,y1,x2,y2,...), mm: (3.5, 0)
 Rotate detectors (th1, th2, ...), deg: (0)
-Rotation angles (only needed for 'rotations'/'line_rotations'): (0, - , 5, -, 180)
+Rotation angles (only needed for 'rotations'/'line_rotations'): (0, - , 5, -, 360)
+Detector positions (only for 'line_detector_slide'): (-3.5, -, 0.1, -, 3.5)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
 STL pinhole model: N circle
 Location of abstract detector (theta, phi), deg: (70, 0)
@@ -45,7 +47,7 @@ Half cone angle of detector, deg: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 10000
+Number of Rays: 20000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -63,7 +65,7 @@ Effuse size (relative to the direct beam): 5
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: poly_crystal
+What type of sample are you useing: custom
 Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 10
@@ -86,12 +88,12 @@ Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -0.5
+Scan min (mm): -2.5
 Scan max (mm): 4
-Pixel seperation (mm): 0.05
+Pixel seperation (mm): 0.02
 
 %% Other parameters
-Label for the output directory (no spaces please): MoS2_polycrystalline
+Label for the output directory (no spaces please): LiF_slide_diffraction_test1
 
 Sould the C code be recompiled: false
 

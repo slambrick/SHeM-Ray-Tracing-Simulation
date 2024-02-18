@@ -21,9 +21,12 @@
 %  im         - Cell array of image results
 %  param      - Cell array of general parameters of the simulation
 %  beam_param - Cell array of parameters for the set up of the beam
-function [im, param, beam_param] = formatOutputRotation(simData, dataPath, rot_angles)
+function [im, param, beam_param] = formatOutputRotation(simData, dataPath, rot_angles, label)
+    if nargin == 3
+        label = 'rotation';
+    end
     for i_=1:length(simData)
-        save_path = [dataPath '/rotation' num2str(rot_angles(i_))];
+        save_path = [dataPath '/' label num2str(rot_angles(i_))];
         if ~exist(save_path, 'dir')
             mkdir(save_path)
         end

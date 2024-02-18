@@ -1,10 +1,15 @@
 # compiled things
 *.mexa64
+*.nexw64
 *.o
 *.d
 test/bin
 test/obj
 test/extobj
+mtwister/*.obj
+mtwister/*.o
+atom_ray_tracking_library/*.o
+atom_ray_tracking_library/*.obj
 
 # program output
 *.png
@@ -30,3 +35,4 @@ compile_commands.json
 
 # Other unrelated things
 *.Rhistory
+*.zip

@@ -273,6 +273,40 @@ switch typeScan
         simulationData = singlePixel(sample_surface, direct_beam, ...
             max_scatter, pinhole_surface, effuse_beam, dist_to_sample, sphere, ...
             thePath, save_to_text, pinhole_model, thePlate, aperture_abstract);
+    case 'line_detector_slide'
+        % Combines line scans with a detector aperture slide scan
+        simulationData = {};
+        h = waitbar(0, 'Proportion of simulations performed', 'Name', 'Ray tracing progress');
+        N = length(det_pos);
+        
+        % Loop through the detector positions
+        for i_=1:N
+            % Change detection condition
+            thePlate.aperture_c(2) = det_pos(i_);
+
+            subPath = [thePath '/detPos' num2str(rot_angles(i_))];
+            if ~exist(subPath, 'dir')
+                mkdir(subPath)
+            end
+
+            simulationData{i_} = lineScan('sample_surface', sample_surface, ...
+                'scan_inputs', scan_inputs,     'direct_beam', direct_beam, ...
+                'max_scatter', max_scatter,     'pinhole_surface', pinhole_surface, ...
+                'effuse_beam', effuse_beam,     'dist_to_sample', dist_to_sample, ...
+                'sphere', sphere,               'thePath', subPath, ...
+                'circle', circle, ...
+                'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
+                'ray_model', ray_model,         'n_detector', n_detectors, ...
+                'make_plots', false,            'init_angle', init_angle); %#ok<SAGROW>
+            
+            waitbar(i_/N, h);
+            
+            % Save all data to a .mat file
+            if output_data
+                save([thePath '/' data_fname], 'simulationData', 'sample_inputs', ...
+                    'direct_beam', 'effuse_beam', 'pinhole_plate_inputs', 'scan_inputs');
+            end
+        end
     case 'rotations'
         % Perform multiple scans while rotating the sample in between.
         % TODO: add the ability to rotate about a different axis
@@ -361,7 +395,7 @@ switch typeScan
             % parameters for the scattering distribution
             % This is used for specified MultiScat calculated diffraction
             % peak intensities
-            if true % For 90deg symmetry
+            if false % For 90deg symmetry
                 th = rot_angles(i_);
 
                 % Total pattern repeats every 90deg
@@ -473,9 +507,11 @@ end
 
 % Save formatted data to a .mat file, does not include all the parameters
 % but does include the core outputs.
-if contains(typeScan, {'rotations', 'rectangular', 'line', 'line_rotations'})
+if contains(typeScan, {'rotations', 'rectangular', 'line', 'line_rotations', 'line_detector_slide'})
     if output_data && (strcmp(typeScan, 'rotations') || strcmp(typeScan, 'line_rotations'))
-        formatOutputRotation(simulationData, thePath, rot_angles);
+        formatOutputRotation(simulationData, thePath, rot_angles, 'rotation');
+    elseif output_data && strcmp(typeScan, 'line_detector_slide')
+        formatOutputRotation(simulationData, thePath, rot_angles, 'detPos');
     elseif output_data
         simulationData.formatOutput(thePath);
     end
@@ -490,7 +526,8 @@ if save_to_text && strcmp(typeScan, 'rotations')
         simulationData{i_}.saveText([thePath '/' currentFname num2str(rot_angles(i_))]);
     end
 elseif save_to_text && ~(strcmp(typeScan, 'line_rotations') || ...
-        strcmp(typeScan, 'rotations') || strcmp(typeScan, 'multiple_rectangular'))
+        strcmp(typeScan, 'rotations') || strcmp(typeScan, 'multiple_rectangular') || ...
+        strcmp(typeScan, 'line_detector_slide'))
     simulationData.saveText([thePath '/' textFname]);
 end
 

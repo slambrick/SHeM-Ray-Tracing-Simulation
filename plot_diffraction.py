@@ -14,11 +14,15 @@ import SHeMDiffractionAnalysis.shem_spot_profile as ssp
 import matplotlib.pyplot as plt
 import sys
 
-#data_dir = sys.argv[1]
-#if data_dir[-1] != '/':
-#    data_dir = data_dir + '/'
+data_dir = sys.argv[1]
+if data_dir[-1] != '/':
+    data_dir = data_dir + '/'
+if data_dir[0] == '/':
+    data_dir = data_dir[1:]
 
-data_dir = 'simulations/0007_LiF_simple_diffraction_test/'
+#data_dir = 'simulations/0007_LiF_simple_diffraction_test/'
+
+data_dir = 'simulations/' + data_dir
 
 # New simulated data
 sim_data = ssp.SpotProfile.import_ray(data_dir)

@@ -395,7 +395,7 @@ switch typeScan
             % parameters for the scattering distribution
             % This is used for specified MultiScat calculated diffraction
             % peak intensities
-            if false % For 90deg symmetry
+            if true % For 90deg symmetry
                 th = rot_angles(i_);
 
                 % Total pattern repeats every 90deg

@@ -4,32 +4,23 @@
 *.o
 *.d
 test/bin
-test\bin
 test/obj
-test\obj
 test/extobj
-test\extobj
 mtwister/*.obj
-mtwister\*.obj
 mtwister/*.o
-mtwister\*.o
 atom_ray_tracking_library/*.o
-atom_ray_tracking_library\*.o
 atom_ray_tracking_library/*.obj
-atom_ray_tracking_library\*.obj
-bin\*.mexw64
+bin/*.mexw64
 
 # program output
 *.png
 *.eps
 simulations/*test
-simulations\*test
 simulations/*/*.mat
-simulations\*\*.mat
+simulations/*/*.txt
 simulations/*/*.csv
-simulations\*\*.csv
 simulations/*/formatted
-simulations\*\formatted
+simulations/*
 *.dat
 *.csv
 

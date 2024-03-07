@@ -18,6 +18,14 @@ loadpath
 % Parameters are read and parsed in a seperate script called by this one
 define_parameters
 
+% These are some parameters that haven't made it to the parameters file yet
+multiscat_diffraction = True; % are multiscat diffraction intensities being used
+crystal_symmetry = 60; % Symmetry of the crystal, must be 60 or 90
+
+if sum(crystal_symmetry == [60, 90]) == 0
+    error("Only 60deg and 90deg symmetry of multiscat crystals can be used.")
+end
+
 %% Check some of the inputs.
 % This is by no means exhaustive. Most checks are for obvious errors.
 % TODO: update/fix
@@ -395,7 +403,7 @@ switch typeScan
             % parameters for the scattering distribution
             % This is used for specified MultiScat calculated diffraction
             % peak intensities
-            if true % For 90deg symmetry
+            if multiscat_diffraction && (crystal_symmetry == 90)  % For 90deg symmetry
                 th = rot_angles(i_);
 
                 % Total pattern repeats every 90deg
@@ -428,7 +436,7 @@ switch typeScan
                 end
             end
 
-            if false % For 60deg symmetry
+            if multiscat_diffraction && (crystal_symmetry == 60) % For 60deg symmetry
                 th = rot_angles(i_);
                 
                 % Total pattern repeats every 60deg

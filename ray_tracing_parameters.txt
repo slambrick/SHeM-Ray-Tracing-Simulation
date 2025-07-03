@@ -66,13 +66,13 @@ Effuse size (relative to the direct beam): 5
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
 What type of sample are you useing: sphere
-Scattering: cosine
+Scattering: broad_specular
 Reflectivity: 0.5
 Standard deviation (deg): 10
 Sample description: 2H-MoS2 with bubbles
 Working distance to place the sample at: 3
-Sphere radii (r1, r2, ...) (mm): (0.25, 0.25, 0.25, 0.25, 0.25)
-Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0, 0, 0.2, 0.15, 015, -0.2, -0.1, 0.3, 0.05)
+Sphere radii (r1, r2, ...) (mm): (0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25)
+Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0, 0, 0.2, 0.15, 015, -0.2, -0.1, 0.3, 0.05, -0.2, 0.2, 0, -0.35, 0.25, -0.3)
 Circle radius (mm): 3
 Length of side of flat sample: 8
 Custom sample stl file: samples/MoS2_flat_1.obj

@@ -19,7 +19,7 @@ loadpath
 define_parameters
 
 % These are some parameters that haven't made it to the parameters file yet
-multiscat_diffraction = True; % are multiscat diffraction intensities being used
+multiscat_diffraction = false; % are multiscat diffraction intensities being used
 crystal_symmetry = 60; % Symmetry of the crystal, must be 60 or 90
 
 if sum(crystal_symmetry == [60, 90]) == 0
@@ -106,6 +106,7 @@ circle = Circle(1, material, circle_c, circle_r, circle_n);
     circle, pinhole_plate_inputs.working_dist, dontMeddle, square_size, init_angle);
 sample_inputs.sample_descrition = sample_description;
 
+% We start with the sample displaced for a line scan
 if strcmp(typeScan, 'line')
     sample_surface.moveBy(init_displacement);
 end
@@ -117,6 +118,11 @@ if false
     % This is for indenting the sphere into the surface for the 3D
     % reconstruction B-SHeM test.
     sphere.centre = sphere.centre + [0;-1.36;0];
+end
+
+% Indent sphere to make bubbles
+if true
+    sphere.centre = sphere.centre + [0;-0.4;0];
 end
 
 if false

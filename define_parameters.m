@@ -46,25 +46,26 @@ dist_to_sample = str2double(param_list{25});
 sphere_rs = parse_list_input(param_list{26});
 n_sphere = length(sphere_rs);
 sphere_cs = reshape(parse_list_input(param_list{27}), [2, n_sphere]);
-circle_r = str2double(param_list{28});
-square_size = str2double(param_list{29});
-sample_fname = strtrim(param_list{30});
-dontMeddle = parse_yes_no(param_list{31});
+sphere_disp = parse_list_input(param_list{28});
+circle_r = str2double(param_list{29});
+square_size = str2double(param_list{30});
+sample_fname = strtrim(param_list{31});
+dontMeddle = parse_yes_no(param_list{32});
 
 % Set up scan
-pixel_seperation = str2double(param_list{32});
-range_x = str2double(param_list{33});
-range_z = str2double(param_list{34});
-init_angle_pattern = ~parse_yes_no(param_list{35});
+pixel_seperation = str2double(param_list{33});
+range_x = str2double(param_list{34});
+range_z = str2double(param_list{35});
+init_angle_pattern = ~parse_yes_no(param_list{36});
 
 % 1D scan parameters
-scan_direction = strtrim(param_list{36});
-range_1D = [str2double(param_list{37}), str2double(param_list{38})];
-res_1D = str2double(param_list{39});
+scan_direction = strtrim(param_list{37});
+range_1D = [str2double(param_list{38}), str2double(param_list{39})];
+res_1D = str2double(param_list{40});
 
 % Other parameters
-directory_label = strtrim(param_list{40});
-recompile = parse_yes_no(param_list{41});
+directory_label = strtrim(param_list{41});
+recompile = parse_yes_no(param_list{42});
 
 %% Generate parameters from the inputs 
 

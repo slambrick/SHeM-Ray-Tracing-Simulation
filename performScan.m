@@ -121,9 +121,14 @@ if false
 end
 
 % Indent sphere to make bubbles
-if true
+if false
     sphere.centre = sphere.centre + [0;-0.4;0];
 end
+
+% Indent spheres according to the specified parameters
+sphere.centre = sphere.centre + [zeros(1, length(sphere_disp)); ...
+                                 -sphere_disp; ... 
+                                 zeros(1, length(sphere_disp))];
 
 if false
     % Tilt required to explain the problem with displacement of the diffraction

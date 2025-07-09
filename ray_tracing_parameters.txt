@@ -47,7 +47,7 @@ Half cone angle of detector, deg: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 25000
+Number of Rays: 30000
 Pinhole radius (mm): 0.001
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -71,8 +71,9 @@ Reflectivity: 0.5
 Standard deviation (deg): 10
 Sample description: 2H-MoS2 with bubbles
 Working distance to place the sample at: 3
-Sphere radii (r1, r2, ...) (mm): (0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25)
-Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0, 0, 0.2, 0.15, 015, -0.2, -0.1, 0.3, 0.05, -0.2, 0.2, 0, -0.35, 0.25, -0.3)
+Sphere radii (r1, r2, ...) (mm): (2.0)
+Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0)
+Sphere displacement into the surface (z1, z2, ...) (mm): (3.7)
 Circle radius (mm): 3
 Length of side of flat sample: 8
 Custom sample stl file: samples/MoS2_flat_1.obj
@@ -81,9 +82,9 @@ Manual alignment: no
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.     
-Pixel seperation (mm): 0.01
-Scan range x (mm): 1.5
-Scan range y (mm): 1.5
+Pixel seperation (mm): 0.03
+Scan range x (mm): 2
+Scan range y (mm): 2
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan

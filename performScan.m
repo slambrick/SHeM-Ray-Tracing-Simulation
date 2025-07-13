@@ -188,6 +188,8 @@ end
 [pinhole_surface, thePlate, pinhole_model] = pinhole_import(...
     pinhole_plate_inputs, sample_surface, defMaterial);
 
+% Plot the pinhole plate specification for the simple model of the pinhole
+% plate
 if thePlate.in_use
     thePlate.plot_detectors(direct_beam);
     thePlate.plot_detectors3D(direct_beam);

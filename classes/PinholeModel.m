@@ -51,8 +51,8 @@ classdef PinholeModel
             end
             ax = axes(f);
             for i_=1:obj.n_detectors
-                a = obj.aperture_axes(i_*2 - 1);
-                b = obj.aperture_axes(i_*2);
+                a = obj.aperture_axes(i_*2 - 1)/2;
+                b = obj.aperture_axes(i_*2)/2;
                 x0 = obj.aperture_c(i_*2 - 1);
                 y0 = obj.aperture_c(i_*2);
                 th = obj.aperture_rotate(i_);
@@ -90,8 +90,8 @@ classdef PinholeModel
             end
             ax = axes(f);
             for i_=1:obj.n_detectors
-                a = obj.aperture_axes(i_*2 - 1);
-                b = obj.aperture_axes(i_*2);
+                a = obj.aperture_axes(i_*2 - 1)/2;
+                b = obj.aperture_axes(i_*2)/2;
                 x0 = obj.aperture_c(i_*2 - 1);
                 y0 = obj.aperture_c(i_*2);
                 th = obj.aperture_rotate(i_);

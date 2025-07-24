@@ -80,7 +80,7 @@ function [sample_surface, sphere, circle, sample_description] = sample_import(sa
 
     if dontMeddle
         disp('Sample has not been automatically placed, you will need to do it manually.')
-        keyboard
+         keyboard
     end
 
 end

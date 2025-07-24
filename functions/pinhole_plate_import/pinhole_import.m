@@ -22,6 +22,25 @@ function [pinhole_surface, thePlate, pinhole_model] = pinhole_import(...
             thePlate = PinholeModel(defMaterial);
             aperture_abstract = 0;
             pinhole_model = 'stl';
+        case 'bshem-diffraction'
+            pinhole_surface = import_bshem();
+            % Plot if using a graphical window
+            if ~isOctave
+                if feature('ShowFigureWindows')
+                    sample_surface.patchPlot(true);
+                    pinhole_surface.patchPlot(false);
+                    view([-5 -5 5])
+                end
+            else
+                sample_surface.patchPlot(true);
+                pinhole_surface.patchPlot(false);
+                view([-5 -5 5])
+            end
+
+            % To pass to the functions
+            thePlate = PinholeModel(defMaterial);
+            aperture_abstract = 0;
+            pinhole_model = 'stl';
         case {'new', 'angular'}
             switch pinhole_plate_inputs.pinhole_model
                 case 'angular'

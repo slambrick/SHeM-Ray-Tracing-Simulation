@@ -136,7 +136,7 @@ scale = 2;
 % make the model 10 times larger (Inventor exports in cm by default...).
 scale = 0.5;
 % By default have the scale set to 1
-scale = 1;
+scale = 0.1;
 %scale = 2;
 
 % A string giving a brief description of the sample, for use with
@@ -272,7 +272,7 @@ sample_inputs.scale = scale;
 pinhole_plate_inputs.pinhole_model = pinhole_model;
 pinhole_plate_inputs.working_dist = working_dist;
 switch pinhole_model
-    case {'stl', 'new', 'angular'}
+    case {'stl', 'new', 'angular', 'bshem-diffraction'}
         pinhole_plate_inputs.plate_accuracy = plate_accuracy;
         pinhole_plate_inputs.n_detectors = 1;
         pinhole_plate_inputs.plate_represent = 1;

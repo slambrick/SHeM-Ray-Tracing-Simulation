@@ -2,6 +2,8 @@ function pinhole_model = parse_pinhole(s)
     if strcmpi(strtrim(s), 'cambridge')
         % Using the default cambridge pinhole plate (old chamber)
         pinhole_model = 'stl';
+    elseif strcmp(strtrim(s), 'bshem-diffraction')
+        pinhole_model = 'bshem-diffraction';
     elseif strcmpi(strtrim(s), 'cambridge new')
         % New chamber pinhole plate
         pinhole_model = 'new';

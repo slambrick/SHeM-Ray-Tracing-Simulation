@@ -124,19 +124,28 @@ classdef TriagSurface < handle
             obj.moveBy([0, -offset, 0]);
         end
 
-        function rotateY(obj)
+        function rotateY(obj, ang)
         % Rotates the object by 90deg clockwise about the y axis.
-            rotateGeneral(obj, 'y', 90);
+            if nargin == 1
+                ang = 90;
+            end
+            rotateGeneral(obj, 'y', ang);
         end % End rotation function
 
-        function rotateX(obj)
+        function rotateX(obj, ang)
         % Rotates the object by 90deg clockwise about the x axis.
-            rotateGeneral(obj, 'x', 90);
+            if nargin == 1
+                ang = 90;
+            end
+            rotateGeneral(obj, 'x', ang);
         end % End rotation function
 
-        function rotateZ(obj)
+        function rotateZ(obj, ang)
         % Rotates the object by 90deg clockwise about the z axis.
-            rotateGeneral(obj, 'z', 90);
+            if nargin == 1
+                ang = 90;
+            end
+            rotateGeneral(obj, 'z', ang);
         end % End rotation function
 
         function rotateGeneral(obj, axis, theta, how)

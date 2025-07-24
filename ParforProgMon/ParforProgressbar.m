@@ -181,13 +181,11 @@ classdef ParforProgressbar < handle
                o.stepSize = progressStepSize;
                pct = pctconfig;
                o.ServerName = pct.hostname;
-               o.ServerName = char(getHostName(java.net.InetAddress.getLocalHost)); 
                % Create server connection to receive the updates from each
                % worker via udp. receiver is called each time a data
                % package is received with this class object handle to keep
                % track of the progress.
-               o.connection = udpport(o.ServerName, 'DatagramReceivedFcn', {@receiver, o}, 'DatagramTerminateMode', 'on', 'EnablePortSharing', 'on');
-               %o.connection = udp(...);
+               o.connection = udp(o.ServerName, 'DatagramReceivedFcn', {@receiver, o}, 'DatagramTerminateMode', 'on', 'EnablePortSharing', 'on');
                fopen(o.connection);
                
                % This new connection uses a free port, which we have to

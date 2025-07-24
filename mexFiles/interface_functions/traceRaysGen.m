@@ -1,4 +1,4 @@
-% Copyright (c) 2018-20, Sam Lambrick.
+% Copyright (c) 2018-25, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
@@ -78,6 +78,12 @@ function [cntr, killed, diedNaturally, numScattersRay] = traceRaysGen(varargin)
         range(pinhole_surface.vertices(:,1)), ...
         range(pinhole_surface.vertices(:,3))];
     
+    if true
+        % This is temporary hacky fix to make a B-SHeM pinhole plate
+        % work... I should implement a better way of doing it
+        backWall = [max(pinhole_surface.vertices(:,2)), 40, 40];
+    end
+
     % Get the nessacery source information
     switch which_beam
         case 'Uniform'

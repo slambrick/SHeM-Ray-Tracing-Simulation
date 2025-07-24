@@ -1,11 +1,11 @@
 % traceRays.m
 %
-% Copyright (c) 2018-19, Sam Lambrick.
+% Copyright (c) 2018-25, Sam Lambrick.
 % All rights reserved.
 % This file is part of the SHeM Ray Tracing Simulation, subject to the 
 % GNU/GPL-3.0-or-later.
 %
-% Gateway function for a simple model of the pinhole plate having been provided
+% Gateway function for an stl model of the pinhole plate having been provided
 % with the ray starting positions and directions.
 %
 % Calling Syntax:

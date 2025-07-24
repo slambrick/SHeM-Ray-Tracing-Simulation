@@ -13,6 +13,7 @@
 % - 'crude annular', WD=3
 % - 'normal incidence 3mm', WD=3?
 % - 'N circle'
+% - 'bshem-diffraction', WD=4
 % - 'abstract', specifies a detection direction only
 % New models of plate can be added by creating an appropriate CAD file and
 % then writing a function in 'functions/pinhole_plate_import/', and adding
@@ -28,7 +29,7 @@
 %  - 'line_detector_slide', 
 Design working distance (mm): 4
 Incidence angle (deg): 30
-Type of scan: rectangular
+Type of scan: line
 Number of detectors: 1
 Detector full axes (x1,y1,x2,y2,...), mm: (0.5, 0.5)
 Detector centres (x1,y1,x2,y2,...), mm: (2.3094, 0)
@@ -36,7 +37,7 @@ Rotate detectors (th1, th2, ...), deg: (0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (-90, - , 2.5, -, 90)
 Detector positions (only for 'line_detector_slide'): (-3.5, -, 0.1, -, 3.5)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
-STL pinhole model: N circle
+STL pinhole model: bshem-diffraction
 Location of abstract detector (theta, phi), deg: (70, 0)
 Half cone angle of detector, deg: 10 
 
@@ -47,7 +48,7 @@ Half cone angle of detector, deg: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 25000
+Number of Rays: 10000
 Pinhole radius (mm): 0.03
 Source model: Uniform
 Angular source size (rad): 0.0005
@@ -65,36 +66,36 @@ Effuse size (relative to the direct beam): 5
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: sphere
-Scattering: broad_specular
+What type of sample are you useing: custom
+Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 3
-Sample description: 2H-MoS2 with bubbles
+Sample description: Heater sample stub
 Working distance to place the sample at: 4
 Sphere radii (r1, r2, ...) (mm): (14.2)
 Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0)
 Sphere displacement into the surface (z1, z2, ...) (mm): (28.399612)
 Circle radius (mm): 3
 Length of side of flat sample: 8
-Custom sample stl file: samples/heater_sample_holder_simulation.stl
-Manual alignment: no
+Custom sample stl file: samples/heater_sample_holder_simulation_1.stl
+Manual alignment: yes
 
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
 % middle on the sample.     
-Pixel seperation (mm): 0.03
-Scan range x (mm): 0.5
-Scan range y (mm): 0.5
+Pixel seperation (mm): 0.2
+Scan range x (mm): 12
+Scan range y (mm): 12
 Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
 Scan min (mm): -2
-Scan max (mm): 4
+Scan max (mm): 8
 Pixel seperation (mm): 0.2
 
 %% Other parameters
-Label for the output directory (no spaces please): MoS2_2H_bubbles
+Label for the output directory (no spaces please): B_SHeM_plate_multiple_scattering
 
 Sould the C code be recompiled: false
 

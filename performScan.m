@@ -106,10 +106,10 @@ circle = Circle(1, material, circle_c, circle_r, circle_n);
     circle, pinhole_plate_inputs.working_dist, dontMeddle, square_size, init_angle);
 sample_inputs.sample_descrition = sample_description;
 
-if false
+if true
     % So some sample manipulation for the special sample stub.
     sample_surface.rotateX(270);
-    sample_surface.moveBy([0, -8.26, 5.63]);
+    sample_surface.moveBy([2.25, -8.26, 5.63]);
     sample_surface.patchPlot();
 end
 % We start with the sample displaced for a line scan

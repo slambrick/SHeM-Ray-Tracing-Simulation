@@ -34,7 +34,7 @@ function pinhole_surface = import_bshem()
     % Put inot a TiagSurface object
     pinhole_surface = TriagSurface(V, F, N, flattice, fmat, materials);
     %  pinhole_surface.rotateX(270);
-    pinhole_surface.moveBy([0, -2+0.00667807, 0]);
+    pinhole_surface.moveBy([-2.25, -2+0.00667807, 0]);
 
     % Manipulate into the right position
     %pinhole_surface.plate_align;

@@ -48,13 +48,13 @@ Half cone angle of detector, deg: 10
 % scattering event. In the first case provide the maximum angular value, in the second
 % case provide the angular standard deviation. A cosine effuse beam may also be
 % modelled coming from the pinhole.
-Number of Rays: 10000
+Number of Rays: 2500000
 Pinhole radius (mm): 0.03
 Source model: Uniform
 Angular source size (rad): 0.0005
 Source standard deviation (rad): 0.02
-Effuse beam: Off
-Effuse size (relative to the direct beam): 5
+Effuse beam: On
+Effuse size (relative to the direct beam): 1
 
 %% Set up your sample
 % There are a few inbuilt samples or you can provide your own stl/obj file of a
@@ -90,12 +90,12 @@ Ignore incidence angle in scan pattern: no
 
 % This assumes you are doing a 1D scan
 Scan direction: y
-Scan min (mm): -2
-Scan max (mm): 8
+Scan min (mm): -3.8
+Scan max (mm): 6
 Pixel seperation (mm): 0.2
 
 %% Other parameters
-Label for the output directory (no spaces please): B_SHeM_plate_multiple_scattering
+Label for the output directory (no spaces please): B_SHeM_plate_background
 
 Sould the C code be recompiled: false
 

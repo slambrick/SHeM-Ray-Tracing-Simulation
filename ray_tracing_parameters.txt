@@ -1,5 +1,5 @@
 %% Parameter file for SHeM ray tracing
-% Most of the basic parameters can be specified here, although there is some 
+% Most of the basic parameters can be specified here, although there is some
 % greater functionality available through directly editing the main script.
 %
 % Lines that start with '%' will be ignored, feel free to add your own comments.
@@ -16,7 +16,7 @@
 % - 'abstract', specifies a detection direction only
 % New models of plate can be added by creating an appropriate CAD file and
 % then writing a function in 'functions/pinhole_plate_import/', and adding
-% it as an option in 'functions/pinhole_import.m' and 
+% it as an option in 'functions/pinhole_import.m' and
 % 'functions/parsing_functions/parse_pinhole.m' which parses this file. For
 %
 % Type of scan can be:
@@ -25,18 +25,18 @@
 %  - 'rotations',  A series of images rotating the sample
 %  - 'line', A single line scan (specify which axis)
 %  - 'line_rotations', A series of z scans while rotating the sample
-Design working distance (mm): 3.5
-Incidence angle (deg): 45
-Type of scan: line_rotations
-Number of detectors: 1
-Detector full axes (x1,y1,x2,y2,...), mm: (0.7, 0.5)
-Detector centres (x1,y1,x2,y2,...), mm: (3.5, 0)
+Design working distance (mm): 3
+Incidence angle (deg): 30
+Type of scan: rectangular
+Number of detectors: 3
+Detector full axes (x1,y1,x2,y2,...), mm: (1.1547, 1, 1.1547, 1, 1.1547, 1)
+Detector centres (x1,y1,x2,y2,...), mm: (1.7321, 0, -0.8660, 1.5, -0.8660, -1.5)
 Rotate detectors (th1, th2, ...), deg: (0)
 Rotation angles (only needed for 'rotations'/'line_rotations'): (0, - , 2, -, 360)
 %Z to use (only needed if 'rectangular_z' scan used): (-1, -, 0.5, -, 2) <- TODO
 STL pinhole model: N circle
 Location of abstract detector (theta, phi), deg: (70, 0)
-Half cone angle of detector, deg: 10 
+Half cone angle of detector, deg: 10
 
 %% Set up your source
 % There are three models of the source, 'Uniform' source at the skimmer, or a
@@ -62,26 +62,26 @@ Effuse size (relative to the direct beam): 5
 %  - If specifying your own sample specify the name and path to the stl file,
 %    please use a file name and path without spaces
 % In general it is advised to avoid manual alignment of the sample
-What type of sample are you useing: custom
+What type of sample are you useing: sphere
 Scattering: cosine
 Reflectivity: 0.5
 Standard deviation (deg): 10
 Sample description: LiF
-Working distance to place the sample at: 3.5
-Sphere radii (r1, r2, ...) (mm): (1)
-Sphere centres (x1, y1, x2, y2, ...) (mm): (0, 0)
+Working distance to place the sample at: 3
+Sphere radii (r1, r2, ...) (mm): (2)
+Sphere centres (x1, y1, x2, y2, ...) (mm): (0, -1.5)
 Circle radius (mm): 2
-Length of side of flat sample: 8
+Length of side of flat sample: 5
 Custom sample stl file: samples/lif_flat3.obj
 Manual alignment: no
 
 %% Set up your scan
 % This assumes you are doing a 2D rectangular scan centering on the
-% middle on the sample.     
-Pixel seperation (mm): 0.005
-Scan range x (mm): 0.07
-Scan range y (mm): 3.5
-Ignore incidence angle in scan pattern: no
+% middle on the sample.
+Pixel seperation (mm): 0.1
+Scan range x (mm): 2
+Scan range y (mm): 2
+Ignore incidence angle in scan pattern: yes
 
 % This assumes you are doing a 1D scan
 Scan direction: y

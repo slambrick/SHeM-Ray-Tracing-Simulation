@@ -136,8 +136,8 @@ end
 %sample_surface.rotateGeneral('y', 45);
 
 % Plot the sample surface in 3D space, if we are using a graphical window
-% TODO: put in a seperate
-if feature('ShowFigureWindows')
+% TODO: put in a seperate file
+if false% feature('ShowFigureWindows')
     if ~strcmp(typeScan, 'single_pixel') && ~strcmp(sample_inputs.sample_type, 'circle')
         sample_surface.patchPlot(true);
         ylim([-dist_to_sample - 0.2, -dist_to_sample + 0.2]);
@@ -170,7 +170,7 @@ end
 [pinhole_surface, thePlate, pinhole_model] = pinhole_import(...
     pinhole_plate_inputs, sample_surface, defMaterial);
 
-if thePlate.in_use
+if false%thePlate.in_use
     thePlate.plot_detectors;
 end
 %% Compile the mex files
@@ -205,7 +205,7 @@ switch typeScan
         % TODO: check this works and then make it work with the new parameter
         % specification file
         simulationData = {};
-        
+
         % find y positions
         ys = range_y(1):raster_movement_y:range_y(2);
         ny = length(ys);
@@ -221,7 +221,7 @@ switch typeScan
             surface_copy.moveBy([y_displacement, -y_displacement, 0]);
             sphere.centre = sphere.centre + [y_displacement, -y_displacement, 0];
             y_distance = dist_to_sample + y_displacement;
-            
+
             % Create the raster pattern at this z
             if init_angle_pattern
                 raster_pattern = generate_raster_pattern('raster_movment2D', ...
@@ -232,7 +232,7 @@ switch typeScan
                     [raster_movment2D_x, raster_movment2D_z], 'xrange', xrange, ...
                     'zrange', zrange);
             end
-            
+
             % Create a directory for this scan
             subPath = sprintf('z%.4fmm', y_displacement + dist_to_sample);
             subPath = fullfile(thePath, subPath);
@@ -279,29 +279,29 @@ switch typeScan
         h = waitbar(0, 'Proportion of simulations performed', 'Name', 'Ray tracing progress');
         N = length(rot_angles);
         sphere_centre = sphere.centre;
-        
+
         % Loop through the rotations
         for i_=1:N
             s_surface = copy(sample_surface);
             s_surface.rotateGeneral('y', rot_angles(i_));
-            
+
             % Rotate the centre of the sphere
             theta = rot_angles(i_)*pi/180;
             s = sin(theta);
             c = cos(theta);
             R = [c, 0, s; 0, 1, 0; -s, 0, c];
             sphere.centre = (R*sphere_centre)';
-            
+
             subPath = [thePath '/rotation' num2str(rot_angles(i_))];
             if ~exist(subPath, 'dir')
                 mkdir(subPath)
             end
-            
+
             tmp_angle = init_angle;
             if init_angle_pattern
                 init_angle = 0;
             end
-            
+
             switch scan_pattern
                 case 'rotations'
                     raster_pattern = generate_raster_pattern('raster_movment2D', ...
@@ -315,7 +315,7 @@ switch typeScan
                     error('Please specify an existing scan pattern')
             end
             init_angle = tmp_angle;
-            
+
             simulationData{i_} = rectangularScan('sample_surface', s_surface, ...
                 'raster_pattern', raster_pattern,'direct_beam', direct_beam, ...
                 'max_scatter', max_scatter,      'pinhole_surface', pinhole_surface, ...
@@ -324,9 +324,9 @@ switch typeScan
                 'circle', circle, ...
                 'pinhole_model', pinhole_model,  'thePlate', thePlate, ...
                 'ray_model', ray_model,          'n_detector', n_detectors); %#ok<SAGROW>
-            
+
             waitbar(i_/N, h);
-            
+
             % Save all data to a .mat file
             if output_data
                 save([thePath '/' data_fname], 'simulationData', 'sample_inputs', ...
@@ -334,7 +334,7 @@ switch typeScan
             end
 
         end
-        
+
         if strcmp(scan_pattern, 'rotations')
             re_rotate_images(simulationData, thePath, rot_angles)
         end
@@ -352,7 +352,7 @@ switch typeScan
             %close all % <- there are more elegant ways of doing this...
             s_surface = copy(sample_surface);
             s_surface.rotateGeneral('y', -rot_angles(i_));
-            
+
             % TODO: change the material of the sample to have the correct
             % parameters for the scattering distribution
             if true
@@ -396,7 +396,7 @@ switch typeScan
                 'pinhole_model', pinhole_model, 'thePlate', thePlate, ...
                 'ray_model', ray_model,         'n_detector', n_detectors, ...
                 'make_plots', false,            'init_angle', init_angle); %#ok<SAGROW>
-            
+
             waitbar(i_/N, h);
         end
         close(h);
